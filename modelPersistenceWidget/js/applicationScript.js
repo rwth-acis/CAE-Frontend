@@ -46,7 +46,7 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("$MICROSERVICE_ENDPOINT_URL$", iwcCallback);
+  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
 
   $('#delete-model').on('click', function() {
     deleteModel();
@@ -80,10 +80,18 @@ var exportModel = function() {
       if(modelUris.length > 0){
         $.get(modelUris[0]+"/:representation").done(function(data){
           data.attributes.label.value.value = $("#modelName").val();
+          client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
+          function(data, type) {
           var link = document.createElement('a');
           link.download = "export.json";
           link.href = 'data:,'+encodeURI(JSON.stringify(data,null,4));
           link.click();
+            console.log("stored");
+          },
+          function(error) {
+            console.log(error);
+            feedback("Error saving model!");
+          })
         });
       } else {
         feedback("No Model!");
