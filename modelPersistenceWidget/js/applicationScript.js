@@ -80,13 +80,15 @@ var exportModel = function() {
       if(modelUris.length > 0){
         $.get(modelUris[0]+"/:representation").done(function(data){
           data.attributes.label.value.value = $("#modelName").val();
+          data.attributes.attributes[generateRandomId()] = generateAttribute("test name", "cool attribute");
+          data.attributes.attributes[generateRandomId()] = generateAttribute("another test", "cool attribute2");
           client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
           function(data, type) {
           var link = document.createElement('a');
           link.download = "export.json";
           link.href = 'data:,'+encodeURI(JSON.stringify(data,null,4));
           link.click();
-            console.log("stored");
+          console.log("stored");
           },
           function(error) {
             console.log(error);
@@ -97,6 +99,33 @@ var exportModel = function() {
         feedback("No Model!");
       }
   });
+};
+
+var generateRandomId = function(){
+  var chars = "1234567890abcdef";
+  var numOfChars = chars.length;
+  var i, rand;
+  var id = "";
+  length = 24;
+  for(i = 0; i < length; i++){
+      rand = Math.floor(Math.random() * numOfChars);
+      id += chars[rand];
+  }
+  return id;
+};
+
+var generateAttribute = function(name, value){
+  var attribute = 
+  {
+    "name": name,
+    "id": "modelAttributes[" + name + "]",
+    "value": {
+      "name": name,
+      "id": "modelAttributes[" + name + "]",
+      "value": value
+    }
+  };
+  return attribute;
 };
 
 // loads the model from a given JSON file and sets it as the space's model
