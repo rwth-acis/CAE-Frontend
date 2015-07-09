@@ -97,8 +97,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="container" style="margin-top:20px">
     <input type="file" id="file-object" value="Load a file" />
     <input type="text" id="modelName">
-    <button id="import-model">Import Model</button>
-    <button id="export-model">Export Model</button>
+    <button id="import-model">Load Model</button>
+    <button id="export-model">Store Model</button>
     <button id="delete-model">Delete Model</button>
     <p id="feedback"></p>
   </div>

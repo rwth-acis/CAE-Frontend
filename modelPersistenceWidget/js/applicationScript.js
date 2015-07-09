@@ -39,7 +39,7 @@ var resourceSpace = new openapp.oo.Resource(openapp.param.space()),
         clearTimeout(feedbackTimeout);
         feedbackTimeout = setTimeout(function(){
           $("#feedback").text("");
-        },2000);
+        },5000);
     };
 
 var init = function() {
@@ -65,7 +65,7 @@ var deleteModel = function() {
     if(modelUris.length > 0){
       _.map(modelUris,function(uri){
         openapp.resource.del(uri,function(){
-          feedback("Done!");
+          feedback("Done, please refresh browser!");
         });
       });
     } else {
@@ -84,11 +84,8 @@ var exportModel = function() {
           data.attributes.attributes[generateRandomId()] = generateAttribute("another test", "cool attribute2");
           client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
           function(data, type) {
-          var link = document.createElement('a');
-          link.download = "export.json";
-          link.href = 'data:,'+encodeURI(JSON.stringify(data,null,4));
-          link.click();
-          console.log("stored");
+          console.log("Model stored!");
+          feedback("Model stored!");
           },
           function(error) {
             console.log(error);
