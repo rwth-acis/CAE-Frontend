@@ -30,17 +30,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-var client;
-// some variables and small helper functions
-var resourceSpace = new openapp.oo.Resource(openapp.param.space()),
-    feedbackTimeout,
-    feedback = function(msg){
-        $("#feedback").text(msg);
-        clearTimeout(feedbackTimeout);
-        feedbackTimeout = setTimeout(function(){
-          $("#feedback").text("");
-        },5000);
-    };
+ // global variables
+var client,
+    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
+    feedbackTimeout;
 
 var init = function() {
   var iwcCallback = function(intent) {
@@ -49,23 +42,30 @@ var init = function() {
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
 
   $('#delete-model').on('click', function() {
-    deleteModel();
+    resetCurrentModel();
   })
-  $('#export-model').on('click', function() {
-    exportModel();
+  $('#store-model').on('click', function() {
+    storeModel();
   })
-  $('#import-model').on('click', function() {
-    importModel();
+  $('#load-model').on('click', function() {
+    loadModel();
   })
 }
 
 // deletes the current model (empties the current model of this space)
-var deleteModel = function() {
+var resetCurrentModel = function() {
+  $("#model-name").val("");
+  $("#additional1-name").val("");
+  $("#additional2-name").val("");
+  $("#additional3-name").val("");
+  $("#additional1-value").val("");
+  $("#additional2-value").val("");
+  $("#additional3-value").val("");
   getData("my:ns:model").then(function(modelUris){
     if(modelUris.length > 0){
       _.map(modelUris,function(uri){
         openapp.resource.del(uri,function(){
-          feedback("Done, please refresh browser!");
+          feedback("Model Reset, please refresh browser!");
         });
       });
     } else {
@@ -75,13 +75,26 @@ var deleteModel = function() {
 };
 
 // retrieves the JSON representation of this space
-var exportModel = function() {
+var storeModel = function() {
+  if($("#model-name").val().length == 0){
+    feedback("Please choose model name!");
+    return;
+  }
   getData("my:ns:model").then(function(modelUris){
       if(modelUris.length > 0){
         $.get(modelUris[0]+"/:representation").done(function(data){
-          data.attributes.label.value.value = $("#modelName").val();
-          data.attributes.attributes[generateRandomId()] = generateAttribute("test name", "cool attribute");
-          data.attributes.attributes[generateRandomId()] = generateAttribute("another test", "cool attribute2");
+          data.attributes.label.value.value = $("#model-name").val();
+          // add three attributes (mainly for testing reasons), if name is blank, they will be ignored
+          if($("#additional1-name").val().length != 0){
+            data.attributes.attributes[generateRandomId()] = generateAttribute($("#additional1-name").val(), $("#additional1-value").val());
+          }
+          if($("#additional2-name").val().length != 0){
+            data.attributes.attributes[generateRandomId()] = generateAttribute($("#additional2-name").val(), $("#additional2-value").val());
+          }
+          if($("#additional3-name").val().length != 0){
+            data.attributes.attributes[generateRandomId()] = generateAttribute($("#additional3-name").val(), $("#additional3-value").val());
+          }
+
           client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
           function(data, type) {
           console.log("Model stored!");
@@ -90,7 +103,7 @@ var exportModel = function() {
           function(error) {
             console.log(error);
             feedback("Error saving model!");
-          })
+          });
         });
       } else {
         feedback("No Model!");
@@ -98,35 +111,12 @@ var exportModel = function() {
   });
 };
 
-var generateRandomId = function(){
-  var chars = "1234567890abcdef";
-  var numOfChars = chars.length;
-  var i, rand;
-  var id = "";
-  length = 24;
-  for(i = 0; i < length; i++){
-      rand = Math.floor(Math.random() * numOfChars);
-      id += chars[rand];
-  }
-  return id;
-};
-
-var generateAttribute = function(name, value){
-  var attribute = 
-  {
-    "name": name,
-    "id": "modelAttributes[" + name + "]",
-    "value": {
-      "name": name,
-      "id": "modelAttributes[" + name + "]",
-      "value": value
-    }
-  };
-  return attribute;
-};
-
 // loads the model from a given JSON file and sets it as the space's model
-var importModel = function() {
+var loadModel = function() {
+  if($("#model-name").val().length == 0){
+    feedback("Please choose model name!");
+    return;
+  }
   // first, clean the current model
   getData("my:ns:model").then(function(modelUris){
     if(modelUris.length > 0){
@@ -135,16 +125,24 @@ var importModel = function() {
       });
     }
     // now read in the file content
-    getFileContent().then(function(data){
+    modelName = $("#model-name").val();
+    client.sendRequest("GET", modelName, "", "", {},
+    function(data, type) {
+      console.log("Model loaded!");
       resourceSpace.create({
         relation: openapp.ns.role + "data",
         type: "my:ns:model",
         representation: data,
         callback: function(){
-          feedback("Done!");
+          feedback("Model loaded, please refresh browser!");
         }
       });
+    },
+    function(error) {
+      console.log(error);
+      feedback("Error loading model!");
     });
+
   });
 };
 
@@ -152,31 +150,7 @@ $(document).ready(function() {
   init();
 });
 
-/******************* Helper Functions */////////////////////////////
-
-// read in JSON file, will be deleted in future, just for testing purposes
-var getFileContent = function(){
-  var fileReader,
-      files = $("#file-object")[0].files,
-      file,
-      deferred = $.Deferred();
-
-  if (!files || files.length === 0) deferred.resolve([]);
-  file = files[0];
-
-  fileReader = new FileReader();
-  fileReader.onload = function (e) {
-    var data = e.target.result;
-    try {
-      data = JSON.parse(data);
-    } catch (e){
-      data = [];
-    }
-    deferred.resolve(data);
-  };
-  fileReader.readAsText(file);
-  return deferred.promise();
-};
+/******************* Helper Functions ********************/
 
 // function that retrieves the model of the current space
 var getData = function(type){
@@ -187,8 +161,8 @@ var getData = function(type){
       deferred = $.Deferred();
 
   openapp.resource.get(spaceUri,(function(deferred){
+    
     return function(space){
-
       var resourceUri, resourceObj, values;
       for(resourceUri in space.data){
         if(space.data.hasOwnProperty(resourceUri)){
@@ -218,4 +192,43 @@ var getData = function(type){
   });
 
   return mainDeferred.promise();
+};
+
+// needed to add attributes to the model
+var generateRandomId = function(){
+  var chars = "1234567890abcdef";
+  var numOfChars = chars.length;
+  var i, rand;
+  var id = "";
+  length = 24;
+  for(i = 0; i < length; i++){
+      rand = Math.floor(Math.random() * numOfChars);
+      id += chars[rand];
+  }
+  return id;
+};
+
+// generates an attribute according to the SyncMeta specification
+var generateAttribute = function(name, value){
+  var attribute = 
+  {
+    "name": name,
+    "id": "modelAttributes[" + name + "]",
+    "value": {
+      "name": name,
+      "id": "modelAttributes[" + name + "]",
+      "value": value
+    }
+  };
+  return attribute;
+};
+
+// displays a <p> element on the screen for the time of "feedbackTimeout"
+feedback = function(msg){
+    var oldValue = $("#model-name").val();
+    $("#model-name").val(msg);
+    clearTimeout(feedbackTimeout);
+    feedbackTimeout = setTimeout(function(){
+      $("#model-name").val(oldValue);
+    },4000);
 };
