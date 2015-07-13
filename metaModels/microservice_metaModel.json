@@ -44,13 +44,13 @@
                 "value": {
                     "id": "de5f051902619196ce3f3163[label]",
                     "name": "Label",
-                    "value": "Microservice"
+                    "value": "RESTful Resource"
                 }
             },
-            "left": 4710,
-            "top": 4288,
-            "width": 150,
-            "height": 100,
+            "left": 4708,
+            "top": 4281,
+            "width": 159,
+            "height": 128,
             "zIndex": 16001,
             "type": "Object",
             "attributes": {
@@ -69,6 +69,48 @@
                             },
                             "value": {
                                 "id": "01066441480b193ed0a7f2fb[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "ea51d222c829d18b58776aba": {
+                            "id": "ea51d222c829d18b58776aba",
+                            "name": "ea51d222c829d18b58776aba",
+                            "key": {
+                                "id": "ea51d222c829d18b58776aba[key]",
+                                "name": "",
+                                "value": "path"
+                            },
+                            "value": {
+                                "id": "ea51d222c829d18b58776aba[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "a13682cbfa5e2550bc2d9665": {
+                            "id": "a13682cbfa5e2550bc2d9665",
+                            "name": "a13682cbfa5e2550bc2d9665",
+                            "key": {
+                                "id": "a13682cbfa5e2550bc2d9665[key]",
+                                "name": "",
+                                "value": "developer"
+                            },
+                            "value": {
+                                "id": "a13682cbfa5e2550bc2d9665[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "bf74d7b1c82fa027550931e9": {
+                            "id": "bf74d7b1c82fa027550931e9",
+                            "name": "bf74d7b1c82fa027550931e9",
+                            "key": {
+                                "id": "bf74d7b1c82fa027550931e9[key]",
+                                "name": "",
+                                "value": "service name"
+                            },
+                            "value": {
+                                "id": "bf74d7b1c82fa027550931e9[value]",
                                 "name": "",
                                 "value": "string"
                             }
@@ -192,6 +234,34 @@
                                 "name": "",
                                 "value": "string"
                             }
+                        },
+                        "f0569e45ba1f993e4e1f7360": {
+                            "id": "f0569e45ba1f993e4e1f7360",
+                            "name": "f0569e45ba1f993e4e1f7360",
+                            "key": {
+                                "id": "f0569e45ba1f993e4e1f7360[key]",
+                                "name": "",
+                                "value": "columnType"
+                            },
+                            "value": {
+                                "id": "f0569e45ba1f993e4e1f7360[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "d60f22353db4bd47b1f66a1b": {
+                            "id": "d60f22353db4bd47b1f66a1b",
+                            "name": "d60f22353db4bd47b1f66a1b",
+                            "key": {
+                                "id": "d60f22353db4bd47b1f66a1b[key]",
+                                "name": "",
+                                "value": "isPrimaryKey"
+                            },
+                            "value": {
+                                "id": "d60f22353db4bd47b1f66a1b[value]",
+                                "name": "",
+                                "value": "boolean"
+                            }
                         }
                     }
                 }
@@ -308,12 +378,12 @@
                 "value": {
                     "id": "da300c4c3bfad024a19d7cf8[label]",
                     "name": "Label",
-                    "value": "Microservice to Database"
+                    "value": "RESTful Resource to Database"
                 }
             },
-            "left": 4966,
-            "top": 4490,
-            "width": 183,
+            "left": 4962,
+            "top": 4448,
+            "width": 230,
             "height": 100,
             "zIndex": 16010,
             "type": "Relationship",
@@ -351,12 +421,12 @@
                 "value": {
                     "id": "1f3520637885dced75b1517e[label]",
                     "name": "Label",
-                    "value": "Microservice to HTTP Method"
+                    "value": "RESTful Resource to HTTP Method"
                 }
             },
             "left": 4028,
-            "top": 4581,
-            "width": 229,
+            "top": 4532,
+            "width": 268,
             "height": 96,
             "zIndex": 16012,
             "type": "Relationship",
@@ -962,7 +1032,7 @@
                 "value": {
                     "id": "c0f8f1ccdd0850bab44eb1c3[label]",
                     "name": "Label",
-                    "value": "type"
+                    "value": "methodType"
                 }
             },
             "source": "bbf7e9764dceb20ccbf26a22",
@@ -1187,7 +1257,7 @@
                 "value": {
                     "id": "653c5500cc4be84a7825e663[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "from to"
                 }
             },
             "source": "91e311b1f43339f9defcdde6",
