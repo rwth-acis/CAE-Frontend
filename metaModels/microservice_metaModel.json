@@ -449,10 +449,10 @@
                     "value": "Http Method"
                 }
             },
-            "left": 4223,
-            "top": 4771,
-            "width": 123,
-            "height": 100,
+            "left": 4225,
+            "top": 4746,
+            "width": 143,
+            "height": 124,
             "zIndex": 16013,
             "type": "Object",
             "attributes": {
@@ -461,30 +461,58 @@
                     "name": "Attributes",
                     "type": "KeySelectionValueListAttribute",
                     "list": {
-                        "1f5cc9a1b3e75fd5ef65731a": {
-                            "id": "1f5cc9a1b3e75fd5ef65731a",
-                            "name": "1f5cc9a1b3e75fd5ef65731a",
+                        "27449d18b985b2deccf00dd1": {
+                            "id": "27449d18b985b2deccf00dd1",
+                            "name": "Attribute",
                             "key": {
-                                "id": "1f5cc9a1b3e75fd5ef65731a[key]",
+                                "id": "27449d18b985b2deccf00dd1[key]",
                                 "name": "",
                                 "value": "name"
                             },
                             "value": {
-                                "id": "1f5cc9a1b3e75fd5ef65731a[value]",
+                                "id": "27449d18b985b2deccf00dd1[value]",
                                 "name": "",
                                 "value": "string"
                             }
                         },
-                        "500123e8a9602549853f09b2": {
-                            "id": "500123e8a9602549853f09b2",
-                            "name": "500123e8a9602549853f09b2",
+                        "ad73bfc5c5c852148f4be259": {
+                            "id": "ad73bfc5c5c852148f4be259",
+                            "name": "Attribute",
                             "key": {
-                                "id": "500123e8a9602549853f09b2[key]",
+                                "id": "ad73bfc5c5c852148f4be259[key]",
+                                "name": "",
+                                "value": "path"
+                            },
+                            "value": {
+                                "id": "ad73bfc5c5c852148f4be259[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "31dba19b3ac8fa06beeb7c64": {
+                            "id": "31dba19b3ac8fa06beeb7c64",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "31dba19b3ac8fa06beeb7c64[key]",
                                 "name": "",
                                 "value": "payload"
                             },
                             "value": {
-                                "id": "500123e8a9602549853f09b2[value]",
+                                "id": "31dba19b3ac8fa06beeb7c64[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "68b2b77de0bb35a9c60ca10b": {
+                            "id": "68b2b77de0bb35a9c60ca10b",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "68b2b77de0bb35a9c60ca10b[key]",
+                                "name": "",
+                                "value": "payloadType"
+                            },
+                            "value": {
+                                "id": "68b2b77de0bb35a9c60ca10b[value]",
                                 "name": "",
                                 "value": "string"
                             }
