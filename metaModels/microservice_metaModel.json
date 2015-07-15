@@ -100,20 +100,6 @@
                                 "name": "",
                                 "value": "string"
                             }
-                        },
-                        "bf74d7b1c82fa027550931e9": {
-                            "id": "bf74d7b1c82fa027550931e9",
-                            "name": "bf74d7b1c82fa027550931e9",
-                            "key": {
-                                "id": "bf74d7b1c82fa027550931e9[key]",
-                                "name": "",
-                                "value": "service name"
-                            },
-                            "value": {
-                                "id": "bf74d7b1c82fa027550931e9[value]",
-                                "name": "",
-                                "value": "string"
-                            }
                         }
                     }
                 }
@@ -446,7 +432,7 @@
                 "value": {
                     "id": "bbf7e9764dceb20ccbf26a22[label]",
                     "name": "Label",
-                    "value": "Http Method"
+                    "value": "HTTP Method"
                 }
             },
             "left": 4225,
@@ -463,7 +449,7 @@
                     "list": {
                         "27449d18b985b2deccf00dd1": {
                             "id": "27449d18b985b2deccf00dd1",
-                            "name": "Attribute",
+                            "name": "27449d18b985b2deccf00dd1",
                             "key": {
                                 "id": "27449d18b985b2deccf00dd1[key]",
                                 "name": "",
@@ -477,7 +463,7 @@
                         },
                         "ad73bfc5c5c852148f4be259": {
                             "id": "ad73bfc5c5c852148f4be259",
-                            "name": "Attribute",
+                            "name": "ad73bfc5c5c852148f4be259",
                             "key": {
                                 "id": "ad73bfc5c5c852148f4be259[key]",
                                 "name": "",
@@ -491,7 +477,7 @@
                         },
                         "31dba19b3ac8fa06beeb7c64": {
                             "id": "31dba19b3ac8fa06beeb7c64",
-                            "name": "Attribute",
+                            "name": "31dba19b3ac8fa06beeb7c64",
                             "key": {
                                 "id": "31dba19b3ac8fa06beeb7c64[key]",
                                 "name": "",
@@ -505,7 +491,7 @@
                         },
                         "68b2b77de0bb35a9c60ca10b": {
                             "id": "68b2b77de0bb35a9c60ca10b",
-                            "name": "Attribute",
+                            "name": "68b2b77de0bb35a9c60ca10b",
                             "key": {
                                 "id": "68b2b77de0bb35a9c60ca10b[key]",
                                 "name": "",
