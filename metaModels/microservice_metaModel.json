@@ -140,6 +140,62 @@
                                 "name": "",
                                 "value": "string"
                             }
+                        },
+                        "6b65056ce103a7694313c000": {
+                            "id": "6b65056ce103a7694313c000",
+                            "name": "6b65056ce103a7694313c000",
+                            "key": {
+                                "id": "6b65056ce103a7694313c000[key]",
+                                "name": "",
+                                "value": "address"
+                            },
+                            "value": {
+                                "id": "6b65056ce103a7694313c000[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "aad60739e22f44e585e5bcc1": {
+                            "id": "aad60739e22f44e585e5bcc1",
+                            "name": "aad60739e22f44e585e5bcc1",
+                            "key": {
+                                "id": "aad60739e22f44e585e5bcc1[key]",
+                                "name": "",
+                                "value": "schema"
+                            },
+                            "value": {
+                                "id": "aad60739e22f44e585e5bcc1[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "581b9959c0268321f2cfc486": {
+                            "id": "581b9959c0268321f2cfc486",
+                            "name": "581b9959c0268321f2cfc486",
+                            "key": {
+                                "id": "581b9959c0268321f2cfc486[key]",
+                                "name": "",
+                                "value": "loginName"
+                            },
+                            "value": {
+                                "id": "581b9959c0268321f2cfc486[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "3e931502ed43d14143eb80ac": {
+                            "id": "3e931502ed43d14143eb80ac",
+                            "name": "3e931502ed43d14143eb80ac",
+                            "key": {
+                                "id": "3e931502ed43d14143eb80ac[key]",
+                                "name": "",
+                                "value": "loginPassword"
+                            },
+                            "value": {
+                                "id": "3e931502ed43d14143eb80ac[value]",
+                                "name": "",
+                                "value": "string"
+                            }
                         }
                     }
                 }
@@ -241,7 +297,7 @@
                             "key": {
                                 "id": "d60f22353db4bd47b1f66a1b[key]",
                                 "name": "",
-                                "value": "isPrimaryKey"
+                                "value": "primaryKey"
                             },
                             "value": {
                                 "id": "d60f22353db4bd47b1f66a1b[value]",
