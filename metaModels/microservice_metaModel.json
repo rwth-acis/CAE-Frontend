@@ -47,8 +47,8 @@
                     "value": "RESTful Resource"
                 }
             },
-            "left": 4708,
-            "top": 4281,
+            "left": 4683,
+            "top": 4267,
             "width": 159,
             "height": 128,
             "zIndex": 16001,
@@ -251,8 +251,8 @@
                     "value": "Column"
                 }
             },
-            "left": 5567,
-            "top": 5084,
+            "left": 5335,
+            "top": 5094,
             "width": 150,
             "height": 100,
             "zIndex": 16004,
@@ -423,9 +423,9 @@
                     "value": "RESTful Resource to Database"
                 }
             },
-            "left": 4962,
+            "left": 4936,
             "top": 4448,
-            "width": 230,
+            "width": 298,
             "height": 100,
             "zIndex": 16010,
             "type": "Relationship",
@@ -491,10 +491,10 @@
                     "value": "HTTP Method"
                 }
             },
-            "left": 4225,
-            "top": 4746,
-            "width": 143,
-            "height": 124,
+            "left": 4008,
+            "top": 4720,
+            "width": 203.53571428571422,
+            "height": 125.35714285714283,
             "zIndex": 16013,
             "type": "Object",
             "attributes": {
@@ -531,30 +531,30 @@
                                 "value": "string"
                             }
                         },
-                        "31dba19b3ac8fa06beeb7c64": {
-                            "id": "31dba19b3ac8fa06beeb7c64",
-                            "name": "31dba19b3ac8fa06beeb7c64",
+                        "2357e4ef07919836f59b85ff": {
+                            "id": "2357e4ef07919836f59b85ff",
+                            "name": "Attribute",
                             "key": {
-                                "id": "31dba19b3ac8fa06beeb7c64[key]",
+                                "id": "2357e4ef07919836f59b85ff[key]",
                                 "name": "",
-                                "value": "payload"
+                                "value": "return"
                             },
                             "value": {
-                                "id": "31dba19b3ac8fa06beeb7c64[value]",
+                                "id": "2357e4ef07919836f59b85ff[value]",
                                 "name": "",
                                 "value": "string"
                             }
                         },
-                        "68b2b77de0bb35a9c60ca10b": {
-                            "id": "68b2b77de0bb35a9c60ca10b",
-                            "name": "68b2b77de0bb35a9c60ca10b",
+                        "a54adea714256ef2b8267bc4": {
+                            "id": "a54adea714256ef2b8267bc4",
+                            "name": "Attribute",
                             "key": {
-                                "id": "68b2b77de0bb35a9c60ca10b[key]",
+                                "id": "a54adea714256ef2b8267bc4[key]",
                                 "name": "",
-                                "value": "payloadType"
+                                "value": "returnType"
                             },
                             "value": {
-                                "id": "68b2b77de0bb35a9c60ca10b[value]",
+                                "id": "a54adea714256ef2b8267bc4[value]",
                                 "name": "",
                                 "value": "string"
                             }
@@ -573,8 +573,8 @@
                     "value": "Method Type"
                 }
             },
-            "left": 3981,
-            "top": 4771,
+            "left": 3834,
+            "top": 4505,
             "width": 150,
             "height": 125,
             "zIndex": 16017,
@@ -635,8 +635,8 @@
                     "value": "HTTP Method Shape"
                 }
             },
-            "left": 4296,
-            "top": 4936,
+            "left": 3616,
+            "top": 4654,
             "width": 206,
             "height": 158,
             "zIndex": 16018,
@@ -705,12 +705,12 @@
                 "value": {
                     "id": "71d31e3d591d24baca948fae[label]",
                     "name": "Label",
-                    "value": "Microservice Shape"
+                    "value": "RESTful ResourceShape"
                 }
             },
-            "left": 5022,
-            "top": 4230,
-            "width": 150,
+            "left": 5177,
+            "top": 4262,
+            "width": 250,
             "height": 150,
             "zIndex": 16019,
             "type": "Node Shape",
@@ -1000,8 +1000,8 @@
                     "value": "Internal Call"
                 }
             },
-            "left": 3844,
-            "top": 5020,
+            "left": 3660,
+            "top": 4896,
             "width": 150,
             "height": 100,
             "zIndex": 16023,
@@ -1025,13 +1025,213 @@
                     "value": "calls"
                 }
             },
-            "left": 4072,
-            "top": 4992,
+            "left": 3890,
+            "top": 4972,
             "width": 150,
             "height": 100,
             "zIndex": 16024,
             "type": "Relation",
             "attributes": {}
+        },
+        "8df7213c54eef4f73a0b8c50": {
+            "label": {
+                "id": "8df7213c54eef4f73a0b8c50[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8df7213c54eef4f73a0b8c50[label]",
+                    "name": "Label",
+                    "value": "Payload Type"
+                }
+            },
+            "left": 4503,
+            "top": 4728,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16025,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "a087b1fcd2313540f84c5da7": {
+                            "id": "a087b1fcd2313540f84c5da7",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "a087b1fcd2313540f84c5da7",
+                                "name": "Attribute",
+                                "value": "JSON"
+                            }
+                        },
+                        "9d2b57a989dae8822affd9bd": {
+                            "id": "9d2b57a989dae8822affd9bd",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "9d2b57a989dae8822affd9bd",
+                                "name": "Attribute",
+                                "value": "TEXT"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "66437c8047dfb4620adc5823": {
+            "label": {
+                "id": "66437c8047dfb4620adc5823[label]",
+                "name": "Label",
+                "value": {
+                    "id": "66437c8047dfb4620adc5823[label]",
+                    "name": "Label",
+                    "value": "HTTP Payload"
+                }
+            },
+            "left": 4402,
+            "top": 4904,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16026,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "abe2c3ae85fb12282c01c67d": {
+                            "id": "abe2c3ae85fb12282c01c67d",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "abe2c3ae85fb12282c01c67d[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "abe2c3ae85fb12282c01c67d[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "b3074f38bca40a5fc56e9e08": {
+            "label": {
+                "id": "b3074f38bca40a5fc56e9e08[label]",
+                "name": "Label",
+                "value": {
+                    "id": "b3074f38bca40a5fc56e9e08[label]",
+                    "name": "Label",
+                    "value": "contains"
+                }
+            },
+            "left": 4286,
+            "top": 4730,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16027,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "28dc4990d6c5621c62e3b781": {
+            "label": {
+                "id": "28dc4990d6c5621c62e3b781[label]",
+                "name": "Label",
+                "value": {
+                    "id": "28dc4990d6c5621c62e3b781[label]",
+                    "name": "Label",
+                    "value": "HTTP Method to HTTP Payload"
+                }
+            },
+            "left": 4110,
+            "top": 4920,
+            "width": 256,
+            "height": 100,
+            "zIndex": 16028,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "88d0263e1e2280ee766dc010": {
+            "label": {
+                "id": "88d0263e1e2280ee766dc010[label]",
+                "name": "Label",
+                "value": {
+                    "id": "88d0263e1e2280ee766dc010[label]",
+                    "name": "Label",
+                    "value": "Payload Shape"
+                }
+            },
+            "left": 4372,
+            "top": 5100,
+            "width": 150,
+            "height": 150,
+            "zIndex": 16029,
+            "type": "Node Shape",
+            "attributes": {
+                "88d0263e1e2280ee766dc010[shape]": {
+                    "id": "88d0263e1e2280ee766dc010[shape]",
+                    "name": "Shape",
+                    "value": {
+                        "id": "88d0263e1e2280ee766dc010[shape]",
+                        "name": "Shape",
+                        "value": "circle"
+                    }
+                },
+                "88d0263e1e2280ee766dc010[color]": {
+                    "id": "88d0263e1e2280ee766dc010[color]",
+                    "name": "Color",
+                    "value": {
+                        "id": "88d0263e1e2280ee766dc010[color]",
+                        "name": "Color",
+                        "value": ""
+                    }
+                },
+                "88d0263e1e2280ee766dc010[defaultWidth]": {
+                    "id": "88d0263e1e2280ee766dc010[defaultWidth]",
+                    "name": "Default Width",
+                    "value": {
+                        "id": "88d0263e1e2280ee766dc010[defaultWidth]",
+                        "name": "Default Width",
+                        "value": 0
+                    }
+                },
+                "88d0263e1e2280ee766dc010[defaultHeight]": {
+                    "id": "88d0263e1e2280ee766dc010[defaultHeight]",
+                    "name": "Default Height",
+                    "value": {
+                        "id": "88d0263e1e2280ee766dc010[defaultHeight]",
+                        "name": "Default Height",
+                        "value": 0
+                    }
+                },
+                "88d0263e1e2280ee766dc010[customShape]": {
+                    "id": "88d0263e1e2280ee766dc010[customShape]",
+                    "name": "Custom Shape",
+                    "value": {
+                        "id": "88d0263e1e2280ee766dc010[customShape]",
+                        "name": "Custom Shape",
+                        "value": ""
+                    }
+                },
+                "88d0263e1e2280ee766dc010[customAnchors]": {
+                    "id": "88d0263e1e2280ee766dc010[customAnchors]",
+                    "name": "Custom Anchors",
+                    "value": {
+                        "id": "88d0263e1e2280ee766dc010[customAnchors]",
+                        "name": "Custom Anchors",
+                        "value": ""
+                    }
+                }
+            }
         }
     },
     "edges": {
@@ -1132,7 +1332,7 @@
                 "value": {
                     "id": "6afca5f0ae43c607a45f6922[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "shape of RESTful Resource"
                 }
             },
             "source": "de5f051902619196ce3f3163",
@@ -1147,7 +1347,7 @@
                 "value": {
                     "id": "038fa6b5853a2dd5a36f6f0f[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "shape of Database"
                 }
             },
             "source": "0a280fe5a6ef6ca612c2bd87",
@@ -1162,7 +1362,7 @@
                 "value": {
                     "id": "fa80dc1390d103d87e957480[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "shape of HTTP Column"
                 }
             },
             "source": "8deaf8fd5378a7e870e0ad76",
@@ -1177,7 +1377,7 @@
                 "value": {
                     "id": "43721f642af4f8026858705c[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "shape of Table"
                 }
             },
             "source": "7e9fc86d8570b5e7b2eeac72",
@@ -1332,6 +1532,81 @@
             },
             "source": "91e311b1f43339f9defcdde6",
             "target": "bbf7e9764dceb20ccbf26a22",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "7ebf5c0c62c1e2b607c0f443": {
+            "label": {
+                "id": "7ebf5c0c62c1e2b607c0f443[label]",
+                "name": "Label",
+                "value": {
+                    "id": "7ebf5c0c62c1e2b607c0f443[label]",
+                    "name": "Label",
+                    "value": "payloadType"
+                }
+            },
+            "source": "8df7213c54eef4f73a0b8c50",
+            "target": "66437c8047dfb4620adc5823",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "c9436c13b0804234d376503d": {
+            "label": {
+                "id": "c9436c13b0804234d376503d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "c9436c13b0804234d376503d[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "bbf7e9764dceb20ccbf26a22",
+            "target": "b3074f38bca40a5fc56e9e08",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "045d60ea32c7772580a211e1": {
+            "label": {
+                "id": "045d60ea32c7772580a211e1[label]",
+                "name": "Label",
+                "value": {
+                    "id": "045d60ea32c7772580a211e1[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "b3074f38bca40a5fc56e9e08",
+            "target": "66437c8047dfb4620adc5823",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "ff5cfe0d383c07f790140a90": {
+            "label": {
+                "id": "ff5cfe0d383c07f790140a90[label]",
+                "name": "Label",
+                "value": {
+                    "id": "ff5cfe0d383c07f790140a90[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "b3074f38bca40a5fc56e9e08",
+            "target": "28dc4990d6c5621c62e3b781",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "debbca901840f6cdaf065f03": {
+            "label": {
+                "id": "debbca901840f6cdaf065f03[label]",
+                "name": "Label",
+                "value": {
+                    "id": "debbca901840f6cdaf065f03[label]",
+                    "name": "Label",
+                    "value": "shape of Http Payload"
+                }
+            },
+            "source": "88d0263e1e2280ee766dc010",
+            "target": "66437c8047dfb4620adc5823",
             "attributes": {},
             "type": "Bi-Dir-Association"
         }
