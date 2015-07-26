@@ -115,8 +115,8 @@
                     "value": "Database"
                 }
             },
-            "left": 4722,
-            "top": 4658,
+            "left": 4748,
+            "top": 4652,
             "width": 150,
             "height": 100,
             "zIndex": 16002,
@@ -448,8 +448,8 @@
                     "value": "contains"
                 }
             },
-            "left": 4443,
-            "top": 4517,
+            "left": 4385,
+            "top": 4513,
             "width": 150,
             "height": 100,
             "zIndex": 16011,
@@ -466,9 +466,9 @@
                     "value": "RESTful Resource to HTTP Method"
                 }
             },
-            "left": 4028,
-            "top": 4532,
-            "width": 268,
+            "left": 4029,
+            "top": 4459,
+            "width": 278,
             "height": 96,
             "zIndex": 16012,
             "type": "Relationship",
@@ -491,8 +491,8 @@
                     "value": "HTTP Method"
                 }
             },
-            "left": 4008,
-            "top": 4720,
+            "left": 3998,
+            "top": 4735,
             "width": 203.53571428571422,
             "height": 125.35714285714283,
             "zIndex": 16013,
@@ -533,7 +533,7 @@
                         },
                         "2357e4ef07919836f59b85ff": {
                             "id": "2357e4ef07919836f59b85ff",
-                            "name": "Attribute",
+                            "name": "2357e4ef07919836f59b85ff",
                             "key": {
                                 "id": "2357e4ef07919836f59b85ff[key]",
                                 "name": "",
@@ -541,20 +541,6 @@
                             },
                             "value": {
                                 "id": "2357e4ef07919836f59b85ff[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
-                        "a54adea714256ef2b8267bc4": {
-                            "id": "a54adea714256ef2b8267bc4",
-                            "name": "Attribute",
-                            "key": {
-                                "id": "a54adea714256ef2b8267bc4[key]",
-                                "name": "",
-                                "value": "returnType"
-                            },
-                            "value": {
-                                "id": "a54adea714256ef2b8267bc4[value]",
                                 "name": "",
                                 "value": "string"
                             }
@@ -781,8 +767,8 @@
                     "value": "Database Shape"
                 }
             },
-            "left": 5513,
-            "top": 4405,
+            "left": 5275,
+            "top": 4467,
             "width": 150,
             "height": 150,
             "zIndex": 16020,
@@ -854,9 +840,9 @@
                     "value": "Table Shape"
                 }
             },
-            "left": 5497,
-            "top": 4600,
-            "width": 150,
+            "left": 5159,
+            "top": 4658,
+            "width": 176.25,
             "height": 150,
             "zIndex": 16021,
             "type": "Node Shape",
@@ -1000,8 +986,8 @@
                     "value": "Internal Call"
                 }
             },
-            "left": 3660,
-            "top": 4896,
+            "left": 3510,
+            "top": 4860,
             "width": 150,
             "height": 100,
             "zIndex": 16023,
@@ -1025,8 +1011,8 @@
                     "value": "calls"
                 }
             },
-            "left": 3890,
-            "top": 4972,
+            "left": 3768,
+            "top": 4895,
             "width": 150,
             "height": 100,
             "zIndex": 16024,
@@ -1043,10 +1029,10 @@
                     "value": "Payload Type"
                 }
             },
-            "left": 4503,
-            "top": 4728,
-            "width": 150,
-            "height": 100,
+            "left": 4499,
+            "top": 4736,
+            "width": 198.7499999999999,
+            "height": 116.66666666666667,
             "zIndex": 16025,
             "type": "Enumeration",
             "attributes": {
@@ -1057,20 +1043,38 @@
                     "list": {
                         "a087b1fcd2313540f84c5da7": {
                             "id": "a087b1fcd2313540f84c5da7",
-                            "name": "Attribute",
+                            "name": "a087b1fcd2313540f84c5da7",
                             "value": {
                                 "id": "a087b1fcd2313540f84c5da7",
-                                "name": "Attribute",
+                                "name": "a087b1fcd2313540f84c5da7",
                                 "value": "JSON"
                             }
                         },
                         "9d2b57a989dae8822affd9bd": {
                             "id": "9d2b57a989dae8822affd9bd",
-                            "name": "Attribute",
+                            "name": "9d2b57a989dae8822affd9bd",
                             "value": {
                                 "id": "9d2b57a989dae8822affd9bd",
-                                "name": "Attribute",
+                                "name": "9d2b57a989dae8822affd9bd",
                                 "value": "TEXT"
+                            }
+                        },
+                        "57b192f4d2725d3a5d1ec60c": {
+                            "id": "57b192f4d2725d3a5d1ec60c",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "57b192f4d2725d3a5d1ec60c",
+                                "name": "Attribute",
+                                "value": "PATH_PARAM"
+                            }
+                        },
+                        "515d6883961b48ce9d96a228": {
+                            "id": "515d6883961b48ce9d96a228",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "515d6883961b48ce9d96a228",
+                                "name": "Attribute",
+                                "value": "CUSTOM"
                             }
                         }
                     }
@@ -1101,7 +1105,7 @@
                     "list": {
                         "abe2c3ae85fb12282c01c67d": {
                             "id": "abe2c3ae85fb12282c01c67d",
-                            "name": "Attribute",
+                            "name": "abe2c3ae85fb12282c01c67d",
                             "key": {
                                 "id": "abe2c3ae85fb12282c01c67d[key]",
                                 "name": "",
@@ -1127,8 +1131,8 @@
                     "value": "contains"
                 }
             },
-            "left": 4286,
-            "top": 4730,
+            "left": 4313,
+            "top": 4682,
             "width": 150,
             "height": 100,
             "zIndex": 16027,
@@ -1145,9 +1149,9 @@
                     "value": "HTTP Method to HTTP Payload"
                 }
             },
-            "left": 4110,
-            "top": 4920,
-            "width": 256,
+            "left": 4147,
+            "top": 4892,
+            "width": 246,
             "height": 100,
             "zIndex": 16028,
             "type": "Relationship",
@@ -1170,8 +1174,8 @@
                     "value": "Payload Shape"
                 }
             },
-            "left": 4372,
-            "top": 5100,
+            "left": 4377,
+            "top": 5080,
             "width": 150,
             "height": 150,
             "zIndex": 16029,
@@ -1229,6 +1233,327 @@
                         "id": "88d0263e1e2280ee766dc010[customAnchors]",
                         "name": "Custom Anchors",
                         "value": ""
+                    }
+                }
+            }
+        },
+        "db08a187c056423bd281043a": {
+            "label": {
+                "id": "db08a187c056423bd281043a[label]",
+                "name": "Label",
+                "value": {
+                    "id": "db08a187c056423bd281043a[label]",
+                    "name": "Label",
+                    "value": "returnStatusCode"
+                }
+            },
+            "left": 3386,
+            "top": 4991,
+            "width": 256,
+            "height": 179,
+            "zIndex": 16030,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "ab8db668e6de8afcd801d5d7": {
+                            "id": "ab8db668e6de8afcd801d5d7",
+                            "name": "ab8db668e6de8afcd801d5d7",
+                            "value": {
+                                "id": "ab8db668e6de8afcd801d5d7",
+                                "name": "ab8db668e6de8afcd801d5d7",
+                                "value": "OK"
+                            }
+                        },
+                        "6ea45aeafef6bcb482d376f0": {
+                            "id": "6ea45aeafef6bcb482d376f0",
+                            "name": "6ea45aeafef6bcb482d376f0",
+                            "value": {
+                                "id": "6ea45aeafef6bcb482d376f0",
+                                "name": "6ea45aeafef6bcb482d376f0",
+                                "value": "CREATED"
+                            }
+                        },
+                        "7b738c4d2312dd40b2f45de8": {
+                            "id": "7b738c4d2312dd40b2f45de8",
+                            "name": "7b738c4d2312dd40b2f45de8",
+                            "value": {
+                                "id": "7b738c4d2312dd40b2f45de8",
+                                "name": "7b738c4d2312dd40b2f45de8",
+                                "value": "BAD_REQUEST"
+                            }
+                        },
+                        "a5f607fda63873d9359e430e": {
+                            "id": "a5f607fda63873d9359e430e",
+                            "name": "a5f607fda63873d9359e430e",
+                            "value": {
+                                "id": "a5f607fda63873d9359e430e",
+                                "name": "a5f607fda63873d9359e430e",
+                                "value": "UNAUTHORIZED"
+                            }
+                        },
+                        "cdbb8a160a2d2d32ff91e5e6": {
+                            "id": "cdbb8a160a2d2d32ff91e5e6",
+                            "name": "cdbb8a160a2d2d32ff91e5e6",
+                            "value": {
+                                "id": "cdbb8a160a2d2d32ff91e5e6",
+                                "name": "cdbb8a160a2d2d32ff91e5e6",
+                                "value": "NOT_FOUND"
+                            }
+                        },
+                        "f8eb81b5a4bfb566b2d43bc6": {
+                            "id": "f8eb81b5a4bfb566b2d43bc6",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "f8eb81b5a4bfb566b2d43bc6",
+                                "name": "Attribute",
+                                "value": "CONFLICT"
+                            }
+                        },
+                        "438e4ea33a283965b7a66ff0": {
+                            "id": "438e4ea33a283965b7a66ff0",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "438e4ea33a283965b7a66ff0",
+                                "name": "Attribute",
+                                "value": "INTERNAL_ERROR"
+                            }
+                        },
+                        "3f0bef4239784f5215eac274": {
+                            "id": "3f0bef4239784f5215eac274",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "3f0bef4239784f5215eac274",
+                                "name": "Attribute",
+                                "value": "CUSTOM"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "e3f3a6a3d58f3e30464793fb": {
+            "label": {
+                "id": "e3f3a6a3d58f3e30464793fb[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e3f3a6a3d58f3e30464793fb[label]",
+                    "name": "Label",
+                    "value": "HTTP Response"
+                }
+            },
+            "left": 3827,
+            "top": 5032,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16031,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "9999d7ad7c37c05875b482ad": {
+                            "id": "9999d7ad7c37c05875b482ad",
+                            "name": "9999d7ad7c37c05875b482ad",
+                            "key": {
+                                "id": "9999d7ad7c37c05875b482ad[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "9999d7ad7c37c05875b482ad[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "8af642e87c996f845deec406": {
+                            "id": "8af642e87c996f845deec406",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "8af642e87c996f845deec406[key]",
+                                "name": "",
+                                "value": "resultName"
+                            },
+                            "value": {
+                                "id": "8af642e87c996f845deec406[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "53ae7db081581de66b5ad3b6": {
+            "label": {
+                "id": "53ae7db081581de66b5ad3b6[label]",
+                "name": "Label",
+                "value": {
+                    "id": "53ae7db081581de66b5ad3b6[label]",
+                    "name": "Label",
+                    "value": "returns"
+                }
+            },
+            "left": 4045,
+            "top": 5035,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16032,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "2d09f0b5ddabefb227a12850": {
+            "label": {
+                "id": "2d09f0b5ddabefb227a12850[label]",
+                "name": "Label",
+                "value": {
+                    "id": "2d09f0b5ddabefb227a12850[label]",
+                    "name": "Label",
+                    "value": "HTTP Method to HTTP Response"
+                }
+            },
+            "left": 4134,
+            "top": 5264,
+            "width": 311.66666666666674,
+            "height": 100,
+            "zIndex": 16033,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "e3121adadd16a13be3f78d84": {
+            "label": {
+                "id": "e3121adadd16a13be3f78d84[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e3121adadd16a13be3f78d84[label]",
+                    "name": "Label",
+                    "value": "HTTP Response Shape"
+                }
+            },
+            "left": 3850,
+            "top": 5214,
+            "width": 224,
+            "height": 150,
+            "zIndex": 16034,
+            "type": "Node Shape",
+            "attributes": {
+                "e3121adadd16a13be3f78d84[shape]": {
+                    "id": "e3121adadd16a13be3f78d84[shape]",
+                    "name": "Shape",
+                    "value": {
+                        "id": "e3121adadd16a13be3f78d84[shape]",
+                        "name": "Shape",
+                        "value": "circle"
+                    }
+                },
+                "e3121adadd16a13be3f78d84[color]": {
+                    "id": "e3121adadd16a13be3f78d84[color]",
+                    "name": "Color",
+                    "value": {
+                        "id": "e3121adadd16a13be3f78d84[color]",
+                        "name": "Color",
+                        "value": ""
+                    }
+                },
+                "e3121adadd16a13be3f78d84[defaultWidth]": {
+                    "id": "e3121adadd16a13be3f78d84[defaultWidth]",
+                    "name": "Default Width",
+                    "value": {
+                        "id": "e3121adadd16a13be3f78d84[defaultWidth]",
+                        "name": "Default Width",
+                        "value": 0
+                    }
+                },
+                "e3121adadd16a13be3f78d84[defaultHeight]": {
+                    "id": "e3121adadd16a13be3f78d84[defaultHeight]",
+                    "name": "Default Height",
+                    "value": {
+                        "id": "e3121adadd16a13be3f78d84[defaultHeight]",
+                        "name": "Default Height",
+                        "value": 0
+                    }
+                },
+                "e3121adadd16a13be3f78d84[customShape]": {
+                    "id": "e3121adadd16a13be3f78d84[customShape]",
+                    "name": "Custom Shape",
+                    "value": {
+                        "id": "e3121adadd16a13be3f78d84[customShape]",
+                        "name": "Custom Shape",
+                        "value": ""
+                    }
+                },
+                "e3121adadd16a13be3f78d84[customAnchors]": {
+                    "id": "e3121adadd16a13be3f78d84[customAnchors]",
+                    "name": "Custom Anchors",
+                    "value": {
+                        "id": "e3121adadd16a13be3f78d84[customAnchors]",
+                        "name": "Custom Anchors",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "f3e3f9b0293882dedca189fd": {
+            "label": {
+                "id": "f3e3f9b0293882dedca189fd[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f3e3f9b0293882dedca189fd[label]",
+                    "name": "Label",
+                    "value": "Result Type"
+                }
+            },
+            "left": 3527,
+            "top": 5290,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16035,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "eadac7eff6b0aa12788eba84": {
+                            "id": "eadac7eff6b0aa12788eba84",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "eadac7eff6b0aa12788eba84",
+                                "name": "Attribute",
+                                "value": "JSON"
+                            }
+                        },
+                        "3789990464fcd99eec7b80c9": {
+                            "id": "3789990464fcd99eec7b80c9",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "3789990464fcd99eec7b80c9",
+                                "name": "Attribute",
+                                "value": "TEXT"
+                            }
+                        },
+                        "0150117ff1059c33867716ae": {
+                            "id": "0150117ff1059c33867716ae",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "0150117ff1059c33867716ae",
+                                "name": "Attribute",
+                                "value": "CUSTOM"
+                            }
+                        }
                     }
                 }
             }
@@ -1512,7 +1837,7 @@
                 "value": {
                     "id": "94af4b04833767ab55109b47[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "is a"
                 }
             },
             "source": "91e311b1f43339f9defcdde6",
@@ -1532,21 +1857,6 @@
             },
             "source": "91e311b1f43339f9defcdde6",
             "target": "bbf7e9764dceb20ccbf26a22",
-            "attributes": {},
-            "type": "Bi-Dir-Association"
-        },
-        "7ebf5c0c62c1e2b607c0f443": {
-            "label": {
-                "id": "7ebf5c0c62c1e2b607c0f443[label]",
-                "name": "Label",
-                "value": {
-                    "id": "7ebf5c0c62c1e2b607c0f443[label]",
-                    "name": "Label",
-                    "value": "payloadType"
-                }
-            },
-            "source": "8df7213c54eef4f73a0b8c50",
-            "target": "66437c8047dfb4620adc5823",
             "attributes": {},
             "type": "Bi-Dir-Association"
         },
@@ -1587,7 +1897,7 @@
                 "value": {
                     "id": "ff5cfe0d383c07f790140a90[label]",
                     "name": "Label",
-                    "value": ""
+                    "value": "is a"
                 }
             },
             "source": "b3074f38bca40a5fc56e9e08",
@@ -1607,6 +1917,111 @@
             },
             "source": "88d0263e1e2280ee766dc010",
             "target": "66437c8047dfb4620adc5823",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "f75709cd04aaf7cc0a172eb9": {
+            "label": {
+                "id": "f75709cd04aaf7cc0a172eb9[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f75709cd04aaf7cc0a172eb9[label]",
+                    "name": "Label",
+                    "value": "payloadType"
+                }
+            },
+            "source": "66437c8047dfb4620adc5823",
+            "target": "8df7213c54eef4f73a0b8c50",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "28c3d5ec555190b498819103": {
+            "label": {
+                "id": "28c3d5ec555190b498819103[label]",
+                "name": "Label",
+                "value": {
+                    "id": "28c3d5ec555190b498819103[label]",
+                    "name": "Label",
+                    "value": "returnStatusCode"
+                }
+            },
+            "source": "e3f3a6a3d58f3e30464793fb",
+            "target": "db08a187c056423bd281043a",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "69b496fc261f8f4a0d471201": {
+            "label": {
+                "id": "69b496fc261f8f4a0d471201[label]",
+                "name": "Label",
+                "value": {
+                    "id": "69b496fc261f8f4a0d471201[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "bbf7e9764dceb20ccbf26a22",
+            "target": "53ae7db081581de66b5ad3b6",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "dcfe47b0b4b625f12a4f4b03": {
+            "label": {
+                "id": "dcfe47b0b4b625f12a4f4b03[label]",
+                "name": "Label",
+                "value": {
+                    "id": "dcfe47b0b4b625f12a4f4b03[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "53ae7db081581de66b5ad3b6",
+            "target": "e3f3a6a3d58f3e30464793fb",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "061580c9fc202f8eb1a2aac5": {
+            "label": {
+                "id": "061580c9fc202f8eb1a2aac5[label]",
+                "name": "Label",
+                "value": {
+                    "id": "061580c9fc202f8eb1a2aac5[label]",
+                    "name": "Label",
+                    "value": "is a"
+                }
+            },
+            "source": "53ae7db081581de66b5ad3b6",
+            "target": "2d09f0b5ddabefb227a12850",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "a4eab09c56ed059c10fa859d": {
+            "label": {
+                "id": "a4eab09c56ed059c10fa859d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "a4eab09c56ed059c10fa859d[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "e3121adadd16a13be3f78d84",
+            "target": "e3f3a6a3d58f3e30464793fb",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "1f4a28da2c23c1d3ffb115ea": {
+            "label": {
+                "id": "1f4a28da2c23c1d3ffb115ea[label]",
+                "name": "Label",
+                "value": {
+                    "id": "1f4a28da2c23c1d3ffb115ea[label]",
+                    "name": "Label",
+                    "value": "resultType"
+                }
+            },
+            "source": "e3f3a6a3d58f3e30464793fb",
+            "target": "f3e3f9b0293882dedca189fd",
             "attributes": {},
             "type": "Bi-Dir-Association"
         }
