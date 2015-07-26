@@ -491,7 +491,7 @@
                     "value": "HTTP Method"
                 }
             },
-            "left": 3998,
+            "left": 3997,
             "top": 4735,
             "width": 203.53571428571422,
             "height": 125.35714285714283,
@@ -527,20 +527,6 @@
                             },
                             "value": {
                                 "id": "ad73bfc5c5c852148f4be259[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
-                        "2357e4ef07919836f59b85ff": {
-                            "id": "2357e4ef07919836f59b85ff",
-                            "name": "2357e4ef07919836f59b85ff",
-                            "key": {
-                                "id": "2357e4ef07919836f59b85ff[key]",
-                                "name": "",
-                                "value": "return"
-                            },
-                            "value": {
-                                "id": "2357e4ef07919836f59b85ff[value]",
                                 "name": "",
                                 "value": "string"
                             }
@@ -1061,19 +1047,19 @@
                         },
                         "57b192f4d2725d3a5d1ec60c": {
                             "id": "57b192f4d2725d3a5d1ec60c",
-                            "name": "Attribute",
+                            "name": "57b192f4d2725d3a5d1ec60c",
                             "value": {
                                 "id": "57b192f4d2725d3a5d1ec60c",
-                                "name": "Attribute",
+                                "name": "57b192f4d2725d3a5d1ec60c",
                                 "value": "PATH_PARAM"
                             }
                         },
                         "515d6883961b48ce9d96a228": {
                             "id": "515d6883961b48ce9d96a228",
-                            "name": "Attribute",
+                            "name": "515d6883961b48ce9d96a228",
                             "value": {
                                 "id": "515d6883961b48ce9d96a228",
-                                "name": "Attribute",
+                                "name": "515d6883961b48ce9d96a228",
                                 "value": "CUSTOM"
                             }
                         }
@@ -1306,28 +1292,28 @@
                         },
                         "f8eb81b5a4bfb566b2d43bc6": {
                             "id": "f8eb81b5a4bfb566b2d43bc6",
-                            "name": "Attribute",
+                            "name": "f8eb81b5a4bfb566b2d43bc6",
                             "value": {
                                 "id": "f8eb81b5a4bfb566b2d43bc6",
-                                "name": "Attribute",
+                                "name": "f8eb81b5a4bfb566b2d43bc6",
                                 "value": "CONFLICT"
                             }
                         },
                         "438e4ea33a283965b7a66ff0": {
                             "id": "438e4ea33a283965b7a66ff0",
-                            "name": "Attribute",
+                            "name": "438e4ea33a283965b7a66ff0",
                             "value": {
                                 "id": "438e4ea33a283965b7a66ff0",
-                                "name": "Attribute",
+                                "name": "438e4ea33a283965b7a66ff0",
                                 "value": "INTERNAL_ERROR"
                             }
                         },
                         "3f0bef4239784f5215eac274": {
                             "id": "3f0bef4239784f5215eac274",
-                            "name": "Attribute",
+                            "name": "3f0bef4239784f5215eac274",
                             "value": {
                                 "id": "3f0bef4239784f5215eac274",
-                                "name": "Attribute",
+                                "name": "3f0bef4239784f5215eac274",
                                 "value": "CUSTOM"
                             }
                         }
@@ -1373,7 +1359,7 @@
                         },
                         "8af642e87c996f845deec406": {
                             "id": "8af642e87c996f845deec406",
-                            "name": "Attribute",
+                            "name": "8af642e87c996f845deec406",
                             "key": {
                                 "id": "8af642e87c996f845deec406[key]",
                                 "name": "",
@@ -1529,28 +1515,28 @@
                     "list": {
                         "eadac7eff6b0aa12788eba84": {
                             "id": "eadac7eff6b0aa12788eba84",
-                            "name": "Attribute",
+                            "name": "eadac7eff6b0aa12788eba84",
                             "value": {
                                 "id": "eadac7eff6b0aa12788eba84",
-                                "name": "Attribute",
+                                "name": "eadac7eff6b0aa12788eba84",
                                 "value": "JSON"
                             }
                         },
                         "3789990464fcd99eec7b80c9": {
                             "id": "3789990464fcd99eec7b80c9",
-                            "name": "Attribute",
+                            "name": "3789990464fcd99eec7b80c9",
                             "value": {
                                 "id": "3789990464fcd99eec7b80c9",
-                                "name": "Attribute",
+                                "name": "3789990464fcd99eec7b80c9",
                                 "value": "TEXT"
                             }
                         },
                         "0150117ff1059c33867716ae": {
                             "id": "0150117ff1059c33867716ae",
-                            "name": "Attribute",
+                            "name": "0150117ff1059c33867716ae",
                             "value": {
                                 "id": "0150117ff1059c33867716ae",
-                                "name": "Attribute",
+                                "name": "0150117ff1059c33867716ae",
                                 "value": "CUSTOM"
                             }
                         }
