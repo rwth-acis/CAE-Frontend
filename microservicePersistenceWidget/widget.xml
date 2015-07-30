@@ -3,7 +3,7 @@
   <ModulePrefs title="Microservice Persistence Widget"
     description="This widget is responsible for persisting microservices."
     author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
-    width="350" height="230">
+    width="400" height="230">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>

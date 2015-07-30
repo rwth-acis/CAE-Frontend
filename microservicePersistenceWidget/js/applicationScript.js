@@ -83,7 +83,7 @@ var storeModel = function() {
       if(modelUris.length > 0){
         $.get(modelUris[0]+"/:representation").done(function(data){
           // add name, version and type to model
-          data.attributes.label.value.value = $("#model-name").val();
+          data.attributes.label.value.value = $("#name").val();
           data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
           data.attributes.attributes[generateRandomId()] = generateAttribute("type", "microservice");
           client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
@@ -93,7 +93,7 @@ var storeModel = function() {
           },
           function(error) {
             console.log(error);
-            feedback("Error saving model!");
+            feedback(error);
           });
         });
       } else {
@@ -116,7 +116,7 @@ var loadModel = function() {
       });
     }
     // now read in the file content
-    modelName = $("name").val();
+    modelName = $("#name").val();
     client.sendRequest("GET", modelName, "", "", {},
     function(data, type) {
       console.log("Model loaded!");
@@ -131,7 +131,7 @@ var loadModel = function() {
     },
     function(error) {
       console.log(error);
-      feedback("Error loading model!");
+      feedback(error);
     });
 
   });
