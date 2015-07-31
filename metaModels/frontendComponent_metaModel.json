@@ -1,0 +1,124 @@
+{
+    "attributes": {
+        "label": {
+            "id": "modelAttributes[label]",
+            "name": "Label",
+            "value": {
+                "id": "modelAttributes[label]",
+                "name": "Label",
+                "value": "Model attributes"
+            }
+        },
+        "left": 0,
+        "top": 0,
+        "width": 0,
+        "height": 0,
+        "zIndex": 0,
+        "type": "ModelAttributesNode",
+        "attributes": {
+            "modelAttributes[name]": {
+                "id": "modelAttributes[name]",
+                "name": "Name",
+                "value": {
+                    "id": "modelAttributes[name]",
+                    "name": "Name",
+                    "value": "CAE-Frontend-Component Model"
+                }
+            },
+            "modelAttributes[description]": {
+                "id": "modelAttributes[description]",
+                "name": "Description",
+                "value": {
+                    "id": "modelAttributes[description]",
+                    "name": "Description",
+                    "value": "This model reflects a frontend component."
+                }
+            }
+        }
+    },
+    "nodes": {
+        "182e51d01e990b398cd0b4cc": {
+            "label": {
+                "id": "182e51d01e990b398cd0b4cc[label]",
+                "name": "Label",
+                "value": {
+                    "id": "182e51d01e990b398cd0b4cc[label]",
+                    "name": "Label",
+                    "value": "Widget"
+                }
+            },
+            "left": 4235,
+            "top": 4407,
+            "width": 301,
+            "height": 146,
+            "zIndex": 16001,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "8429a9c1eb8ecdc2b1dbd097": {
+                            "id": "8429a9c1eb8ecdc2b1dbd097",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "8429a9c1eb8ecdc2b1dbd097[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "8429a9c1eb8ecdc2b1dbd097[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "22c9ff8652e8f0c06d062b02": {
+                            "id": "22c9ff8652e8f0c06d062b02",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "22c9ff8652e8f0c06d062b02[key]",
+                                "name": "",
+                                "value": "description"
+                            },
+                            "value": {
+                                "id": "22c9ff8652e8f0c06d062b02[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "46981b3227d71acbe05331bf": {
+                            "id": "46981b3227d71acbe05331bf",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "46981b3227d71acbe05331bf[key]",
+                                "name": "",
+                                "value": "developerName"
+                            },
+                            "value": {
+                                "id": "46981b3227d71acbe05331bf[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "140cc72cc3228a273326c450": {
+                            "id": "140cc72cc3228a273326c450",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "140cc72cc3228a273326c450[key]",
+                                "name": "",
+                                "value": "developerMail"
+                            },
+                            "value": {
+                                "id": "140cc72cc3228a273326c450[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "edges": {}
+}
