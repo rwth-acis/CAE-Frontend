@@ -48,7 +48,7 @@
                 }
             },
             "left": 4386,
-            "top": 4379,
+            "top": 4381,
             "width": 309.33333333333337,
             "height": 204.1111111111111,
             "zIndex": 16001,
@@ -139,20 +139,6 @@
                             },
                             "value": {
                                 "id": "d36e79e0c322818ddcefd09c[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
-                        "0af42f271362928bb2737fa3": {
-                            "id": "0af42f271362928bb2737fa3",
-                            "name": "0af42f271362928bb2737fa3",
-                            "key": {
-                                "id": "0af42f271362928bb2737fa3[key]",
-                                "name": "",
-                                "value": "microserviceAddress"
-                            },
-                            "value": {
-                                "id": "0af42f271362928bb2737fa3[value]",
                                 "name": "",
                                 "value": "string"
                             }
@@ -704,8 +690,8 @@
                     "value": "initiates"
                 }
             },
-            "left": 5634,
-            "top": 4825,
+            "left": 5645,
+            "top": 4824,
             "width": 150,
             "height": 100,
             "zIndex": 16020,
@@ -811,7 +797,7 @@
                     "list": {
                         "fd0635fd5847659080e50269": {
                             "id": "fd0635fd5847659080e50269",
-                            "name": "Attribute",
+                            "name": "fd0635fd5847659080e50269",
                             "key": {
                                 "id": "fd0635fd5847659080e50269[key]",
                                 "name": "",
@@ -825,7 +811,7 @@
                         },
                         "2febb8dfca77f8344124d518": {
                             "id": "2febb8dfca77f8344124d518",
-                            "name": "Attribute",
+                            "name": "2febb8dfca77f8344124d518",
                             "key": {
                                 "id": "2febb8dfca77f8344124d518[key]",
                                 "name": "",
@@ -839,7 +825,7 @@
                         },
                         "6323eda768a44723aea48a7a": {
                             "id": "6323eda768a44723aea48a7a",
-                            "name": "Attribute",
+                            "name": "6323eda768a44723aea48a7a",
                             "key": {
                                 "id": "6323eda768a44723aea48a7a[key]",
                                 "name": "",
@@ -853,7 +839,7 @@
                         },
                         "6c2b12ca3ec957222d6d6812": {
                             "id": "6c2b12ca3ec957222d6d6812",
-                            "name": "Attribute",
+                            "name": "6c2b12ca3ec957222d6d6812",
                             "key": {
                                 "id": "6c2b12ca3ec957222d6d6812[key]",
                                 "name": "",
@@ -989,64 +975,64 @@
                     "list": {
                         "c6e515ba9212dafd3769e178": {
                             "id": "c6e515ba9212dafd3769e178",
-                            "name": "Attribute",
+                            "name": "c6e515ba9212dafd3769e178",
                             "value": {
                                 "id": "c6e515ba9212dafd3769e178",
-                                "name": "Attribute",
+                                "name": "c6e515ba9212dafd3769e178",
                                 "value": "input"
                             }
                         },
                         "b4b55ac49aa4cf04dee80928": {
                             "id": "b4b55ac49aa4cf04dee80928",
-                            "name": "Attribute",
+                            "name": "b4b55ac49aa4cf04dee80928",
                             "value": {
                                 "id": "b4b55ac49aa4cf04dee80928",
-                                "name": "Attribute",
+                                "name": "b4b55ac49aa4cf04dee80928",
                                 "value": "table"
                             }
                         },
                         "718de67f68585b1d6da9853f": {
                             "id": "718de67f68585b1d6da9853f",
-                            "name": "Attribute",
+                            "name": "718de67f68585b1d6da9853f",
                             "value": {
                                 "id": "718de67f68585b1d6da9853f",
-                                "name": "Attribute",
+                                "name": "718de67f68585b1d6da9853f",
                                 "value": "br"
                             }
                         },
                         "628bf7626a32ae50275afa70": {
                             "id": "628bf7626a32ae50275afa70",
-                            "name": "Attribute",
+                            "name": "628bf7626a32ae50275afa70",
                             "value": {
                                 "id": "628bf7626a32ae50275afa70",
-                                "name": "Attribute",
+                                "name": "628bf7626a32ae50275afa70",
                                 "value": "button"
                             }
                         },
                         "2304ecf395d636b353fe11dc": {
                             "id": "2304ecf395d636b353fe11dc",
-                            "name": "Attribute",
+                            "name": "2304ecf395d636b353fe11dc",
                             "value": {
                                 "id": "2304ecf395d636b353fe11dc",
-                                "name": "Attribute",
+                                "name": "2304ecf395d636b353fe11dc",
                                 "value": "p"
                             }
                         },
                         "b67d6e4086191f580df1bb04": {
                             "id": "b67d6e4086191f580df1bb04",
-                            "name": "Attribute",
+                            "name": "b67d6e4086191f580df1bb04",
                             "value": {
                                 "id": "b67d6e4086191f580df1bb04",
-                                "name": "Attribute",
+                                "name": "b67d6e4086191f580df1bb04",
                                 "value": "div"
                             }
                         },
                         "093b15fd955620f893d94df1": {
                             "id": "093b15fd955620f893d94df1",
-                            "name": "Attribute",
+                            "name": "093b15fd955620f893d94df1",
                             "value": {
                                 "id": "093b15fd955620f893d94df1",
-                                "name": "Attribute",
+                                "name": "093b15fd955620f893d94df1",
                                 "value": "CUSTOM"
                             }
                         }
