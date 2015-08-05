@@ -47,8 +47,8 @@
                     "value": "Widget"
                 }
             },
-            "left": 4386,
-            "top": 4381,
+            "left": 4344,
+            "top": 4388,
             "width": 309.33333333333337,
             "height": 204.1111111111111,
             "zIndex": 16001,
@@ -211,8 +211,8 @@
                     "value": "Function"
                 }
             },
-            "left": 5077,
-            "top": 4410,
+            "left": 5091,
+            "top": 4406,
             "width": 150,
             "height": 100,
             "zIndex": 16003,
@@ -276,36 +276,7 @@
                     "id": "[attributes]",
                     "name": "Attributes",
                     "type": "KeySelectionValueListAttribute",
-                    "list": {
-                        "05257779c9859a3ce55322b8": {
-                            "id": "05257779c9859a3ce55322b8",
-                            "name": "05257779c9859a3ce55322b8",
-                            "key": {
-                                "id": "05257779c9859a3ce55322b8[key]",
-                                "name": "",
-                                "value": "name"
-                            },
-                            "value": {
-                                "id": "05257779c9859a3ce55322b8[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
-                        "c9ecddacbf6c6a62282f7415": {
-                            "id": "c9ecddacbf6c6a62282f7415",
-                            "name": "c9ecddacbf6c6a62282f7415",
-                            "key": {
-                                "id": "c9ecddacbf6c6a62282f7415[key]",
-                                "name": "",
-                                "value": "type"
-                            },
-                            "value": {
-                                "id": "c9ecddacbf6c6a62282f7415[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        }
-                    }
+                    "list": {}
                 }
             }
         },
@@ -478,8 +449,8 @@
                     "value": "Element Update"
                 }
             },
-            "left": 4847,
-            "top": 4401,
+            "left": 4779,
+            "top": 4455,
             "width": 150,
             "height": 100,
             "zIndex": 16011,
@@ -1039,6 +1010,49 @@
                     }
                 }
             }
+        },
+        "88af4af388103df049e1a758": {
+            "label": {
+                "id": "88af4af388103df049e1a758[label]",
+                "name": "Label",
+                "value": {
+                    "id": "88af4af388103df049e1a758[label]",
+                    "name": "Label",
+                    "value": "contains"
+                }
+            },
+            "left": 4782,
+            "top": 4304,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16032,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "3c94b7e943e2a455a98b1504": {
+            "label": {
+                "id": "3c94b7e943e2a455a98b1504[label]",
+                "name": "Label",
+                "value": {
+                    "id": "3c94b7e943e2a455a98b1504[label]",
+                    "name": "Label",
+                    "value": "Widget to Function"
+                }
+            },
+            "left": 4538,
+            "top": 4176,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16033,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
         }
     },
     "edges": {
@@ -1409,7 +1423,7 @@
                 "value": {
                     "id": "706927d2223a3471fb1e5091[label]",
                     "name": "Label",
-                    "value": "bla"
+                    "value": "eventCause"
                 }
             },
             "source": "8ad56cf80886251ac80b42ff",
@@ -1474,6 +1488,51 @@
             },
             "source": "ff8ef51660b61ef2ca96a874",
             "target": "f8b228ce6cb6e6ca97080624",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "a5db9a827a703e516fabad40": {
+            "label": {
+                "id": "a5db9a827a703e516fabad40[label]",
+                "name": "Label",
+                "value": {
+                    "id": "a5db9a827a703e516fabad40[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "88af4af388103df049e1a758",
+            "target": "3c94b7e943e2a455a98b1504",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "2e6d3bd69d524b7a96a33abc": {
+            "label": {
+                "id": "2e6d3bd69d524b7a96a33abc[label]",
+                "name": "Label",
+                "value": {
+                    "id": "2e6d3bd69d524b7a96a33abc[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "88af4af388103df049e1a758",
+            "target": "d4ac54b4f1903f2cd6729ee8",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "24341f6ad060220b68ccd01d": {
+            "label": {
+                "id": "24341f6ad060220b68ccd01d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "24341f6ad060220b68ccd01d[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "182e51d01e990b398cd0b4cc",
+            "target": "88af4af388103df049e1a758",
             "attributes": {},
             "type": "Uni-Dir-Association"
         }
