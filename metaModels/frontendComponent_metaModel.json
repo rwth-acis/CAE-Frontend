@@ -211,8 +211,8 @@
                     "value": "Function"
                 }
             },
-            "left": 5077,
-            "top": 4410,
+            "left": 5091,
+            "top": 4406,
             "width": 150,
             "height": 100,
             "zIndex": 16003,
@@ -1409,7 +1409,7 @@
                 "value": {
                     "id": "706927d2223a3471fb1e5091[label]",
                     "name": "Label",
-                    "value": "bla"
+                    "value": "eventCause"
                 }
             },
             "source": "8ad56cf80886251ac80b42ff",
