@@ -276,36 +276,7 @@
                     "id": "[attributes]",
                     "name": "Attributes",
                     "type": "KeySelectionValueListAttribute",
-                    "list": {
-                        "05257779c9859a3ce55322b8": {
-                            "id": "05257779c9859a3ce55322b8",
-                            "name": "05257779c9859a3ce55322b8",
-                            "key": {
-                                "id": "05257779c9859a3ce55322b8[key]",
-                                "name": "",
-                                "value": "name"
-                            },
-                            "value": {
-                                "id": "05257779c9859a3ce55322b8[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
-                        "c9ecddacbf6c6a62282f7415": {
-                            "id": "c9ecddacbf6c6a62282f7415",
-                            "name": "c9ecddacbf6c6a62282f7415",
-                            "key": {
-                                "id": "c9ecddacbf6c6a62282f7415[key]",
-                                "name": "",
-                                "value": "type"
-                            },
-                            "value": {
-                                "id": "c9ecddacbf6c6a62282f7415[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        }
-                    }
+                    "list": {}
                 }
             }
         },
