@@ -582,8 +582,8 @@
                     "value": "contains"
                 }
             },
-            "left": 5395,
-            "top": 4232,
+            "left": 5405,
+            "top": 4258,
             "width": 150,
             "height": 98,
             "zIndex": 16016,
@@ -597,7 +597,7 @@
                 "value": {
                     "id": "f724189f77aa28361fbf1116[label]",
                     "name": "Label",
-                    "value": "Function to Input Parameter"
+                    "value": "parameterConnection"
                 }
             },
             "left": 5517,
@@ -754,8 +754,8 @@
                     "value": "Microservice Call"
                 }
             },
-            "left": 4867,
-            "top": 4124,
+            "left": 4927,
+            "top": 4062,
             "width": 180,
             "height": 125,
             "zIndex": 16026,
@@ -766,20 +766,6 @@
                     "name": "Attributes",
                     "type": "KeySelectionValueListAttribute",
                     "list": {
-                        "fd0635fd5847659080e50269": {
-                            "id": "fd0635fd5847659080e50269",
-                            "name": "fd0635fd5847659080e50269",
-                            "key": {
-                                "id": "fd0635fd5847659080e50269[key]",
-                                "name": "",
-                                "value": "name"
-                            },
-                            "value": {
-                                "id": "fd0635fd5847659080e50269[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
                         "2febb8dfca77f8344124d518": {
                             "id": "2febb8dfca77f8344124d518",
                             "name": "2febb8dfca77f8344124d518",
@@ -794,32 +780,32 @@
                                 "value": "string"
                             }
                         },
-                        "6323eda768a44723aea48a7a": {
-                            "id": "6323eda768a44723aea48a7a",
-                            "name": "6323eda768a44723aea48a7a",
-                            "key": {
-                                "id": "6323eda768a44723aea48a7a[key]",
-                                "name": "",
-                                "value": "paramter"
-                            },
-                            "value": {
-                                "id": "6323eda768a44723aea48a7a[value]",
-                                "name": "",
-                                "value": "string"
-                            }
-                        },
                         "6c2b12ca3ec957222d6d6812": {
                             "id": "6c2b12ca3ec957222d6d6812",
                             "name": "6c2b12ca3ec957222d6d6812",
                             "key": {
                                 "id": "6c2b12ca3ec957222d6d6812[key]",
                                 "name": "",
-                                "value": "authorizationNeeded"
+                                "value": "authorize"
                             },
                             "value": {
                                 "id": "6c2b12ca3ec957222d6d6812[value]",
                                 "name": "",
                                 "value": "boolean"
+                            }
+                        },
+                        "decb3f05b6d0e014b6b93ecf": {
+                            "id": "decb3f05b6d0e014b6b93ecf",
+                            "name": "decb3f05b6d0e014b6b93ecf",
+                            "key": {
+                                "id": "decb3f05b6d0e014b6b93ecf[key]",
+                                "name": "",
+                                "value": "content"
+                            },
+                            "value": {
+                                "id": "decb3f05b6d0e014b6b93ecf[value]",
+                                "name": "",
+                                "value": "string"
                             }
                         }
                     }
@@ -889,8 +875,8 @@
                     "value": "makes"
                 }
             },
-            "left": 5114,
-            "top": 4224,
+            "left": 5040,
+            "top": 4244,
             "width": 150,
             "height": 100,
             "zIndex": 16029,
@@ -1051,6 +1037,68 @@
                     "name": "Attributes",
                     "type": "KeySelectionValueSelectionValueListAttribute",
                     "list": {}
+                }
+            }
+        },
+        "e13d6ee2f226d8f624204ad2": {
+            "label": {
+                "id": "e13d6ee2f226d8f624204ad2[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e13d6ee2f226d8f624204ad2[label]",
+                    "name": "Label",
+                    "value": "Method Type"
+                }
+            },
+            "left": 4645,
+            "top": 3989,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16034,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "201c6332cd910a9287f038e3": {
+                            "id": "201c6332cd910a9287f038e3",
+                            "name": "201c6332cd910a9287f038e3",
+                            "value": {
+                                "id": "201c6332cd910a9287f038e3",
+                                "name": "201c6332cd910a9287f038e3",
+                                "value": "GET"
+                            }
+                        },
+                        "143442999f08ff8dd3e8ae84": {
+                            "id": "143442999f08ff8dd3e8ae84",
+                            "name": "143442999f08ff8dd3e8ae84",
+                            "value": {
+                                "id": "143442999f08ff8dd3e8ae84",
+                                "name": "143442999f08ff8dd3e8ae84",
+                                "value": "POST"
+                            }
+                        },
+                        "7c02be973f1c900c66df56eb": {
+                            "id": "7c02be973f1c900c66df56eb",
+                            "name": "7c02be973f1c900c66df56eb",
+                            "value": {
+                                "id": "7c02be973f1c900c66df56eb",
+                                "name": "7c02be973f1c900c66df56eb",
+                                "value": "PUT"
+                            }
+                        },
+                        "28be8c0b76379e3e380876d8": {
+                            "id": "28be8c0b76379e3e380876d8",
+                            "name": "28be8c0b76379e3e380876d8",
+                            "value": {
+                                "id": "28be8c0b76379e3e380876d8",
+                                "name": "28be8c0b76379e3e380876d8",
+                                "value": "DELETE"
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1533,6 +1581,36 @@
             },
             "source": "182e51d01e990b398cd0b4cc",
             "target": "88af4af388103df049e1a758",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "38bb3f2d78bc450c52ab1db6": {
+            "label": {
+                "id": "38bb3f2d78bc450c52ab1db6[label]",
+                "name": "Label",
+                "value": {
+                    "id": "38bb3f2d78bc450c52ab1db6[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "f99e3c6d6c073bb52ab5cfa3",
+            "target": "d59ee280b76511c4cef156f0",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "13ea6b282573a3bee608be53": {
+            "label": {
+                "id": "13ea6b282573a3bee608be53[label]",
+                "name": "Label",
+                "value": {
+                    "id": "13ea6b282573a3bee608be53[label]",
+                    "name": "Label",
+                    "value": "methodType"
+                }
+            },
+            "source": "f99e3c6d6c073bb52ab5cfa3",
+            "target": "e13d6ee2f226d8f624204ad2",
             "attributes": {},
             "type": "Uni-Dir-Association"
         }
