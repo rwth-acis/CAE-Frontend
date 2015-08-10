@@ -625,10 +625,10 @@
                 "value": {
                     "id": "f724189f77aa28361fbf1116[label]",
                     "name": "Label",
-                    "value": "parameterConnection"
+                    "value": "Parameter Connection"
                 }
             },
-            "left": 5517,
+            "left": 5515,
             "top": 4068,
             "width": 240,
             "height": 100,
@@ -686,7 +686,7 @@
                 "value": {
                     "id": "3015513f735588a75efbe0a6[label]",
                     "name": "Label",
-                    "value": "initiates"
+                    "value": "Initiates"
                 }
             },
             "left": 5645,
@@ -711,7 +711,7 @@
                 "value": {
                     "id": "d10871a8f6eee90260e499f8[label]",
                     "name": "Label",
-                    "value": "waits for"
+                    "value": "Waits for"
                 }
             },
             "left": 5603,
@@ -739,7 +739,7 @@
                     "value": "call"
                 }
             },
-            "left": 5391,
+            "left": 5389,
             "top": 4789,
             "width": 150,
             "height": 100,
@@ -754,12 +754,12 @@
                 "value": {
                     "id": "dfa70d87d27fb0576adfc8bb[label]",
                     "name": "Label",
-                    "value": "Function Call"
+                    "value": "Event to Function Call"
                 }
             },
-            "left": 5516,
+            "left": 5482,
             "top": 4960,
-            "width": 150,
+            "width": 234,
             "height": 100,
             "zIndex": 16025,
             "type": "Relationship",
