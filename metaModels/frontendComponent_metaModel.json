@@ -47,8 +47,8 @@
                     "value": "Widget"
                 }
             },
-            "left": 4344,
-            "top": 4388,
+            "left": 4316,
+            "top": 4397,
             "width": 309.33333333333337,
             "height": 204.1111111111111,
             "zIndex": 16001,
@@ -142,6 +142,20 @@
                                 "name": "",
                                 "value": "string"
                             }
+                        },
+                        "0eb8e4a4a056d7198eb90eed": {
+                            "id": "0eb8e4a4a056d7198eb90eed",
+                            "name": "0eb8e4a4a056d7198eb90eed",
+                            "key": {
+                                "id": "0eb8e4a4a056d7198eb90eed[key]",
+                                "name": "",
+                                "value": "microserviceAddress"
+                            },
+                            "value": {
+                                "id": "0eb8e4a4a056d7198eb90eed[value]",
+                                "name": "",
+                                "value": "string"
+                            }
                         }
                     }
                 }
@@ -193,6 +207,20 @@
                             },
                             "value": {
                                 "id": "8a1165e52b225727d3c4fd75[value]",
+                                "name": "",
+                                "value": "boolean"
+                            }
+                        },
+                        "4a7fa8f9d5c8c37a64832eff": {
+                            "id": "4a7fa8f9d5c8c37a64832eff",
+                            "name": "4a7fa8f9d5c8c37a64832eff",
+                            "key": {
+                                "id": "4a7fa8f9d5c8c37a64832eff[key]",
+                                "name": "",
+                                "value": "collaborative"
+                            },
+                            "value": {
+                                "id": "4a7fa8f9d5c8c37a64832eff[value]",
                                 "name": "",
                                 "value": "boolean"
                             }
@@ -754,8 +782,8 @@
                     "value": "Microservice Call"
                 }
             },
-            "left": 4927,
-            "top": 4062,
+            "left": 5040,
+            "top": 4024,
             "width": 180,
             "height": 125,
             "zIndex": 16026,
@@ -893,8 +921,8 @@
                     "value": "Function To Microservice Call"
                 }
             },
-            "left": 5238,
-            "top": 4070,
+            "left": 4772,
+            "top": 4138,
             "width": 217,
             "height": 100,
             "zIndex": 16030,
@@ -919,9 +947,9 @@
                 }
             },
             "left": 4385,
-            "top": 5060,
+            "top": 5052,
             "width": 150,
-            "height": 163,
+            "height": 191,
             "zIndex": 16031,
             "type": "Enumeration",
             "attributes": {
@@ -984,12 +1012,21 @@
                                 "value": "div"
                             }
                         },
-                        "093b15fd955620f893d94df1": {
-                            "id": "093b15fd955620f893d94df1",
-                            "name": "093b15fd955620f893d94df1",
+                        "b5020b140afb2df0eab7f11b": {
+                            "id": "b5020b140afb2df0eab7f11b",
+                            "name": "b5020b140afb2df0eab7f11b",
                             "value": {
-                                "id": "093b15fd955620f893d94df1",
-                                "name": "093b15fd955620f893d94df1",
+                                "id": "b5020b140afb2df0eab7f11b",
+                                "name": "b5020b140afb2df0eab7f11b",
+                                "value": "textarea"
+                            }
+                        },
+                        "dec2e37280f4b8bd86222bb6": {
+                            "id": "dec2e37280f4b8bd86222bb6",
+                            "name": "dec2e37280f4b8bd86222bb6",
+                            "value": {
+                                "id": "dec2e37280f4b8bd86222bb6",
+                                "name": "dec2e37280f4b8bd86222bb6",
                                 "value": "CUSTOM"
                             }
                         }
@@ -1050,10 +1087,10 @@
                     "value": "Method Type"
                 }
             },
-            "left": 4645,
-            "top": 3989,
+            "left": 4647,
+            "top": 3993,
             "width": 150,
-            "height": 100,
+            "height": 122,
             "zIndex": 16034,
             "type": "Enumeration",
             "attributes": {
@@ -1156,7 +1193,7 @@
                 "value": {
                     "id": "08c726518c29ebadce956af2[label]",
                     "name": "Label",
-                    "value": "fromto"
+                    "value": "from"
                 }
             },
             "source": "d4ac54b4f1903f2cd6729ee8",
