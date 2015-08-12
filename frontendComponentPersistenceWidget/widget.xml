@@ -3,7 +3,7 @@
   <ModulePrefs title="Frontend Component Persistence Widget"
     description="This widget is responsible for persisting frontend component."
     author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
-    width="400" height="230">
+    width="400" height="300">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>
@@ -97,8 +97,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="container" id="main-content">
     <div class="form-group">
       <label for="name">Frontend Component Name</label><input type="text" class="form-control" id="name" placeholder="Frontend Component Name..">
-      </div>
-      <div class="form-group">
+    </div>
+    <div class="form-group">
       <label for="version">Version</label><input type="text" class="form-control" id="version" placeholder="Version..">
     </div>
     <div class="btn-group btn-group-justified">
@@ -111,6 +111,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <div class="btn-group">
         <button id="delete-model" class="btn btn-default">Reset</button>
       </div>
+    </div>
+    <br>
+    <div class="form-group">
+      <input type="text" class="form-control" id="status" placeholder="Status..">
     </div>
   </div>
 
