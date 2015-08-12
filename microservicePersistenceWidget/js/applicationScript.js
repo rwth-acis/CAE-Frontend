@@ -214,7 +214,7 @@ var generateAttribute = function(name, value){
   return attribute;
 };
 
-// displays a <p> element on the screen for the time of "feedbackTimeout"
+// displays a message in the name input box on the screen for the time of "feedbackTimeout"
 feedback = function(msg){
     var oldValue = $("#name").val();
     $("#name").val(msg);
