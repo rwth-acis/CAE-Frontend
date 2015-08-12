@@ -34,7 +34,7 @@
 var client,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
-    loadedModel;
+    loadedModel = null;
     
 var init = function() {
   var iwcCallback = function(intent) {
@@ -50,8 +50,8 @@ var init = function() {
         // special case if model was only saved in the space (not loaded from db)
         if(loadedModel == "Model attributes"){
           loadedModel = null;
-        }
-        else{
+          feedback("Model was not loaded from database until now..");
+        } else{
           $("#name").val(loadedModel);
         }
       });
@@ -60,7 +60,6 @@ var init = function() {
       loadedModel = null;
     }
   });
-
 
   $('#delete-model').on('click', function() {
     resetCurrentModel();
@@ -162,7 +161,6 @@ var loadModel = function() {
         type: "my:ns:model",
         representation: data,
         callback: function(){
-          loadedModel = $("#name").val();
           feedback("Model loaded, please refresh browser!");
         }
       });
@@ -252,7 +250,7 @@ var generateAttribute = function(name, value){
   return attribute;
 };
 
-// displays a message in the name input box on the screen for the time of "feedbackTimeout"
+// displays a message in the status box on the screen for the time of "feedbackTimeout"
 feedback = function(msg){
     $("#status").val(msg);
     clearTimeout(feedbackTimeout);

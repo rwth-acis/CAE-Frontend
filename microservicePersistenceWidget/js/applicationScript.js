@@ -33,13 +33,33 @@
  // global variables
 var client,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
-    feedbackTimeout;
+    feedbackTimeout,
+    loadedModel = null;
 
 var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
+
+  // retrieve current model from the space and store it
+  getData("my:ns:model").then(function(modelUris){
+    if(modelUris.length > 0){
+      $.get(modelUris[0]+"/:representation").done(function(data){
+        loadedModel = data.attributes.label.value.value;
+        // special case if model was only saved in the space (not loaded from db)
+        if(loadedModel == "Model attributes"){
+          loadedModel = null;
+          feedback("Model was not loaded from database until now..");
+        } else{
+          $("#name").val(loadedModel);
+        }
+      });
+    }
+    else{
+      loadedModel = null;
+    }
+  });
 
   $('#delete-model').on('click', function() {
     resetCurrentModel();
@@ -60,6 +80,7 @@ var resetCurrentModel = function() {
     if(modelUris.length > 0){
       _.map(modelUris,function(uri){
         openapp.resource.del(uri,function(){
+          loadedModel = null;
           feedback("Model reset, please refresh browser!");
         });
       });
@@ -86,15 +107,30 @@ var storeModel = function() {
           data.attributes.label.value.value = $("#name").val();
           data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
           data.attributes.attributes[generateRandomId()] = generateAttribute("type", "microservice");
-          client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
-          function(data, type) {
-          console.log("Model stored!");
-          feedback("Model stored!");
-          },
-          function(error) {
-            console.log(error);
-            feedback(error);
-          });
+          if(loadedModel === null){
+            client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
+            function(data, type) {
+              // save currently loaded model
+              loadedModel = $("#name").val();
+              console.log("Model stored!");
+              feedback("Model stored!");
+            },
+            function(error) {
+              console.log(error);
+              feedback(error);
+            });
+          }
+          else{
+            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
+            function(data, type) {
+              console.log("Model updated!");
+              feedback("Model updated!");
+            },
+            function(error) {
+              console.log(error);
+              feedback(error);
+            });            
+          }
         });
       } else {
         feedback("No model!");
@@ -214,12 +250,11 @@ var generateAttribute = function(name, value){
   return attribute;
 };
 
-// displays a message in the name input box on the screen for the time of "feedbackTimeout"
+// displays a message in the status box on the screen for the time of "feedbackTimeout"
 feedback = function(msg){
-    var oldValue = $("#name").val();
-    $("#name").val(msg);
+    $("#status").val(msg);
     clearTimeout(feedbackTimeout);
     feedbackTimeout = setTimeout(function(){
-      $("#name").val(oldValue);
-    },4000);
+      $("#status").val("");
+    },6000);
 };
