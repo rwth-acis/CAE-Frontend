@@ -171,8 +171,8 @@
                     "value": "HTML Element"
                 }
             },
-            "left": 4691,
-            "top": 4933,
+            "left": 4703,
+            "top": 4929,
             "width": 162.22222222222223,
             "height": 120,
             "zIndex": 16002,
@@ -441,8 +441,8 @@
                     "value": "creates"
                 }
             },
-            "left": 5146,
-            "top": 4792,
+            "left": 5189,
+            "top": 4797,
             "width": 150,
             "height": 100,
             "zIndex": 16009,
@@ -502,8 +502,8 @@
                     "value": "Element Creation"
                 }
             },
-            "left": 4940,
-            "top": 4760,
+            "left": 4937,
+            "top": 4754,
             "width": 150,
             "height": 100,
             "zIndex": 16012,
@@ -921,8 +921,8 @@
                     "value": "Function To Microservice Call"
                 }
             },
-            "left": 4772,
-            "top": 4138,
+            "left": 4760,
+            "top": 4135,
             "width": 217,
             "height": 100,
             "zIndex": 16030,
@@ -1133,6 +1133,59 @@
                                 "id": "28be8c0b76379e3e380876d8",
                                 "name": "28be8c0b76379e3e380876d8",
                                 "value": "DELETE"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "6c9933251a6ebed9f1885e02": {
+            "label": {
+                "id": "6c9933251a6ebed9f1885e02[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6c9933251a6ebed9f1885e02[label]",
+                    "name": "Label",
+                    "value": "Content Type"
+                }
+            },
+            "left": 5308,
+            "top": 3932,
+            "width": 230,
+            "height": 100,
+            "zIndex": 16035,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "e7e32fe5ff34c0b85719f127": {
+                            "id": "e7e32fe5ff34c0b85719f127",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "e7e32fe5ff34c0b85719f127",
+                                "name": "Attribute",
+                                "value": "application/json"
+                            }
+                        },
+                        "6d85ce26f3bda021c894bf04": {
+                            "id": "6d85ce26f3bda021c894bf04",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "6d85ce26f3bda021c894bf04",
+                                "name": "Attribute",
+                                "value": "text/plain"
+                            }
+                        },
+                        "0575afb551d9fdd8d57bb751": {
+                            "id": "0575afb551d9fdd8d57bb751",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "0575afb551d9fdd8d57bb751",
+                                "name": "Attribute",
+                                "value": "CUSTOM"
                             }
                         }
                     }
@@ -1648,6 +1701,21 @@
             },
             "source": "f99e3c6d6c073bb52ab5cfa3",
             "target": "e13d6ee2f226d8f624204ad2",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "54c3091bb4d763f8226bf15d": {
+            "label": {
+                "id": "54c3091bb4d763f8226bf15d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "54c3091bb4d763f8226bf15d[label]",
+                    "name": "Label",
+                    "value": "contentType"
+                }
+            },
+            "source": "f99e3c6d6c073bb52ab5cfa3",
+            "target": "6c9933251a6ebed9f1885e02",
             "attributes": {},
             "type": "Bi-Dir-Association"
         }
