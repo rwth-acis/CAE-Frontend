@@ -629,7 +629,7 @@
                     "value": {
                         "id": "00afb2f1b8a7e344a626692d[color]",
                         "name": "Color",
-                        "value": "28542"
+                        "value": "9999999"
                     }
                 },
                 "00afb2f1b8a7e344a626692d[defaultWidth]": {
@@ -638,7 +638,7 @@
                     "value": {
                         "id": "00afb2f1b8a7e344a626692d[defaultWidth]",
                         "name": "Default Width",
-                        "value": 200
+                        "value": 0
                     }
                 },
                 "00afb2f1b8a7e344a626692d[defaultHeight]": {
@@ -647,7 +647,7 @@
                     "value": {
                         "id": "00afb2f1b8a7e344a626692d[defaultHeight]",
                         "name": "Default Height",
-                        "value": 150
+                        "value": 0
                     }
                 },
                 "00afb2f1b8a7e344a626692d[customShape]": {
@@ -972,8 +972,8 @@
                     "value": "Internal Call"
                 }
             },
-            "left": 3510,
-            "top": 4860,
+            "left": 3265,
+            "top": 4912,
             "width": 150,
             "height": 100,
             "zIndex": 16023,
@@ -997,8 +997,8 @@
                     "value": "calls"
                 }
             },
-            "left": 3768,
-            "top": 4895,
+            "left": 3784,
+            "top": 4877,
             "width": 150,
             "height": 100,
             "zIndex": 16024,
@@ -1233,8 +1233,8 @@
                     "value": "returnStatusCode"
                 }
             },
-            "left": 3386,
-            "top": 4991,
+            "left": 3384,
+            "top": 5046,
             "width": 256,
             "height": 179,
             "zIndex": 16030,
@@ -1543,6 +1543,230 @@
                     }
                 }
             }
+        },
+        "c985b41c2acc33861ef530d7": {
+            "label": {
+                "id": "c985b41c2acc33861ef530d7[label]",
+                "name": "Label",
+                "value": {
+                    "id": "c985b41c2acc33861ef530d7[label]",
+                    "name": "Label",
+                    "value": "Internal Service Call"
+                }
+            },
+            "left": 3294,
+            "top": 4744,
+            "width": 201.1111111111111,
+            "height": 115.39682539682536,
+            "zIndex": 16036,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "da0ba93df26ca15111695a75": {
+                            "id": "da0ba93df26ca15111695a75",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "da0ba93df26ca15111695a75[key]",
+                                "name": "",
+                                "value": "returnVariableName"
+                            },
+                            "value": {
+                                "id": "da0ba93df26ca15111695a75[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "aa42bf4bf4c8d4cf02158d41": {
+                            "id": "aa42bf4bf4c8d4cf02158d41",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "aa42bf4bf4c8d4cf02158d41[key]",
+                                "name": "",
+                                "value": "serviceClass"
+                            },
+                            "value": {
+                                "id": "aa42bf4bf4c8d4cf02158d41[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "3227a1d01deb1dac65650057": {
+                            "id": "3227a1d01deb1dac65650057",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "3227a1d01deb1dac65650057[key]",
+                                "name": "",
+                                "value": "methodName"
+                            },
+                            "value": {
+                                "id": "3227a1d01deb1dac65650057[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "6bf7c7f1197aaccbde38f09a": {
+            "label": {
+                "id": "6bf7c7f1197aaccbde38f09a[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6bf7c7f1197aaccbde38f09a[label]",
+                    "name": "Label",
+                    "value": "Method Invocation Shape"
+                }
+            },
+            "left": 3260,
+            "top": 4482,
+            "width": 218.8888888888888,
+            "height": 150,
+            "zIndex": 16037,
+            "type": "Node Shape",
+            "attributes": {
+                "6bf7c7f1197aaccbde38f09a[shape]": {
+                    "id": "6bf7c7f1197aaccbde38f09a[shape]",
+                    "name": "Shape",
+                    "value": {
+                        "id": "6bf7c7f1197aaccbde38f09a[shape]",
+                        "name": "Shape",
+                        "value": "circle"
+                    }
+                },
+                "6bf7c7f1197aaccbde38f09a[color]": {
+                    "id": "6bf7c7f1197aaccbde38f09a[color]",
+                    "name": "Color",
+                    "value": {
+                        "id": "6bf7c7f1197aaccbde38f09a[color]",
+                        "name": "Color",
+                        "value": ""
+                    }
+                },
+                "6bf7c7f1197aaccbde38f09a[defaultWidth]": {
+                    "id": "6bf7c7f1197aaccbde38f09a[defaultWidth]",
+                    "name": "Default Width",
+                    "value": {
+                        "id": "6bf7c7f1197aaccbde38f09a[defaultWidth]",
+                        "name": "Default Width",
+                        "value": 0
+                    }
+                },
+                "6bf7c7f1197aaccbde38f09a[defaultHeight]": {
+                    "id": "6bf7c7f1197aaccbde38f09a[defaultHeight]",
+                    "name": "Default Height",
+                    "value": {
+                        "id": "6bf7c7f1197aaccbde38f09a[defaultHeight]",
+                        "name": "Default Height",
+                        "value": 0
+                    }
+                },
+                "6bf7c7f1197aaccbde38f09a[customShape]": {
+                    "id": "6bf7c7f1197aaccbde38f09a[customShape]",
+                    "name": "Custom Shape",
+                    "value": {
+                        "id": "6bf7c7f1197aaccbde38f09a[customShape]",
+                        "name": "Custom Shape",
+                        "value": ""
+                    }
+                },
+                "6bf7c7f1197aaccbde38f09a[customAnchors]": {
+                    "id": "6bf7c7f1197aaccbde38f09a[customAnchors]",
+                    "name": "Custom Anchors",
+                    "value": {
+                        "id": "6bf7c7f1197aaccbde38f09a[customAnchors]",
+                        "name": "Custom Anchors",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "bd987ed278ec5980697c0c84": {
+            "label": {
+                "id": "bd987ed278ec5980697c0c84[label]",
+                "name": "Label",
+                "value": {
+                    "id": "bd987ed278ec5980697c0c84[label]",
+                    "name": "Label",
+                    "value": "Service Call Parameter"
+                }
+            },
+            "left": 2967,
+            "top": 4672,
+            "width": 171.66666666666669,
+            "height": 100,
+            "zIndex": 16038,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "cb177703b6f4a7c5b6464634": {
+                            "id": "cb177703b6f4a7c5b6464634",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "cb177703b6f4a7c5b6464634[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "cb177703b6f4a7c5b6464634[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "6c4453d36599dd7654108c10": {
+            "label": {
+                "id": "6c4453d36599dd7654108c10[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6c4453d36599dd7654108c10[label]",
+                    "name": "Label",
+                    "value": "has"
+                }
+            },
+            "left": 3010,
+            "top": 4855,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16039,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "7ac4b12fefb87bbbe49ac0e9": {
+            "label": {
+                "id": "7ac4b12fefb87bbbe49ac0e9[label]",
+                "name": "Label",
+                "value": {
+                    "id": "7ac4b12fefb87bbbe49ac0e9[label]",
+                    "name": "Label",
+                    "value": "Parameter to Internal Service Call"
+                }
+            },
+            "left": 2765,
+            "top": 5011,
+            "width": 277.1428571428571,
+            "height": 100,
+            "zIndex": 16040,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
         }
     },
     "edges": {
@@ -1831,21 +2055,6 @@
             "attributes": {},
             "type": "Generalisation"
         },
-        "653c5500cc4be84a7825e663": {
-            "label": {
-                "id": "653c5500cc4be84a7825e663[label]",
-                "name": "Label",
-                "value": {
-                    "id": "653c5500cc4be84a7825e663[label]",
-                    "name": "Label",
-                    "value": "from to"
-                }
-            },
-            "source": "91e311b1f43339f9defcdde6",
-            "target": "bbf7e9764dceb20ccbf26a22",
-            "attributes": {},
-            "type": "Bi-Dir-Association"
-        },
         "c9436c13b0804234d376503d": {
             "label": {
                 "id": "c9436c13b0804234d376503d[label]",
@@ -2010,6 +2219,96 @@
             "target": "f3e3f9b0293882dedca189fd",
             "attributes": {},
             "type": "Bi-Dir-Association"
+        },
+        "174723a8dfec3ca777e61554": {
+            "label": {
+                "id": "174723a8dfec3ca777e61554[label]",
+                "name": "Label",
+                "value": {
+                    "id": "174723a8dfec3ca777e61554[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "91e311b1f43339f9defcdde6",
+            "target": "c985b41c2acc33861ef530d7",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "f350f036f9252bc712d98343": {
+            "label": {
+                "id": "f350f036f9252bc712d98343[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f350f036f9252bc712d98343[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "bbf7e9764dceb20ccbf26a22",
+            "target": "91e311b1f43339f9defcdde6",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "209c767d46b9db165cb3b2e5": {
+            "label": {
+                "id": "209c767d46b9db165cb3b2e5[label]",
+                "name": "Label",
+                "value": {
+                    "id": "209c767d46b9db165cb3b2e5[label]",
+                    "name": "Label",
+                    "value": "shape of Method Invocation"
+                }
+            },
+            "source": "c985b41c2acc33861ef530d7",
+            "target": "6bf7c7f1197aaccbde38f09a",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "90197b81318a4cce1ae3215f": {
+            "label": {
+                "id": "90197b81318a4cce1ae3215f[label]",
+                "name": "Label",
+                "value": {
+                    "id": "90197b81318a4cce1ae3215f[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "6c4453d36599dd7654108c10",
+            "target": "7ac4b12fefb87bbbe49ac0e9",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "61f0139aa0dcc570fef4c8bf": {
+            "label": {
+                "id": "61f0139aa0dcc570fef4c8bf[label]",
+                "name": "Label",
+                "value": {
+                    "id": "61f0139aa0dcc570fef4c8bf[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "c985b41c2acc33861ef530d7",
+            "target": "6c4453d36599dd7654108c10",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "9a00466c874c93eaa50b8008": {
+            "label": {
+                "id": "9a00466c874c93eaa50b8008[label]",
+                "name": "Label",
+                "value": {
+                    "id": "9a00466c874c93eaa50b8008[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "6c4453d36599dd7654108c10",
+            "target": "bd987ed278ec5980697c0c84",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
         }
     }
 }
