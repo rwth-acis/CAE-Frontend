@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Microservice Select Widget" description="This widget loads microservices from the CAE Model Persistence Service."
+  <ModulePrefs title="Frontend Component Select Widget" description="This widget loads frontend componend models from the CAE Model Persistence Service."
     author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
     width="500" height="600">
 
@@ -58,7 +58,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Microservice Select Widget</title>
+  <title>Frontend Component Select Widget</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -79,13 +79,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- Inter Widget Communication library import-->
   <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
   <!-- style information -->
-  <link rel="stylesheet" href="http://localhost:80/microserviceSelectWidget/css/style.css">
+  <link rel="stylesheet" href="http://localhost:80/frontendComponentSelectWidget/css/style.css">
   <!-- import the client library -->
-  <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js"></script>
+  <script type="text/javascript" src="http://localhost:80/frontendComponentSelectWidget/js/extendedLas2peerWidgetLibrary.js"></script>
   <!-- import application script -->
-  <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/applicationScript.js"></script>
-
-  <!-- Addotional widget specific imports -->
+  <script type="text/javascript" src="http://localhost:80/frontendComponentSelectWidget/js/applicationScript.js"></script>
   
 </head>
 <body>
@@ -100,7 +98,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
             <th>Version</th>
           </tr>
         </thead>
-        <tbody id="microserviceTable">
+        <tbody id="frontendComponentTable">
         </tbody>
       </table>
     </div>
