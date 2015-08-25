@@ -51,6 +51,7 @@ function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
 }
 
 /**
+ *
  * Sends an AJAX request to a resource.
  * 
  * @override
@@ -75,6 +76,7 @@ function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
  *          errorCallback a callback function invoked in case the request
  *          failed. Expects one parameter "error" representing the error
  *          occurred.
+ *
  */
 Las2peerWidgetLibrary.prototype.sendRequest = function(method, relativePath,
         content, mime, customHeaders, successCallback, errorCallback) {
@@ -127,7 +129,9 @@ Las2peerWidgetLibrary.prototype.sendRequest = function(method, relativePath,
 
 
 /**
+ *
  * Determines if user is authenticated via OpenID Connect or not.
+ *
  */
 Las2peerWidgetLibrary.prototype.isAnonymous = function() {
   if (typeof oidc_userinfo !== 'undefined') {
@@ -156,13 +160,51 @@ Las2peerWidgetLibrary.prototype.sendFrontendComponentSelected = function(fronten
     "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
     "sender": "PALETTE"
   };
-  console.log(intent);
   this.iwcClient.publish(intent);
 };
 
 
 /**
+ *
+ * Sends the frontend component label to SyncMeta.
+ *
+ */
+Las2peerWidgetLibrary.prototype.sendFrontendComponentName = function(frontendComponentName, nodeId) {
+  var time = new Date().getTime();
+  var frontendComponentArray = frontendComponentName.split('');
+  var arrayLength = frontendComponentArray.length;
+  var payload = [];
+  payload.length = arrayLength;
+  for (var i = 0; i < arrayLength; i++) {
+  var data = {};
+  data.name = "val:" + nodeId + "[label]";
+  data.position = i;
+  data.type = "insert";
+  data.value = frontendComponentArray[i];
+  var singlePayload = {};
+  
+  singlePayload.data = data;
+  singlePayload.type = "OTOperation";
+  singlePayload.sender = null;
+  payload[i] = singlePayload;
+  }
+  var intent = {
+    "component": "MAIN",
+    "data": "",
+    "dataType": "",
+    "action": "ACTION_DATA_ARRAY",
+    "flags": ["PUBLISH_LOCAL"],
+    "extras": {"payload":payload, "time":time},
+    "sender": "ATTRIBUTE"
+  };
+  this.iwcClient.publish(intent);
+};
+
+
+/**
+ *
  * Convenience function to check if a String ends with a given suffix.
+ *
  */
 String.prototype.endsWith = function(suffix) {
   return this.indexOf(suffix, this.length - suffix.length) !== -1;

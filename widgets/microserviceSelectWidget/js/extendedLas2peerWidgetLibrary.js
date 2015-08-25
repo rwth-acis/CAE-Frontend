@@ -144,7 +144,8 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
  * next click there will add a microservice to the canvas.
  *
  */
-Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(microserviceName) {
+Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
+  // element creation
   var time = new Date().getTime();
   var data = JSON.stringify({selectedToolName: "Microservice"});
   var intent = {
@@ -156,7 +157,43 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(microservice
     "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
     "sender": "PALETTE"
   };
-  console.log(intent);
+  this.iwcClient.publish(intent);
+};
+
+
+/**
+ *
+ * Sends the microservices label to SyncMeta.
+ *
+ */
+Las2peerWidgetLibrary.prototype.sendMicroserviceName = function(microserviceName, nodeId) {
+  var time = new Date().getTime();
+  var microserviceArray = microserviceName.split('');
+  var arrayLength = microserviceArray.length;
+  var payload = [];
+  payload.length = arrayLength;
+  for (var i = 0; i < arrayLength; i++) {
+  var data = {};
+  data.name = "val:" + nodeId + "[label]";
+  data.position = i;
+  data.type = "insert";
+  data.value = microserviceArray[i];
+  var singlePayload = {};
+  
+  singlePayload.data = data;
+  singlePayload.type = "OTOperation";
+  singlePayload.sender = null;
+  payload[i] = singlePayload;
+  }
+  var intent = {
+    "component": "MAIN",
+    "data": "",
+    "dataType": "",
+    "action": "ACTION_DATA_ARRAY",
+    "flags": ["PUBLISH_LOCAL"],
+    "extras": {"payload":payload, "time":time},
+    "sender": "ATTRIBUTE"
+  };
   this.iwcClient.publish(intent);
 };
 

@@ -31,19 +31,34 @@
  */
 
 var client;
+// needed to store the last selected frontend component (temporary)
+// until the iwc callback can be executed (which needs this name)
+var lastFrontendComponentName;
 
 var init = function() {
 
   var iwcCallback = function(intent) {
+    // catch node creation message to add label to node
+    if(intent.extras.payload.data != null && intent.extras.payload.data.type != null 
+        && intent.extras.payload.data.type == "insert" && intent.extras.payload.data.value != null 
+        && intent.extras.payload.data.name != null && intent.extras.payload.data.name.indexOf("node:") !=-1){
+      // TODO: Parse twice...something is not right with the original format it seems..
+      var value = $.parseJSON($.parseJSON(intent.extras.payload.data.value));
+      if(value.type == "Frontend Component"){
+        var nodeId = intent.extras.payload.data.name.substring(intent.extras.payload.data.name.indexOf("node:")+5);
+        client.sendFrontendComponentName(lastFrontendComponentName, nodeId);
+      }
+    }
   };
 
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
 }
 
+
 /**
  * 
  * Calls the persistence service first for a list of services,
- * then retrieves all services and adds frontend-components
+ * then retrieves all services and adds all frontend components
  * to the frontend component table.
  * 
  */
@@ -73,6 +88,7 @@ var getServices = function() {
             // get the name
             var name = $(this).find("td").get(0).innerHTML;
             sendFrontendComponentNode(name);
+            lastFrontendComponentName = name; // used in IWC response
           });
           }
         }, function(error) {
@@ -87,6 +103,12 @@ var getServices = function() {
 };
 
 
+/**
+ * 
+ * Calls the client function that sends a
+ * "frontend component was selected" signal to SyncMeta.
+ * 
+ */
 var sendFrontendComponentNode = function(name) {
   client.sendFrontendComponentSelected(name);
 }

@@ -31,19 +31,35 @@
  */
 
 var client;
+// needed to store the last selected microservice (temporary)
+// until the iwc callback can be executed (which needs this name)
+var lastMicroserviceName;
 
 var init = function() {
 
   var iwcCallback = function(intent) {
+    // catch node creation message to add label to node
+    if(intent.extras.payload.data != null && intent.extras.payload.data.type != null 
+        && intent.extras.payload.data.type == "insert" && intent.extras.payload.data.value != null 
+        && intent.extras.payload.data.name != null && intent.extras.payload.data.name.indexOf("node:") !=-1){
+      // TODO: Parse twice...something is not right with the original format it seems..
+      var value = $.parseJSON($.parseJSON(intent.extras.payload.data.value));
+      if(value.type == "Microservice"){
+        var nodeId = intent.extras.payload.data.name.substring(intent.extras.payload.data.name.indexOf("node:")+5);
+        client.sendMicroserviceName(lastMicroserviceName, nodeId);
+      }
+    }
   };
 
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
 }
 
+
 /**
  * 
  * Calls the persistence service first for a list of services,
- * then retrieves all services and adds microservices to the microserviceTable.
+ * then retrieves all services and adds all microservices
+ * to the microservice table.
  * 
  */
 var getServices = function() {
@@ -71,7 +87,8 @@ var getServices = function() {
           $("#microserviceTable").find("tr").click(function() {
             // get the name
             var name = $(this).find("td").get(0).innerHTML;
-            sendMicroserviceNode(name);
+            sendMicroserviceNode();
+            lastMicroserviceName = name; // used in IWC response
           });
           }
         }, function(error) {
@@ -86,8 +103,14 @@ var getServices = function() {
 };
 
 
-var sendMicroserviceNode = function(name) {
-  client.sendMicroserviceSelected(name);
+/**
+ * 
+ * Calls the client function that sends a
+ * "microservice was selected" signal to SyncMeta.
+ * 
+ */
+var sendMicroserviceNode = function() {
+  client.sendMicroserviceSelected();
 }
 
 
