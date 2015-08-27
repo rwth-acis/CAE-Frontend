@@ -155,7 +155,7 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
     "action": "ACTION_DATA",
     "flags": ["PUBLISH_LOCAL"],
     "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
-    "sender": "PALETTE"
+    "sender": "MICROSERVICE_SELECT_WIDGET"
   };
   this.iwcClient.publish(intent);
 };
@@ -192,7 +192,17 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceName = function(microserviceName
     "action": "ACTION_DATA_ARRAY",
     "flags": ["PUBLISH_LOCAL"],
     "extras": {"payload":payload, "time":time},
-    "sender": "ATTRIBUTE"
+    "sender": "MICROSERVICE_SELECT_WIDGET"
+  };
+  this.iwcClient.publish(intent);
+  intent = {
+    "component": "ATTRIBUTE",
+    "data": "",
+    "dataType": "",
+    "action": "ACTION_DATA_ARRAY",
+    "flags": ["PUBLISH_LOCAL"],
+    "extras": {"payload":payload, "time":time},
+    "sender": "MICROSERVICE_SELECT_WIDGET"
   };
   this.iwcClient.publish(intent);
 };
