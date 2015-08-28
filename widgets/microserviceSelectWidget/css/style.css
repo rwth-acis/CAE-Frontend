@@ -1,0 +1,9 @@
+#microserviceTable tr:hover {
+    background-color: #ccc;
+}
+.scrolltable { height: 350px; overflow: auto; }
+
+#main-content {
+margin-top:20px;
+width:100%;
+}
