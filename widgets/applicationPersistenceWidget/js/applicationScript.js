@@ -112,8 +112,17 @@ var storeModel = function() {
             function(data, type) {
               // save currently loaded model
               loadedModel = $("#name").val();
-              console.log("Model stored!");
-              feedback("Model stored!");
+              console.log("Model stored, retrieving communication view..");
+              // send request for communication model
+              client.sendRequest("GET", "commView/" + loadedModel, "", "", {},
+              function(data, type) {
+                console.log("retrieved communication model: " + data);
+              },
+              function(error) {
+                console.log(error);
+                feedback(error);
+              });
+              feedback("Communication view loaded, please refresh screen!");
             },
             function(error) {
               console.log(error);
