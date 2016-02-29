@@ -1,0 +1,427 @@
+{
+    "attributes": {},
+    "nodes": {
+        "de5f051902619196ce3f3163": {
+            "label": "RESTful Resource",
+            "attributes": {
+                "01066441480b193ed0a7f2fb": {
+                    "key": "name",
+                    "value": "string"
+                },
+                "ea51d222c829d18b58776aba": {
+                    "key": "path",
+                    "value": "string"
+                },
+                "a13682cbfa5e2550bc2d9665": {
+                    "key": "developer",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "0a280fe5a6ef6ca612c2bd87": {
+            "label": "Database",
+            "attributes": {
+                "e51ba4a23c2a365ea3c19524": {
+                    "key": "name",
+                    "value": "string"
+                },
+                "6b65056ce103a7694313c000": {
+                    "key": "address",
+                    "value": "string"
+                },
+                "aad60739e22f44e585e5bcc1": {
+                    "key": "schema",
+                    "value": "string"
+                },
+                "581b9959c0268321f2cfc486": {
+                    "key": "loginName",
+                    "value": "string"
+                },
+                "3e931502ed43d14143eb80ac": {
+                    "key": "loginPassword",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rectangle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "7e9fc86d8570b5e7b2eeac72": {
+            "label": "Table",
+            "attributes": {
+                "0e4778a9503fa233643f181b": {
+                    "key": "name",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "triangle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "8deaf8fd5378a7e870e0ad76": {
+            "label": "Column",
+            "attributes": {
+                "facdb20e5eb3343602a9ddfa": {
+                    "key": "name",
+                    "value": "string"
+                },
+                "f0569e45ba1f993e4e1f7360": {
+                    "key": "columnType",
+                    "value": "string"
+                },
+                "d60f22353db4bd47b1f66a1b": {
+                    "key": "primaryKey",
+                    "value": "boolean"
+                }
+            },
+            "shape": {
+                "shape": "rounded_rectangle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "bbf7e9764dceb20ccbf26a22": {
+            "label": "HTTP Method",
+            "attributes": {
+                "775bc7f84fc4aa87958e9c4a": {
+                    "key": "methodType",
+                    "value": "Method Type",
+                    "options": {
+                        "GET": "GET",
+                        "POST": "POST",
+                        "PUT": "PUT",
+                        "DELETE": "DELETE"
+                    }
+                },
+                "27449d18b985b2deccf00dd1": {
+                    "key": "name",
+                    "value": "string"
+                },
+                "ad73bfc5c5c852148f4be259": {
+                    "key": "path",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "diamond",
+                "color": "9999999",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "66437c8047dfb4620adc5823": {
+            "label": "HTTP Payload",
+            "attributes": {
+                "8df7213c54eef4f73a0b8c50": {
+                    "key": "payloadType",
+                    "value": "Payload Type",
+                    "options": {
+                        "JSON": "JSON",
+                        "TEXT": "TEXT",
+                        "PATH_PARAM": "PATH_PARAM",
+                        "CUSTOM": "CUSTOM"
+                    }
+                },
+                "abe2c3ae85fb12282c01c67d": {
+                    "key": "name",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "e3f3a6a3d58f3e30464793fb": {
+            "label": "HTTP Response",
+            "attributes": {
+                "db08a187c056423bd281043a": {
+                    "key": "returnStatusCode",
+                    "value": "returnStatusCode",
+                    "options": {
+                        "OK": "OK",
+                        "CREATED": "CREATED",
+                        "BAD_REQUEST": "BAD_REQUEST",
+                        "UNAUTHORIZED": "UNAUTHORIZED",
+                        "NOT_FOUND": "NOT_FOUND",
+                        "CONFLICT": "CONFLICT",
+                        "INTERNAL_ERROR": "INTERNAL_ERROR",
+                        "CUSTOM": "CUSTOM"
+                    }
+                },
+                "f3e3f9b0293882dedca189fd": {
+                    "key": "resultType",
+                    "value": "Result Type",
+                    "options": {
+                        "JSON": "JSON",
+                        "TEXT": "TEXT",
+                        "CUSTOM": "CUSTOM"
+                    }
+                },
+                "9999d7ad7c37c05875b482ad": {
+                    "key": "name",
+                    "value": "string"
+                },
+                "8af642e87c996f845deec406": {
+                    "key": "resultName",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "c985b41c2acc33861ef530d7": {
+            "label": "Internal Service Call",
+            "attributes": {
+                "da0ba93df26ca15111695a75": {
+                    "key": "returnVariableName",
+                    "value": "string"
+                },
+                "aa42bf4bf4c8d4cf02158d41": {
+                    "key": "serviceClass",
+                    "value": "string"
+                },
+                "3227a1d01deb1dac65650057": {
+                    "key": "methodName",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "bd987ed278ec5980697c0c84": {
+            "label": "Service Call Parameter",
+            "attributes": {
+                "cb177703b6f4a7c5b6464634": {
+                    "key": "name",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rectangle",
+                "color": "white",
+                "customShape": "",
+                "customAnchors": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0
+            }
+        }
+    },
+    "edges": {
+        "a329a2becee5444bad3483e1": {
+            "label": "Table to Column",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Table"
+                    ],
+                    "targetTypes": [
+                        "Column"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "dd618a74d4a0ff857fa920f5": {
+            "label": "Database to Table",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Database"
+                    ],
+                    "targetTypes": [
+                        "Table"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "da300c4c3bfad024a19d7cf8": {
+            "label": "RESTful Resource to Database",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "RESTful Resource"
+                    ],
+                    "targetTypes": [
+                        "Database"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "1f3520637885dced75b1517e": {
+            "label": "RESTful Resource to HTTP Method",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "RESTful Resource"
+                    ],
+                    "targetTypes": [
+                        "HTTP Method"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "f217f2cd5d1791f439392967": {
+            "label": "Internal Call",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "HTTP Method"
+                    ],
+                    "targetTypes": [
+                        "Internal Service Call"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "28dc4990d6c5621c62e3b781": {
+            "label": "HTTP Method to HTTP Payload",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "HTTP Method"
+                    ],
+                    "targetTypes": [
+                        "HTTP Payload"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "2d09f0b5ddabefb227a12850": {
+            "label": "HTTP Method to HTTP Response",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "HTTP Method"
+                    ],
+                    "targetTypes": [
+                        "HTTP Response"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "7ac4b12fefb87bbbe49ac0e9": {
+            "label": "Parameter to Internal Service Call",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Internal Service Call"
+                    ],
+                    "targetTypes": [
+                        "Service Call Parameter"
+                    ]
+                }
+            ],
+            "attributes": {}
+        }
+    }
+}
