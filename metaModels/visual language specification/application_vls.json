@@ -1,0 +1,388 @@
+{
+    "attributes": {},
+    "nodes": {
+        "e5432611a02de255e984bc20": {
+            "label": "IWC Call",
+            "attributes": {
+                "e06a85d121d12e5c6b4442bb": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "4868f5497e0b02373a8fc9a7": {
+            "label": "IWC Response",
+            "attributes": {
+                "15a477687f37ed702f9ea235": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "914ce62f1ad18507a809dc29": {
+            "label": "Microservice Call",
+            "attributes": {
+                "5789ce97def22cf74c41d454": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "77a02207b506fcbcea3fd301": {
+            "label": "Application Environment",
+            "attributes": {
+                "695450a0bbbca8556b24868b": {
+                    "key": "label",
+                    "value": "string"
+                },
+                "e8ceef5fec841d6db6f65e0f": {
+                    "key": "version",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "diamond",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "f0d66caf775ba1ced3632b98": {
+            "label": "Restful Resource",
+            "attributes": {
+                "18ca0a76756191969557c5ee": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rectangle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "fa22e755f9e5112ebeae9815": {
+            "label": "Widget",
+            "attributes": {
+                "f8d9e72ff7f31966fd274c9c": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rectangle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "2ffc02acd555234982d95ca8": {
+            "label": "Collaborative Element",
+            "attributes": {
+                "aac860c27f30fd44e43425a8": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rectangle",
+                "color": "white",
+                "customShape": "",
+                "customAnchors": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0
+            }
+        },
+        "5849bb7d3e2f54ca618ac316": {
+            "label": "Other Service",
+            "attributes": {
+                "158dd42ccdef60b1f1a333de": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rectangle",
+                "color": "white",
+                "customShape": "",
+                "customAnchors": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0
+            }
+        },
+        "afa56e89fd8a8659529caa5b": {
+            "label": "Microservice",
+            "attributes": {
+                "6a4e681cd6b9d6b21e765c45": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rounded_rectangle",
+                "color": "",
+                "defaultWidth": 200,
+                "defaultHeight": 100,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "a5ae5050e89295bddd950207": {
+            "label": "Frontend Component",
+            "attributes": {
+                "93641f72fb49c4f74264a780": {
+                    "key": "label",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rounded_rectangle",
+                "color": "",
+                "defaultWidth": 200,
+                "defaultHeight": 100,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        }
+    },
+    "edges": {
+        "5a2b4514485a58955d09e00e": {
+            "label": "Application Component",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Application Environment"
+                    ],
+                    "targetTypes": [
+                        "Widget"
+                    ]
+                },
+                {
+                    "sourceTypes": [
+                        "Application Environment"
+                    ],
+                    "targetTypes": [
+                        "Restful Resource"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "648d4685a05511f0f97967dd": {
+            "label": "HTTP Call",
+            "shape": {
+                "arrow": "generalisation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Microservice Call"
+                    ],
+                    "targetTypes": [
+                        "Restful Resource"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "8765b185c331dce7ebbe15a0": {
+            "label": "IWC Communication",
+            "shape": {
+                "arrow": "unidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "IWC Call"
+                    ],
+                    "targetTypes": [
+                        "IWC Response"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "5eef76b16e91e0154c3748d4": {
+            "label": "Widget to Microservice Call",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Widget"
+                    ],
+                    "targetTypes": [
+                        "Microservice Call"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "c62e3ccd0b5698b457da1beb": {
+            "label": "Widget to Collaborative Element",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Widget"
+                    ],
+                    "targetTypes": [
+                        "Collaborative Element"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "ce2cfa3aa9275a5f4717371f": {
+            "label": "Widget to IWC Call",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Widget"
+                    ],
+                    "targetTypes": [
+                        "IWC Call"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "91a882359adbf727cd17b023": {
+            "label": "Widget to IWC Response",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Widget"
+                    ],
+                    "targetTypes": [
+                        "IWC Response"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "ff0e31ebd0046d909ec1e880": {
+            "label": "Internal Resource Call",
+            "shape": {
+                "arrow": "unidirassociation",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Restful Resource"
+                    ],
+                    "targetTypes": [
+                        "Restful Resource",
+                        "Other Service"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "7e6e256ad78f4461108c33d5": {
+            "label": "Communicates",
+            "shape": {
+                "arrow": "diamond",
+                "shape": "straight",
+                "color": "",
+                "overlay": "",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Collaborative Element"
+                    ],
+                    "targetTypes": [
+                        "Collaborative Element"
+                    ]
+                }
+            ],
+            "attributes": {}
+        }
+    }
+}
