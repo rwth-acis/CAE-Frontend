@@ -1,0 +1,29 @@
+{
+  "name": "codeEditorWidget",
+  "homepage": "https://github.com/rwth-acis/CAE-Frontend",
+  "authors": [
+    "Thomas Winkler <thwinkler@outlook.de>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "y-js": "*",
+    "y-map": "~8.0.4",
+    "ace-builds": "~1.2.3",
+    "y-array": "~8.1.2",
+    "y-memory": "~8.0.3",
+    "y-text": "~8.0.4",
+    "y-websockets-client": "~8.0.6",
+    "jquery": "~2.2.3"
+  }
+}
