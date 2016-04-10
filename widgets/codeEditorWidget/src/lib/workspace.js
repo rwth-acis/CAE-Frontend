@@ -1,6 +1,7 @@
 import {EventEmitter} from 'events';
 import TraceModel from './TraceModel';
-import {delayed} from "./Utils";
+import {delayed,debounce} from "./Utils";
+import RoleSpace from "./RoleSpace";
 let _y;
 
 function createRoomName(fileName) {
@@ -13,7 +14,7 @@ function initSpace(fileName) {
         room: createRoomName(fileName),
         url: "http://192.168.2.101:1234"
     },
-    sourceDir: './bower_components', // location of the y-* modules
+    sourceDir: 'http://localhost/liveCodeEditorWidget/bower_components', // location of the y-* modules
     share:{'workspace':'Map'}, types : ['Text','Map']});
 }
 
@@ -23,22 +24,43 @@ export default class workspace extends EventEmitter{
         this.contentProvider = contentProvider;
         this.timer = false;
         this.roomSynch = false;
+        this.cursor=0;
+        this.roleSpace = new RoleSpace();
+        this.delayedSetCursor = debounce(this.setRemoteCursor.bind(this),10,false);
+        
     }
     
     isRoomSynchronized(){
         return this.roomSynch;
     }
     
+    getUserId(){
+        return this.roleSpace.getUserId();
+    }
+    
+    getUserName(){
+        return this.roleSpace.getUserName();
+    }
+    
+    getUserNameByJabberId(id){
+        return this.user.get(id.toString());
+    }
+    
     init(fileName,reload){
         let deferred = $.Deferred();
         this.roomSynch = false;
-        initSpace(fileName).then( function(y){
-            this.roomSynch = true;
-            this.workspace = y.share.workspace;
-            this.loadFile(fileName,reload).then( function(segmentValues,ySegmentArray,traceModel,reload,orders){
-                deferred.resolve(segmentValues,ySegmentArray,traceModel,reload,orders);
+        let self = this;
+        this.roleSpace.init().then( function(spaceObj){
+            initSpace(fileName).then( function(y){
+                self.roomSynch = true;
+                self.workspace = y.share.workspace;
+                self.loadFile(fileName,reload).then( function(segmentValues,ySegmentArray,traceModel,reload,orders){
+                    self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
+                    deferred.resolve(segmentValues,ySegmentArray,traceModel,reload,orders);
+                });
             });
-        }.bind(this));
+        });
+        
         return deferred.promise();
     }
     
@@ -59,8 +81,13 @@ export default class workspace extends EventEmitter{
     
     saveFile(filename,segmentManager){
        delayed.bind(this)(function(){
-        console.log(segmentManager.getTraceModel().serializeModel());
-        console.log(segmentManager.getTraceModel().getContent());
+        
+        this.roleSpace.saveFile(filename,{
+            traceModel:segmentManager.getTraceModel().serializeModel(),
+            content:segmentManager.getTraceModel().getContent()
+        });
+        //console.log(segmentManager.getTraceModel().serializeModel());
+        //console.log(segmentManager.getTraceModel().getContent());
        }.bind(this),1000);
     }
     
@@ -91,8 +118,9 @@ export default class workspace extends EventEmitter{
         let self = this;
         let arrays = [];
         let todos = [];
-        this.createFileSpace(fileName,reload).then( function(map,cursor,ySegmentMap,ySegmentArray){
+        this.createFileSpace(fileName,reload).then( function(map,cursor,ySegmentMap,ySegmentArray,user){
             self.setFileSpace(map,cursor,ySegmentMap,ySegmentArray);
+            self.user=user;
             self.cursors = cursor;
             cursor.observe(self.cursorChangeHandler.bind(self));
             self.getFile(fileName).then( function(traceModel){
@@ -139,8 +167,9 @@ export default class workspace extends EventEmitter{
             todos.push(self.createFileEntry("cursor",Y.Map,map));
             todos.push(self.createFileEntry("segmentValues",Y.Map,map));
             todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
-            $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder){
-                deferred.resolve(map,cursor,segmentValues,segmentOrder);
+            todos.push(self.createFileEntry("user",Y.Map,map));
+            $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder,user){
+                deferred.resolve(map,cursor,segmentValues,segmentOrder,user);
             });
         }
         
@@ -175,10 +204,13 @@ export default class workspace extends EventEmitter{
         return this.fileSpace;
     }
     
+    setRemoteCursor(usrId){
+        this.cursors.set(usrId,this.cursor);
+    }
+    
     setCursor(usrId,index){
-       delayed.bind(this)(function(){
-            this.cursors.set(usrId,index);
-       }.bind(this),50);
+        this.cursor = index;
+        this.delayedSetCursor(this.getUserId());
     }
     
     getCursor(usrId){

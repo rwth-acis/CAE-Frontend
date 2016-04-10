@@ -1,8 +1,8 @@
 export default class ContentProvider{
     getContent(fileName){
         let deferred = $.Deferred();
-        $.getJSON("traces/dummyTrace.php?"+fileName, function(data){
-            $.ajax({url:"traces/dummySource.php?"+fileName,dataType:"text"}).then(function(text){
+        $.getJSON("http://localhost/liveCodeEditorWidget/traces/dummyTrace.php?"+fileName, function(data){
+            $.ajax({url:"http://localhost/liveCodeEditorWidget/traces/dummySource.php?"+fileName,dataType:"text"}).then(function(text){
                deferred.resolve({traces:data,text:text}); 
             });
         }).fail(function(err){

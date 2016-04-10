@@ -1,5 +1,6 @@
 <?PHP
 $data = array("traces" => array(), "traceSegments" => array());
+header('Access-Control-Allow-Origin: *');  
 header('Content-Type: application/json');
 
 $number = 10;
