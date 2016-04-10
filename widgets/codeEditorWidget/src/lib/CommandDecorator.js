@@ -26,10 +26,6 @@ export default class CommandDecorator{
         this.traceHighlighter.setActiveSegment(segment);
     }
     
-    setCursor(cursorPosIndex,segment){
-        this.traceHighlighter.setCursor(cursorPosIndex,segment);
-    }
-    
     getCursorIndex(){
         return this.traceHighlighter.getCursorIndex();
     }
@@ -79,7 +75,6 @@ export default class CommandDecorator{
         
         if ( (nextSegment && curSegment !== nextSegment) ) {
             this.setActiveSegment(nextSegment);
-            this.setCursor(curPosIndex,nextSegment);
             return true;
         }
     }
@@ -93,12 +88,7 @@ export default class CommandDecorator{
         let nextSegment = this.segmentManager.findPreviousSegment(nextPosIndex,curSegment);
         
         if ( (nextSegment && curSegment !== nextSegment) ) {
-            //let segStart = this.segmentManager.getSegmentStartIndex(nextSegment);
-            //let relSegStart = Math.max( curPosIndex-segStart,0);
             this.setActiveSegment(nextSegment);
-            this.setCursor(curPosIndex,nextSegment);
-            //this.setCurrentPositionIndex( relSegStart );
-
             return true;
         }
     }
@@ -108,7 +98,6 @@ export default class CommandDecorator{
         let curPosIndex = this.getCursorIndex();
         let nextSegment = this.segmentManager.findSegment(curPosIndex,0);
         this.setActiveSegment(nextSegment);
-        this.setCursor(this.getCursorIndex(),nextSegment);
         return true;
     }
     
@@ -194,7 +183,6 @@ export default class CommandDecorator{
                 return true;
             }
             let res = e.command.exec(e.editor, e.args || {});
-            this.setCursor(this.getCursorIndex(),activeSegment);
             this.renderActiveSegment();
             return res;
         }
@@ -222,7 +210,6 @@ export default class CommandDecorator{
         }
         //if we dont have handled the command yet, we will now do it   
         let res = e.command.exec(e.editor, e.args || {});
-        this.setCursor(this.getCursorIndex(),activeSegment);
         return res;
     }
     

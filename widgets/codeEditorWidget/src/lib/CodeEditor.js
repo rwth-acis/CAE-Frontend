@@ -22,10 +22,14 @@ export default class CodeEditor{
     }
     
     bindAceEditor(editor){
+        let traceHighlighter = this.traceHighlighter;
+        editor.getSession().selection.on('changeCursor', function (e){
+            traceHighlighter.updateCursor();
+        });
         editor.on("change",this.segmentManager.editorChangeHandler.bind(this.segmentManager) );
         editor.on("mouseup",function(e){
             this.traceHighlighter.updateActiveSegment();
-            this.traceHighlighter.setState(0, this.commandDecorator.getCursorIndex());
+            //this.traceHighlighter.setState(0, this.commandDecorator.getCursorIndex());
         }.bind(this))
         editor.commands.setDefaultHandler("exec", this.commandDecorator.commandHandler.bind(this.commandDecorator) );
     }
@@ -51,6 +55,7 @@ export default class CodeEditor{
     }
     
     createAceEditor(editorId){
+        ace.config.set('basePath', 'http://localhost/liveCodeEditorWidget/bower_components/ace-builds/src-noconflict');
         let editor = ace.edit(editorId);
         editor.$blockScrolling = Infinity;
         editor.setOptions({enableBasicAutocompletion: false, enableLiveAutocompletion: false});
