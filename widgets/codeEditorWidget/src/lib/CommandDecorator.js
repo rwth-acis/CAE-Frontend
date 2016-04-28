@@ -46,14 +46,6 @@ export default class CommandDecorator{
         this.redos.push(redo);
     }
     
-    //setCurrentPositionIndex(index){
-    //    this.traceHighlighter.setCurrentPositionIndex(index);
-    //}
-    //
-    //getCurrentPositionIndex(){
-    //    return this.traceHighlighter.getCurrentPositionIndex();
-    //}
-    
     render(){
         this.traceHighlighter.updateSegments();
     }
