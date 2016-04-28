@@ -25,5 +25,7 @@
     "webpack": "^1.12.14"
   },
   "dependencies": {
+    "parse-filepath": "^1.0.1",
+    "path": "^0.12.7"
   }
 }
