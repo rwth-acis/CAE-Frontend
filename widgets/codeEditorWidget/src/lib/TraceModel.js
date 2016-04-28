@@ -2,58 +2,6 @@ import Segment from "./Segment";
 import ProtectedSegment from "./ProtectedSegment";
 import CompositeSegment from "./CompositeSegment";
 
-let _parseSegments2 = function(segments,text,s=0,depth=0,parent){
-    let res = {};
-    let indexes = [];
-    for(let i=0;i<segments.length;i++){
-        let segment = segments[i];
-        if (segment.type === "composite") {
-            let sub = _parseSegments(segment.traceSegments,text,s,depth+1,segment.id);
-            let subS = sub.traceSegments.segments;
-            let subI = sub.traceSegments.indexes;
-            let length = 0;
-            
-            for(let id in subS){
-                if ( subS.hasOwnProperty(id) && !res.hasOwnProperty(id) ) {
-                    res[id]=subS[id];
-                    if (subS[id].hasOwnProperty("value")) {
-                        length+=subS[id].value.length;
-                    }
-                }
-            }
-            
-            res[segment.id] = {
-                parent,
-                orderAble:segment.orderAble,
-            }
-            
-            indexes.push({id:segment.id,children:subI});
-            s+=length;
-        
-        }else{
-            let {length,type,id,orderAble=false}=segment;
-            let isProtected = type === "protected" ? 1 : 0;
-            let value= text.slice(s,s+length);
-            
-            if ( !res.hasOwnProperty(id) ) {
-                let seg;
-                if (isProtected) {
-                    seg = new ProtectedSegment(value,id,parent);
-                }
-                res[id]={value,id,isProtected,parent};
-                indexes.push({id});
-            }
-            s+=length;
-        }
-    }
-    return {
-        traceSegments:{
-            indexes,
-            segments:res
-        }
-    };
-}
-
 let _parseSegments = function(segments,text,s=0,depth=0,parent){
     let res = {};
     let indexes = [];
@@ -64,26 +12,32 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
             let subS = sub.traceSegments.segments;
             let subI = sub.traceSegments.indexes;
             let length = 0;
-            
+
+            for(let ii=0;ii<subI.length;ii++){
+                let id= subI[ii].id;
+                if ( subS.hasOwnProperty(id) ) {
+                    length+=subS[id].getLength();
+                }
+            }
+
             for(let id in subS){
-                if ( subS.hasOwnProperty(id) && !res.hasOwnProperty(id) ) {
-                    res[id]=subS[id];
-                    if ( !(subS[id] instanceof CompositeSegment) ) {
-                        length+=subS[id].toString().length;
+                if ( subS.hasOwnProperty(id) ){
+                    if(!res.hasOwnProperty(id) ) {
+                        res[id]=subS[id];
                     }
                 }
             }
-            
-            res[segment.id] = new CompositeSegment(segment.id,parent,segment.orderAble);
+
+            res[segment.id] = new CompositeSegment(segment.id,parent,segment.orderAble,subI.map( elm => subS[elm.id] ) );
             indexes.push({id:segment.id,children:subI});
-            
             s+=length;
-        
+
         }else{
             let {length,type,id,orderAble=false}=segment;
+            length = parseInt(length);
             let isProtected = type === "protected";
             let value= text.slice(s,s+length);
-            
+
             if ( !res.hasOwnProperty(id) ) {
                 let seg;
                 if (isProtected) {
@@ -92,15 +46,15 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
                     seg = new Segment(value,id,parent);
                 }
                 res[id]=seg;
-                indexes.push({id});
             }
+            indexes.push({id});
             s+=length;
         }
     }
     return {
         traceSegments:{
             indexes,
-            segments:res
+            segments:res,
         }
     };
 }
@@ -110,11 +64,11 @@ export default class TraceModel{
         this.indexes=[];
         this.segments={};
     }
-    
+
     getSegmentById(id){
         return this.segments[id];
     }
-    
+
     parseModel(){
         let {traces,text} = this.model;
         let {traceSegments} = traces;
@@ -122,25 +76,25 @@ export default class TraceModel{
         this.indexes = res.traceSegments.indexes;
         this.segments = res.traceSegments.segments;
     }
-    
+
     getSegments(){
         return this.segments;
     }
-    
+
     getContent(){
         return this.getFlattenIndexes().map( function(elm){
             return this.getSegmentById(elm.id).toString()
         }.bind(this)).join("");
     }
-    
+
     setIndexes(indexes){
         this.indexes=indexes;
     }
-    
+
     getIndexes(){
         return this.indexes;
     }
-    
+
     getFlattenSubIndexes(indexes,withComposites=false){
         let res=[];
         for(let i=0;i<indexes.length;i++){
@@ -157,11 +111,11 @@ export default class TraceModel{
         }
         return res;
     }
-    
+
     getFlattenIndexes(withComposites=false){
         return this.getFlattenSubIndexes(this.indexes,withComposites);
     }
-    
+
     serializeModel(children){
         let traceSegments = [];
         let indexes = children || this.indexes;
