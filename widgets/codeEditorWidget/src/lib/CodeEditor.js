@@ -24,12 +24,12 @@ export default class CodeEditor{
     bindAceEditor(editor){
         let traceHighlighter = this.traceHighlighter;
         editor.getSession().selection.on('changeCursor', function (e){
+            console.log("changeCursor");
             traceHighlighter.updateCursor();
         });
         editor.on("change",this.segmentManager.editorChangeHandler.bind(this.segmentManager) );
         editor.on("mouseup",function(e){
             this.traceHighlighter.updateActiveSegment();
-            //this.traceHighlighter.setState(0, this.commandDecorator.getCursorIndex());
         }.bind(this))
         editor.commands.setDefaultHandler("exec", this.commandDecorator.commandHandler.bind(this.commandDecorator) );
     }
@@ -48,14 +48,14 @@ export default class CodeEditor{
         });
         
         segmentManager.addChangeListener(function(e,content){
-            workspace.saveFile("testFile",segmentManager);
+            workspace.saveFile(segmentManager);
         });
         
         return segmentManager;
     }
     
     createAceEditor(editorId){
-        ace.config.set('basePath', 'http://localhost/liveCodeEditorWidget/bower_components/ace-builds/src-noconflict');
+        ace.config.set('basePath', 'http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/ace-builds/src-noconflict');
         let editor = ace.edit(editorId);
         editor.$blockScrolling = Infinity;
         editor.setOptions({enableBasicAutocompletion: false, enableLiveAutocompletion: false});
@@ -63,9 +63,9 @@ export default class CodeEditor{
         //dirty way to disable the built-in undomanager completely
         //we need to build our on as we need to additionally store the affected segments
         editor.getSession().setUndoManager({execute:function(){},undo:function(){},redo:function(){}});
-        
+        editor.getSession().setUseWrapMode(true);
         editor.setOption("dragEnabled",false);
-        editor.getSession().setMode("ace/mode/html");
+        editor.getSession().setMode("ace/mode/xml");
         editor.getSession().setFoldStyle('manual');
         editor.setTheme("ace/theme/chrome");
         editor.setFontSize(25);
@@ -73,12 +73,13 @@ export default class CodeEditor{
     }
     
     setModalText(text){
-        $("div#modal-body").text(text);
+        $("div#loading-body").text(text);
     }
     
     hideModal(){
-        $(".modal-overlay").removeClass("modal-is-visible");
-        $(".modal").removeClass("modal-is-visible");
+        $(".loading-overlay").removeClass("loading-is-visible");
+        $(".loading").removeClass("loading-is-visible");
+        $("#editor").removeClass("editor-is-hidden");
     }
     
     workspaceHandler(ySegmentMap,ySegmentArray,traceModel,reordered,orders){
@@ -92,6 +93,37 @@ export default class CodeEditor{
             deferred.resolve();
         }.bind(this));
         return deferred.promise();
+    }
+    
+    init(filePath="./"){
+        let deferred = $.Deferred();
+        self = this;
+        this.workspace.getFiles(filePath).then(function(data){
+            let links = data.files.map( file =>
+                $(`<a>${file.name}</a>`).click(function(){
+                    let path = file.name;
+                    if (file.type == "folder") {
+                        self.init(path);   
+                    }else{
+                        self.load(path).then(function(){
+                        });
+
+                    }
+                }).attr({
+                    "class" : "mdl-navigation__link",
+                    "href" : "javascript:void(0);"
+                })
+            );
+            
+            if (!self.workspace.isRootPath()) {
+                links.unshift($(`<a>../</a>`).click(function(){self.init("../")}).attr({"class":"mdl-navigation__link"}));
+            }
+            
+            $("#files").html( links );
+        })
+        
+        deferred.resolve();
+        return deferred;
     }
     
     load(fileName,reload=false){    
