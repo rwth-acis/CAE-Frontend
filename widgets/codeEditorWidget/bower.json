@@ -24,6 +24,7 @@
     "y-memory": "~8.0.3",
     "y-text": "~8.0.4",
     "y-websockets-client": "~8.0.6",
-    "jquery": "~2.2.3"
+    "jquery": "~2.2.3",
+    "material-design-lite": "~1.1.3"
   }
 }
