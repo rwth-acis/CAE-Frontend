@@ -10,6 +10,10 @@ export default class Segment extends AbstractSegment{
         return this.value;
     }
     
+    getLength(){
+        return this.toString().length;
+    }
+    
     setValue(value){
         this.value=value;
     }

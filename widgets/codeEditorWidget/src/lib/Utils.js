@@ -27,7 +27,6 @@ export function toPromise(callback){
         let args = Array.prototype.slice.call(arguments);
         let deferred = $.Deferred();
         args.push(function(){
-            console.log("args",arguments);
             deferred.resolve.apply(this,arguments);    
         });
         callback.apply(this,args);

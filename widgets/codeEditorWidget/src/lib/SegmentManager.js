@@ -4,14 +4,14 @@ import CompositeSegment from "./CompositeSegment";
 let Range = ace.require('ace/range').Range
 
 class SegmentManager extends EventEmitter{
-    
+
     constructor(editor){
         super();
         this.editor = editor;
         this.activeSegment;
         this.token =true;
     }
-    
+
     setActiveSegment(segmentId){
         this.activeSegment = segmentId;
         if(typeof segmentId != "undefined"){
@@ -23,12 +23,12 @@ class SegmentManager extends EventEmitter{
             }
         }
     }
-    
+
     getActiveSegment(){
         return this.activeSegment;
     }
- 
-       
+
+
     createSegValue(id,value) {
         //ensure that we use a string as the key
         id = id.toString();
@@ -36,18 +36,17 @@ class SegmentManager extends EventEmitter{
         let promise = this.map.get(id);
         //if yText for the segment id does not exist, we create it first
         if (promise === undefined) {
-            console.log("create "+id)
               this.map.set(id,Y.Text).then(function(yText){
                 //set initial text value
                 yText.insert(0,value);
                 deferred.resolve(yText);
-              }.bind(this));       
+              }.bind(this));
         }else{
             promise.then( (yText) => { deferred.resolve(yText) });
         }
         return deferred.promise();
     }
-    
+
     mutualExclusion(callback){
         return function(event){
             if ( this.token) {
@@ -63,7 +62,7 @@ class SegmentManager extends EventEmitter{
             }
         }.bind(this)
     }
-    
+
     rebuildIndex(list,parent){
         let nIndexes=[];
         let topLevelSegments = list.toArray();
@@ -77,11 +76,11 @@ class SegmentManager extends EventEmitter{
             }else{
                 nIndexes.push({id:seg});
             }
-            
+
         }
         return nIndexes;
     }
-    
+
     swapSegments(target,source){
         let deferred = $.Deferred();
         if (target.parent && target.parent == source.parent) {
@@ -98,22 +97,22 @@ class SegmentManager extends EventEmitter{
         deferred.resolve();
         return deferred.promise();
     }
-    
-    
+
+
     reordered(indexes){
         this.token=false;
         this.traceModel.setIndexes(indexes);
         let self = this,
             content = this.traceModel.getContent();
-        this.editor.setValue( content ,1 );             
+        this.editor.setValue( content ,1 );
         this.emit("change",{}, content );
         this.token=true;
     }
-    
+
     getTraceModel(){
         return this.traceModel;
     }
-    
+
     buildOrders(indexes,segments){
         for(let i=0;i<indexes.length;i++){
             let index = indexes[i];
@@ -128,7 +127,7 @@ class SegmentManager extends EventEmitter{
             }
         }
     }
-    
+
     getNavigationString(segId){
         let nav="";
         let segment = this.getSegmentByIdRaw(segId).segment;
@@ -138,13 +137,13 @@ class SegmentManager extends EventEmitter{
         nav+=segment.getId();
         return nav;
     }
-    
+
     initOrders(orders){
         for(let order of orders){
             this.orders[order.id] = order.list;
         }
     }
-    
+
     bindOrders(orders){
         let self = this;
         for(let order of orders){
@@ -158,7 +157,7 @@ class SegmentManager extends EventEmitter{
             });
         }
     }
-    
+
     bindYTextSegment(segment,yText){
         let self = this;
         let aceDocument = this.editor.getSession().getDocument();
@@ -184,65 +183,64 @@ class SegmentManager extends EventEmitter{
             }
         });
     }
-    
+
     emitLoadingUpdate(status,total){
         this.emit("loading",{status,total});
     }
-    
+
     disableBindings(){
         this.token = false;
     }
-    
+
     enableBindings(){
         this.token = true;
     }
-    
+
     bindSegments(traceModel,ySegmentMap,ySegmentArray,reordered,orders){
-        
+
         this.disableBindings();
-        
+
         this.list = ySegmentArray;
         this.map = ySegmentMap;
         this.orders = {};
         this.traceModel = traceModel;
-        
+
         let segments = this.traceModel.getSegments(),
             indexes = this.traceModel.getIndexes(),
-            
+
             flattenIndexes = this.traceModel.getFlattenIndexes(),
             flattenWithComposites = this.traceModel.getFlattenIndexes(true),
             synchedSegs = {},
             count = 0,
             self = this,
             deferred = $.Deferred();
-        
+
         this.initOrders(orders);
-        
+
         if (reordered) {
             this.buildOrders(indexes,segments);
         }
-        
+
         function finish(){
             count++;
             if (count === flattenWithComposites.length) {
-                console.log(synchedSegs);
                 self.setSegments(synchedSegs,indexes);
-                self.editor.setValue(flattenIndexes.map( elm => synchedSegs[elm.id].segment.toString() ).join(""),1 );             
+                self.editor.setValue(flattenIndexes.map( elm => synchedSegs[elm.id].segment.toString() ).join(""),1 );
                 self.bindOrders(orders);
-                
+
                 self.emitLoadingUpdate(count,flattenWithComposites.length);
                 //setTimeout(function(){
                 //    self.swapSegments({parent:"container1",index:2},{parent:"container1",index:4});
                 //},1000);
-                
+
                 //(re-)activate the bindings
                 self.enableBindings();
-                
+
                 //finally resolve the promise
                 deferred.resolve();
             }
         }
-        
+
         for(let i=0;i<flattenWithComposites.length;i++){
             let index = flattenWithComposites[i].id;
             let segment = segments[index];
@@ -263,20 +261,20 @@ class SegmentManager extends EventEmitter{
                     });
                 }else{
                     //segment is protected
-                    //we use a "isProtected" property as it is faster than "instanceof ProtectedSegment" 
+                    //we use a "isProtected" property as it is faster than "instanceof ProtectedSegment"
                     synchedSegs[index]={id:index,segment:segment,isProtected:1};
                     finish();
                 }
             }
         }
-        
+
         return deferred.promise();
     }
-    
+
     getOrderAbleSegments(){
         return this.list.toArray();
     }
-    
+
     getSegmentsRaw(withComposites){
         let self = this;
         return this.traceModel.getFlattenIndexes(withComposites).map( function(index){
@@ -287,7 +285,7 @@ class SegmentManager extends EventEmitter{
             }
         } );
     }
-    
+
     getSegments(){
         let self = this;
         return this.traceModel.getFlattenIndexes().map( function(index){ return {
@@ -295,18 +293,18 @@ class SegmentManager extends EventEmitter{
             value:self.getSegmentById(index.id)
         } });
     }
-    
+
     setSegments(bindings,indexes){
         this.indexes = indexes;
         this.bindings = bindings;
     }
-    
+
     getSegmentPosition(segment, offset){
         let start = offset;
         let end = start + segment.segment.toString().length;
         return {start,end};
     }
-    
+
     getSegmentDim(segId){
         let s =0;
         let diff;
@@ -317,16 +315,16 @@ class SegmentManager extends EventEmitter{
             if (binding.id == segId) {
                 return {start:s,end:s+binding.segment.toString().length};
             }
-            
+
             s+=binding.segment.toString().length;
         }
         return {start:s,end:s};
     }
-    
+
     getSegmentStartIndex(segId){
         return this.getSegmentDim(segId).start;
     }
-    
+
     editorChangeHandler(e){
         if (this.getActiveSegment()) {
             this.mutualExclusion(function(e){
@@ -345,16 +343,16 @@ class SegmentManager extends EventEmitter{
                         yText.delete(relSegStart, length)
                       }
                     }
-                    
+
                     if (!(segment instanceof ProtectedSegment)) {
                         segment.setValue(yText.toString());
                     }
                 }
-                
+
             } ).bind(this)(e);
         }
     }
-    
+
     findPreviousSegment(posIndex,segmentId){
         let res = undefined;
         let s =0;
@@ -373,7 +371,7 @@ class SegmentManager extends EventEmitter{
         }
         return res;
     }
-    
+
     findNextSegment(posIndex,segmentId){
         let s =0;
         let {start,end} = this.getSegmentDim(segmentId);
@@ -391,7 +389,7 @@ class SegmentManager extends EventEmitter{
         }
         return undefined;
     }
-    
+
     findNearestSegment(posIndex,offset=0){
         let s =0;
         let _nearest;
@@ -411,7 +409,7 @@ class SegmentManager extends EventEmitter{
         }
         return _nearest;
     }
-    
+
     findSegment(posIndex,offset=0){
         let s =0;
         let diff;
@@ -427,30 +425,30 @@ class SegmentManager extends EventEmitter{
         }
         return undefined;
     }
-    
+
     get(segmentId){
         return this.map.get(segmentId.toString());
     }
-    
+
     getSegmentByIdRaw(segmentId){
         let id = segmentId.toString();
         return this.bindings[segmentId];
     }
-    
-    getSegmentById(segmentId){    
+
+    getSegmentById(segmentId){
         let binding = this.getSegmentByIdRaw(segmentId);
         return binding && binding.segment && binding.segment.toString();
     }
-    
+
     isProtected(segmentId){
         let binding = this.getSegmentByIdRaw(segmentId);
         return  binding && binding.isProtected;
     }
-    
+
     addChangeListener(listener){
         this.on("change" , listener);
     }
-    
+
     removeChangeListener(listener){
         this.removeListener("change", listener);
     }
@@ -458,11 +456,11 @@ class SegmentManager extends EventEmitter{
     addLoadingListener(listener){
         this.on("loading" , listener);
     }
-    
+
     removeLoadingListener(listener){
         this.removeListener("loading", listener);
     }
-    
+
 }
 
 export default SegmentManager;
