@@ -8,10 +8,10 @@ export default class ContentProvider{
       `http://localhost:8080/CAE/github/${modelName}/file/?file=${fileName}`
     ).then(function(data){
       let content = new Buffer(data.content,"base64").toString("utf-8");
-        deferred.resolve({traces:data.traceModel,text:content})
+      deferred.resolve({traces:data.traceModel,text:content})
     });
 
-      return deferred.promise();
+    return deferred.promise();
   }
 
   getFiles(modelName,path=""){
@@ -34,6 +34,6 @@ export default class ContentProvider{
       contentType: "application/json;charset=utf-8",
       url: `http://localhost:8080/CAE/github/${modelName}/file/`,
       data: JSON.stringify(requestData)
-      });
+    });
   }
 }
