@@ -58,16 +58,39 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
     }
   };
 }
+
+/**
+ *  Class representing the trace model of a file. Furthermore, the class
+ *  parses the given model and divides the file into its segments.
+ */
+
 export default class TraceModel{
+
+  /**
+   *  @param {Object} model                       - The model that should be used
+   *  @param {string} model.text                  - The file content
+   *  @param {Object} model.traces                - The traces of the file
+   *  @param {Object} model.traces.traceSegments  - The traceable segments of the file
+   */
+
   constructor(model){
     this.model = model;
     this.indexes=[];
     this.segments={};
   }
 
+  /**
+   *  Returns the segment with the given id
+   *  @param {string} id  - The id of the segment
+   */
+
   getSegmentById(id){
     return this.segments[id];
   }
+
+  /**
+   *  Parses the model
+   */
 
   parseModel(){
     let {traces,text} = this.model;
@@ -77,9 +100,17 @@ export default class TraceModel{
     this.segments = res.traceSegments.segments;
   }
 
+  /*
+   *  Returns all segments
+   */
+
   getSegments(){
     return this.segments;
   }
+
+  /*
+   *  Returns the content of the file holded by the trace model
+   */
 
   getContent(){
     return this.getFlattenIndexes().map( function(elm){
@@ -87,9 +118,18 @@ export default class TraceModel{
     }.bind(this)).join("");
   }
 
+  /*
+   *  Sets new indexes, i.e. new order of the segments
+   *  @param {Object[]} indexes - The new indexes
+   */
+
   setIndexes(indexes){
     this.indexes=indexes;
   }
+
+  /*
+   *  Returns the current indexes
+   */
 
   getIndexes(){
     return this.indexes;
@@ -112,9 +152,21 @@ export default class TraceModel{
     return res;
   }
 
+  /*
+   *  Returns the flatten indexes
+   *  @param [boolean]  withComposites  - Determine if the indexes of composites segments should also be included
+   */
+
   getFlattenIndexes(withComposites=false){
     return this.getFlattenSubIndexes(this.indexes,withComposites);
   }
+
+  /**
+   *  Serialize a given subset of the segments to JSON
+   *  @param {Object[]} children              - The ids of the segments that should be serializeModel
+   *  @param {string}   children[].id         - The id of the segment
+   *  @param {Object[]} [children[].children] - The list of sub segments of composite segment
+   */
 
   serializeModel(children){
     let traceSegments = [];
