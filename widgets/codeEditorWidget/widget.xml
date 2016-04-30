@@ -92,52 +92,57 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
     <header class="mdl-layout__header">
       <div class="mdl-layout__header-row">
-      <div class="mdl-layout-spacer"></div>
-      <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right">
-        <label class="mdl-button mdl-js-button mdl-button--icon"
-           for="fixed-header-drawer-exp">
-        <i class="material-icons">search</i>
-        </label>
-        <div class="mdl-textfield__expandable-holder">
-        <input class="mdl-textfield__input" type="text" name="sample"
-             id="fixed-header-drawer-exp">
+        <div class="mdl-layout-spacer"></div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right">
+          <label class="mdl-button mdl-js-button mdl-button--icon" for="fixed-header-drawer-exp">
+            <i class="material-icons">search</i>
+          </label>
+          <div class="mdl-textfield__expandable-holder">
+            <input class="mdl-textfield__input" type="text" name="sample" id="fixed-header-drawer-exp">
+          </div>
         </div>
-      </div>
       </div>
     </header>
     <div class="mdl-layout__drawer">
       <span class="mdl-layout-title">Files</span>
       <nav class="mdl-navigation files" id="files">
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
-      <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
       </nav>
     </div>
     <main class="mdl-layout__content">
-      <div class="loading loading-is-visible">
-        <div id="loading-body" class="loading-body">
-        <p>Loading</p>
+      <div class="page-content" style="padding:10px">
+        <div class="mdl-card mdl-shadow--2dp editor" style="width:100%;">
+          <div class="mdl-card__actions">
+            <div id="editor" style="height:200px"></div>
+          </div>
         </div>
-        <div id="p2" style="width:100%" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
-      </div>
-      <div class="page-content">
-      <div id="editor" style="height:300px" class="editor-is-hidden"></div>
-      <script type="text/javascript" src="./dist/main.dev.js"></script>
-        <script type="text/javascript">
-        function resizeAce() {
-          return $('#editor').height($(window).height()-$("header:eq(0)").height());
-        };
-        $(window).resize(resizeAce);
-        resizeAce();
-        </script>
+
+        <div class="splash-card-wide mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Community Application Editor</h2>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <div class="loading loading-is-visible">
+              <div id="loading-body" class="loading-body">
+                <ul>
+                  <li id="yjsSynchronization">Synchronizing with yjs room</li>
+                  <li id="fetchingData">Fetching source code &amp; traces</li>
+                  <li id="bindingSegments">Binding segments</li>
+                </ul>
+              </div>
+              <div id="p2" style="width:100%" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
-  <div id="footbar" style="height:40px"></div>
   <script type="text/javascript" src="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/dist/main.dev.js"></script>
   <script type="text/javascript">
     function resizeAce() {
-      return $('#editor').height($(window).height()-$("div#footbar").height());
+      return $('.editor, #editor').height($(window).height()-$("header:eq(0)").height() - 20);
     };
     $(window).resize(resizeAce);
     resizeAce();

@@ -1,37 +1,73 @@
 <html>
-  <head>
-    <script src="./bower_components/jquery/dist/jquery.min.js"></script>
-    <script src="./bower_components/yjs/y.js"></script>
-    <link rel="stylesheet" href="http://localhost/liveCodeEditorWidget/css/style.css">
-    <script type="text/javascript" src="./bower_components/ace-builds/src-noconflict/ace.js"></script>
-  </head>
-  <body>
-
-
-
-    <div class="container" style="position:relative">
-      <div id="editor" style="height:500px"></div>
-      <div class="modal-overlay modal-is-visible"></div>
-      <section class="modal modal-is-visible">
-          <header>
-            <h1>Community Application Editor</h1>
-          </header>
-          <div id="modal-body" class="modal-body">
-            <p>Loading</p>
+<head>
+  <script src="./bower_components/jquery/dist/jquery.min.js"></script>
+  <script src="./bower_components/yjs/y.js"></script>
+  <link rel="stylesheet" href="http://localhost/liveCodeEditorWidget/css/style.css">
+  <script type="text/javascript" src="./bower_components/ace-builds/src-noconflict/ace.js"></script>
+  <link rel="stylesheet" href="./bower_components/material-design-lite/material.min.css">
+  <script src="./bower_components/material-design-lite/material.min.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <div class="mdl-layout-spacer"></div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable mdl-textfield--floating-label mdl-textfield--align-right">
+          <label class="mdl-button mdl-js-button mdl-button--icon" for="fixed-header-drawer-exp">
+            <i class="material-icons">search</i>
+          </label>
+          <div class="mdl-textfield__expandable-holder">
+            <input class="mdl-textfield__input" type="text" name="sample" id="fixed-header-drawer-exp">
           </div>
-          <footer>
-          <div class="load-bar">
-            <div class="bar"></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-          </div>
-          </footer>
-      </section>
+        </div>
+      </div>
+    </header>
+    <div class="mdl-layout__drawer">
+      <span class="mdl-layout-title">Files</span>
+      <nav class="mdl-navigation files" id="files">
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+        <a class="mdl-navigation__link" href="">Link</a>
+      </nav>
     </div>
-    <div id="footbar" style="height:40px"></div>
-    Filename: <input type="text" id="filename"/><br/>
-    <button id="load">Load</button>
-    <button id="persist">Persist</button>
-    <script type="text/javascript" src="./dist/main.dev.js"></script>
-    </body>
+    <main class="mdl-layout__content">
+      <div class="page-content" style="padding:10px">
+        <div class="mdl-card mdl-shadow--2dp editor" style="width:100%;">
+          <div class="mdl-card__actions">
+            <div id="editor" style="height:200px"></div>
+          </div>
+        </div>
+
+        <div class="splash-card-wide mdl-card mdl-shadow--2dp">
+          <div class="mdl-card__title">
+            <h2 class="mdl-card__title-text">Community Application Editor</h2>
+          </div>
+          <div class="mdl-card__actions mdl-card--border">
+            <div class="loading loading-is-visible">
+              <div id="loading-body" class="loading-body">
+                <ul>
+                  <li id="yjsSynchronization">Synchronizing with yjs room</li>
+                  <li id="fetchingData">Fetching source code &amp; traces</li>
+                  <li id="bindingSegments">Binding segments</li>
+                </ul>
+              </div>
+              <div id="p2" style="width:100%" class="mdl-progress mdl-js-progress mdl-progress__indeterminate"></div>
+            </div>
+          </div>
+        </div>
+        <script type="text/javascript" src="./dist/main.dev.js"></script>
+        <script type="text/javascript">
+        function resizeAce() {
+          //editor height = window.heigt - header-height - top + bottom padding of div.page-content
+          return $('.editor, #editor').height($(window).height()-$("header:eq(0)").height() - 20);
+        };
+        $(window).resize(resizeAce);
+        resizeAce();
+        </script>
+      </div>
+    </main>
+  </div>
+</body>
+
 </html>
