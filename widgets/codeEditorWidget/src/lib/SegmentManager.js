@@ -346,6 +346,7 @@ class SegmentManager extends EventEmitter{
 
           if (!(segment instanceof ProtectedSegment)) {
             segment.setValue(yText.toString());
+            this.emit("saveEvent",this.getActiveSegment());
           }
         }
 
@@ -440,9 +441,22 @@ class SegmentManager extends EventEmitter{
     return binding && binding.segment && binding.segment.toString();
   }
 
+  getModelName(segmentId){
+    return this.traceModel.getModelName(segmentId.toString());
+  }
+
   isProtected(segmentId){
     let binding = this.getSegmentByIdRaw(segmentId);
     return  binding && binding.isProtected;
+  }
+
+  addSaveListener(listener){
+    alert("addSaveListener");
+    this.on("saveEvent",listener);
+  }
+
+  removeChangeListener(listener){
+    this.removeListener("saveEvent",listener);
   }
 
   addChangeListener(listener){

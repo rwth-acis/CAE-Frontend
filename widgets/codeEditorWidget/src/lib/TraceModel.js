@@ -77,6 +77,7 @@ export default class TraceModel{
     this.model = model;
     this.indexes=[];
     this.segments={};
+    this.traces = {};
   }
 
   /**
@@ -93,11 +94,34 @@ export default class TraceModel{
   */
 
   parseModel(){
-    let {traces,text} = this.model;
-    let {traceSegments} = traces;
+    let {traces : traceModel,text} = this.model;
+    let {traceSegments, traces} = traceModel;
     let res =_parseSegments(traceSegments,text);
     this.indexes = res.traceSegments.indexes;
     this.segments = res.traceSegments.segments;
+    this.traces = traces;
+    console.log(this.traces);
+  }
+
+  /**
+   *  Returns the model name of a segment used for the commit message
+   *  @param {string} segmentId - The segment id
+   */
+
+  getModelName(segmentId){
+    let modelName = `Untraced Segment[${segmentId}]`;
+    for(let modelId in this.traces){
+      if(this.traces.hasOwnProperty(modelId)){
+        let model = this.traces[modelId];
+        let segments = model.segments.filter( segment => segment == segmentId);
+        if(segments && segments.length > 0){
+          modelName = model.name;
+          break;
+        }
+      }
+    }
+
+    return modelName;
   }
 
   /*

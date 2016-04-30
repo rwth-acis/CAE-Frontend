@@ -47,8 +47,9 @@ export default class CodeEditor{
       }
     });
 
-    segmentManager.addChangeListener(function(e,content){
-      workspace.saveFile(segmentManager);
+    segmentManager.addSaveListener(function(segmentId){
+      let parent = segmentManager.getModelName(segmentId);
+      workspace.saveFile(segmentManager,parent);
     });
 
     return segmentManager;

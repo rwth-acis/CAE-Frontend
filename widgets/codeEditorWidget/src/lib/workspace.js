@@ -92,16 +92,18 @@ export default class workspace extends EventEmitter{
     return deferred.promise();
   }
 
-  saveFile(segmentManager){
+  saveFile(segmentManager,changedSegment){
     delayed.bind(this)(function(){
       let path = Path.resolve(this.currentPath,this.currentFile);
       path = Path.relative("/",path);
+      let userId = this.getUserId();
+      let userName = this.getUserNameByJabberId(userId);
 
       this.contentProvider.saveFile(path,{
-        data:{
-          code :  segmentManager.getTraceModel().getContent(),
-          traces : segmentManager.getTraceModel().serializeModel()
-        }
+        code :  segmentManager.getTraceModel().getContent(),
+        traces : segmentManager.getTraceModel().serializeModel(),
+        changedSegment,
+        user: userName
       }).then(function(e){
         console.log(e);
       });
