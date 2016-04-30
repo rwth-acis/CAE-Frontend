@@ -11,7 +11,19 @@ if (typeof window.openapp === "undefined") {
       Resource:function(){
         return {
           getSubResources:function(opt){
-            opt.onAll();
+            opt.onAll([{
+              getRepresentation:function(type, callback){
+                callback({
+                  attributes:{
+                    label:{
+                      value:{
+                        value:"neues Widget2"
+                      }
+                    }
+                  }
+                });
+              }
+            }]);
           },
           create:function(opt){
             console.log(opt.type,opt.representation);
@@ -120,8 +132,44 @@ export default class RoleSpace{
     });
   }
 
-  loadFile(fileName){
+  getComponentType(){
+    return "frontend";
+  }
 
+  getModelResource(){
+    let deferred = $.Deferred();
+    resourceSpace.getSubResources({
+      relation: openapp.ns.role + "data",
+      type: CONFIG.NS.MY.MODEL,
+      onAll: function(data) {
+        if(data === null || data.length === 0){
+          deferred.resolve({});
+        } else {
+          data[0].getRepresentation("rdfjson",function(representation){
+            if(!representation){
+              //if no representation is found, return an empty object
+              deferred.resolve({});
+            } else {
+              deferred.resolve(representation);
+            }
+          });
+        }
+      }
+    });
+    return deferred.promise();
+  }
+
+  getComponentName(){
+    console.log("getComponentName");
+    let deferred = $.Deferred();
+    this.getModelResource().then( (representation) => {
+      if(representation && representation.attributes){
+        deferred.resolve(representation.attributes.label.value.value);
+      }else{
+        deferred.reject(new Error("Model not yet persisted."));
+      }
+    });
+    return deferred.promise();
   }
 
   getSpaceObj(){

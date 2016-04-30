@@ -64,8 +64,11 @@ export default class CodeEditor{
     //dirty way to disable the built-in undomanager completely
     //we need to build our on as we need to additionally store the affected segments
     editor.getSession().setUndoManager({execute:function(){},undo:function(){},redo:function(){}});
+    //enable line wrapping
     editor.getSession().setUseWrapMode(true);
     editor.setOption("dragEnabled",false);
+
+    //set up some editor gui settings
     editor.getSession().setMode("ace/mode/xml");
     editor.getSession().setFoldStyle('manual');
     editor.setTheme("ace/theme/chrome");
@@ -73,18 +76,37 @@ export default class CodeEditor{
     return editor;
   }
 
+  setModalStatus(status){
+    let tasks = $("div#loading-body ul li");
+    let task = tasks.eq(status);
+    //last task is done
+    if(task.length === 0){
+      tasks.addClass("isDone");
+    }else{
+      task.removeClass("isDone");
+      task.nextAll().removeClass("isDone");
+      task.prevAll().addClass("isDone");
+    }
+  }
+
   setModalText(text){
-    $("div#loading-body").text(text);
+    $("div#loading-body span#text").text(text);
+  }
+
+  showModal(){
+    $(".editor").hide();
+    $(".splash-card-wide").show();
+    $("main").addClass("onTop");
   }
 
   hideModal(){
-    $(".loading-overlay").removeClass("loading-is-visible");
-    $(".loading").removeClass("loading-is-visible");
-    $("#editor").removeClass("editor-is-hidden");
+    $(".splash-card-wide").hide();
+    $(".editor").show();
+    $("main").removeClass("onTop");
   }
 
   workspaceHandler(ySegmentMap,ySegmentArray,traceModel,reordered,orders){
-    this.setModalText(`Binding segments with yjs`);
+    this.setModalStatus(2);
     let deferred = $.Deferred();
     let editor = this.editor;
     this.segmentManager.bindSegments(traceModel,ySegmentMap,ySegmentArray,reordered,orders).then( function(){
@@ -92,11 +114,17 @@ export default class CodeEditor{
       let diff = new Date().getTime() - this.startTime;
       console.log(diff);
       deferred.resolve();
+      alert(3);
+      this.setModalStatus(3);
     }.bind(this));
     return deferred.promise();
   }
 
-  init(filePath="./"){
+  init(){
+    this.workspace.init().then(()=>this.loadFiles());
+  }
+
+  loadFiles(filePath="./"){
     let deferred = $.Deferred();
     self = this;
     this.workspace.getFiles(filePath).then(function(data){
@@ -104,11 +132,9 @@ export default class CodeEditor{
         $(`<a>${file.name}</a>`).click(function(){
           let path = file.name;
           if (file.type == "folder") {
-            self.init(path);
+            self.loadFiles(path);
           }else{
-            self.load(path).then(function(){
-            });
-
+            self.load(path);
           }
         }).attr({
           "class" : "mdl-navigation__link",
@@ -117,7 +143,7 @@ export default class CodeEditor{
       );
 
       if (!self.workspace.isRootPath()) {
-        links.unshift($(`<a>../</a>`).click(function(){self.init("../")}).attr({"class":"mdl-navigation__link"}));
+        links.unshift($(`<a>../</a>`).click(function(){self.loadFiles("../")}).attr({"href":"javascript:void(0);","class":"mdl-navigation__link"}));
       }
 
       $("#files").html( links );
@@ -128,10 +154,14 @@ export default class CodeEditor{
   }
 
   load(fileName,reload=false){
-    this.setModalText(`Synchronizing with yjs room`);
+    this.showModal();
+    this.setModalStatus(0);
 
     if (!this.workspace.isRoomSynchronized()) {
-      return this.workspace.init(fileName,reload).then(this.workspaceHandler.bind(this));
+      return this.workspace.init().then( () => {
+        this.setModalStatus(1);
+        return this.workspace.loadFile(fileName,reload)
+      }).then(this.workspaceHandler.bind(this));
     }else{
       return this.workspace.loadFile(fileName,reload).then(this.workspaceHandler.bind(this));
     }

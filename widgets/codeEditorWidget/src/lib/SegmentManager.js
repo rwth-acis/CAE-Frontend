@@ -451,7 +451,6 @@ class SegmentManager extends EventEmitter{
   }
 
   addSaveListener(listener){
-    alert("addSaveListener");
     this.on("saveEvent",listener);
   }
 

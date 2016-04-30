@@ -22,8 +22,8 @@ export default class ContentProvider{
     );
   }
 
-  saveFile(filename,{code,traces,changedSegment,user}){
-    let modelName = "frontendComponent-neues-Widget2";
+  saveFile(filename,repoName,{code,traces,changedSegment,user}){
+    repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');
     let commitMessage = `[${changedSegment}] edited ${user}`;
     let requestData = {
@@ -36,7 +36,7 @@ export default class ContentProvider{
       type: 'POST',
       dataType: "json",
       contentType: "application/json;charset=utf-8",
-      url: `${config.GitHubProxyService.endPointBase}/${modelName}/file/`,
+      url: `${config.GitHubProxyService.endPointBase}/${repoName}/file/`,
       data: JSON.stringify(requestData)
     });
   }

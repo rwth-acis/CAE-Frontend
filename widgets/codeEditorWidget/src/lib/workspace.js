@@ -25,7 +25,7 @@ function initSpace(fileName) {
     name:"websockets-client",
     room: createRoomName(fileName),
     debug:true,
-    url : "http://localhost:1234"
+    url : "http://192.168.2.101:1234"
   },
   sourceDir: 'http://localhost/liveCodeEditorWidget/bower_components',//'http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components', // location of the y-* modules
   share:{'workspace':'Map'}, types : ['Text','Map']});
@@ -63,16 +63,13 @@ export default class workspace extends EventEmitter{
     return this.user.get(id.toString());
   }
 
-  init(fileName,reload){
+  init(){
     let deferred = $.Deferred();
     this.roomSynch = false;
     let self = this;
     this.roleSpace.init().then( function(spaceObj){
       self.roomSynch = true;
-      self.loadFile(fileName,reload).then( function(segmentValues,ySegmentArray,traceModel,reload,orders){
-        self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
-        deferred.resolve(segmentValues,ySegmentArray,traceModel,reload,orders);
-      });
+      deferred.resolve();
     });
 
     return deferred.promise();
@@ -99,14 +96,17 @@ export default class workspace extends EventEmitter{
       let userId = this.getUserId();
       let userName = this.getUserNameByJabberId(userId);
 
-      this.contentProvider.saveFile(path,{
-        code :  segmentManager.getTraceModel().getContent(),
-        traces : segmentManager.getTraceModel().serializeModel(),
-        changedSegment,
-        user: userName
-      }).then(function(e){
-        console.log(e);
+      this.roleSpace.getComponentName().then( (componentName) =>
+        this.contentProvider.saveFile(path,`frontendComponent-${componentName}`,{
+          code :  segmentManager.getTraceModel().getContent(),
+          traces : segmentManager.getTraceModel().serializeModel(),
+          changedSegment,
+          user: userName
+        })
+      ).then(e =>{console.log(e)}).fail( function(error){
+        alert(error);
       });
+
     }.bind(this),1000);
   }
 
@@ -144,23 +144,29 @@ export default class workspace extends EventEmitter{
     if (_y) {
       _y.destroy();
     }
-    initSpace(fileName).then( function(y){
-      _y=y;
-      self.workspace = y.share.workspace;
-      self.createFileSpace(fileName, forceReload).then( function( workspaceMap,cursor,ySegmentMap,ySegmentArray,user,reloaded){
-        self.setFileSpace(workspaceMap,cursor,ySegmentMap,ySegmentArray);
-        self.user=user;
-        self.cursors = cursor;
-        cursor.observe(self.cursorChangeHandler.bind(self));
-        self.getFile(fileName).then( function(traceModel){
-          todos = self.createYArrays(traceModel.getIndexes(),workspaceMap);
-          $.when.apply($,todos).then(function(){
-            deferred.resolve(ySegmentMap,ySegmentArray,traceModel,reloaded,Array.prototype.slice.call(arguments) );
-          });
 
+    if( !this.roomSynch ){
+      deferred.reject("Not connected to the role space!");
+    }else{
+      initSpace(fileName).then( function(y){
+        _y=y;
+        self.workspace = y.share.workspace;
+        self.createFileSpace(fileName, forceReload).then( function( workspaceMap,cursor,ySegmentMap,ySegmentArray,user,reloaded){
+          self.setFileSpace(workspaceMap,cursor,ySegmentMap,ySegmentArray);
+          self.user=user;
+          self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
+          self.cursors = cursor;
+          cursor.observe(self.cursorChangeHandler.bind(self));
+          self.getFile(fileName).then( function(traceModel){
+            todos = self.createYArrays(traceModel.getIndexes(),workspaceMap);
+            $.when.apply($,todos).then(function(){
+              deferred.resolve(ySegmentMap,ySegmentArray,traceModel,reloaded,Array.prototype.slice.call(arguments) );
+            });
+
+          });
         });
       });
-    });
+    }
 
     return deferred.promise();
   }
