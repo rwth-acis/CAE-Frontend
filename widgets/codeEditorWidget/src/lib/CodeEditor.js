@@ -114,8 +114,8 @@ export default class CodeEditor{
       let diff = new Date().getTime() - this.startTime;
       console.log(diff);
       deferred.resolve();
-      alert(3);
       this.setModalStatus(3);
+      this.hideModal();
     }.bind(this));
     return deferred.promise();
   }
