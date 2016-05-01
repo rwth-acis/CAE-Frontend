@@ -1,12 +1,13 @@
 import config from "./config.js";
 export default class ContentProvider{
-  getContent(fileName){
+  getContent(modelName,fileName){
     let deferred = $.Deferred();
 
-    let modelName = "frontendComponent-neues-Widget2";
+    let repoName = "frontendComponent-"+modelName;
+    repoName = repoName.replace(" ", "-");
 
     $.getJSON(
-      `${config.GitHubProxyService.endPointBase}/${modelName}/file/?file=${fileName}`
+      `${config.GitHubProxyService.endPointBase}/${repoName}/file/?file=${fileName}`
     ).then(function(data){
       let content = new Buffer(data.content,"base64").toString("utf-8");
       deferred.resolve({traces:data.traceModel,text:content})
@@ -16,16 +17,17 @@ export default class ContentProvider{
   }
 
   getFiles(modelName,path=""){
-    modelName = "frontendComponent-neues-Widget2";
+    let repoName = "frontendComponent-"+modelName;
+    repoName = repoName.replace(" ", "-");
     return $.getJSON(
-      `${config.GitHubProxyService.endPointBase}/${modelName}/files?path=${path}`
+      `${config.GitHubProxyService.endPointBase}/${repoName}/files?path=${path}`
     );
   }
 
   saveFile(filename,repoName,{code,traces,changedSegment,user}){
     repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');
-    let commitMessage = `[${changedSegment}] edited ${user}`;
+    let commitMessage = `[${changedSegment}] edited by ${user}`;
     let requestData = {
       content : encodedContent,
       traces,
