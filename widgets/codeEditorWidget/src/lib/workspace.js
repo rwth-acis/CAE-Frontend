@@ -4,6 +4,7 @@ import {delayed,debounce} from "./Utils";
 import RoleSpace from "./RoleSpace";
 import Path from "path";
 import parsePath from "parse-filepath";
+import config from "./config.js";
 let _y;
 
 function createRoomName(fileName) {
@@ -21,7 +22,6 @@ function roomNameHash(str){
 }
 
 function initSpace(fileName) {
-  alert(fileName);
   let deferred = $.Deferred();
   new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
@@ -29,15 +29,16 @@ function initSpace(fileName) {
     debug:true,
     url : "http://192.168.2.101:1234"
   },
-  sourceDir: 'http://localhost/liveCodeEditorWidget/bower_components',//'http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components', // location of the y-* modules
+  sourceDir: config.CodeEditorWidget.bower_components,
   share:{'workspace':'Map'}, types : ['Text','Map']}).then( deferred.resolve );
   return deferred.promise();
 }
 
 export default class workspace extends EventEmitter{
-  constructor(contentProvider){
+  constructor(contentProvider, codeEditor){
     super();
     this.contentProvider = contentProvider;
+    this.codeEditor = codeEditor;
 
     this.currentPath = Path.resolve("/");
     this.currentFile = "";
@@ -135,11 +136,12 @@ createYArrays(indexes,map,depth=0){
   return todos;
 }
 
-loadFile(fileName, forceReload){
+loadFile(fileName, forceReload=false){
   let deferred = $.Deferred();
   let self = this;
   let arrays = [];
   let todos = [];
+  let token = true;
 
   //destroy an already existing yjs room before we can synchronize to another one
   //avoids some side effects
@@ -152,24 +154,46 @@ loadFile(fileName, forceReload){
     deferred.reject("Not connected to the role space!");
   }else{
     this.roleSpace.getComponentName().then( function(componentName){
-      initSpace(componentName+"-"+fileName).then( function(y){
+      initSpace(componentName).then( function(y){
         _y=y;
-        console.log(y);
         self.workspace = y.share.workspace;
-        self.createFileSpace(fileName, forceReload).then( function( workspaceMap,cursor,ySegmentMap,ySegmentArray,user,reloaded){
-          self.setFileSpace(workspaceMap,cursor,ySegmentMap,ySegmentArray);
-          self.user=user;
-          self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
-          self.cursors = cursor;
-          cursor.observe(self.cursorChangeHandler.bind(self));
-          self.getFile(componentName, fileName).then( function(traceModel){
+        self.workspace.observe(function(events){
+          for(event of events){
+            if(event.name === "generatedId"){
+              //check if we need to reload
+              if(token && event.value != event.oldValue){
+                setTimeout(function(){
+                  self.codeEditor.load(fileName);
+                });
+              }else{
+                token=true;
+              }
+              break;
+            }
+          }
+        });
+
+        self.getFile(componentName, fileName).then( (traceModel) => {
+          if(traceModel.getGenerationId() != self.workspace.get("generatedId")){
+              forceReload=true;
+              token = false;
+          }
+          return self.createFileSpace(fileName,forceReload).then( ( workspaceMap, cursor, ySegmentMap, ySegmentArray, user, reloaded) => {
+            self.setFileSpace(workspaceMap,cursor,ySegmentMap,ySegmentArray);
+            self.user=user;
+            self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
+            self.cursors = cursor;
+            cursor.observe(self.cursorChangeHandler.bind(self));
             todos = self.createYArrays(traceModel.getIndexes(),workspaceMap);
             $.when.apply($,todos).then(function(){
               deferred.resolve(ySegmentMap,ySegmentArray,traceModel,reloaded,Array.prototype.slice.call(arguments) );
+              if(!token && forceReload){
+                self.workspace.set("generatedId",traceModel.getGenerationId());
+              }
             });
-
-          });
+          })
         });
+
       });
     });
   }

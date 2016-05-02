@@ -90,6 +90,14 @@ export default class TraceModel{
   }
 
   /**
+  * Returns the id of the code generation
+  */
+
+  getGenerationId(){
+    return this.model.traces.generatedID;
+  }
+
+  /**
   *  Parses the model
   */
 
@@ -104,9 +112,9 @@ export default class TraceModel{
   }
 
   /**
-   *  Returns the model name of a segment used for the commit message
-   *  @param {string} segmentId - The segment id
-   */
+  *  Returns the model name of a segment used for the commit message
+  *  @param {string} segmentId - The segment id
+  */
 
   getModelName(segmentId){
     let modelName = `Untraced Segment[${segmentId}]`;

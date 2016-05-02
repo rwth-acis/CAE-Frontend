@@ -8,7 +8,7 @@ export default class CodeEditor{
 
   constructor(editorId){
     this.startTime = new Date().getTime();
-    this.workspace = new Workspace(new ContentProvider());
+    this.workspace = new Workspace(new ContentProvider(),this);
     this.editor = this.createAceEditor(editorId);
     this.segmentManager = this.createSegmentManager(this.editor,this.workspace);
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
