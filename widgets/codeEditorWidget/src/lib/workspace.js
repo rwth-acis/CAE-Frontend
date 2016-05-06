@@ -1,6 +1,6 @@
 import {EventEmitter} from 'events';
 import TraceModel from './TraceModel';
-import {delayed,debounce} from "./Utils";
+import {delayed,debounce,run} from "./Utils";
 import RoleSpace from "./RoleSpace";
 import Path from "path";
 import config from "./config.js";
@@ -51,20 +51,44 @@ export default class workspace extends EventEmitter{
 
   }
 
+  *yieldGetComponentName(){
+    const caller = yield;
+    this.roleSpace.getComponentName().then( caller.success );
+  }
+
+  *yieldGetSegmentLocation(componentName, entityId){
+    const caller = yield;
+    this.contentProvider.getSegmentLocation(componentName,entityId).then( caller.success );
+  }
+
+  *yieldLoad(fileName){
+    const caller = yield;
+    this.codeEditor.load(fileName,false).then( caller.success );
+  }
+
+  *yieldGetFile(componentName, fileName){
+    const caller = yield;
+    this.getFile(componentName, fileName).then( caller.success );
+  }
+
+  *yieldInitSpace(componentName){
+    const caller = yield;
+    initSpace(componentName).then( caller.success );
+  }
+
   doubleClickHandler(entityId){
     let self = this;
-    this.roleSpace.getComponentName()
-      .then( (componentName) => this.contentProvider.getSegmentLocation(componentName, entityId) )
-      .then( function(data){
-        let {fileName,segmentId} = data;
-        self.codeEditor.load(fileName,false,true).then(function(){
-          self.codeEditor.goToSegment(segmentId);
-          self.codeEditor.loadFiles(self.currentPath);
-        });
-      })
-      .fail(function(error){
-        console.log(error);
-      });
+    run( function*(){
+      try{
+        let componentName = yield self.yieldGetComponentName();
+        let {fileName,segmentId} = yield self.yieldGetSegmentLocation(componentName, entityId);
+        yield self.yieldLoad(fileName);
+        self.codeEditor.goToSegment(segmentId);
+        self.codeEditor.loadFiles(self.currentPath);
+      }catch(error){
+          console.error(error);
+      }
+    });
   }
 
   isRoomSynchronized(){
@@ -125,14 +149,14 @@ export default class workspace extends EventEmitter{
       let userName = this.getUserNameByJabberId(userId);
 
       this.roleSpace.getComponentName().then( (componentName) =>
-      this.contentProvider.saveFile(path,`frontendComponent-${componentName}`,{
+      this.contentProvider.saveFile(path,componentName,{
         code :  segmentManager.getTraceModel().getContent(),
         traces : segmentManager.getTraceModel().serializeModel(),
         changedSegment,
         user: userName
       })
     ).then(e =>{console.log(e)}).fail( function(error){
-      alert(error);
+        console.error(error);
     });
 
   }.bind(this),1000);
@@ -177,54 +201,53 @@ loadFile(fileName, forceReload=false){
   if( !this.roomSynch ){
     deferred.reject("Not connected to the role space!");
   }else{
-    this.roleSpace.getComponentName().then( function(componentName){
-      initSpace(componentName).then( function(y){
-        _y=y;
-        self.workspace = y.share.workspace;
-        self.workspace.observe(function(events){
-          for(event of events){
-            if(event.name === "generatedId"){
-              //check if we need to reload
-              if(token && event.value != event.oldValue){
-                setTimeout(function(){
-                  self.codeEditor.load(fileName);
-                });
-              }else{
-                token=true;
+
+    run( function*(){
+      try{
+          let componentName = yield self.yieldGetComponentName();
+          _y = yield self.yieldInitSpace(componentName);
+
+          self.workspace = _y.share.workspace;
+          self.workspace.observe(function(events){
+            for(event of events){
+              if(event.name === "generatedId"){
+                //check if we need to reload
+                if(token && event.value != event.oldValue){
+                  setTimeout(function(){
+                    self.codeEditor.load(fileName);
+                  });
+                }else{
+                  token=true;
+                }
+                break;
               }
-              break;
             }
-          }
-        });
+          });
 
-        self.codeEditor.setModalStatus(1);
-
-        self.getFile(componentName, fileName).then( (traceModel) => {
-
+          self.codeEditor.setModalStatus(1);
+          let traceModel = yield self.yieldGetFile(componentName, fileName);
           self.codeEditor.setModalStatus(2);
 
           if(traceModel.getGenerationId() != self.workspace.get("generatedId")){
             forceReload=true;
             token = false;
           }
-          return self.createFileSpace(self.currentFile,forceReload).then( ( workspaceMap, cursor, ySegmentMap, ySegmentArray, user, reloaded) => {
-            self.setFileSpace(workspaceMap,cursor,ySegmentMap,ySegmentArray);
-            self.user=user;
-            self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
-            self.cursors = cursor;
-            cursor.observe(self.cursorChangeHandler.bind(self));
+
+          self.createFileSpace(self.currentFile,forceReload).then( ( workspaceMap, segmentValues, segmentOrder, reloaded) => {
             todos = self.createYArrays(traceModel.getIndexes(),workspaceMap);
             $.when.apply($,todos).then(function(){
-              deferred.resolve(ySegmentMap,ySegmentArray,traceModel,reloaded,Array.prototype.slice.call(arguments) );
+              deferred.resolve(traceModel, segmentValues, segmentOrder,reloaded,Array.prototype.slice.call(arguments) );
               if(!token && forceReload){
                 self.workspace.set("generatedId",traceModel.getGenerationId());
               }
             });
           })
-        });
 
-      });
-    });
+      }catch(error){
+        console.error(error);
+        deferred.reject(error);
+      }
+    })
   }
   return deferred.promise();
 }
@@ -268,7 +291,12 @@ createFileSpace(id,reload){
     todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
     todos.push(self.createFileEntry("user",Y.Map,map));
     $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder,user){
-      deferred.resolve(map,cursor,segmentValues,segmentOrder,user,newCreated);
+      user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
+      cursor.observe(self.cursorChangeHandler.bind(self));
+      self.user=user;
+      self.cursors = cursor;
+      self.setFileSpace(map);
+      deferred.resolve(map,segmentValues, segmentOrder, newCreated);
     });
   }
 
@@ -290,7 +318,6 @@ createFileSpace(id,reload){
 }
 
 isRootPath(){
-  console.log( this.currentPath );
   return this.currentPath == "" || this.currentPath == "./" || this.currentPath == "/" || this.currentPath == ".";
 }
 

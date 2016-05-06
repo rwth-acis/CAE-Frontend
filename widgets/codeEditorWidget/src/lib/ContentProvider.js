@@ -3,8 +3,7 @@ export default class ContentProvider{
   getContent(modelName,fileName){
     let deferred = $.Deferred();
 
-    let repoName = "frontendComponent-"+modelName;
-    repoName = repoName.replace(" ", "-");
+    let repoName = modelName.replace(" ", "-");
 
     $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/file/?file=${fileName}`
@@ -17,16 +16,14 @@ export default class ContentProvider{
   }
 
   getFiles(modelName,path=""){
-    let repoName = "frontendComponent-"+modelName;
-    repoName = repoName.replace(" ", "-");
+    let repoName = modelName.replace(" ", "-");
     return $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/files?path=${path}`
     );
   }
 
   getSegmentLocation(modelName,entityId){
-    let repoName = "frontendComponent-"+modelName;
-    repoName = repoName.replace(" ", "-");
+    let repoName = modelName.replace(" ", "-");
 
     return $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/segment/${entityId}`
@@ -36,7 +33,7 @@ export default class ContentProvider{
   saveFile(filename,repoName,{code,traces,changedSegment,user}){
     repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');
-    let commitMessage = `[${changedSegment}] edited by ${user}`;
+    let commitMessage = `${changedSegment} edited by ${user}`;
     let requestData = {
       content : encodedContent,
       traces,
@@ -45,7 +42,6 @@ export default class ContentProvider{
     };
     return $.ajax({
       type: 'POST',
-      dataType: "json",
       contentType: "application/json;charset=utf-8",
       url: `${config.GitHubProxyService.endPointBase}/${repoName}/file/`,
       data: JSON.stringify(requestData)
