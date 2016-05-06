@@ -117,19 +117,36 @@ export default class TraceModel{
   */
 
   getModelName(segmentId){
-    let modelName = `Untraced Segment[${segmentId}]`;
-    for(let modelId in this.traces){
-      if(this.traces.hasOwnProperty(modelId)){
-        let model = this.traces[modelId];
-        let segments = model.segments.filter( segment => segment == segmentId);
-        if(segments && segments.length > 0){
-          modelName = model.name;
-          break;
+    return this.getModelNameRecursive(segmentId) || `Untraced Segment[${segmentId}]`;
+  }
+
+  getModelNameRecursive(segmentId){
+    let segment = this.segments[segmentId];
+    if(segment){
+      let modelName = false;
+
+      for(let modelId in this.traces){
+        if(this.traces.hasOwnProperty(modelId)){
+          let model = this.traces[modelId];
+          let segments = model.segments.filter( segment => segment == segmentId);
+          if(segments && segments.length > 0){
+            modelName = model.name;
+            break;
+          }
         }
       }
-    }
 
-    return modelName;
+      if(modelName){
+        return modelName;
+      }
+      else if( segment.getParent() ){
+        return this.getModelName2(segment.getParent());
+      }else{
+        return false;
+      }
+    }else{
+      return false;
+    }
   }
 
   /*
