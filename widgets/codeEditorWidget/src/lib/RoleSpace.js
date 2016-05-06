@@ -16,6 +16,14 @@ if (typeof window.openapp === "undefined") {
               getRepresentation:function(type, callback){
                 callback({
                   attributes:{
+                    attributes:{
+                      "ahaha":{
+                        name : "type",
+                        value : {
+                          value : "frontend-component"
+                        }
+                      }
+                    },
                     label:{
                       value:{
                         value:"Test23"
@@ -125,54 +133,6 @@ export default class RoleSpace extends EventEmitter{
     }.bind(this));
   }
 
-  createSpaceResource(type, representation){
-    let resourceSpace = new openapp.oo.Resource(openapp.param.space());
-    let deferred = $.Deferred();
-    let deleteDeferred = $.Deferred();
-    resourceSpace.getSubResources({
-      relation:openapp.ns.role + "data",
-      type : type,
-      onEach : function(doc){
-        console.log(doc);
-        doc.del();
-      },
-      onAll: function(){
-        deleteDeferred.resolve();
-      }
-    });
-
-    deleteDeferred.then(function(){
-      resourceSpace.create({
-        relation: openapp.ns.role + "data",
-        type:type,
-        representation:representation,
-        callback:  function(a){
-          console.log(a)
-          deferred.resolve();
-        }
-      });
-    });
-
-    return deferred.promise();
-  }
-
-  saveFile(fileName,content){
-    return this.createSpaceResource("my:ns:caemodel", content).then(function(){
-      resourceSpace.getSubResources({
-        relation: openapp.ns.role + "data",
-        type : "my:ns:caemodel",
-        onAll : function(data){
-          console.log(data);
-          if (data && data.length > 0) {
-            data[0].getRepresentation("rdfjson",function(a){
-              console.log(a);
-            })
-          }
-        }
-      });
-    });
-  }
-
   getComponentType(){
     return "frontend";
   }
@@ -226,6 +186,24 @@ export default class RoleSpace extends EventEmitter{
     this.getModelResource().then( (representation) => {
       if(representation && representation.attributes){
         this.componentName =representation.attributes.label.value.value;
+
+        for(let attributeId in representation.attributes.attributes){
+          if(representation.attributes.attributes.hasOwnProperty(attributeId)){
+            let attribute = representation.attributes.attributes[attributeId];
+            if(attribute.name==="type"){
+              switch(attribute.value.value){
+                case "frontend-component":
+                  this.componentName = `frontendComponent-${this.componentName}`;
+                  break;
+                case "microservice":
+                  this.componentName = `microserviceComponent-${this.componentName}`;
+                  break;
+              }
+              break;
+            }
+          }
+        }
+
         deferred.resolve();
       }else{
         deferred.reject(new Error("Model not yet persisted."));
