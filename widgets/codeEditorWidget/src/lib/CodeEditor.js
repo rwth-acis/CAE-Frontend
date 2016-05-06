@@ -3,11 +3,11 @@ import TraceHighlighter from "./TraceHighlighter";
 import CommandDecorator from "./CommandDecorator";
 import Workspace from "./workspace";
 import ContentProvider from "./ContentProvider";
+import Path from "path";
 
 export default class CodeEditor{
 
   constructor(editorId){
-    this.startTime = new Date().getTime();
     this.workspace = new Workspace(new ContentProvider(),this);
     this.editor = this.createAceEditor(editorId);
     this.segmentManager = this.createSegmentManager(this.editor,this.workspace);
@@ -111,8 +111,6 @@ export default class CodeEditor{
     let editor = this.editor;
     this.segmentManager.bindSegments(traceModel,ySegmentMap,ySegmentArray,reordered,orders).then( function(){
       this.traceHighlighter.updateSegments();
-      let diff = new Date().getTime() - this.startTime;
-      console.log(diff);
       deferred.resolve();
       this.setModalStatus(3);
       this.hideModal();
@@ -124,26 +122,32 @@ export default class CodeEditor{
     this.workspace.init().then(()=>this.loadFiles());
   }
 
-  loadFiles(filePath="./"){
+  createLink(file){
+    let self = this;
+    let fileName = Path.basename(file.path);
+    return $(`<a>${fileName}</a>`).click(function(){
+      if (file.type == "folder") {
+        self.loadFiles(file.path);
+      }else if(fileName == "widget.xml" || fileName=="applicationScript.js"){
+        self.load(file.path);
+      }else{
+        alert("Cannot open files without traces");
+      }
+    }).attr({
+      "class" : "mdl-navigation__link",
+      "href" : "javascript:void(0);"
+    })
+  }
+
+  loadFiles(filePath=""){
     let deferred = $.Deferred();
     self = this;
     this.workspace.getFiles(filePath).then(function(data){
-      let links = data.files.map( file =>
-        $(`<a>${file.name}</a>`).click(function(){
-          let path = file.name;
-          if (file.type == "folder") {
-            self.loadFiles(path);
-          }else{
-            self.load(path);
-          }
-        }).attr({
-          "class" : "mdl-navigation__link",
-          "href" : "javascript:void(0);"
-        })
-      );
+      let links = data.files.map( self.createLink.bind(self) );
 
       if (!self.workspace.isRootPath()) {
-        links.unshift($(`<a>../</a>`).click(function(){self.loadFiles("../")}).attr({"href":"javascript:void(0);","class":"mdl-navigation__link"}));
+        let path = self.workspace.resolvePath("../");
+        links.unshift($(`<a>../</a>`).click(function(){self.loadFiles(path)}).attr({"href":"javascript:void(0);","class":"mdl-navigation__link"}));
       }
 
       $("#files").html( links );
@@ -153,13 +157,22 @@ export default class CodeEditor{
     return deferred;
   }
 
+  goToSegment(segmentId){
+    let {start, end} = this.segmentManager.getSegmentDim(segmentId,true);
+    let aceDoc = this.editor.getSession().getDocument();
+    let position = aceDoc.indexToPosition(start,0);
+    console.log(position);
+    alert(position.row + "," + position.column);
+    this.editor.scrollToLine(position.row, true, true, function () {});
+    this.editor.gotoLine(position.row, position.column, true);
+  }
+
   load(fileName,reload=false){
     this.showModal();
     this.setModalStatus(0);
 
     if (!this.workspace.isRoomSynchronized()) {
       return this.workspace.init().then( () => {
-        this.setModalStatus(1);
         return this.workspace.loadFile(fileName,reload)
       }).then(this.workspaceHandler.bind(this));
     }else{

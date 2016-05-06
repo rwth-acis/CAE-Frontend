@@ -3,7 +3,6 @@ import TraceModel from './TraceModel';
 import {delayed,debounce} from "./Utils";
 import RoleSpace from "./RoleSpace";
 import Path from "path";
-import parsePath from "parse-filepath";
 import config from "./config.js";
 let _y;
 
@@ -26,8 +25,8 @@ function initSpace(fileName) {
   new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: createRoomName(fileName),
-    debug:true,
-    url : "http://192.168.2.101:1234"
+    url: "http://localhost:1234",
+    debug:true
   },
   sourceDir: config.CodeEditorWidget.bower_components,
   share:{'workspace':'Map'}, types : ['Text','Map']}).then( deferred.resolve );
@@ -47,8 +46,25 @@ export default class workspace extends EventEmitter{
     this.roomSynch = false;
     this.cursor=0;
     this.roleSpace = new RoleSpace();
+    this.roleSpace.addDoubleClickChangeListener( this.doubleClickHandler.bind(this) );
     this.delayedSetCursor = debounce(this.setRemoteCursor.bind(this),10,false);
 
+  }
+
+  doubleClickHandler(entityId){
+    let self = this;
+    this.roleSpace.getComponentName()
+      .then( (componentName) => this.contentProvider.getSegmentLocation(componentName, entityId) )
+      .then( function(data){
+        let {fileName,segmentId} = data;
+        self.codeEditor.load(fileName,false,true).then(function(){
+          self.codeEditor.goToSegment(segmentId);
+          self.codeEditor.loadFiles(self.currentPath);
+        });
+      })
+      .fail(function(error){
+        console.log(error);
+      });
   }
 
   isRoomSynchronized(){
@@ -79,11 +95,19 @@ export default class workspace extends EventEmitter{
     return deferred.promise();
   }
 
+  resolvePath(relativePath){
+    let path = Path.resolve(this.currentPath,relativePath);
+    return Path.relative("/" , path);
+  }
+
   getFile(modelName,fileName){
     let deferred = $.Deferred();
-    let path = Path.resolve(this.currentPath,fileName);
+
+    let path = fileName;
+
     path = Path.relative("/",path);
-    this.currentFile=fileName;
+    this.currentFile = fileName;
+    this.currentPath = Path.dirname(path);
 
     this.contentProvider.getContent(modelName, path).then( function(model){
       let traceModel = new TraceModel(model);
@@ -95,7 +119,7 @@ export default class workspace extends EventEmitter{
 
   saveFile(segmentManager,changedSegment){
     delayed.bind(this)(function(){
-      let path = Path.resolve(this.currentPath,this.currentFile);
+      let path = this.currentFile;//Path.resolve(this.currentPath,this.currentFile);
       path = Path.relative("/",path);
       let userId = this.getUserId();
       let userName = this.getUserNameByJabberId(userId);
@@ -144,7 +168,7 @@ loadFile(fileName, forceReload=false){
   let token = true;
 
   //destroy an already existing yjs room before we can synchronize to another one
-  //avoids some side effects
+  //avoids some side effects, e.g. old observers
 
   if (_y) {
     _y.destroy();
@@ -173,12 +197,17 @@ loadFile(fileName, forceReload=false){
           }
         });
 
+        self.codeEditor.setModalStatus(1);
+
         self.getFile(componentName, fileName).then( (traceModel) => {
+
+          self.codeEditor.setModalStatus(2);
+
           if(traceModel.getGenerationId() != self.workspace.get("generatedId")){
-              forceReload=true;
-              token = false;
+            forceReload=true;
+            token = false;
           }
-          return self.createFileSpace(fileName,forceReload).then( ( workspaceMap, cursor, ySegmentMap, ySegmentArray, user, reloaded) => {
+          return self.createFileSpace(self.currentFile,forceReload).then( ( workspaceMap, cursor, ySegmentMap, ySegmentArray, user, reloaded) => {
             self.setFileSpace(workspaceMap,cursor,ySegmentMap,ySegmentArray);
             self.user=user;
             self.user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
@@ -261,11 +290,8 @@ createFileSpace(id,reload){
 }
 
 isRootPath(){
-  return this.getRootPath() == this.currentPath;
-}
-
-getRootPath(){
-  return parsePath(this.currentPath).root;
+  console.log( this.currentPath );
+  return this.currentPath == "" || this.currentPath == "./" || this.currentPath == "/" || this.currentPath == ".";
 }
 
 setFileSpace(space){
@@ -277,7 +303,6 @@ getFileSpace(){
 }
 
 setRemoteCursor(usrId){
-  console.log("remoteCursor",usrId);
   this.cursors.set(usrId,this.cursor);
 }
 
@@ -295,7 +320,7 @@ getFileContent(fileName){
 }
 
 getFiles(filePath=""){
-  this.currentPath = Path.resolve(this.currentPath,filePath);
+  this.currentPath = filePath;
   let relativePath = Path.relative("/",this.currentPath);
   return this.roleSpace.getComponentName().then( componentName => this.contentProvider.getFiles(componentName,relativePath) );
 }
@@ -320,7 +345,6 @@ addSpaceChangeListener(listener){
 removespaceChangeListener(listener){
   this.removeListener("spaceChange", listener);
 }
-
 
 addCursorChangeListener(listener){
   this.on("cursorChange" , listener);
