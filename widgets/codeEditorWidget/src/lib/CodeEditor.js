@@ -89,6 +89,10 @@ export default class CodeEditor{
     }
   }
 
+  setEditorTitle(title){
+    $("#title").text(`${title}`);
+  }
+
   setModalText(text){
     $("div#loading-body span#text").text(text);
   }
@@ -105,11 +109,11 @@ export default class CodeEditor{
     $("main").removeClass("onTop");
   }
 
-  workspaceHandler(ySegmentMap,ySegmentArray,traceModel,reordered,orders){
+  workspaceHandler(traceModel,segmentValues, segmentOrder, reordered,orders){
     this.setModalStatus(2);
     let deferred = $.Deferred();
     let editor = this.editor;
-    this.segmentManager.bindSegments(traceModel,ySegmentMap,ySegmentArray,reordered,orders).then( function(){
+    this.segmentManager.bindSegments(traceModel, segmentValues, segmentOrder, reordered,orders).then( function(){
       this.traceHighlighter.updateSegments();
       deferred.resolve();
       this.setModalStatus(3);
@@ -161,16 +165,28 @@ export default class CodeEditor{
     let {start, end} = this.segmentManager.getSegmentDim(segmentId,true);
     let aceDoc = this.editor.getSession().getDocument();
     let position = aceDoc.indexToPosition(start,0);
-    console.log(position);
-    alert(position.row + "," + position.column);
     this.editor.scrollToLine(position.row, true, true, function () {});
     this.editor.gotoLine(position.row, position.column, true);
+  }
+
+  setAceModeByExtension(extension){
+    let aceMode = "text";
+    switch(extension){
+      case ".js" :
+        aceMode = "javascript";
+        break;
+      case ".xml" :
+        aceMode = "xml";
+        break;
+    }
+    this.editor.getSession().setMode(`ace/mode/${aceMode}`);
   }
 
   load(fileName,reload=false){
     this.showModal();
     this.setModalStatus(0);
-
+    this.setAceModeByExtension( Path.extname(fileName) );
+    this.setEditorTitle(Path.basename(fileName));
     if (!this.workspace.isRoomSynchronized()) {
       return this.workspace.init().then( () => {
         return this.workspace.loadFile(fileName,reload)
