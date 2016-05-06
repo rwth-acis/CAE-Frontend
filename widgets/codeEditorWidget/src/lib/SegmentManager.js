@@ -38,6 +38,7 @@ class SegmentManager extends EventEmitter{
     if (promise === undefined) {
       this.map.set(id,Y.Text).then(function(yText){
         //set initial text value
+        console.log("created "+id);
         yText.insert(0,value);
         deferred.resolve(yText);
       }.bind(this));
@@ -271,6 +272,11 @@ class SegmentManager extends EventEmitter{
     return deferred.promise();
   }
 
+  getTracedSegmentPosition(){
+    let segments = this.traceModel.getSegmets();
+
+  }
+
   getOrderAbleSegments(){
     return this.list.toArray();
   }
@@ -305,18 +311,19 @@ class SegmentManager extends EventEmitter{
     return {start,end};
   }
 
-  getSegmentDim(segId){
+  getSegmentDim(segId,withComposites=false){
     let s =0;
     let diff;
-    let indexes = this.traceModel.getFlattenIndexes();
+    let indexes = this.traceModel.getFlattenIndexes(withComposites);
     for(let indexObj of indexes){
       let index = indexObj.id;
       let binding = this.bindings[index];
       if (binding.id == segId) {
         return {start:s,end:s+binding.segment.toString().length};
       }
-
-      s+=binding.segment.toString().length;
+      if( !(binding.segment instanceof CompositeSegment) ){
+        s+=binding.segment.toString().length;
+      }
     }
     return {start:s,end:s};
   }

@@ -24,6 +24,15 @@ export default class ContentProvider{
     );
   }
 
+  getSegmentLocation(modelName,entityId){
+    let repoName = "frontendComponent-"+modelName;
+    repoName = repoName.replace(" ", "-");
+
+    return $.getJSON(
+      `${config.GitHubProxyService.endPointBase}/${repoName}/segment/${entityId}`
+    );
+  }
+
   saveFile(filename,repoName,{code,traces,changedSegment,user}){
     repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');

@@ -1,3 +1,4 @@
+import {EventEmitter} from 'events';
 import {toPromise,waitPromise} from './Utils';
 import CONFIG from "./roleSpaceConfig";
 
@@ -17,7 +18,7 @@ if (typeof window.openapp === "undefined") {
                   attributes:{
                     label:{
                       value:{
-                        value:"neues Widget2"
+                        value:"Test23"
                       }
                     }
                   }
@@ -70,7 +71,47 @@ let resourceSpace = new openapp.oo.Resource(openapp.param.space());
 let resourceGetPromise = toPromise(openapp.resource.get);
 
 
-export default class RoleSpace{
+export default class RoleSpace extends EventEmitter{
+
+  constructor(){
+    super();try{
+      this.iwcClient = new iwc.Client("ACTIVITY");
+      this.iwcClient.connect( this.iwcHandler.bind(this) );
+    }catch(e){
+
+    }
+  }
+
+  iwcHandler(indent){
+    let {action,extras:{payload}} = indent;
+    if(action === "ACTION_DATA"){
+      payload = [payload];
+    }
+    for(let i=0;i< payload.length;i++){
+      let payloadItem = payload[i];
+      let {data: payloadData} = payloadItem;
+      if(payloadData.type == "EntitySelectOperation"){
+        let {selectedEntityId} = $.parseJSON(payloadData.data);
+        this.detectDoubleClick(selectedEntityId);
+      }
+    }
+  }
+
+  detectDoubleClick(entityId){
+    let now = new Date().getTime();
+    console.log(this.lastClick, this.lastEntityId);
+    if(!!this.lastClick){
+      if(this.lastEntityId == entityId){
+        let diff = now - this.lastClick;
+        if(diff <= 500){
+          console.log(entityId);
+          this.emit("doubleClickEvent",entityId);
+        }
+      }
+    }
+    this.lastClick=now;
+    this.lastEntityId=entityId;
+  }
 
   getObj(getObj){
     return resourceGetPromise(getObj()).then(function(obj){
@@ -160,15 +201,9 @@ export default class RoleSpace{
   }
 
   getComponentName(){
-    console.log("getComponentName");
     let deferred = $.Deferred();
-    this.getModelResource().then( (representation) => {
-      if(representation && representation.attributes){
-        deferred.resolve(representation.attributes.label.value.value);
-      }else{
-        deferred.reject(new Error("Model not yet persisted."));
-      }
-    });
+    console.log(this.componentName);
+    deferred.resolve(this.componentName);
     return deferred.promise();
   }
 
@@ -181,7 +216,22 @@ export default class RoleSpace{
   }
 
   init(){
-    return $.when(this.getSpaceObj.bind(this)(),this.getUserObj.bind(this)()).then(this.initSpaceUserObject.bind(this));
+    return $.when(this.getSpaceObj.bind(this)(),this.getUserObj.bind(this)())
+    .then(this.initSpaceUserObject.bind(this))
+    .then(this.loadComponentName.bind(this));
+  }
+
+  loadComponentName(){
+    let deferred = $.Deferred();
+    this.getModelResource().then( (representation) => {
+      if(representation && representation.attributes){
+        this.componentName =representation.attributes.label.value.value;
+        deferred.resolve();
+      }else{
+        deferred.reject(new Error("Model not yet persisted."));
+      }
+    });
+    return deferred.promise();
   }
 
   getSpaceTitle(){
@@ -212,6 +262,14 @@ export default class RoleSpace{
 
     deferred.resolve();
     return deferred.promise();
+  }
+
+  addDoubleClickChangeListener(listener){
+    this.on("doubleClickEvent" , listener);
+  }
+
+  removedDoubleClickChangeListener(listener){
+    this.removeListener("doubleClickEvent", listener);
   }
 
 }
