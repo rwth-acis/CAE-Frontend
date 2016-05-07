@@ -49,7 +49,7 @@ export default class CodeEditor{
 
     segmentManager.addSaveListener(function(segmentId){
       let parent = segmentManager.getModelName(segmentId);
-      workspace.saveFile(segmentManager,parent);
+      workspace.delayedSaveFile(segmentManager,parent);
     });
 
     return segmentManager;
@@ -113,12 +113,12 @@ export default class CodeEditor{
     this.setModalStatus(2);
     let deferred = $.Deferred();
     let editor = this.editor;
-    this.segmentManager.bindSegments(traceModel, segmentValues, segmentOrder, reordered,orders).then( function(){
+    this.segmentManager.bindSegments(traceModel, segmentValues, segmentOrder, reordered,orders).then( () =>{
       this.traceHighlighter.updateSegments();
       deferred.resolve();
       this.setModalStatus(3);
       this.hideModal();
-    }.bind(this));
+    });
     return deferred.promise();
   }
 

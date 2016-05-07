@@ -88,7 +88,15 @@ export function debounce(callback,time,clear=true){
 }
 
 export function run(generator){
-    runGenObj(generator());
+  runGenObj(generator());
+}
+
+export function genBind(callback){
+  let self = this;
+  return function*(){
+    const caller = yield;
+    callback.apply(this,arguments).then( caller.success );
+  }
 }
 
 /**

@@ -1,6 +1,6 @@
 import {EventEmitter} from 'events';
 import TraceModel from './TraceModel';
-import {delayed,debounce,run} from "./Utils";
+import {delayed,debounce,run,genBind} from "./Utils";
 import RoleSpace from "./RoleSpace";
 import Path from "path";
 import config from "./config.js";
@@ -42,38 +42,27 @@ export default class workspace extends EventEmitter{
     this.currentPath = Path.resolve("/");
     this.currentFile = "";
 
+    //binding functions
+    this.doubleClickHandler = this.doubleClickHandler.bind(this);
+    this.setRemoteCursor = this.setRemoteCursor.bind(this);
+    this.saveFile = this.saveFile.bind(this);
+
     this.timer = false;
     this.roomSynch = false;
     this.cursor=0;
     this.roleSpace = new RoleSpace();
-    this.roleSpace.addDoubleClickChangeListener( this.doubleClickHandler.bind(this) );
-    this.delayedSetCursor = debounce(this.setRemoteCursor.bind(this),10,false);
+    this.roleSpace.addDoubleClickChangeListener( this.doubleClickHandler );
 
-  }
+    //defining debounced methods
+    this.delayedSetCursor = debounce(this.setRemoteCursor ,10,false);
+    this.delayedSaveFile = debounce(this.saveFile, 1000);
 
-  *yieldGetComponentName(){
-    const caller = yield;
-    this.roleSpace.getComponentName().then( caller.success );
-  }
-
-  *yieldGetSegmentLocation(componentName, entityId){
-    const caller = yield;
-    this.contentProvider.getSegmentLocation(componentName,entityId).then( caller.success );
-  }
-
-  *yieldLoad(fileName){
-    const caller = yield;
-    this.codeEditor.load(fileName,false).then( caller.success );
-  }
-
-  *yieldGetFile(componentName, fileName){
-    const caller = yield;
-    this.getFile(componentName, fileName).then( caller.success );
-  }
-
-  *yieldInitSpace(componentName){
-    const caller = yield;
-    initSpace(componentName).then( caller.success );
+    //defining generator functions, used to avoid large promise chains
+    this.yieldGetComponentName = genBind( () => this.roleSpace.getComponentName() );
+    this.yieldGetSegmentLocation = genBind( (componentName, entityId) => this.contentProvider.getSegmentLocation(componentName, entityId) );
+    this.yieldLoad = genBind( (fileName) => this.codeEditor.load(fileName,false) );
+    this.yieldGetFile = genBind( (componentName, fileName) => this.getFile(componentName, fileName) );
+    this.yieldInitSpace = genBind( (componentName) => initSpace(componentName) );
   }
 
   doubleClickHandler(entityId){
@@ -86,7 +75,7 @@ export default class workspace extends EventEmitter{
         self.codeEditor.goToSegment(segmentId);
         self.codeEditor.loadFiles(self.currentPath);
       }catch(error){
-          console.error(error);
+        console.error(error);
       }
     });
   }
@@ -141,69 +130,67 @@ export default class workspace extends EventEmitter{
     return deferred.promise();
   }
 
-  saveFile(segmentManager,changedSegment){
-    delayed.bind(this)(function(){
-      let path = this.currentFile;//Path.resolve(this.currentPath,this.currentFile);
-      path = Path.relative("/",path);
-      let userId = this.getUserId();
-      let userName = this.getUserNameByJabberId(userId);
+  saveFile(segmentManager, changedSegment){
+    let path = this.currentFile;
+    path = Path.relative("/",path);
+    let userId = this.getUserId();
+    let userName = this.getUserNameByJabberId(userId);
 
-      this.roleSpace.getComponentName().then( (componentName) =>
-      this.contentProvider.saveFile(path,componentName,{
-        code :  segmentManager.getTraceModel().getContent(),
-        traces : segmentManager.getTraceModel().serializeModel(),
-        changedSegment,
-        user: userName
-      })
-    ).then(e =>{console.log(e)}).fail( function(error){
-        console.error(error);
-    });
-
-  }.bind(this),1000);
-}
-
-createYArrays(indexes,map,depth=0){
-  let todos = [];
-  let self = this;
-  for(let i=0;i<indexes.length;i++){
-    let index = indexes[i];
-    if (typeof index.children != "undefined") {
-      let subTodos = this.createYArrays(index.children,map,depth+1);
-      todos = todos.concat(subTodos);
-      todos.push(function(){
-        let deferred = $.Deferred();
-        self.createFileEntry("segmentOrder["+index.id+"]",Y.Array,map).then(function(arr){
-          deferred.resolve({id:index.id,list:arr});
-        });
-        return deferred.promise();
-      }());
+    let data = {
+      code :  segmentManager.getTraceModel().getContent(),
+      traces : segmentManager.getTraceModel().serializeModel(),
+      changedSegment,
+      user: userName
     }
+
+    this.roleSpace.getComponentName()
+      .then( (componentName) => this.contentProvider.saveFile(path,componentName,data) )
+      .then( (e) => {console.log(e)} )
+      .fail( (error) => {console.error(error)} );
   }
 
+  createYArrays(indexes,map,depth=0){
+    let todos = [];
+    let self = this;
+    for(let i=0;i<indexes.length;i++){
+      let index = indexes[i];
+      if (typeof index.children != "undefined") {
+        let subTodos = this.createYArrays(index.children,map,depth+1);
+        todos = todos.concat(subTodos);
+        todos.push(function(){
+          let deferred = $.Deferred();
+          self.createFileEntry("segmentOrder["+index.id+"]",Y.Array,map).then(function(arr){
+            deferred.resolve({id:index.id,list:arr});
+          });
+          return deferred.promise();
+        }());
+      }
+    }
 
-  return todos;
-}
 
-loadFile(fileName, forceReload=false){
-  let deferred = $.Deferred();
-  let self = this;
-  let arrays = [];
-  let todos = [];
-  let token = true;
-
-  //destroy an already existing yjs room before we can synchronize to another one
-  //avoids some side effects, e.g. old observers
-
-  if (_y) {
-    _y.destroy();
+    return todos;
   }
 
-  if( !this.roomSynch ){
-    deferred.reject("Not connected to the role space!");
-  }else{
+  loadFile(fileName, forceReload=false){
+    let deferred = $.Deferred();
+    let self = this;
+    let arrays = [];
+    let todos = [];
+    let token = true;
 
-    run( function*(){
-      try{
+    //destroy an already existing yjs room before we can synchronize to another one
+    //avoids some side effects, e.g. old observers
+
+    if (_y) {
+      _y.destroy();
+    }
+
+    if( !this.roomSynch ){
+      deferred.reject("Not connected to the role space!");
+    }else{
+
+      run( function*(){
+        try{
           let componentName = yield self.yieldGetComponentName();
           _y = yield self.yieldInitSpace(componentName);
 
@@ -233,151 +220,162 @@ loadFile(fileName, forceReload=false){
             token = false;
           }
 
-          self.createFileSpace(self.currentFile,forceReload).then( ( workspaceMap, segmentValues, segmentOrder, reloaded) => {
-            todos = self.createYArrays(traceModel.getIndexes(),workspaceMap);
-            $.when.apply($,todos).then(function(){
-              deferred.resolve(traceModel, segmentValues, segmentOrder,reloaded,Array.prototype.slice.call(arguments) );
+          self.createFileSpace(self.currentFile,forceReload)
+            .then( self.createOrders(traceModel) )
+            .then( (segmentValues, segmentOrder, reloaded, orders) => {
+              deferred.resolve(traceModel, segmentValues, segmentOrder, reloaded, orders);
               if(!token && forceReload){
                 self.workspace.set("generatedId",traceModel.getGenerationId());
               }
             });
-          })
 
-      }catch(error){
-        console.error(error);
-        deferred.reject(error);
-      }
-    })
-  }
-  return deferred.promise();
-}
-
-cursorChangeHandler(e){
-  for(let o of e){
-    let {name} = o;
-    this.emit("cursorChange",name);
-  }
-}
-
-createFileEntry(id,yObj,fileSpace){
-  let deferred = $.Deferred();
-  let promise = fileSpace.get(id);
-  let self = this;
-  if (promise === undefined) {
-    fileSpace.set(id,yObj).then( function(obj){
-      deferred.resolve(obj);
-    });
-  }else{
-    promise.then(function(obj){
-      deferred.resolve(obj);
-    });
-  }
-  return deferred;
-}
-
-createFileSpace(id,reload){
-  let deferred = $.Deferred();
-  let promise = this.workspace.get(id);
-  let self = this;
-
-  function fileSpaceInit(map, newCreated=false){
-    console.log(newCreated);
-    if(newCreated){
-      console.log("create new fileSpace");
+        }catch(error){
+          console.error(error);
+          deferred.reject(error);
+        }
+      })
     }
-    let todos = [];
-    todos.push(self.createFileEntry("cursor",Y.Map,map));
-    todos.push(self.createFileEntry("segmentValues",Y.Map,map));
-    todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
-    todos.push(self.createFileEntry("user",Y.Map,map));
-    $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder,user){
-      user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
-      cursor.observe(self.cursorChangeHandler.bind(self));
-      self.user=user;
-      self.cursors = cursor;
-      self.setFileSpace(map);
-      deferred.resolve(map,segmentValues, segmentOrder, newCreated);
-    });
+    return deferred.promise();
   }
 
-  if (promise === undefined ) {
-    self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map,true) );
-  }else{
-    if (reload) {
-      promise.then( function(map){
-        self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
+  createOrders(traceModel){
+    return (workspaceMap, segmentValues, segmentOrder, reloaded) => {
+      let deferred = $.Deferred();
+      let todos = [];
+      todos = this.createYArrays(traceModel.getIndexes(), workspaceMap);
+      $.when.apply($,todos)
+        .then( function(){
+          deferred.resolve(segmentValues, segmentOrder, reloaded, Array.prototype.slice.call(arguments));
+        } );
+      return deferred.promise();
+    };
+  }
+
+  cursorChangeHandler(e){
+    for(let o of e){
+      let {name} = o;
+      this.emit("cursorChange",name);
+    }
+  }
+
+  createFileEntry(id,yObj,fileSpace){
+    let deferred = $.Deferred();
+    let promise = fileSpace.get(id);
+    let self = this;
+    if (promise === undefined) {
+      fileSpace.set(id,yObj).then( function(obj){
+        deferred.resolve(obj);
       });
-
     }else{
-      promise.then( fileSpaceInit );
+      promise.then(function(obj){
+        deferred.resolve(obj);
+      });
     }
+    return deferred;
   }
 
-  return deferred.promise();
+  createFileSpace(id,reload){
+    let deferred = $.Deferred();
+    let promise = this.workspace.get(id);
+    let self = this;
 
-}
+    function fileSpaceInit(map, newCreated=false){
+      if(newCreated){
+        console.log("create new fileSpace");
+      }
+      let todos = [];
+      todos.push(self.createFileEntry("cursor",Y.Map,map));
+      todos.push(self.createFileEntry("segmentValues",Y.Map,map));
+      todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
+      todos.push(self.createFileEntry("user",Y.Map,map));
+      $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder,user){
+        user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
+        cursor.observe(self.cursorChangeHandler.bind(self));
+        self.user=user;
+        self.cursors = cursor;
+        self.setFileSpace(map);
+        deferred.resolve(map,segmentValues, segmentOrder, newCreated);
+      });
+    }
 
-isRootPath(){
-  return this.currentPath == "" || this.currentPath == "./" || this.currentPath == "/" || this.currentPath == ".";
-}
+    if (promise === undefined ) {
+      self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map,true) );
+    }else{
+      if (reload) {
+        promise.then( function(map){
+          self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
+        });
 
-setFileSpace(space){
-  this.fileSpace = space;
-}
+      }else{
+        promise.then( fileSpaceInit );
+      }
+    }
 
-getFileSpace(){
-  return this.fileSpace;
-}
+    return deferred.promise();
 
-setRemoteCursor(usrId){
-  this.cursors.set(usrId,this.cursor);
-}
-
-setCursor(usrId,index){
-  this.cursor = index;
-  this.delayedSetCursor(this.getUserId());
-}
-
-getCursor(usrId){
-  return this.cursors.get(usrId);
-}
-
-getFileContent(fileName){
-  this.contentProvider.getContent2(fileName);
-}
-
-getFiles(filePath=""){
-  this.currentPath = filePath;
-  let relativePath = Path.relative("/",this.currentPath);
-  return this.roleSpace.getComponentName().then( componentName => this.contentProvider.getFiles(componentName,relativePath) );
-}
-
-getRemoteCursors(){
-
-  if (!this.cursors) {
-    return [];
   }
 
-  return this.cursors.keys().map(
-    function (key) {
-      return {usr:key,index:this.cursors.get(key)};
+  isRootPath(){
+    return this.currentPath == "" || this.currentPath == "./" || this.currentPath == "/" || this.currentPath == ".";
+  }
+
+  setFileSpace(space){
+    this.fileSpace = space;
+  }
+
+  getFileSpace(){
+    return this.fileSpace;
+  }
+
+  setRemoteCursor(usrId){
+    this.cursors.set(usrId,this.cursor);
+  }
+
+  setCursor(usrId,index){
+    this.cursor = index;
+    this.delayedSetCursor(this.getUserId());
+  }
+
+  getCursor(usrId){
+    return this.cursors.get(usrId);
+  }
+
+  getFileContent(fileName){
+    this.contentProvider.getContent2(fileName);
+  }
+
+  getFiles(filePath=""){
+    this.currentPath = filePath;
+    let relativePath = Path.relative("/",this.currentPath);
+    return this.roleSpace.getComponentName().then( componentName => this.contentProvider.getFiles(componentName,relativePath) );
+  }
+
+  getRemoteCursors(){
+
+    if (!this.cursors) {
+      return [];
     }
-  );
-}
 
-addSpaceChangeListener(listener){
-  this.on("spaceChange" , listener);
-}
+    return this.cursors.keys().map(
+      function (key) {
+        return {usr:key,index:this.cursors.get(key)};
+      }
+    );
+  }
 
-removespaceChangeListener(listener){
-  this.removeListener("spaceChange", listener);
-}
+  addSpaceChangeListener(listener){
+    this.on("spaceChange" , listener);
+  }
 
-addCursorChangeListener(listener){
-  this.on("cursorChange" , listener);
-}
+  removespaceChangeListener(listener){
+    this.removeListener("spaceChange", listener);
+  }
 
-removeCursorChangeListener(listener){
-  this.removeListener("cursorChange", listener);
-}
+  addCursorChangeListener(listener){
+    this.on("cursorChange" , listener);
+  }
+
+  removeCursorChangeListener(listener){
+    this.removeListener("cursorChange", listener);
+  }
 }
