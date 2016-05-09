@@ -8,7 +8,7 @@ let _y;
 
 function createRoomName(fileName) {
   let roomName = roomNameHash(fileName);
-  return `CAE[${roomName}]`;
+  return `CAE-Editor[${roomName}]`;
 }
 
 function roomNameHash(str){
@@ -84,6 +84,10 @@ export default class workspace extends EventEmitter{
     return this.roomSynch;
   }
 
+  getParticipants(){
+    return this.user.keys().map( (userId) => this.user.get(userId) );
+  }
+
   getUserId(){
     return this.roleSpace.getUserId();
   }
@@ -92,8 +96,13 @@ export default class workspace extends EventEmitter{
     return this.roleSpace.getUserName();
   }
 
-  getUserNameByJabberId(id){
+  getUserByJabberId(id){
     return this.user.get(id.toString());
+  }
+
+  getUserNameByJabberId(id){
+    let user = this.getUserByJabberId(id);
+    return user && user.name;
   }
 
   init(){
@@ -144,9 +153,9 @@ export default class workspace extends EventEmitter{
     }
 
     this.roleSpace.getComponentName()
-      .then( (componentName) => this.contentProvider.saveFile(path,componentName,data) )
-      .then( (e) => {console.log(e)} )
-      .fail( (error) => {console.error(error)} );
+    .then( (componentName) => this.contentProvider.saveFile(path,componentName,data) )
+    .then( (e) => {console.log(e)} )
+    .fail( (error) => {console.error(error)} );
   }
 
   createYArrays(indexes,map,depth=0){
@@ -178,11 +187,12 @@ export default class workspace extends EventEmitter{
     let todos = [];
     let token = true;
 
-    //destroy an already existing yjs room before we can synchronize to another one
-    //avoids some side effects, e.g. old observers
 
     if (_y) {
-      _y.destroy();
+      try{
+        this.user.delete( this.roleSpace.getUserId().toString() );
+      }catch(error){
+      }
     }
 
     if( !this.roomSynch ){
@@ -191,6 +201,13 @@ export default class workspace extends EventEmitter{
 
       run( function*(){
         try{
+
+          //destroy an already existing yjs room before we can synchronize to another one
+          //avoids some side effects, e.g. old observers
+          if(_y){
+            _y.destroy();
+          }
+
           let componentName = yield self.yieldGetComponentName();
           _y = yield self.yieldInitSpace(componentName);
 
@@ -220,14 +237,14 @@ export default class workspace extends EventEmitter{
             token = false;
           }
 
-          self.createFileSpace(self.currentFile,forceReload)
-            .then( self.createOrders(traceModel) )
-            .then( (segmentValues, segmentOrder, reloaded, orders) => {
-              deferred.resolve(traceModel, segmentValues, segmentOrder, reloaded, orders);
-              if(!token && forceReload){
-                self.workspace.set("generatedId",traceModel.getGenerationId());
-              }
-            });
+          self.createFileSpace(self.currentFile+"-"+traceModel.getGenerationId(), forceReload)
+          .then( self.createOrders(traceModel) )
+          .then( (segmentValues, segmentOrder, reloaded, orders) => {
+            deferred.resolve(traceModel, segmentValues, segmentOrder, reloaded, orders);
+            if(!token && forceReload){
+              self.workspace.set("generatedId",traceModel.getGenerationId());
+            }
+          });
 
         }catch(error){
           console.error(error);
@@ -244,9 +261,9 @@ export default class workspace extends EventEmitter{
       let todos = [];
       todos = this.createYArrays(traceModel.getIndexes(), workspaceMap);
       $.when.apply($,todos)
-        .then( function(){
-          deferred.resolve(segmentValues, segmentOrder, reloaded, Array.prototype.slice.call(arguments));
-        } );
+      .then( function(){
+        deferred.resolve(segmentValues, segmentOrder, reloaded, Array.prototype.slice.call(arguments));
+      } );
       return deferred.promise();
     };
   }
@@ -274,7 +291,7 @@ export default class workspace extends EventEmitter{
     return deferred;
   }
 
-  createFileSpace(id,reload){
+  createFileSpace(id, reload){
     let deferred = $.Deferred();
     let promise = this.workspace.get(id);
     let self = this;
@@ -283,13 +300,21 @@ export default class workspace extends EventEmitter{
       if(newCreated){
         console.log("create new fileSpace");
       }
+
       let todos = [];
       todos.push(self.createFileEntry("cursor",Y.Map,map));
       todos.push(self.createFileEntry("segmentValues",Y.Map,map));
       todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
       todos.push(self.createFileEntry("user",Y.Map,map));
       $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder,user){
-        user.set(self.roleSpace.getUserId(),self.roleSpace.getUserName());
+        let count = user.keys().length;
+        let workspaceUser = user.get(self.roleSpace.getUserId()) || {count};
+        workspaceUser.name = self.roleSpace.getUserName();
+        user.set( self.roleSpace.getUserId(), workspaceUser );
+
+        user.observe( function(){
+          self.codeEditor.printParticipants();
+        } );
         cursor.observe(self.cursorChangeHandler.bind(self));
         self.user=user;
         self.cursors = cursor;
@@ -308,6 +333,15 @@ export default class workspace extends EventEmitter{
 
       }else{
         promise.then( fileSpaceInit );
+
+        //function(map){
+        //  let fileId = map.get("generatedId");
+        //  if(generationId != fileId){
+        //    self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
+        //  }else{
+        //    fileSpaceInit(map);
+        //  }
+        //} );
       }
     }
 
