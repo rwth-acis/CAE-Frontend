@@ -3,7 +3,7 @@ import {toPromise,waitPromise} from './Utils';
 import CONFIG from "./roleSpaceConfig";
 
 if (typeof window.openapp === "undefined") {
-  let jabberId = Math.random()*99999;
+  let jabberId = 12345;
   window.openapp = {
     ns:{
       role : "role"
@@ -82,7 +82,8 @@ let resourceGetPromise = toPromise(openapp.resource.get);
 export default class RoleSpace extends EventEmitter{
 
   constructor(){
-    super();try{
+    super();
+    try{
       this.iwcClient = new iwc.Client("ACTIVITY");
       this.iwcClient.connect( this.iwcHandler.bind(this) );
     }catch(e){
@@ -185,18 +186,19 @@ export default class RoleSpace extends EventEmitter{
     let deferred = $.Deferred();
     this.getModelResource().then( (representation) => {
       if(representation && representation.attributes){
-        this.componentName =representation.attributes.label.value.value;
-
+        let name =representation.attributes.label.value.value;
+        //currently sometimes the type does not exists
+        this.componentName = `frontendComponent-${name}`;
         for(let attributeId in representation.attributes.attributes){
           if(representation.attributes.attributes.hasOwnProperty(attributeId)){
             let attribute = representation.attributes.attributes[attributeId];
             if(attribute.name==="type"){
               switch(attribute.value.value){
                 case "frontend-component":
-                  this.componentName = `frontendComponent-${this.componentName}`;
+                  this.componentName = `frontendComponent-${name}`;
                   break;
                 case "microservice":
-                  this.componentName = `microserviceComponent-${this.componentName}`;
+                  this.componentName = `microserviceComponent-${name}`;
                   break;
               }
               break;
