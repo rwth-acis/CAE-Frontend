@@ -4,6 +4,7 @@ import CommandDecorator from "./CommandDecorator";
 import Workspace from "./workspace";
 import ContentProvider from "./ContentProvider";
 import Path from "path";
+import {getParticipantColor} from "./Utils.js";
 
 export default class CodeEditor{
 
@@ -14,19 +15,24 @@ export default class CodeEditor{
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
     this.commandDecorator = new CommandDecorator(this.editor, this.segmentManager, this.traceHighlighter);
 
-    this.segmentManager.addChangeListener(function(e,content){
+    this.segmentManager.addChangeListener( (e,content) => {
       this.traceHighlighter.updateSegments(e);
-    }.bind(this));
+    } );
 
     this.bindAceEditor(this.editor);
+
+    //binding functions
+    this.workspaceHandler = this.workspaceHandler.bind(this);
   }
 
   bindAceEditor(editor){
     let traceHighlighter = this.traceHighlighter;
-    editor.getSession().selection.on('changeCursor', function (e){
+
+    editor.getSession().selection.on('changeCursor', (e)=>{
       console.log("changeCursor");
       traceHighlighter.updateCursor();
     });
+
     editor.on("change",this.segmentManager.editorChangeHandler.bind(this.segmentManager) );
     editor.on("mouseup",function(e){
       this.traceHighlighter.updateActiveSegment();
@@ -66,6 +72,8 @@ export default class CodeEditor{
     editor.getSession().setUndoManager({execute:function(){},undo:function(){},redo:function(){}});
     //enable line wrapping
     editor.getSession().setUseWrapMode(true);
+    //disable active line hightlighting and drag & drop
+    editor.setOption("highlightActiveLine", false)
     editor.setOption("dragEnabled",false);
 
     //set up some editor gui settings
@@ -111,9 +119,12 @@ export default class CodeEditor{
 
   workspaceHandler(traceModel,segmentValues, segmentOrder, reordered,orders){
     this.setModalStatus(2);
+    this.printParticipants();
+
     let deferred = $.Deferred();
     let editor = this.editor;
     this.segmentManager.bindSegments(traceModel, segmentValues, segmentOrder, reordered,orders).then( () =>{
+      this.traceHighlighter.setActiveSegment();
       this.traceHighlighter.updateSegments();
       deferred.resolve();
       this.setModalStatus(3);
@@ -123,7 +134,22 @@ export default class CodeEditor{
   }
 
   init(){
-    this.workspace.init().then(()=>this.loadFiles());
+    this.workspace.init()
+      .then( () => this.loadFiles() );
+  }
+
+  printParticipants(){
+    let users = this.workspace.getParticipants().map( (user) => {
+      let color = getParticipantColor(user.count) || {bg:"#ffffff",fg:"#000000"};
+      return $(
+`<li class="mdl-list__item">
+  <span  class="mdl-list__item-primary-content">
+    <i style="background-color:${color.bg}" class="material-icons mdl-list__item-icon">person</i>${user.name}
+  </span>
+</li>`)
+    } );
+
+    $("#participantList").html(users);
   }
 
   createLink(file){
@@ -188,11 +214,12 @@ export default class CodeEditor{
     this.setAceModeByExtension( Path.extname(fileName) );
     this.setEditorTitle(Path.basename(fileName));
     if (!this.workspace.isRoomSynchronized()) {
-      return this.workspace.init().then( () => {
-        return this.workspace.loadFile(fileName,reload)
-      }).then(this.workspaceHandler.bind(this));
+      return this.workspace.init()
+        .then( () => this.workspace.loadFile(fileName,reload) )
+        .then( this.workspaceHandler );
     }else{
-      return this.workspace.loadFile(fileName,reload).then(this.workspaceHandler.bind(this));
+      return this.workspace.loadFile(fileName,reload)
+        .then( this.workspaceHandler );
     }
   }
 }
