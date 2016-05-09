@@ -91,6 +91,14 @@ export function run(generator){
   runGenObj(generator());
 }
 
+export function getParticipantColor(count){
+  let colors = [
+    {bg:"#ff9900",fg:"#ffffff"},
+    {bg:"#cbff00",fg:"#ffffff"}
+  ];
+  return colors[ count % colors.length ];
+}
+
 export function genBind(callback){
   let self = this;
   return function*(){

@@ -1,4 +1,4 @@
-import {delayed,debounce} from "./Utils";
+import {delayed,debounce,getParticipantColor} from "./Utils";
 let Range = ace.require('ace/range').Range
 let maxUser = 10;
 
@@ -42,7 +42,12 @@ export default class{
     try{
       if (name != this.workspace.getUserId()) {
         if (typeof this.cursorMarkers[name] === "undefined") {
-          this.cursorMarkers[name]={id:this.userCount,marker:undefined,color:this.rainbow(this.userCount++),hide:debounce(this.hideUserName.bind(this),5000,true)}
+          this.cursorMarkers[name]={
+            id:this.userCount,
+            marker:undefined,
+            color:this.rainbow(this.userCount++),
+            hide:debounce(this.hideUserName.bind(this),5000,true)
+          }
         }
         this.cursorMarkers[name].hidden = false;
         this.renderCursor(name);
@@ -146,15 +151,15 @@ export default class{
       this.editor.getSession().removeMarker(cursor.marker);
       delete this.cursorMarkers[usr].marker;
     }
-    let color = cursor.color;
+    let color = getParticipantColor( this.workspace.getUserByJabberId(usr).count );
     let id = `u${this.cursorMarkers[usr].id}`;
     this.cursorMarkers[usr].marker=this.editor.session.addMarker(new Range(start.row,start.column,start.row,start.column+1), "moveable", function(html,range,left,top,config){
-      html.push(`<div style="top:${top};left:${left};height:${config.lineHeight};background-color:${color}" class="remoteCursor"></div>`);
+      html.push(`<div style="top:${top};left:${left};height:${config.lineHeight};background-color:${color.bg};color:${color.fg}" class="remoteCursor"></div>`);
       let width = userName.length * config.characterWidth;
       let leftName = left;
       let display = !cursor.hidden ? "block" : "none";
       leftName = Math.max(0,leftName-width+4);
-      html.push(`<div id="${id}" style="display:${display};top:${top+config.lineHeight};left:${leftName};width:${width};height:${config.lineHeight};background-color:${color}" class="remoteCursor username">${userName}</div>`);
+      html.push(`<div id="${id}" style="display:${display};top:${top+config.lineHeight};left:${leftName};width:${width};height:${config.lineHeight};background-color:${color.bg};color:${color.fg}" class="remoteCursor username">${userName}</div>`);
     },true);
     this.cursorMarkers[usr].hide(usr);
   }
