@@ -140,7 +140,7 @@ export default class TraceModel{
         return modelName;
       }
       else if( segment.getParent() ){
-        return this.getModelName2(segment.getParent());
+        return this.getModelNameRecursive(segment.getParent());
       }else{
         return false;
       }
