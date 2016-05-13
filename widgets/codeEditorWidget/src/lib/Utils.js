@@ -92,9 +92,13 @@ export function run(generator){
 }
 
 export function getParticipantColor(count){
+  console.log(count);
   let colors = [
     {bg:"#ff9900",fg:"#ffffff"},
-    {bg:"#cbff00",fg:"#ffffff"}
+    {bg:"#cbff00",fg:"#ffffff"},
+    {bg:"#00ff66",fg:"#ffffff"},
+    {bg:"#0066ff",fg:"#ffffff"},
+    {bg:"#cc00ff",fg:"#ffffff"}
   ];
   return colors[ count % colors.length ];
 }
