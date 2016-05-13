@@ -17,6 +17,9 @@ export default class CommandDecorator{
   isNavigationCommand(cmdName){
     return !!~["gotoleft","gotoright","golineup","golinedown"].indexOf(cmdName);
   }
+  isAllowedCommand(cmdName){
+    return this.isDeleteCommand(cmdName) || !!~["insertstring","selectleft","selectright","selectdown","selectup","selectlineend","selectlinestart","copy","paste","indent"].indexOf(cmdName);
+  }
 
   getActiveSegment(){
     return this.traceHighlighter.getActiveSegment();
@@ -109,11 +112,24 @@ export default class CommandDecorator{
     let curPosIndex = this.getCursorIndex();
     let dim = this.segmentManager.getSegmentDim(this.getActiveSegment());
     let relSegStart = Math.max( curPosIndex-dim.start,0);
+    let selection = this.editor.selection;
 
     if (this.isSelectionOutOfDim(dim)) {
       return true;
-    }else if (relSegStart <= 0) {
+    }else if (selection.isEmpty() && relSegStart <= 0) {
+      console.log("not alowed");
       return true;
+    }
+  }
+
+  pasteDecorator(e){
+    let curPosIndex = this.getCursorIndex();
+    let dim = this.segmentManager.getSegmentDim(this.getActiveSegment());
+
+    if (this.isSelectionOutOfDim(dim)) {
+      return true;
+    }else{
+      return false;
     }
   }
 
@@ -128,6 +144,8 @@ export default class CommandDecorator{
       let endP =range.end;
       let startIndex = aceDoc.positionToIndex(startP,0);
       let endIndex = aceDoc.positionToIndex(endP,0);
+      console.log(startIndex < start);
+      console.log(endIndex > end);
       if (startIndex < start || endIndex > end) {
         return true;
       }
@@ -164,6 +182,36 @@ export default class CommandDecorator{
     }
   }
 
+  insertDecorator(e){
+    let text = e.args || "";
+    if(this.pasteDecorator(e)){
+      return true;
+    }else{
+      //avoid deleting starting spaces when new lines are added
+      //that can result in changes of following blocks, e.g protected blocks
+      //there is no other solution to disable this behaviour in the ace editor
+      //TODO: this may be reduced to the cases where the insertion is performed at the end of a unprotected block
+      if(text == "\n" || text == "\r\n"){
+        text = " "+text;
+      }
+      e.command.exec(e.editor, text );
+      return true;
+    }
+  }
+
+  executeOtherCommand(cmdName,e){
+    switch(cmdName){
+      case "paste":
+      case "indent":
+      return this.pasteDecorator(e);
+      case "insertstring":
+      return this.insertDecorator(e);
+      break;
+    }
+
+    return false;
+  }
+
   commandHandler(e){
     let cmdName = e.command.name;
     let activeSegment = this.getActiveSegment();
@@ -180,6 +228,7 @@ export default class CommandDecorator{
     }
 
     if ( this.isDeleteCommand(cmdName)  ) {
+      console.log("isDeleteCommand");
       if (typeof activeSegment != "undefined") {
         if(this.segmentManager.isProtected(activeSegment)) {
           return true;
@@ -201,8 +250,18 @@ export default class CommandDecorator{
       }
     }
     //if we dont have handled the command yet, we will now do it
-    let res = e.command.exec(e.editor, e.args || {});
-    return res;
+    console.log(cmdName);
+    if(this.isAllowedCommand(cmdName)){
+      if( this.executeOtherCommand(cmdName,e) ){
+        return true;
+      }else{
+        console.log("execute " + cmdName);
+        let res = e.command.exec(e.editor, e.args || {});
+        return res;
+      }
+    }else{
+      return true;
+    }
   }
 
 }
