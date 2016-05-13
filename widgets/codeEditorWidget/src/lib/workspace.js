@@ -122,6 +122,12 @@ export default class workspace extends EventEmitter{
     return Path.relative("/" , path);
   }
 
+  push(){
+    console.log("workspace log");
+    return this.roleSpace.getComponentName()
+      .then( (componentName) => this.contentProvider.push(componentName) ).fail((e)=>{console.log(e)});
+  }
+
   getFile(modelName,fileName){
     let deferred = $.Deferred();
 
@@ -237,7 +243,7 @@ export default class workspace extends EventEmitter{
             token = false;
           }
 
-          self.createFileSpace(self.currentFile+"-"+traceModel.getGenerationId(), forceReload)
+          self.createFileSpace(self.currentFile, traceModel.getGenerationId(), forceReload)
           .then( self.createOrders(traceModel) )
           .then( (segmentValues, segmentOrder, reloaded, orders) => {
             deferred.resolve(traceModel, segmentValues, segmentOrder, reloaded, orders);
@@ -291,17 +297,20 @@ export default class workspace extends EventEmitter{
     return deferred;
   }
 
-  createFileSpace(id, reload){
+  createFileSpace(id, generationId, reload){
     let deferred = $.Deferred();
     let promise = this.workspace.get(id);
     let self = this;
 
     function fileSpaceInit(map, newCreated=false){
+
       if(newCreated){
         console.log("create new fileSpace");
       }
 
+      map.set("generatedId",generationId);
       let todos = [];
+
       todos.push(self.createFileEntry("cursor",Y.Map,map));
       todos.push(self.createFileEntry("segmentValues",Y.Map,map));
       todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
@@ -332,7 +341,14 @@ export default class workspace extends EventEmitter{
         });
 
       }else{
-        promise.then( fileSpaceInit );
+        promise.then( (map) => {
+          let fileId = map.get("generatedId");
+          if(generationId != fileId){
+            self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
+          }else{
+            fileSpaceInit(map);
+          }
+        } );
 
         //function(map){
         //  let fileId = map.get("generatedId");
