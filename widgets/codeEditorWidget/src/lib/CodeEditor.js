@@ -20,9 +20,17 @@ export default class CodeEditor{
     } );
 
     this.bindAceEditor(this.editor);
-
+    this.bindGui();
     //binding functions
     this.workspaceHandler = this.workspaceHandler.bind(this);
+  }
+
+  bindGui(){
+    $("#publishButton").click( (e) => {
+      console.log("publish");
+      this.workspace.push();
+      e.preventDefault();
+    });
   }
 
   bindAceEditor(editor){

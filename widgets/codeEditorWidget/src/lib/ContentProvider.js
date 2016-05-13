@@ -1,5 +1,16 @@
 import config from "./config.js";
 export default class ContentProvider{
+
+  push(repoName){
+    console.log(repoName);
+    repoName = repoName.replace(" ", "-");
+    return $.ajax({
+      type: 'PUT',
+      contentType: "text/plain",
+      url: `${config.GitHubProxyService.endPointBase}/${repoName}/push/`
+    });
+  }
+
   getContent(modelName,fileName){
     let deferred = $.Deferred();
 
