@@ -1,55 +1,141 @@
 import SegmentManager from "./SegmentManager";
+import HtmlTree from "./HtmlTree";
 import TraceHighlighter from "./TraceHighlighter";
 import CommandDecorator from "./CommandDecorator";
 import Workspace from "./workspace";
 import ContentProvider from "./ContentProvider";
 import Path from "path";
-import {getParticipantColor} from "./Utils.js";
+import {getParticipantColor} from "./Utils";
+import SideBar from "./SideBar";
+
+/**
+ *  The main class of the editor. An abstraction of the ace editor with respect to generated traces.
+ */
 
 export default class CodeEditor{
 
+  /**
+   *  Creates a new instance of the editor. It creates the needed data structures and binds all GUI elements to its
+   *  needed callbacks.
+   *  @param {string} editorId  - The id of an element in which the editor should be mounted
+   */
+
   constructor(editorId){
+    //create needed data structures
     this.workspace = new Workspace(new ContentProvider(),this);
     this.editor = this.createAceEditor(editorId);
-    this.segmentManager = this.createSegmentManager(this.editor,this.workspace);
+    this.segmentManager = this.createSegmentManager();
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
     this.commandDecorator = new CommandDecorator(this.editor, this.segmentManager, this.traceHighlighter);
+    this.htmlTree = new HtmlTree();
+    this.sideBar = new SideBar(this.htmlTree);
 
-    this.segmentManager.addChangeListener( (e,content) => {
+    //binding functions
+    this.workspaceHandler = this.workspaceHandler.bind(this);
+    this.orderChangeListener = this.orderChangeListener.bind(this);
+    this.resizeHandler = this.resizeHandler.bind(this);
+
+    this.segmentManager.addChangeListener( (e) => {
       this.traceHighlighter.updateSegments(e);
     } );
 
-    this.bindAceEditor(this.editor);
+    this.segmentManager.addOrderChangeListener( this.orderChangeListener );
+
     this.bindGui();
-    //binding functions
-    this.workspaceHandler = this.workspaceHandler.bind(this);
+  }
+
+  resizeHandler(){
+    let height = $(window).height()-$("header:eq(0)").height() - 20;
+    $('.editor, #editor').height(height);
+    this.sideBar.height(height);
+  }
+
+  orderChangeListener(data,indexes){
+    let htmlElements = Object.keys(data)
+    .filter( (key) => key.indexOf("$Main_Content$") > -1 )
+    .map( (key) => {
+      let res = data[key].toArray()
+      .filter( id => id.indexOf("htmlElement") >-1 )
+      .map( id => {
+        return {
+          id,
+          parent:key,
+          text: this.segmentManager.getModelName(id)
+        }
+      } );
+
+      //always add a parent element
+      res.unshift({
+        id : key,
+        parent : "#",
+        text: "HTMLElemente",
+        state:{
+          opened : true
+        }
+      })
+      return res;
+    } );
+
+    this.htmlTree.updateTree( htmlElements && htmlElements.length > 0 && htmlElements[0] || [] );
+  }
+
+
+  reorderSegments(e,data){
+    let {old_position:from, position:to, parent} = data;
+    let modelName = this.segmentManager.getModelName(data.node.id);
+    this.segmentManager.reorderSegmentsByPosition(from,to,parent);
+    this.workspace.saveFile(this.segmentManager.getTraceModel(), `Reordered ${modelName} from position ${from+1} to ${to+1}` );
   }
 
   bindGui(){
+    //hide sidebar
+    this.hideSideBar();
+
+    //bind ace edtior
+    this.bindAceEditor();
+
+    //bind jstree
+    this.htmlTree.addChangeListener( (e,data) => {this.reorderSegments(e,data);} );
+
+    //bind publish button
     $("#publishButton").click( (e) => {
-      console.log("publish");
       this.workspace.push();
       e.preventDefault();
     });
+
+
+    //bind resize handler
+    $(window).resize(this.resizeHandler);
+    this.resizeHandler();
+
   }
 
-  bindAceEditor(editor){
+  bindAceEditor(){
     let traceHighlighter = this.traceHighlighter;
 
-    editor.getSession().selection.on('changeCursor', (e)=>{
-      console.log("changeCursor");
+    this.editor.getSession().selection.on('changeCursor', (e)=>{
       traceHighlighter.updateCursor();
     });
 
-    editor.on("change",this.segmentManager.editorChangeHandler.bind(this.segmentManager) );
-    editor.on("mouseup",function(e){
-      this.traceHighlighter.updateActiveSegment();
-    }.bind(this))
-    editor.commands.setDefaultHandler("exec", this.commandDecorator.commandHandler.bind(this.commandDecorator) );
+    this.editor.on("change",this.segmentManager.editorChangeHandler.bind(this.segmentManager) );
+    this.editor.on("mouseup",() => this.traceHighlighter.updateActiveSegment() );
+    this.editor.commands.setDefaultHandler("exec", this.commandDecorator.commandHandler.bind(this.commandDecorator) );
   }
 
-  createSegmentManager(editor,workspace){
-    let segmentManager = new SegmentManager(editor);
+  hideSideBar(){
+    $("#container").removeClass("sidebar-is-visible");
+    $(".page-content").removeClass("sidebar-is-visible");
+    this.sideBar.hide();
+  }
+
+  showSideBar(){
+    $("#container").addClass("sidebar-is-visible");
+    $(".page-content").addClass("sidebar-is-visible");
+    this.sideBar.show();
+  }
+
+  createSegmentManager(){
+    let segmentManager = new SegmentManager(this.editor);
     let self = this;
 
     //add loading modal
@@ -62,8 +148,7 @@ export default class CodeEditor{
     });
 
     segmentManager.addSaveListener(function(segmentId){
-      let parent = segmentManager.getModelName(segmentId);
-      workspace.delayedSaveFile(segmentManager,parent);
+      self.workspace.delayedSaveFile(segmentManager.getTraceModel(), segmentManager.getModelName(segmentId) );
     });
 
     return segmentManager;
@@ -90,6 +175,10 @@ export default class CodeEditor{
     editor.setTheme("ace/theme/chrome");
     editor.setFontSize(25);
     return editor;
+  }
+
+  getJsTree(){
+    return $("div#orderableSegments");
   }
 
   setModalStatus(status){
@@ -143,91 +232,93 @@ export default class CodeEditor{
 
   init(){
     this.workspace.init()
-      .then( () => this.loadFiles() );
+    .then( () => this.loadFiles() );
   }
 
   printParticipants(){
     let users = this.workspace.getParticipants().map( (user) => {
       let color = getParticipantColor(user.count) || {bg:"#ffffff",fg:"#000000"};
       return $(
-`<li class="mdl-list__item">
-  <span  class="mdl-list__item-primary-content">
-    <i style="background-color:${color.bg}" class="material-icons mdl-list__item-icon">person</i>${user.name}
-  </span>
-</li>`)
-    } );
+        `<li class="mdl-list__item">
+        <span  class="mdl-list__item-primary-content">
+        <i style="background-color:${color.bg}" class="material-icons mdl-list__item-icon">person</i>${user.name}
+        </span>
+        </li>`)
+      } );
 
-    $("#participantList").html(users);
-  }
-
-  createLink(file){
-    let self = this;
-    let fileName = Path.basename(file.path);
-    return $(`<a>${fileName}</a>`).click(function(){
-      if (file.type == "folder") {
-        self.loadFiles(file.path);
-      }else if(fileName == "widget.xml" || fileName=="applicationScript.js"){
-        self.load(file.path);
-      }else{
-        alert("Cannot open files without traces");
-      }
-    }).attr({
-      "class" : "mdl-navigation__link",
-      "href" : "javascript:void(0);"
-    })
-  }
-
-  loadFiles(filePath=""){
-    let deferred = $.Deferred();
-    self = this;
-    this.workspace.getFiles(filePath).then(function(data){
-      let links = data.files.map( self.createLink.bind(self) );
-
-      if (!self.workspace.isRootPath()) {
-        let path = self.workspace.resolvePath("../");
-        links.unshift($(`<a>../</a>`).click(function(){self.loadFiles(path)}).attr({"href":"javascript:void(0);","class":"mdl-navigation__link"}));
-      }
-
-      $("#files").html( links );
-    })
-
-    deferred.resolve();
-    return deferred;
-  }
-
-  goToSegment(segmentId){
-    let {start, end} = this.segmentManager.getSegmentDim(segmentId,true);
-    let aceDoc = this.editor.getSession().getDocument();
-    let position = aceDoc.indexToPosition(start,0);
-    this.editor.scrollToLine(position.row, true, true, function () {});
-    this.editor.gotoLine(position.row, position.column, true);
-  }
-
-  setAceModeByExtension(extension){
-    let aceMode = "text";
-    switch(extension){
-      case ".js" :
-        aceMode = "javascript";
-        break;
-      case ".xml" :
-        aceMode = "xml";
-        break;
+      $("#participantList").html(users);
     }
-    this.editor.getSession().setMode(`ace/mode/${aceMode}`);
-  }
 
-  load(fileName,reload=false){
-    this.showModal();
-    this.setModalStatus(0);
-    this.setAceModeByExtension( Path.extname(fileName) );
-    this.setEditorTitle(Path.basename(fileName));
-    if (!this.workspace.isRoomSynchronized()) {
-      return this.workspace.init()
+    createLink(file){
+      let self = this;
+      let fileName = Path.basename(file.path);
+      return $(`<a>${fileName}</a>`).click(function(){
+        if (file.type == "folder") {
+          self.loadFiles(file.path);
+        }else if(fileName == "widget.xml" || fileName=="applicationScript.js"){
+          self.load(file.path);
+        }else{
+          alert("Cannot open files without traces");
+        }
+      }).attr({
+        "class" : "mdl-navigation__link",
+        "href" : "javascript:void(0);"
+      })
+    }
+
+    loadFiles(filePath=""){
+      let deferred = $.Deferred();
+      self = this;
+      this.workspace.getFiles(filePath).then(function(data){
+        let links = data.files.map( self.createLink.bind(self) );
+
+        if (!self.workspace.isRootPath()) {
+          let path = self.workspace.resolvePath("../");
+          links.unshift($(`<a>../</a>`).click(function(){self.loadFiles(path)}).attr({"href":"javascript:void(0);","class":"mdl-navigation__link"}));
+        }
+
+        $("#files").html( links );
+      })
+
+      deferred.resolve();
+      return deferred;
+    }
+
+    goToSegment(segmentId){
+      let {start, end} = this.segmentManager.getSegmentDim(segmentId,true);
+      let aceDoc = this.editor.getSession().getDocument();
+      let position = aceDoc.indexToPosition(start,0);
+      this.editor.scrollToLine(position.row, true, true, function () {});
+      this.editor.gotoLine(position.row, position.column, true);
+    }
+
+    setAceModeByExtension(extension){
+      let aceMode = "text";
+      switch(extension){
+        case ".js" :
+        aceMode = "javascript";
+        this.hideSideBar();
+        break;
+        case ".xml" :
+        aceMode = "xml";
+        this.showSideBar();
+        break;
+      }
+      this.editor.getSession().setMode(`ace/mode/${aceMode}`);
+    }
+
+    load(fileName,reload=false){
+      this.showModal();
+      this.setModalStatus(0);
+      this.setAceModeByExtension( Path.extname(fileName) );
+      this.setEditorTitle(Path.basename(fileName));
+      if (!this.workspace.isRoomSynchronized()) {
+        return this.workspace.init()
         .then( () => this.workspace.loadFile(fileName,reload) )
         .then( this.workspaceHandler );
-    }else{
-      return this.workspace.loadFile(fileName,reload)
+      }else{
+        return this.workspace.loadFile(fileName,reload)
         .then( this.workspaceHandler );
+      }
     }
   }
-}

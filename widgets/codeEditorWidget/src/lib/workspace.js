@@ -123,7 +123,6 @@ export default class workspace extends EventEmitter{
   }
 
   push(){
-    console.log("workspace log");
     return this.roleSpace.getComponentName()
       .then( (componentName) => this.contentProvider.push(componentName) ).fail((e)=>{console.log(e)});
   }
@@ -145,15 +144,15 @@ export default class workspace extends EventEmitter{
     return deferred.promise();
   }
 
-  saveFile(segmentManager, changedSegment){
+  saveFile(traceModel, changedSegment){
     let path = this.currentFile;
     path = Path.relative("/",path);
     let userId = this.getUserId();
     let userName = this.getUserNameByJabberId(userId);
 
     let data = {
-      code :  segmentManager.getTraceModel().getContent(),
-      traces : segmentManager.getTraceModel().serializeModel(),
+      code :  traceModel.getContent(),
+      traces : traceModel.serializeModel(),
       changedSegment,
       user: userName
     }

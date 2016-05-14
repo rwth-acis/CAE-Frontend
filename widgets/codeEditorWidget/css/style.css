@@ -1,6 +1,43 @@
 div#editor  div, div#editor  span{
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace !important;
 }
+
+div.mdl-grid{
+  padding:0px !important;
+  margin: 0px !important;
+}
+
+div.mdl-cell{
+  padding:0px !important;
+  margin:0px !important;
+}
+
+div.mdl-cell{
+  padding:0px !important;
+  margin:0px !important;
+}
+
+div#container.sidebar-is-visible{
+  margin-right:-250px;
+}
+
+div.page-content.sidebar-is-visible{
+  margin-right:250px;
+}
+
+div#jstree-marker{
+  z-index: 10000;
+}
+
+div#orderableSegments{
+  overflow: scroll;
+  margin-right:5px
+}
+
+div#orderableSegments .jstree-children>ul>li.jstree-node{
+  margin-left:12px !important;
+}
+
 .activeTrace {
   position: absolute; /* without this positions will be erong */
   background: #e6f5fc; /* color */
