@@ -33,7 +33,7 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
       s+=length;
 
     }else{
-      let {length,type,id,orderAble=false}=segment;
+      let {length,type,id,orderAble=false,integrityCheck}=segment;
       length = parseInt(length);
       let isProtected = type === "protected";
       let value= text.slice(s,s+length);
@@ -44,8 +44,12 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
           seg = new ProtectedSegment(value,id,parent);
         }else{
           seg = new Segment(value,id,parent);
+          if(integrityCheck){
+            seg.setHash(segment["hash"]);
+          }
         }
         res[id]=seg;
+        console.log('"'+seg.toString()+'"',id);
       }
       indexes.push({id});
       s+=length;
@@ -232,11 +236,22 @@ export default class TraceModel{
         });
       }else{
         let type = segment instanceof ProtectedSegment ? "protected" : "unprotected";
-        traceSegments.push({
+        let segmentData = {
           id:index.id,
           type: type,
           length: segment.toString().length
-        });
+        }
+
+        if(type === "unprotected"){
+          if(segment.integrityCheck){
+            segmentData["integrityCheck"] = true;
+            segmentData["hash"] = segment.hash;
+          }else{
+            segmentData["integrityCheck"] = false;
+          }
+        }
+
+        traceSegments.push(segmentData);
       }
     }
     let model = {

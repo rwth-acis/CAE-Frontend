@@ -4,6 +4,12 @@ export default class Segment extends AbstractSegment{
   constructor(value,id,parent){
     super(id,parent);
     this.value=value;
+    this.integrityCheck=false;
+  }
+
+  setHash(hash){
+    this.hash = hash;
+    this.integrityCheck = true;
   }
 
   toString(){
