@@ -24,10 +24,96 @@ class SegmentManager extends EventEmitter{
     }
   }
 
+  /**
+   *  Get the name of the segment of the given id
+   *  @param {string} segmentId - The id of the segment
+   */
+
+  getModelName(segmentId){
+    return this.traceModel.getModelName(segmentId.toString());
+  }
+
+  getTracedSegmentPosition(){
+    let segments = this.traceModel.getSegmets();
+
+  }
+
+  getOrderAbleSegments(){
+    return this.list.toArray();
+  }
+
+  getSegmentsRaw(withComposites){
+    let self = this;
+    return this.traceModel.getFlattenIndexes(withComposites).map( function(index){
+      if(index.children){
+        return index;
+      }else{
+        return self.bindings[index.id];
+      }
+    } );
+  }
+
+  getSegments(){
+    let self = this;
+    return this.traceModel.getFlattenIndexes().map( function(index){ return {
+      id:self.bindings[index.id].id,
+      value:self.getSegmentById(index.id)
+    } });
+  }
+  getNavigationString(segId){
+    let nav="";
+    let segment = this.getSegmentByIdRaw(segId).segment;
+    if (segment.getParent()) {
+      nav+=this.getNavigationString(segment.getParent())+">";
+    }
+    nav+=segment.getId();
+    return nav;
+  }
+
+  getTraceModel(){
+    return this.traceModel;
+  }
+
+  getSegmentByIdRaw(segmentId){
+    let id = segmentId.toString();
+    return this.bindings[segmentId];
+  }
+
+  getSegmentById(segmentId){
+    let binding = this.getSegmentByIdRaw(segmentId);
+    return binding && binding.segment && binding.segment.toString();
+  }
+
   getActiveSegment(){
     return this.activeSegment;
   }
 
+  getSegmentPosition(segment, offset){
+    let start = offset;
+    let end = start + segment.segment.toString().length;
+    return {start,end};
+  }
+
+  getSegmentDim(segId,withComposites=false){
+    let s =0;
+    let diff;
+    let indexes = this.traceModel.getFlattenIndexes(withComposites);
+    for(let indexObj of indexes){
+      let index = indexObj.id;
+      let binding = this.bindings[index];
+      if (binding.id == segId) {
+        return {start:s,end:s+binding.segment.toString().length};
+      }
+      if( !(binding.segment instanceof CompositeSegment) ){
+        s+=binding.segment.toString().length;
+      }
+    }
+    return {start:s,end:s};
+  }
+
+  getSegmentStartIndex(segId){
+    return this.getSegmentDim(segId).start;
+  }
 
   createSegValue(id,value) {
     //ensure that we use a string as the key
@@ -38,7 +124,6 @@ class SegmentManager extends EventEmitter{
     if (promise === undefined) {
       this.map.set(id,Y.Text).then(function(yText){
         //set initial text value
-        console.log("created "+id);
         yText.insert(0,value);
         deferred.resolve(yText);
       }.bind(this));
@@ -82,6 +167,66 @@ class SegmentManager extends EventEmitter{
     return nIndexes;
   }
 
+  reorderSegmentsById(fromId,beforeId,parent){
+    let list = this.orders[parent];
+    let listArray = list.toArray();
+    let to = listArray.indexOf(beforeId);
+    let from = listArray.indexOf(fromId);
+    if( to >-1 && from >-1){
+      let targetS = list.get(from);
+      list.delete(from);
+      list.insert(to,[targetS]);
+    }
+  }
+
+  reorderSegmentsByPosition(from,to,parent){
+    if(from == to){
+      //nothing to do
+      return;
+    }
+
+    let list = this.orders[parent];
+    let listArray = list.toArray();
+    let orderAbleSegments = [];
+    let notOrdered=[];
+
+    //collect all segments that also need to be reordered, e.g. indentions
+    for(let i=0;i<listArray.length;i++){
+      let sId = listArray[i];
+      if(sId.indexOf("htmlElement") > -1){
+        orderAbleSegments.push({position:i,not:notOrdered});
+        notOrdered=[];
+      }else{
+        notOrdered.push(i);
+      }
+    }
+
+    let fromGroup = orderAbleSegments[from];
+    let fromIds = fromGroup.not.map( position => list.get(position) );
+    fromIds.push( list.get(fromGroup.position) );
+
+    let toGroup = orderAbleSegments[to];
+    let toIds = toGroup.not.map( position => list.get(position) );
+    toIds.push( list.get( toGroup.position ) );
+
+    let toId = "";
+    if( from > to){
+      //our destination is the first "to" element
+      toId = toIds[0];
+    }else{
+      //we need to reverse the "from" elements if we sort from top to down
+      fromIds = fromIds.reverse();
+      //our destination is the last "to" element
+      toId = toIds.slice(-1).pop();
+    }
+
+    for(let i=0;i<fromIds.length;i++){
+      this.reorderSegmentsById(fromIds[i],toId,parent);
+    }
+    console.log(list.toArray());
+    this.emit("orderChange",this.orders,this.indexes);
+  }
+
   swapSegments(target,source){
     let deferred = $.Deferred();
     if (target.parent && target.parent == source.parent) {
@@ -110,10 +255,6 @@ class SegmentManager extends EventEmitter{
     this.token=true;
   }
 
-  getTraceModel(){
-    return this.traceModel;
-  }
-
   buildOrders(indexes,segments){
     for(let i=0;i<indexes.length;i++){
       let index = indexes[i];
@@ -129,20 +270,11 @@ class SegmentManager extends EventEmitter{
     }
   }
 
-  getNavigationString(segId){
-    let nav="";
-    let segment = this.getSegmentByIdRaw(segId).segment;
-    if (segment.getParent()) {
-      nav+=this.getNavigationString(segment.getParent())+">";
-    }
-    nav+=segment.getId();
-    return nav;
-  }
-
   initOrders(orders){
     for(let order of orders){
       this.orders[order.id] = order.list;
     }
+    console.log(this.orders);
   }
 
   bindOrders(orders){
@@ -152,6 +284,7 @@ class SegmentManager extends EventEmitter{
         try{
           let indexes = self.rebuildIndex(self.list);
           self.reordered(indexes);
+          self.emit("orderChange",self.orders,self.indexes);
         }catch(e){
           console.error(e);
         }
@@ -230,12 +363,12 @@ class SegmentManager extends EventEmitter{
         self.bindOrders(orders);
 
         self.emitLoadingUpdate(count,flattenWithComposites.length);
-        //setTimeout(function(){
-        //    self.swapSegments({parent:"container1",index:2},{parent:"container1",index:4});
-        //},1000);
 
         //(re-)activate the bindings
         self.enableBindings();
+
+        //fire order changed event
+        self.emit("orderChange",self.orders,self.indexes);
 
         //finally resolve the promise
         deferred.resolve();
@@ -272,64 +405,10 @@ class SegmentManager extends EventEmitter{
     return deferred.promise();
   }
 
-  getTracedSegmentPosition(){
-    let segments = this.traceModel.getSegmets();
-
-  }
-
-  getOrderAbleSegments(){
-    return this.list.toArray();
-  }
-
-  getSegmentsRaw(withComposites){
-    let self = this;
-    return this.traceModel.getFlattenIndexes(withComposites).map( function(index){
-      if(index.children){
-        return index;
-      }else{
-        return self.bindings[index.id];
-      }
-    } );
-  }
-
-  getSegments(){
-    let self = this;
-    return this.traceModel.getFlattenIndexes().map( function(index){ return {
-      id:self.bindings[index.id].id,
-      value:self.getSegmentById(index.id)
-    } });
-  }
 
   setSegments(bindings,indexes){
     this.indexes = indexes;
     this.bindings = bindings;
-  }
-
-  getSegmentPosition(segment, offset){
-    let start = offset;
-    let end = start + segment.segment.toString().length;
-    return {start,end};
-  }
-
-  getSegmentDim(segId,withComposites=false){
-    let s =0;
-    let diff;
-    let indexes = this.traceModel.getFlattenIndexes(withComposites);
-    for(let indexObj of indexes){
-      let index = indexObj.id;
-      let binding = this.bindings[index];
-      if (binding.id == segId) {
-        return {start:s,end:s+binding.segment.toString().length};
-      }
-      if( !(binding.segment instanceof CompositeSegment) ){
-        s+=binding.segment.toString().length;
-      }
-    }
-    return {start:s,end:s};
-  }
-
-  getSegmentStartIndex(segId){
-    return this.getSegmentDim(segId).start;
   }
 
   editorChangeHandler(e){
@@ -434,23 +513,10 @@ class SegmentManager extends EventEmitter{
     return undefined;
   }
 
-  get(segmentId){
-    return this.map.get(segmentId.toString());
-  }
-
-  getSegmentByIdRaw(segmentId){
-    let id = segmentId.toString();
-    return this.bindings[segmentId];
-  }
-
-  getSegmentById(segmentId){
-    let binding = this.getSegmentByIdRaw(segmentId);
-    return binding && binding.segment && binding.segment.toString();
-  }
-
-  getModelName(segmentId){
-    return this.traceModel.getModelName(segmentId.toString());
-  }
+  /**
+   *  Determine whether the segment of the given id is protected or not
+   *  @param {string} segmentId - The id of the segment
+   */
 
   isProtected(segmentId){
     let binding = this.getSegmentByIdRaw(segmentId);
@@ -479,6 +545,14 @@ class SegmentManager extends EventEmitter{
 
   removeLoadingListener(listener){
     this.removeListener("loading", listener);
+  }
+
+  addOrderChangeListener(listener){
+    this.on("orderChange" , listener);
+  }
+
+  removeOrderChangeListener(listener){
+    this.removeListener("orderChange", listener);
   }
 
 }
