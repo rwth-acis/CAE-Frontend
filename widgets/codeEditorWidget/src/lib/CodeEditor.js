@@ -48,6 +48,7 @@ export default class CodeEditor{
     let height = $(window).height()-$("header:eq(0)").height() - 20;
     $('.editor, #editor').height(height);
     this.sideBar.height(height);
+    this.editor.resize();
   }
 
   orderChangeListener(data,indexes){
@@ -126,12 +127,14 @@ export default class CodeEditor{
     $("#container").removeClass("sidebar-is-visible");
     $(".page-content").removeClass("sidebar-is-visible");
     this.sideBar.hide();
+    this.editor.resize();
   }
 
   showSideBar(){
     $("#container").addClass("sidebar-is-visible");
     $(".page-content").addClass("sidebar-is-visible");
     this.sideBar.show();
+    this.editor.resize();
   }
 
   createSegmentManager(){
