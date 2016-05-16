@@ -205,21 +205,23 @@ export default class TraceModel{
     return res;
   }
 
-  /*
-  *  Returns the flatten indexes
-  *  @param [boolean]  withComposites  - Determine if the indexes of composites segments should also be included
-  */
+  /**
+   *  Returns the flatten indexes of the segments of the trace model, that is, returns the nested segments in composition to a not nested sequence of ids.
+   *
+   *  @param [boolean]  withComposites  - Determines if the indexes of compositions of segments should also be included
+   */
 
   getFlattenIndexes(withComposites=false){
     return this.getFlattenSubIndexes(this.indexes,withComposites);
   }
 
   /**
-  *  Serialize a given subset of the segments to JSON
-  *  @param {Object[]} children              - The ids of the segments that should be serializeModel
-  *  @param {string}   children[].id         - The id of the segment
-  *  @param {Object[]} [children[].children] - The list of sub segments of composite segment
-  */
+   *  Serialize a given subset of the segments to JSON
+   *
+   *  @param {Object[]} children              - The ids of the segments that should be serializeModel
+   *  @param {string}   children[].id         - The id of the segment
+   *  @param {Object[] [children[]}.children] - The list of sub segments of composite segment
+   */
 
   serializeModel(children){
     let traceSegments = [];

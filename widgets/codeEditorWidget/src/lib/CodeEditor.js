@@ -9,7 +9,7 @@ import {getParticipantColor} from "./Utils";
 import SideBar from "./SideBar";
 
 /**
- *  The main class of the editor. An abstraction of the ace editor with respect to generated traces.
+ *  The main class of the editor. An abstraction of the ace editor that also supports unprotected & protected segments and synchronizes them with the source code
  */
 
 export default class CodeEditor{
@@ -17,7 +17,7 @@ export default class CodeEditor{
   /**
    *  Creates a new instance of the editor. It creates the needed data structures and binds all GUI elements to its
    *  needed callbacks.
-   *  @param {string} editorId  - The id of an element in which the editor should be mounted
+   *  @param {string} editorId  - The id of an element in which the ace editor should be mounted
    */
 
   constructor(editorId){
@@ -43,6 +43,11 @@ export default class CodeEditor{
 
     this.bindGui();
   }
+
+  /**
+   *  A resize handler called when a window resize event is emitted. Updates the height of the div containing the mount point of
+   *  the ace editor and the height of the ace editor.
+   */
 
   resizeHandler(){
     let height = $(window).height()-$("header:eq(0)").height() - 20;
@@ -80,6 +85,15 @@ export default class CodeEditor{
     this.htmlTree.updateTree( htmlElements && htmlElements.length > 0 && htmlElements[0] || [] );
   }
 
+  /**
+   *  The drag and drop handler for the html tree/jstree. Reorders the affected segments in the segment manager and save the changes.
+   *
+   *  @param {event}  e                 - The event object emitted by jstree after reordering
+   *  @param {object} data              - A data object containing the reordered node and its old and new position after the reordering
+   *  @param {number} data.old_position - The old position before the reordering
+   *  @param {number} data.position     - The new position after the reordering
+   *  @param {string} data.parent       - The id of the parent of the reordered node
+   */
 
   reorderSegments(e,data){
     let {old_position:from, position:to, parent} = data;
