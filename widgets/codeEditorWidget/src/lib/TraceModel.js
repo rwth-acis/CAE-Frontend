@@ -95,6 +95,7 @@ export default class TraceModel{
 
   /**
   * Returns the id of the code generation
+  * @return {string}  - The id of the code generation
   */
 
   getGenerationId(){
@@ -102,7 +103,7 @@ export default class TraceModel{
   }
 
   /**
-  *  Parses the model
+  *  Parses the currently set model. It will creates an internal array for the segments order and an array for the segments themselves
   */
 
   parseModel(){
@@ -112,39 +113,58 @@ export default class TraceModel{
     this.indexes = res.traceSegments.indexes;
     this.segments = res.traceSegments.segments;
     this.traces = traces;
-    console.log(this.traces);
   }
 
   /**
   *  Returns the model name of a segment used for the commit message
-  *  @param {string} segmentId - The segment id
+  *  @param {string} segmentId  - The segment id
+  *  @param {[boolean]} withType  - If true, the model name will also contain the model type
+  *  @return {string}           - The name of the model element
   */
 
-  getModelName(segmentId){
-    return this.getModelNameRecursive(segmentId) || `Untraced Segment[${segmentId}]`;
+  getModelName(segmentId, withType=false){
+    let model = this.getModelRecursive(segmentId);
+    if(!model){
+      return`Untraced Segment[${segmentId}]`;
+    }else{
+      let modelName = model.name;
+      if(withType && model.type && model.type.length > 0){
+        modelName = `${model.type}[${modelName}]`
+      }
+      return modelName;
+    }
   }
 
-  getModelNameRecursive(segmentId){
+  /**
+   *	@typedef Model
+   *	@type object
+   *	@property {string} name    - The name of the model element
+   *	@property {[string]} type  - An optional type of the model element
+   */
+
+  /**
+   *	Returns the model that is linked to the given segment. If we cant find a model for that segment and the segment does have a parent,
+   *	we try to findcthe model if its parent.
+   *	@param {string} segmentId      - The segment of the id
+   *	@return {Model|boolean}        - The linked model or false if the model was not found
+   */
+
+  getModelRecursive(segmentId){
     let segment = this.segments[segmentId];
     if(segment){
-      let modelName = false;
-
       for(let modelId in this.traces){
         if(this.traces.hasOwnProperty(modelId)){
           let model = this.traces[modelId];
           let segments = model.segments.filter( segment => segment == segmentId);
           if(segments && segments.length > 0){
-            modelName = model.name;
+            return model;
             break;
           }
         }
       }
-
-      if(modelName){
-        return modelName;
-      }
+      //if we dont find the model yet, we will return the linked model of the parent
       else if( segment.getParent() ){
-        return this.getModelNameRecursive(segment.getParent());
+        return this.getModelRecursive(segment.getParent());
       }else{
         return false;
       }
@@ -153,16 +173,18 @@ export default class TraceModel{
     }
   }
 
-  /*
-  *  Returns all segments
-  */
+  /**
+   *	Return the segments
+   *	@return {Object[]} - The segments
+   */
 
   getSegments(){
     return this.segments;
   }
 
-  /*
+  /**
   *  Returns the content of the file holded by the trace model
+  *  @return {string} - The content of the file
   */
 
   getContent(){
@@ -171,7 +193,7 @@ export default class TraceModel{
     }.bind(this)).join("");
   }
 
-  /*
+  /**
   *  Sets new indexes, i.e. new order of the segments
   *  @param {Object[]} indexes - The new indexes
   */
@@ -180,8 +202,9 @@ export default class TraceModel{
     this.indexes=indexes;
   }
 
-  /*
+  /**
   *  Returns the current indexes
+  *  @return {Object[]} - The indexes, i.e. order of the segments
   */
 
   getIndexes(){
@@ -207,7 +230,6 @@ export default class TraceModel{
 
   /**
    *  Returns the flatten indexes of the segments of the trace model, that is, returns the nested segments in composition to a not nested sequence of ids.
-   *
    *  @param [boolean]  withComposites  - Determines if the indexes of compositions of segments should also be included
    */
 
@@ -217,7 +239,6 @@ export default class TraceModel{
 
   /**
    *  Serialize a given subset of the segments to JSON
-   *
    *  @param {Object[]} children              - The ids of the segments that should be serializeModel
    *  @param {string}   children[].id         - The id of the segment
    *  @param {Object[] [children[]}.children] - The list of sub segments of composite segment
@@ -257,6 +278,7 @@ export default class TraceModel{
       }
     }
     let model = {
+      generationId: this.getGenerationId(),
       traces: this.model.traces.traces,
       traceSegments: traceSegments
     };

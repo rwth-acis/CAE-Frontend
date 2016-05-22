@@ -27,10 +27,11 @@ class SegmentManager extends EventEmitter{
   /**
    *  Get the name of the segment of the given id
    *  @param {string} segmentId - The id of the segment
+   *  @param {boolean} withType - It ture, the model name will also contain the model type
    */
 
-  getModelName(segmentId){
-    return this.traceModel.getModelName(segmentId.toString());
+  getModelName(segmentId,withType=false){
+    return this.traceModel.getModelName(segmentId.toString(),withType);
   }
 
   getTracedSegmentPosition(){

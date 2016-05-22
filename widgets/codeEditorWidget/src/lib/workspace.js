@@ -20,6 +20,12 @@ function roomNameHash(str){
   return hash;
 }
 
+/**
+ * A private function that connects to the yjs room for the given filename
+ * @param  {string} fileName  - The filename to whose yjs room we want to connect
+ * @return {Promise}          - A promise that is resolved when the connection to the yjs room is established and the synchronization is done
+ */
+
 function initSpace(fileName) {
   let deferred = $.Deferred();
   new Y({db:{name:"memory"},connector:{
@@ -124,7 +130,8 @@ export default class workspace extends EventEmitter{
 
   push(){
     return this.roleSpace.getComponentName()
-      .then( (componentName) => this.contentProvider.push(componentName) ).fail((e)=>{console.log(e)});
+      .then( (componentName) => this.contentProvider.push(componentName) )
+      .fail( (e) => {console.error(e)} );
   }
 
   getFile(modelName,fileName){
@@ -348,15 +355,6 @@ export default class workspace extends EventEmitter{
             fileSpaceInit(map);
           }
         } );
-
-        //function(map){
-        //  let fileId = map.get("generatedId");
-        //  if(generationId != fileId){
-        //    self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
-        //  }else{
-        //    fileSpaceInit(map);
-        //  }
-        //} );
       }
     }
 
