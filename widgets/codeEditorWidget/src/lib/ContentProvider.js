@@ -1,13 +1,32 @@
+import {EventEmitter} from 'events';
 import config from "./config.js";
-export default class ContentProvider{
+
+export default class ContentProvider extends EventEmitter{
+
+  constructor(){
+    super();
+  }
+
+  addEventListener( listener ){
+    this.on("event", listener );
+  }
+
+  removeEventListener( listener ){
+    this.removeListener("event", listener );
+  }
 
   push(repoName){
-    console.log(repoName);
     repoName = repoName.replace(" ", "-");
     return $.ajax({
       type: 'PUT',
       contentType: "text/plain",
       url: `${config.GitHubProxyService.endPointBase}/${repoName}/push/`
+    }).done( (data, status) =>{
+      let message = "Commits successfully published";
+      this.emit("event",message, data);
+    }).fail( (data, status,error) =>{
+      let  message = `Error while publishing: ${error}`;
+      this.emit("event", message);
     });
   }
 
@@ -41,7 +60,7 @@ export default class ContentProvider{
     );
   }
 
-  saveFile(filename,repoName,{code,traces,changedSegment,user}){
+  saveFile(filename,repoName,{code,traces,changedSegment,user}, callback){
     repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');
     let commitMessage = `${changedSegment} edited by ${user}`;
@@ -56,6 +75,12 @@ export default class ContentProvider{
       contentType: "application/json;charset=utf-8",
       url: `${config.GitHubProxyService.endPointBase}/${repoName}/file/`,
       data: JSON.stringify(requestData)
+    }).done( (data, status) =>{
+      let message = `Changes saved`
+      this.emit("event",message, data);
+    }).fail( (data, status) =>{
+      let  message = `Error while saving: ${status}`;
+      this.emit("event", message);
     });
   }
 }
