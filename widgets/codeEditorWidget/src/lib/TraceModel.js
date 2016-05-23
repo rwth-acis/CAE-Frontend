@@ -163,7 +163,7 @@ export default class TraceModel{
         }
       }
       //if we dont find the model yet, we will return the linked model of the parent
-      else if( segment.getParent() ){
+      if( segment.getParent() ){
         return this.getModelRecursive(segment.getParent());
       }else{
         return false;
