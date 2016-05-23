@@ -7,6 +7,7 @@ import ContentProvider from "./ContentProvider";
 import Path from "path";
 import {getParticipantColor} from "./Utils";
 import SideBar from "./SideBar";
+import FileList from "./FileList";
 
 /**
 *  The main class of the editor. An abstraction of the ace editor that also supports unprotected & protected segments and synchronizes them with the source code
@@ -28,8 +29,10 @@ export default class CodeEditor{
     this.segmentManager = this.createSegmentManager();
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
     this.commandDecorator = new CommandDecorator(this.editor, this.segmentManager, this.traceHighlighter);
+
     this.htmlTree = new HtmlTree();
     this.sideBar = new SideBar(this.htmlTree);
+    this.fileList = new FileList(this);
 
     //binding functions
     this.workspaceHandler = this.workspaceHandler.bind(this);
@@ -49,8 +52,8 @@ export default class CodeEditor{
   }
 
   /**
-  *  A resize handler called when a window resize event is emitted. Updates the height of the div containing the mount point of
-  *  the ace editor and the height of the ace editor.
+  *  The resize handler called when a window resize event is emitted. Updates the height of the div containing
+  *  the mount point of the code editor and the height of the ace editor.
   */
 
   resizeHandler(){
@@ -321,30 +324,6 @@ export default class CodeEditor{
     $("#participantList").html(users);
   }
 
-  /**
-  *	Creates a new link for a file or folder
-  *	@param {object} file      - The file object
-  *	@param {string} file.type - The type of the file. Either "file" or "folder"
-  *	@param {string} file.path - The absoulte path of the file or folder
-  *	@return {object}          - A new jquery element of the link for the file
-  */
-
-  createLink(file){
-    let self = this;
-    let fileName = Path.basename(file.path);
-    return $(`<a>${fileName}</a>`).click(function(){
-      if (file.type == "folder") {
-        self.loadFiles(file.path);
-      }else if(fileName == "widget.xml" || fileName=="applicationScript.js"){
-        self.load(file.path);
-      }else{
-        alert("Cannot open files without traces");
-      }
-    }).attr({
-      "class" : "mdl-navigation__link",
-      "href" : "javascript:void(0);"
-    })
-  }
 
   /**
   *	Load and displays the files of the repository of an optional path or the root folder
@@ -355,18 +334,12 @@ export default class CodeEditor{
   loadFiles(filePath=""){
     let deferred = $.Deferred();
     self = this;
-    this.workspace.getFiles(filePath).then(function(data){
-      let links = data.files.map( self.createLink.bind(self) );
-
-      if (!self.workspace.isRootPath()) {
-        let path = self.workspace.resolvePath("../");
-        links.unshift($(`<a>../</a>`).click(function(){self.loadFiles(path)}).attr({"href":"javascript:void(0);","class":"mdl-navigation__link"}));
-      }
-
-      $("#files").html( links );
-    }).always( () => {
-      deferred.resolve();
-    })
+    this.workspace.getFiles(filePath)
+      .then( (files) => this.fileList.setFiles(files) )
+      .always( () => {
+        //always resolve the promise
+        deferred.resolve();
+      })
 
     return deferred;
   }
@@ -400,6 +373,10 @@ export default class CodeEditor{
       aceMode = "xml";
       this.showSideBar();
       break;
+      case ".java" :
+      aceMode = "java";
+      this.hideSideBar();
+      break;
     }
     this.editor.getSession().setMode(`ace/mode/${aceMode}`);
   }
@@ -411,7 +388,7 @@ export default class CodeEditor{
   *	@return {Promise}          - A promise that is resolved when the loading is finished
   */
 
-  load(fileName,reload=false){
+  open(fileName,reload=false){
     this.showModal();
     this.setModalStatus(0);
     this.setAceModeByExtension( Path.extname(fileName) );

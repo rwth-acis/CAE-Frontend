@@ -66,7 +66,7 @@ export default class workspace extends EventEmitter{
     //defining generator functions, used to avoid large promise chains
     this.yieldGetComponentName = genBind( () => this.roleSpace.getComponentName() );
     this.yieldGetSegmentLocation = genBind( (componentName, entityId) => this.contentProvider.getSegmentLocation(componentName, entityId) );
-    this.yieldLoad = genBind( (fileName) => this.codeEditor.load(fileName,false) );
+    this.yieldOpen = genBind( (fileName) => this.codeEditor.open(fileName,false) );
     this.yieldGetFile = genBind( (componentName, fileName) => this.getFile(componentName, fileName) );
     this.yieldInitSpace = genBind( (componentName) => initSpace(componentName) );
   }
@@ -77,7 +77,7 @@ export default class workspace extends EventEmitter{
       try{
         let componentName = yield self.yieldGetComponentName();
         let {fileName,segmentId} = yield self.yieldGetSegmentLocation(componentName, entityId);
-        yield self.yieldLoad(fileName);
+        yield self.yieldOpen(fileName);
         self.codeEditor.goToSegment(segmentId);
         self.codeEditor.loadFiles(self.currentPath);
       }catch(error){
@@ -230,7 +230,7 @@ export default class workspace extends EventEmitter{
                 //check if we need to reload
                 if(token && event.value != event.oldValue){
                   setTimeout(function(){
-                    self.codeEditor.load(fileName);
+                    self.codeEditor.open(fileName);
                   });
                 }else{
                   token=true;
@@ -391,10 +391,20 @@ export default class workspace extends EventEmitter{
     this.contentProvider.getContent2(fileName);
   }
 
+  getDecoratedFiles(files){
+    if (!this.isRootPath()) {
+      let path = this.resolvePath("../");
+      files.unshift({type:"folder", path : path, name : "../"});
+    }
+    return files;
+  }
+
   getFiles(filePath=""){
     this.currentPath = filePath;
     let relativePath = Path.relative("/",this.currentPath);
-    return this.roleSpace.getComponentName().then( componentName => this.contentProvider.getFiles(componentName,relativePath) );
+    return this.roleSpace.getComponentName()
+      .then( componentName => this.contentProvider.getFiles(componentName,relativePath) )
+      .then( data => this.getDecoratedFiles(data.files) );
   }
 
   getRemoteCursors(){
