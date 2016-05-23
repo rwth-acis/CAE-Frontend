@@ -99,7 +99,7 @@ export default class TraceModel{
   */
 
   getGenerationId(){
-    return this.model.traces.generatedID;
+    return this.model.traces.generationId;
   }
 
   /**
@@ -239,9 +239,10 @@ export default class TraceModel{
 
   /**
    *  Serialize a given subset of the segments to JSON
-   *  @param {Object[]} children              - The ids of the segments that should be serializeModel
+   *  @param {object[]} children              - The ids of the segments that should be serializeModel
    *  @param {string}   children[].id         - The id of the segment
-   *  @param {Object[] [children[]}.children] - The list of sub segments of composite segment
+   *  @param {object[] [children[]}.children] - The list of sub segments of composite segment
+   *  @return {object}                        - The serialized segments as json object
    */
 
   serializeModel(children){
