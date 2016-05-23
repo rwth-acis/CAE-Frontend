@@ -16,17 +16,9 @@ if (typeof window.openapp === "undefined") {
               getRepresentation:function(type, callback){
                 callback({
                   attributes:{
-                    attributes:{
-                      "ahaha":{
-                        name : "type",
-                        value : {
-                          value : "frontend-component"
-                        }
-                      }
-                    },
                     label:{
                       value:{
-                        value:"Test23"
+                        value:"Test Service"
                       }
                     }
                   }
@@ -135,7 +127,8 @@ export default class RoleSpace extends EventEmitter{
   }
 
   getComponentType(){
-    return "frontend";
+    let type = window.localStorage.componentType || "frontendComponent"
+    return type;
   }
 
   getModelResource(){
@@ -163,7 +156,6 @@ export default class RoleSpace extends EventEmitter{
 
   getComponentName(){
     let deferred = $.Deferred();
-    console.log(this.componentName);
     deferred.resolve(this.componentName);
     return deferred.promise();
   }
@@ -187,25 +179,7 @@ export default class RoleSpace extends EventEmitter{
     this.getModelResource().then( (representation) => {
       if(representation && representation.attributes){
         let name =representation.attributes.label.value.value;
-        //currently sometimes the type does not exists
-        this.componentName = `frontendComponent-${name}`;
-        for(let attributeId in representation.attributes.attributes){
-          if(representation.attributes.attributes.hasOwnProperty(attributeId)){
-            let attribute = representation.attributes.attributes[attributeId];
-            if(attribute.name==="type"){
-              switch(attribute.value.value){
-                case "frontend-component":
-                  this.componentName = `frontendComponent-${name}`;
-                  break;
-                case "microservice":
-                  this.componentName = `microserviceComponent-${name}`;
-                  break;
-              }
-              break;
-            }
-          }
-        }
-
+        this.componentName = `${this.getComponentType()}-${name}`;
         deferred.resolve();
       }else{
         deferred.reject(new Error("Model not yet persisted."));
