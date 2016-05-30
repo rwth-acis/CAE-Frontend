@@ -2,70 +2,6 @@ import {EventEmitter} from 'events';
 import {toPromise,waitPromise} from './Utils';
 import CONFIG from "./roleSpaceConfig";
 
-if (typeof window.openapp === "undefined") {
-  let jabberId = 12345;
-  window.openapp = {
-    ns:{
-      role : "role"
-    },
-    oo:{
-      Resource:function(){
-        return {
-          getSubResources:function(opt){
-            opt.onAll([{
-              getRepresentation:function(type, callback){
-                callback({
-                  attributes:{
-                    label:{
-                      value:{
-                        value:"Test Service"
-                      }
-                    }
-                  }
-                });
-              }
-            }]);
-          },
-          create:function(opt){
-            console.log(opt.type,opt.representation);
-            opt.callback();
-          }
-        }
-      }
-    },
-    param:{
-      space:function(){return "space"},
-      user:function(){return "user"}
-    },
-    resource:{
-      get:function(param,callback){
-        switch (param) {
-          case "space":
-          let subject ={};
-          subject[CONFIG.NS.PERSON.TITLE]=[{value:"Dummy Space Title"}];
-          callback({
-            data:{
-              subject:subject
-            },
-            subject:subject
-          });
-          break;
-          case "user":
-          let data = {};
-          data["uri"]={};
-          data["uri"][CONFIG.NS.PERSON.TITLE]=[{value:"User Title"}];
-          data["uri"][CONFIG.NS.PERSON.JABBERID]=[{value:`xmpp:u${jabberId}`}];
-          callback({
-            uri:"uri",
-            data:data
-          });
-          break;
-        }
-        callback({data:{user:"user"}});
-      }
-    }
-  }
-}
 
 let resourceSpace = new openapp.oo.Resource(openapp.param.space());
 let resourceGetPromise = toPromise(openapp.resource.get);
@@ -79,28 +15,33 @@ export default class RoleSpace extends EventEmitter{
       this.iwcClient = new iwc.Client("ACTIVITY");
       this.iwcClient.connect( this.iwcHandler.bind(this) );
     }catch(e){
-
+      console.error(e);
     }
   }
 
   iwcHandler(indent){
+    console.log(indent);
     let {action,extras:{payload}} = indent;
-    if(action === "ACTION_DATA"){
-      payload = [payload];
+    if( action === "MODEL_UPDATED"){
+      this.emit("modelUpdatedEvent");
     }
-    for(let i=0;i< payload.length;i++){
-      let payloadItem = payload[i];
-      let {data: payloadData} = payloadItem;
-      if(payloadData.type == "EntitySelectOperation"){
-        let {selectedEntityId} = $.parseJSON(payloadData.data);
-        this.detectDoubleClick(selectedEntityId);
+    else if(payload){
+      if(action === "ACTION_DATA"){
+        payload = [payload];
+      }
+      for(let i=0;i< payload.length;i++){
+        let payloadItem = payload[i];
+        let {data: payloadData} = payloadItem;
+        if(payloadData.type == "EntitySelectOperation"){
+          let {selectedEntityId} = $.parseJSON(payloadData.data);
+          this.detectDoubleClick(selectedEntityId);
+        }
       }
     }
   }
 
   detectDoubleClick(entityId){
     let now = new Date().getTime();
-    console.log(this.lastClick, this.lastEntityId);
     if(!!this.lastClick){
       if(this.lastEntityId == entityId){
         let diff = now - this.lastClick;
@@ -216,6 +157,13 @@ export default class RoleSpace extends EventEmitter{
 
     deferred.resolve();
     return deferred.promise();
+  }
+  addModelUpdatedListener(listener){
+    this.on("modelUpdatedEvent" , listener);
+  }
+
+  removeModelUpdatedListener(listener){
+    this.removeListener("modelUpdatedEvent", listener);
   }
 
   addDoubleClickChangeListener(listener){
