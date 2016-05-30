@@ -103,6 +103,11 @@ class SegmentManager extends EventEmitter{
       let index = indexObj.id;
       let binding = this.bindings[index];
       if (binding.id == segId) {
+        //reduce the start position by the length of the composition as compositions are returned
+        //at the end by getFlattenIndexes(true);
+        if( withComposites && binding.segment instanceof CompositeSegment){
+          s-=binding.segment.getLength();
+        }
         return {start:s,end:s+binding.segment.toString().length};
       }
       if( !(binding.segment instanceof CompositeSegment) ){
