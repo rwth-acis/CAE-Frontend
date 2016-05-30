@@ -77,7 +77,6 @@ export default class{
     if (segment) {
       string = this.segmentManager.getNavigationString(segment);
     }
-    $("#footbar").html(string);
   }
 
   updateCursor(){
@@ -181,7 +180,6 @@ export default class{
         let start_ = aceDoc.indexToPosition(s,0);
         let end_ = aceDoc.indexToPosition(s+str.length,0);
         let className = "ace_highlight-trace";
-
         if (id === activeSegment && !this.segmentManager.isProtected(id) ) {
           if (this.activeMarker) {
             this.editor.getSession().removeMarker(this.activeMarker);
