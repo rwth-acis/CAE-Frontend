@@ -7,7 +7,7 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
   let indexes = [];
   for(let i=0;i<segments.length;i++){
     let segment = segments[i];
-    if (segment.type === "composite") {
+    if (segment.type === "composite" || segment.type === "appendableVariable") {
       let sub = _parseSegments(segment.traceSegments,text,s,depth+1,segment.id);
       let subS = sub.traceSegments.segments;
       let subI = sub.traceSegments.indexes;
@@ -28,7 +28,7 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
         }
       }
 
-      res[segment.id] = new CompositeSegment(segment.id,parent,segment.orderAble,subI.map( elm => subS[elm.id] ) );
+      res[segment.id] = new CompositeSegment(segment.id,parent,segment.orderAble,subI.map( elm => subS[elm.id]), segment.type );
       indexes.push({id:segment.id,children:subI});
       s+=length;
 
@@ -37,7 +37,7 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
       length = parseInt(length);
       let isProtected = type === "protected";
       let value= text.slice(s,s+length);
-
+      
       if ( !res.hasOwnProperty(id) ) {
         let seg;
         if (isProtected) {
@@ -49,7 +49,6 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
           }
         }
         res[id]=seg;
-        console.log('"'+seg.toString()+'"',id);
       }
       indexes.push({id});
       s+=length;
@@ -238,24 +237,24 @@ export default class TraceModel{
   }
 
   /**
-   *  Serialize a given subset of the segments to JSON
+   *  Serialize a given subset of segments to JSON
    *  @param {object[]} children              - The ids of the segments that should be serializeModel
    *  @param {string}   children[].id         - The id of the segment
-   *  @param {object[] [children[]}.children] - The list of sub segments of composite segment
+   *  @param {object[] [children[]}.children] - The list of children/sub segments of compositions of segments
    *  @return {object}                        - The serialized segments as json object
    */
 
-  serializeModel(children){
+  toJSON(children){
     let traceSegments = [];
     let indexes = children || this.indexes;
     for(let i=0;i<indexes.length;i++){
       let index = indexes[i];
       let segment = this.segments[index.id];
       if (segment instanceof CompositeSegment) {
-        let children = this.serializeModel(index.children);
+        let children = this.toJSON(index.children);
         traceSegments.push({
           id:index.id,
-          type: "composite",
+          type: segment.getType(),
           traceSegments: children.traceSegments
         });
       }else{
