@@ -9,6 +9,8 @@ import {getParticipantColor} from "./Utils";
 import SideBar from "./SideBar";
 import FileList from "./FileList";
 
+let Range = ace.require('ace/range').Range
+
 /**
 *  The main class of the editor. An abstraction of the ace editor that also supports unprotected & protected segments and synchronizes them with the source code
 */
@@ -57,7 +59,8 @@ export default class CodeEditor{
   */
 
   resizeHandler(){
-    let height = $(window).height()-$("header:eq(0)").height() - 20;
+    let guidanceTableHeight = $("#guidanceTablePanel").is(":visible") ? $("#guidanceTablePanel").height() : 0;
+    let height = $(window).height()-$("header:eq(0)").height() - guidanceTableHeight - 20;
     $('.editor, #editor').height(height);
     this.sideBar.height(height);
     this.editor.resize();
@@ -93,7 +96,7 @@ export default class CodeEditor{
   }
 
   /**
-  *  The drag and drop handler for the html tree/jstree. Reorders the affected segments in the segment manager and save the changes.
+  *  The drag and drop handler for the html tree/jstree. Reorders the affected segments in the segment manager and stores the changes.
   *
   *  @param {event}  e                 - The event object emitted by jstree after reordering
   *  @param {object} data              - A data object containing the reordered node and its old and new position after the reordering
@@ -126,6 +129,7 @@ export default class CodeEditor{
     //bind publish button
     $("#publishButton").click( (e) => {
 
+      this.hideGuidances();
       //hide publish button and show spinner loading animation
       $("#publishButton").hide();
       $("#publishSpinner").show();
@@ -191,17 +195,50 @@ export default class CodeEditor{
   */
 
   feedback( message ,data){
+    console.log(data);
     let snackBar = document.querySelector("#snackbar");
     if(data && data.guidances){
       let snackBarData = {
         message: "Please follow the guidances."
       }
-      snackBar.MaterialSnackbar.showSnackbar(snackbarData);
+      snackBar.MaterialSnackbar.showSnackbar(snackBarData);
       this.showGuidances(data.guidances);
+    }else if(data && data.generationIdConflict){
+      this.open(this.workspace.getCurrentFile(), true);
     }else{
       let snackbarData = {message};
       snackBar.MaterialSnackbar.showSnackbar(snackbarData);
     }
+  }
+
+  showGuidances(guidances){
+    let self = this;
+    let rows = guidances.map( guidance => $(`<tr><td>${guidance.message}</td></tr>`).dblclick( function(event){
+      $("#guidanceTable tr").removeClass("clicked");
+      console.log($(this));
+      $(this).addClass("clicked");
+    let aceDoc = self.editor.getSession().getDocument();
+      for(let seg of guidance.segments){
+      let id = seg.segmentId;
+      let offset = self.segmentManager.getSegmentStartIndex(id);
+      let start_ = aceDoc.indexToPosition(seg.start+offset,0);
+      let end_ = aceDoc.indexToPosition(seg.end+offset,0);
+      let className = "ace_highlight-guidance";
+      let marker = self.editor.session.addMarker(new Range(start_.row, start_.column,end_.row, end_.column), className);
+      self.goToSegment(id);
+      setTimeout( () => {
+        self.editor.session.removeMarker(marker);
+      }, 1500);
+    }
+    }) );
+    $("#guidanceTable").html(rows);
+    $("#guidanceTablePanel").show();
+    this.resizeHandler();
+  }
+
+  hideGuidances(){
+    $("#guidanceTablePanel").hide();
+    this.resizeHandler();
   }
 
   createSegmentManager(){
@@ -286,12 +323,13 @@ export default class CodeEditor{
 
     let deferred = $.Deferred();
     let editor = this.editor;
+
     this.segmentManager.bindSegments(traceModel, segmentValues, segmentOrder, reordered,orders).then( () =>{
       this.traceHighlighter.setActiveSegment();
       this.traceHighlighter.updateSegments();
-      deferred.resolve();
       this.setModalStatus(3);
       this.hideModal();
+      deferred.resolve();
     });
     return deferred.promise();
   }
@@ -337,7 +375,6 @@ export default class CodeEditor{
     this.workspace.getFiles(filePath)
       .then( (files) => this.fileList.setFiles(files) )
       .always( () => {
-        //always resolve the promise
         deferred.resolve();
       })
 
@@ -350,9 +387,16 @@ export default class CodeEditor{
   */
 
   goToSegment(segmentId){
-    let {start, end} = this.segmentManager.getSegmentDim(segmentId,true);
     let aceDoc = this.editor.getSession().getDocument();
+    let {start, end} = this.segmentManager.getSegmentDim(segmentId,true);
+
     let position = aceDoc.indexToPosition(start,0);
+    //add offset as indexToPosition start at row 0
+    //the 2nd argument startRow of indexToPosition IS not an index offset
+    position.row+=1;
+    //bug of ace editor, we need to manually recalculate the height of the ace editor to scroll to the right
+    //position
+    this.editor.resize(true);
     this.editor.scrollToLine(position.row, true, true, function () {});
     this.editor.gotoLine(position.row, position.column, true);
   }
@@ -389,6 +433,7 @@ export default class CodeEditor{
   */
 
   open(fileName,reload=false){
+    this.hideGuidances();
     this.showModal();
     this.setModalStatus(0);
     this.setAceModeByExtension( Path.extname(fileName) );
