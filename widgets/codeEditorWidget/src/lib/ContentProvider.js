@@ -25,6 +25,7 @@ export default class ContentProvider extends EventEmitter{
       let message = "Commits successfully published";
       this.emit("event",message, data);
     }).fail( (data, status,error) =>{
+      console.log(error);
       let  message = `Error while publishing: ${error}`;
       this.emit("event", message);
     });
@@ -78,9 +79,15 @@ export default class ContentProvider extends EventEmitter{
     }).done( (data, status) =>{
       let message = `Changes saved`
       this.emit("event",message, data);
-    }).fail( (data, status) =>{
-      let  message = `Error while saving: ${status}`;
-      this.emit("event", message);
+    }).fail( (status) =>{
+      console.log(status.status == 409, status.responseText)
+      if(status.status == 409 && status.responseText.indexOf("Wrong generation id") > -1){
+        let  message = `Error while saving: ${status.responseText}`;
+        this.emit("event", message, {generationIdConflict:true});
+      }else{
+        let  message = `Error while saving: ${status.responseText}`;
+        this.emit("event", message, status);
+      }
     });
   }
 }
