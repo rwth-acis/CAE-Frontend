@@ -6,6 +6,8 @@ import Path from "path";
 import config from "./config.js";
 let _y;
 
+//some helper functions to create the yjs room name
+
 function createRoomName(fileName) {
   let roomName = roomNameHash(fileName);
   return `CAE-Editor[${roomName}]`;
@@ -39,7 +41,22 @@ function initSpace(fileName) {
   return deferred.promise();
 }
 
+/**
+ * The Workspace class is responsible to manage the workspace of the current component and file.
+ * It delegates all loading and storing operation from the code editor instance to the given content provider and other additional instances needed for these operations.
+ * When a file is opened, it (re-)creates the needed yjs types and calls the segment manager to bind the
+ * segments of the file to that yjs types.
+ *
+ * @extends EventEmitter
+ */
+
 export default class workspace extends EventEmitter{
+  /**
+   * Creates a new workspace instance
+   * @param  {ContentProvider}  contentProvider -The content provider that communicates to the microservices
+   * @param  {CodeEditor}       codeEditor      -The instance of the code editor
+   */
+
   constructor(contentProvider, codeEditor){
     super();
     this.contentProvider = contentProvider;
@@ -50,14 +67,18 @@ export default class workspace extends EventEmitter{
 
     //binding functions
     this.doubleClickHandler = this.doubleClickHandler.bind(this);
+    this.modelUpdatedHandler = this.modelUpdatedHandler.bind(this);
+
     this.setRemoteCursor = this.setRemoteCursor.bind(this);
     this.saveFile = this.saveFile.bind(this);
 
     this.timer = false;
     this.roomSynch = false;
     this.cursor=0;
+
     this.roleSpace = new RoleSpace();
     this.roleSpace.addDoubleClickChangeListener( this.doubleClickHandler );
+    this.roleSpace.addModelUpdatedListener( this.modelUpdatedHandler );
 
     //defining debounced methods
     this.delayedSetCursor = debounce(this.setRemoteCursor ,10,false);
@@ -70,6 +91,22 @@ export default class workspace extends EventEmitter{
     this.yieldGetFile = genBind( (componentName, fileName) => this.getFile(componentName, fileName) );
     this.yieldInitSpace = genBind( (componentName) => initSpace(componentName) );
   }
+
+  getCurrentFile(){
+    return this.currentFile;
+  }
+
+  modelUpdatedHandler(){
+    if( this.getCurrentFile().length > 0){
+      //force reload
+      this.codeEditor.open(this.getCurrentFile(),true);
+    }
+  }
+
+  /**
+   *	The double click handler for the canvas widget. Requests the file name and position of the model element and  jumps to the location of that element within the file
+   *	@param {string} entityId - The id of the model element
+   */
 
   doubleClickHandler(entityId){
     let self = this;
@@ -86,30 +123,67 @@ export default class workspace extends EventEmitter{
     });
   }
 
+  /**
+   *	Determine if the workspace is already connected and synchronized to the yjs room
+   *	@return {booleam}  - True, if the workspace is already connected and synchronized to the yjs room
+   */
+
   isRoomSynchronized(){
     return this.roomSynch;
   }
+
+  /**
+   *	Get the current participant list of the file
+   *	@return {object[]} - The list of the participants
+   */
 
   getParticipants(){
     return this.user.keys().map( (userId) => this.user.get(userId) );
   }
 
+  /**
+   *	Get the user id for the local user
+   *	@return {string} - The user's id
+   */
+
   getUserId(){
     return this.roleSpace.getUserId();
   }
+
+  /**
+   *	Get the user name for the local user
+   *	@return {string} - The user name
+   */
 
   getUserName(){
     return this.roleSpace.getUserName();
   }
 
+  /**
+   *	Get a user object by its jabber id
+   *	@param {string} id - The jabber id
+   *	@return {object}   - The user object
+   */
+
   getUserByJabberId(id){
     return this.user.get(id.toString());
   }
+
+  /**
+   *	Get the name of a user by its jabber id
+   *	@param {string} id - The user's jabber id
+   *	@return {string}   - The user name
+   */
 
   getUserNameByJabberId(id){
     let user = this.getUserByJabberId(id);
     return user && user.name;
   }
+
+  /**
+   *	Initialize the workspace
+   *	@return {promise}  - A promise that is resolved after the initialization
+   */
 
   init(){
     let deferred = $.Deferred();
@@ -123,16 +197,33 @@ export default class workspace extends EventEmitter{
     return deferred.promise();
   }
 
+  /**
+   *	Resolve the current absolute path with the given relative path
+   *	@param {string} relativePath - The relative path
+   *	@return {string}             - The resoled absoulte path
+   */
+
   resolvePath(relativePath){
     let path = Path.resolve(this.currentPath,relativePath);
     return Path.relative("/" , path);
   }
+
+  /**
+   *	Requests the git hub proxy service to push its local commits to the remote repository of the component
+   *	@return {promise}  - The request promise
+   */
 
   push(){
     return this.roleSpace.getComponentName()
       .then( (componentName) => this.contentProvider.push(componentName) )
       .fail( (e) => {console.error(e)} );
   }
+
+  /**
+   *	Get the content and traces of the given file of the given model.
+   *	@param {string} modelName  - The model/component name
+   *	@param {string} fileName   - The file name
+   */
 
   getFile(modelName,fileName){
     let deferred = $.Deferred();
@@ -159,14 +250,13 @@ export default class workspace extends EventEmitter{
 
     let data = {
       code :  traceModel.getContent(),
-      traces : traceModel.serializeModel(),
+      traces : traceModel.toJSON(),
       changedSegment,
       user: userName
     }
 
     this.roleSpace.getComponentName()
     .then( (componentName) => this.contentProvider.saveFile(path,componentName,data) )
-    .then( (e) => {console.log(e)} )
     .fail( (error) => {console.error(error)} );
   }
 
@@ -310,17 +400,14 @@ export default class workspace extends EventEmitter{
 
     function fileSpaceInit(map, newCreated=false){
 
-      if(newCreated){
-        console.log("create new fileSpace");
-      }
-
-      map.set("generatedId",generationId);
+      map.set("generationId",generationId);
       let todos = [];
 
       todos.push(self.createFileEntry("cursor",Y.Map,map));
       todos.push(self.createFileEntry("segmentValues",Y.Map,map));
       todos.push(self.createFileEntry("segmentOrder",Y.Array,map));
       todos.push(self.createFileEntry("user",Y.Map,map));
+
       $.when.apply($,todos).then(function(cursor,segmentValues,segmentOrder,user){
         let count = user.keys().length;
         let workspaceUser = user.get(self.roleSpace.getUserId()) || {count};
@@ -348,7 +435,7 @@ export default class workspace extends EventEmitter{
 
       }else{
         promise.then( (map) => {
-          let fileId = map.get("generatedId");
+          let fileId = map.get("generationId");
           if(generationId != fileId){
             self.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
           }else{
@@ -405,19 +492,6 @@ export default class workspace extends EventEmitter{
     return this.roleSpace.getComponentName()
       .then( componentName => this.contentProvider.getFiles(componentName,relativePath) )
       .then( data => this.getDecoratedFiles(data.files) );
-  }
-
-  getRemoteCursors(){
-
-    if (!this.cursors) {
-      return [];
-    }
-
-    return this.cursors.keys().map(
-      function (key) {
-        return {usr:key,index:this.cursors.get(key)};
-      }
-    );
   }
 
   addSpaceChangeListener(listener){

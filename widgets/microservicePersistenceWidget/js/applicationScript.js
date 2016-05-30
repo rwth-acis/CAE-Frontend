@@ -253,6 +253,9 @@ var generateAttribute = function(name, value){
 // displays a message in the status box on the screen for the time of "feedbackTimeout"
 feedback = function(msg){
     $("#status").val(msg);
+    if(msg === "Model updated!"){
+      client.sendIntent("MODEL_UPDATED", "" , false);
+    }
     clearTimeout(feedbackTimeout);
     feedbackTimeout = setTimeout(function(){
       $("#status").val("");
