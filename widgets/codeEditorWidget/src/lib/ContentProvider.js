@@ -1,7 +1,10 @@
 import {EventEmitter} from 'events';
 import config from "./config.js";
 
-export default class ContentProvider extends EventEmitter{
+/**
+ * Class providing an API to interact with the github proxy service
+ */
+class ContentProvider extends EventEmitter{
 
   constructor(){
     super();
@@ -31,6 +34,43 @@ export default class ContentProvider extends EventEmitter{
     });
   }
 
+  /**
+   * @typedef {Object} File
+   * @property {String} fileName  - The name of the fileName
+   * @property {String} content  - The content of the file
+   */
+
+  /**
+   * Get the content of all files needed for the live preview of widgets. Therefore, a special endpoint of the github proxy service is called
+   * @param {string} modelName  - The name of the model
+   * @return {Promise.<File[]>}  - A promise that resolve with the needed files
+   */
+
+  getLivePreviewFiles(modelName){
+    let deferred = $.Deferred();
+
+    let repoName = modelName.replace(" ", "-");
+
+    $.getJSON(
+      `${config.GitHubProxyService.endPointBase}/${repoName}/livePreviewFiles/`
+    ).then(function(data){
+      let files = data.files;
+      files = files.map( (file) => {
+        file.content = new Buffer(file.content,"base64").toString("utf-8");
+        return file;
+      });
+      deferred.resolve(files);
+    });
+
+    return deferred.promise();
+  }
+
+  /**
+   * Get the file content and trace information for a file of a modelName
+   * @param {String} modelName  - The name of the model
+   * @param {String} fileName   - The file name
+   */
+
   getContent(modelName,fileName){
     let deferred = $.Deferred();
 
@@ -45,6 +85,13 @@ export default class ContentProvider extends EventEmitter{
 
     return deferred.promise();
   }
+
+  /**
+   * Get the file list of all traced files from the github proxy service
+   * @param {String}    modelName - The name of the model
+   * @param {String}    [path]    - An optional sub directory. Defines the folder whose traced files should be returned.
+   *                              	If not given, the default empty path "" will be used. An empty path corresponds to the root folder
+   */
 
   getFiles(modelName,path=""){
     let repoName = modelName.replace(" ", "-");
@@ -71,6 +118,7 @@ export default class ContentProvider extends EventEmitter{
       filename,
       commitMessage
     };
+    //return $.Deferred();
     return $.ajax({
       type: 'POST',
       contentType: "application/json;charset=utf-8",
@@ -91,3 +139,5 @@ export default class ContentProvider extends EventEmitter{
     });
   }
 }
+
+export default ContentProvider;
