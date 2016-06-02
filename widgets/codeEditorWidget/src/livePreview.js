@@ -7,6 +7,8 @@ const _fileDictionary = {};
 
 let timer = null;
 const _loadedScripts = {};
+const _loadedCss = {};
+const _hashes = {};
 
 //initialize role space, then start the polling
 roleSpace.init().then( () => {
@@ -35,6 +37,29 @@ function pollFiles(componentName){
     });
 }
 
+function getCSS(href) {
+  var cssLink = $("<link>");
+  $("head").append(cssLink); //IE hack: append before setting href
+  cssLink.attr({
+    rel:  "stylesheet",
+    type: "text/css",
+    href: href
+  });
+
+};
+
+function loadStylesheets(styles){
+  styles.each( function(){
+    let style = $(this);
+    if( style && style.attr("href") && style.attr("href").length > 0 ){
+     let href = style.attr("href");
+      if( typeof _loadedCss[href] == "undefined" ){
+        getCSS(href);
+      }
+    }
+  });
+}
+
 function getMultiScripts(arr) {
   let deferred = $.Deferred();
   let array = false;
@@ -50,8 +75,19 @@ function getMultiScripts(arr) {
   return deferred.promise();
 }
 
+function getHash(string){
+ var hash = 0, i, chr, len;
+ if (string.length === 0) return hash;
+ for (i = 0, len = string.length; i < len; i++) {
+   chr   = string.charCodeAt(i);
+   hash  = ((hash << 5) - hash) + chr;
+   hash |= 0; // Convert to 32bit integer
+ }
+ return hash;
+}
+
 function loadFiles(htmlDoc){
-  return loadScripts(htmlDoc.filter("script[src]"));
+  return loadScripts(htmlDoc.filter("script[src]")).then( loadStylesheets(htmlDoc.filter("link[rel='stylesheet']")) );
 }
 
 function loadScripts(scripts){
@@ -64,8 +100,19 @@ function loadScripts(scripts){
     let src = $(script).attr("src");
     //check for applicationScript which should always be updated if it was changed
     if( src.indexOf("applicationScript.js") > -1 ){
-      script = $("<script type='text/javascript'/>").text(_fileDictionary["js/applicationScript.js"]);
-      inlineScripts.push(script);
+      let hash = getHash(_fileDictionary["js/applicationScript.js"]);
+      // if the applicationScript was updated ..
+      if( _hashes[src] != hash ){
+        //first check if it is the first load
+        if( typeof _hashes[src] === "undefined" ){
+          _hashes[src] = hash;
+          script = $("<script type='text/javascript'/>").text(_fileDictionary["js/applicationScript.js"]);
+          inlineScripts.push(script);
+        }else{
+          //for the application script we need to reload the whole widget after first load
+          window.location.reload();
+        }
+      }
     }
     //collect other scripts and dependencies
     else if( typeof _loadedScripts[src] === "undefined" ){
@@ -100,8 +147,11 @@ function processFiles(files){
     let contentText = widgetFileDoc.find("Content:first").text();
 
     htmlDoc = $(contentText);
-    let mainContent =  htmlDoc.closest("div").eq(0).html();
-    $("div#main-content").html( mainContent );
+    if( _hashes["widget.xml"] != getHash(contentText) ){
+      _hashes["widget.xml"] = getHash(contentText);
+      let mainContent =  htmlDoc.closest("div").eq(0).html();
+      $("div#main-content").html( mainContent );
+    }
   }
   catch(error){
     console.log(error);
