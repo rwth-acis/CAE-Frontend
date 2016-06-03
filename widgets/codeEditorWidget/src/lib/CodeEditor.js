@@ -365,8 +365,8 @@ export default class CodeEditor{
 
   /**
   *	Load and displays the files of the repository of an optional path or the root folder
-  *	@param {[string]} filePath - An optional parameter containing the absolute path of the dir that files should be loaded. If not given, the files of the root dir are loaded
-  *	@return {Promise}          - A promise that is resolved after fetching the data
+  *	@param {string} [filePath]  - An optional parameter containing the absolute path of the dir that files should be loaded. If not given, the files of the root dir are loaded
+  *	@return {Promise}           - A promise that is resolved after fetching the data
   */
 
   loadFiles(filePath=""){
@@ -428,7 +428,7 @@ export default class CodeEditor{
   /**
   *	Loads and open a new file. While loading a splash screen is displayed.
   *	@param {string} fileName   - The filename of the file
-  *	@param {[boolean]} reload  - Indicates if the the file should be reloaded completely. If so, the yjs data structures of the file will also be reinitialized
+  *	@param {boolean} [reload]  - Indicates if the the file should be reloaded completely. If so, the yjs data structures of the file will also be reinitialized
   *	@return {Promise}          - A promise that is resolved when the loading is finished
   */
 

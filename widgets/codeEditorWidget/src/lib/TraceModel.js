@@ -37,7 +37,7 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
       length = parseInt(length);
       let isProtected = type === "protected";
       let value= text.slice(s,s+length);
-      
+
       if ( !res.hasOwnProperty(id) ) {
         let seg;
         if (isProtected) {
@@ -71,7 +71,7 @@ export default class TraceModel{
 
   /**
   *  @param {Object} model                       - The model that should be used
-  *  @param {string} model.text                  - The file content
+  *  @param {String} model.text                  - The file content
   *  @param {Object} model.traces                - The traces of the file
   *  @param {Object} model.traces.traceSegments  - The traceable segments of the file
   */

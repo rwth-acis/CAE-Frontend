@@ -56,7 +56,7 @@ export default class HtmlTree extends EventEmitter{
 
   /**
    *  Updates the HTML Tree
-   *  @param {[object]} data  - The new tree nodes to display
+   *  @param {Object[]} data  - The new tree nodes to display
    */
 
   updateTree(data){

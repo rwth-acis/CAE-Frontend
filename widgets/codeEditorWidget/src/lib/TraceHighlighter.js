@@ -2,7 +2,7 @@ import {delayed,debounce,getParticipantColor} from "./Utils";
 let Range = ace.require('ace/range').Range
 let maxUser = 10;
 
-export default class{
+class TraceHighlighter{
 
   constructor(editor,segmentManager,workspace){
     this.segmentManager=segmentManager;
@@ -198,3 +198,4 @@ export default class{
 
   }
 }
+export default TraceHighlighter;

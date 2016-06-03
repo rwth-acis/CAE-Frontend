@@ -15,7 +15,7 @@ export default class FileList{
    * @typedef {object}  FileList~File
    * @property {string}   type  - The type of the file. Either "file" or "folder"
    * @property {string}   path  - The absolute path of the file or folder
-   * @property {[string]} name  - An optional name for the file or folder to display
+   * @property {string} [name]  - An optional name for the file or folder to display
    */
 
   /**
