@@ -82,7 +82,7 @@ export default class workspace extends EventEmitter{
 
     //defining debounced methods
     this.delayedSetCursor = debounce(this.setRemoteCursor ,10,false);
-    this.delayedSaveFile = debounce(this.saveFile, 1000);
+    this.delayedSaveFile = debounce(this.saveFile, 2000);
 
     //defining generator functions, used to avoid large promise chains
     this.yieldGetComponentName = genBind( () => this.roleSpace.getComponentName() );

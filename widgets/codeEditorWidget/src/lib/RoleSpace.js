@@ -6,6 +6,9 @@ import CONFIG from "./roleSpaceConfig";
 let resourceSpace = new openapp.oo.Resource(openapp.param.space());
 let resourceGetPromise = toPromise(openapp.resource.get);
 
+/**
+ * A class providing the utilities to interact with the role space
+ */
 
 export default class RoleSpace extends EventEmitter{
 
@@ -43,7 +46,7 @@ export default class RoleSpace extends EventEmitter{
   detectDoubleClick(entityId){
     let now = new Date().getTime();
     if(!!this.lastClick){
-      if(this.lastEntityId == entityId){
+      if(entityId && this.lastEntityId == entityId){
         let diff = now - this.lastClick;
         if(diff <= 500){
           console.log(entityId);
@@ -158,6 +161,9 @@ export default class RoleSpace extends EventEmitter{
     deferred.resolve();
     return deferred.promise();
   }
+
+  // listener handler
+
   addModelUpdatedListener(listener){
     this.on("modelUpdatedEvent" , listener);
   }
