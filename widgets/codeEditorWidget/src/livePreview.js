@@ -150,7 +150,21 @@ function processFiles(files){
     if( _hashes["widget.xml"] != getHash(contentText) ){
       _hashes["widget.xml"] = getHash(contentText);
       let mainContent =  htmlDoc.closest("div").eq(0).html();
+
+      //destroy old yjs instance before we can update the widget and initialize it again
+      if( window.yTextarea ){
+        window.yTextarea.destroy();
+      }
+
       $("div#main-content").html( mainContent );
+
+      if( typeof init === "function"){
+        try{
+          init();
+        }catch(error){
+          console.log(error);
+        }
+      }
     }
   }
   catch(error){
