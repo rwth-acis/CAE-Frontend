@@ -54,6 +54,7 @@ function loadStylesheets(styles){
     if( style && style.attr("href") && style.attr("href").length > 0 ){
      let href = style.attr("href");
       if( typeof _loadedCss[href] == "undefined" ){
+        _loadedCss[href] = 1;
         getCSS(href);
       }
     }

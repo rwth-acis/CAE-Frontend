@@ -59,7 +59,10 @@ export default class workspace extends EventEmitter{
 
   constructor(contentProvider, codeEditor){
     super();
+
     this.contentProvider = contentProvider;
+    this.contentProvider.addEventListener( this.guidanceHandler.bind(this) );
+
     this.codeEditor = codeEditor;
 
     this.currentPath = Path.resolve("/");
@@ -92,9 +95,18 @@ export default class workspace extends EventEmitter{
     this.yieldInitSpace = genBind( (componentName) => initSpace(componentName) );
   }
 
+  /**
+   * Get the current file path
+   * @return {String} - The current file path
+   */
+
   getCurrentFile(){
     return this.currentFile;
   }
+
+  /**
+   *	Method to handle the model update event. Emited when a model was successfully stored
+   */
 
   modelUpdatedHandler(){
     if( this.getCurrentFile().length > 0){
@@ -104,7 +116,25 @@ export default class workspace extends EventEmitter{
   }
 
   /**
-   *	The double click handler for the canvas widget. Requests the file name and position of the model element and  jumps to the location of that element within the file
+   *	Method to handle potential guidances when a commit request was rejected
+   *  @param {String} message             - The message from the content provider after a request
+   *  @param {Object} [data]              - Optional data object containing the guidances
+   *  @param {Object[]} [data.guidances]  - Optional guidances
+   */
+
+  guidanceHandler(message, data){
+    if( data && data.guidances && data.guidances.length > 0 ){
+      let filteredGuidances = data.guidances.filter( ({fileName}) => {
+        return fileName == this.getCurrentFile();
+      });
+      if( filteredGuidances && filteredGuidances.length > 0){
+        this.codeEditor.showGuidances(filteredGuidances);
+      }
+    }
+  }
+
+  /**
+   *	The double click handler for the canvas widget. Requests the file name and position of the clicked model element and  jumps to the location of that element within the file
    *	@param {string} entityId - The id of the model element
    */
 
@@ -124,8 +154,8 @@ export default class workspace extends EventEmitter{
   }
 
   /**
-   *	Determine if the workspace is already connected and synchronized to the yjs room
-   *	@return {booleam}  - True, if the workspace is already connected and synchronized to the yjs room
+   *	Determine if the workspace is already connected to the role space
+   *	@return {booleam}  - True, if the workspace is already connected to the role space
    */
 
   isRoomSynchronized(){
@@ -341,8 +371,9 @@ export default class workspace extends EventEmitter{
 
           self.createFileSpace(self.currentFile, traceModel.getGenerationId(), forceReload)
           .then( self.createOrders(traceModel) )
-          .then( (segmentValues, segmentOrder, reloaded, orders) => {
-            deferred.resolve(traceModel, segmentValues, segmentOrder, reloaded, orders);
+          .then( (yjsSegmentMap, yjsSegmentRootList, yjsSegmentChildrenLists, newCreated) => {
+            console.log(yjsSegmentMap, yjsSegmentRootList,yjsSegmentChildrenLists, newCreated );
+            deferred.resolve(traceModel, yjsSegmentMap, yjsSegmentRootList, yjsSegmentChildrenLists, newCreated);
             if(!token && forceReload){
               self.workspace.set("generatedId",traceModel.getGenerationId());
             }
@@ -358,13 +389,16 @@ export default class workspace extends EventEmitter{
   }
 
   createOrders(traceModel){
-    return (workspaceMap, segmentValues, segmentOrder, reloaded) => {
+    return (workspaceMap, yjsSegmentMap, yjsSegmentRootList, newCreated) => {
       let deferred = $.Deferred();
       let todos = [];
       todos = this.createYArrays(traceModel.getIndexes(), workspaceMap);
+      console.log(todos);
       $.when.apply($,todos)
       .then( function(){
-        deferred.resolve(segmentValues, segmentOrder, reloaded, Array.prototype.slice.call(arguments));
+        console.log(arguments);
+        console.log(Array.prototype.slice.call(arguments));
+        deferred.resolve(yjsSegmentMap, yjsSegmentRootList, Array.prototype.slice.call(arguments), newCreated );
       } );
       return deferred.promise();
     };
@@ -417,6 +451,7 @@ export default class workspace extends EventEmitter{
         user.observe( function(){
           self.codeEditor.printParticipants();
         } );
+
         cursor.observe(self.cursorChangeHandler.bind(self));
         self.user=user;
         self.cursors = cursor;

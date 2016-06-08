@@ -34,15 +34,6 @@ class SegmentManager extends EventEmitter{
     return this.traceModel.getModelName(segmentId.toString(),withType);
   }
 
-  getTracedSegmentPosition(){
-    let segments = this.traceModel.getSegmets();
-
-  }
-
-  getOrderAbleSegments(){
-    return this.list.toArray();
-  }
-
   getSegmentsRaw(withComposites){
     let self = this;
     return this.traceModel.getFlattenIndexes(withComposites).map( function(index){
@@ -54,13 +45,6 @@ class SegmentManager extends EventEmitter{
     } );
   }
 
-  getSegments(){
-    let self = this;
-    return this.traceModel.getFlattenIndexes().map( function(index){ return {
-      id:self.bindings[index.id].id,
-      value:self.getSegmentById(index.id)
-    } });
-  }
   getNavigationString(segId){
     let nav="";
     let segment = this.getSegmentByIdRaw(segId).segment;
@@ -185,12 +169,13 @@ class SegmentManager extends EventEmitter{
     }
   }
 
+  //currently only html elements can be reordered
+
   reorderSegmentsByPosition(from,to,parent){
     if(from == to){
       //nothing to do
       return;
     }
-
     let list = this.orders[parent];
     let listArray = list.toArray();
     let orderAbleSegments = [];
@@ -229,27 +214,42 @@ class SegmentManager extends EventEmitter{
     for(let i=0;i<fromIds.length;i++){
       this.reorderSegmentsById(fromIds[i],toId,parent);
     }
-    console.log(list.toArray());
-    this.emit("orderChange",this.orders,this.indexes);
+
+    this.emit("orderChange");
+
   }
 
-  swapSegments(target,source){
-    let deferred = $.Deferred();
-    if (target.parent && target.parent == source.parent) {
-      let sI = source.index;
-      let tI = target.index;
-      let list = this.orders[target.parent]
-      let targetS = list.get(tI);
-      let sourceS = list.get(sI);
-      list.delete(sI);
-      list.insert(sI,[targetS]);
-      list.delete(tI);
-      list.insert(tI,[sourceS]);
-    }
-    deferred.resolve();
-    return deferred.promise();
-  }
+  getOrderAbleSegments(){
+    let orderAbleSegments = Object.keys(this.orders)
+    .filter( (key) => key.indexOf("$Main_Content$") > -1 )
+    .map( (key) => {
+      let res = this.orders[key].toArray()
+      .filter( id => {
+        let model = this.traceModel.getModel(id);
+        return model && model.type && model.type == "HTML Element";
+      })
+      .map( id => {
+        return {
+          id,
+          parent:key,
+          text: this.getModelName(id)
+        }
+      } );
 
+      //always add a parent element
+      res.unshift({
+        id : key,
+        parent : "#",
+        text: "HTMLElemente",
+        state:{
+          opened : true
+        }
+      })
+      return res;
+    } );
+
+    return orderAbleSegments;
+  }
 
   reordered(indexes){
     this.token=false;
@@ -280,17 +280,17 @@ class SegmentManager extends EventEmitter{
     for(let order of orders){
       this.orders[order.id] = order.list;
     }
-    console.log(this.orders);
   }
 
   bindOrders(orders){
+    console.log(orders);
     let self = this;
     for(let order of orders){
       order.list.observe(function(){
         try{
           let indexes = self.rebuildIndex(self.list);
           self.reordered(indexes);
-          self.emit("orderChange",self.orders,self.indexes);
+          self.emit("orderChange");
         }catch(e){
           console.error(e);
         }
@@ -336,12 +336,12 @@ class SegmentManager extends EventEmitter{
     this.token = true;
   }
 
-  bindSegments(traceModel,ySegmentMap,ySegmentArray,reordered,orders){
+  bindSegments(traceModel,yjsSegmentMap,yjsSegmentRootList,yjsSegmentChildrenLists, reload){
 
     this.disableBindings();
 
-    this.list = ySegmentArray;
-    this.map = ySegmentMap;
+    this.list = yjsSegmentRootList;
+    this.map = yjsSegmentMap;
     this.orders = {};
     this.traceModel = traceModel;
 
@@ -354,19 +354,22 @@ class SegmentManager extends EventEmitter{
     count = 0,
     self = this,
     deferred = $.Deferred();
+    // insert the order of all children segments to the root order list
+    this.initOrders(yjsSegmentChildrenLists);
 
-    this.initOrders(orders);
-
-    if (reordered) {
+    //build orders of segments only if the file was initial loaded or reloaded
+    if (reload) {
       this.buildOrders(indexes,segments);
     }
+
 
     function finish(){
       count++;
       if (count === flattenWithComposites.length) {
         self.setSegments(synchedSegs,indexes);
-        self.editor.setValue(flattenIndexes.map( elm => synchedSegs[elm.id].segment.toString() ).join(""),1 );
-        self.bindOrders(orders);
+        let value = flattenIndexes.map( elm => synchedSegs[elm.id].segment.toString() ).join("");
+        self.editor.setValue(value,1 );
+        self.bindOrders(yjsSegmentChildrenLists);
 
         self.emitLoadingUpdate(count,flattenWithComposites.length);
 
@@ -374,7 +377,7 @@ class SegmentManager extends EventEmitter{
         self.enableBindings();
 
         //fire order changed event
-        self.emit("orderChange",self.orders,self.indexes);
+        self.emit("orderChange");
 
         //finally resolve the promise
         deferred.resolve();
@@ -412,8 +415,7 @@ class SegmentManager extends EventEmitter{
   }
 
 
-  setSegments(bindings,indexes){
-    this.indexes = indexes;
+  setSegments(bindings){
     this.bindings = bindings;
   }
 

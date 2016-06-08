@@ -15,7 +15,7 @@ let Range = ace.require('ace/range').Range
 *  The main class of the editor. An abstraction of the ace editor that also supports unprotected & protected segments and synchronizes them with the source code
 */
 
-export default class CodeEditor{
+class CodeEditor{
 
   /**
   *  Creates a new instance of the editor. It creates the needed data structures and binds all GUI elements to its
@@ -66,39 +66,19 @@ export default class CodeEditor{
     this.editor.resize();
   }
 
-  orderChangeListener(data,indexes){
-    let htmlElements = Object.keys(data)
-    .filter( (key) => key.indexOf("$Main_Content$") > -1 )
-    .map( (key) => {
-      let res = data[key].toArray()
-      .filter( id => id.indexOf("htmlElement") >-1 )
-      .map( id => {
-        return {
-          id,
-          parent:key,
-          text: this.segmentManager.getModelName(id)
-        }
-      } );
+  /**
+   *	A change handler called when the html elements of a widget was changed. Updates the html tree of the code editor
+   */
 
-      //always add a parent element
-      res.unshift({
-        id : key,
-        parent : "#",
-        text: "HTMLElemente",
-        state:{
-          opened : true
-        }
-      })
-      return res;
-    } );
-
+  orderChangeListener(){
+    let htmlElements = this.segmentManager.getOrderAbleSegments();
     this.htmlTree.updateTree( htmlElements && htmlElements.length > 0 && htmlElements[0] || [] );
   }
 
   /**
   *  The drag and drop handler for the html tree/jstree. Reorders the affected segments in the segment manager and stores the changes.
   *
-  *  @param {event}  e                 - The event object emitted by jstree after reordering
+  *  @param {event}  e                 - An event object emitted by jstree after reordering
   *  @param {object} data              - A data object containing the reordered node and its old and new position after the reordering
   *  @param {number} data.old_position - The old position before the reordering
   *  @param {number} data.position     - The new position after the reordering
@@ -108,6 +88,11 @@ export default class CodeEditor{
   reorderSegmentDNDHandler(e,data){
     let {old_position:from, position:to, parent} = data;
     let modelName = this.segmentManager.getModelName(data.node.id);
+
+    if( from == to ){
+      return;
+    }
+    
     this.segmentManager.reorderSegmentsByPosition(from,to,parent);
     this.workspace.saveFile(this.segmentManager.getTraceModel(), `Reordered ${modelName} from position ${from+1} to ${to+1}` );
   }
@@ -189,46 +174,54 @@ export default class CodeEditor{
   }
 
   /**
-  *	The feedback callback for the content provider. Shows snackbar notifications of the material design
+  *	The feedback callback for the content provider. Shows a snackbar notification
   *	@param {string} message  - The message to display
-  *	@param {object} data     - Additional data, e.g. guidances
+  *	@param {object} [error]  - Optional error object
   */
 
-  feedback( message ,data){
-    console.log(data);
+  feedback( message ,error){
+    console.log(message,error);
     let snackBar = document.querySelector("#snackbar");
-    if(data && data.guidances){
-      let snackBarData = {
-        message: "Please follow the guidances."
-      }
-      snackBar.MaterialSnackbar.showSnackbar(snackBarData);
-      this.showGuidances(data.guidances);
-    }else if(data && data.generationIdConflict){
-      this.open(this.workspace.getCurrentFile(), true);
-    }else{
+    if(error && error.generationIdConflict){
+        this.open(this.workspace.getCurrentFile(), true);
+
+    }
+    //guidances are handled separately by their own handler in the workspace instance
+    else if(error && !error.guidances){
       let snackbarData = {message};
       snackBar.MaterialSnackbar.showSnackbar(snackbarData);
     }
   }
 
+  /**
+   *	@typedef CodeEditor~Guidance
+   *	@type {object}
+   *	@property {string} message - A message explaining the guidance
+   *	@property {object[]} segment  - The affected segments
+   *  @property {string} segment.segmentId  - The id of the segment
+   *  @property {number} segment.start      - The relative start within the segment
+   *  @property {number} segment.end        - The relative end within the segment
+   */
+
+  /**
+   *	Creates and display a table containing guidances
+   *	@param {CodeEditor~Guidance[]} guidances  - The guidances to display
+   */
+
   showGuidances(guidances){
+    this.feedback("Please follow the guidances.");
     let self = this;
     let rows = guidances.map( guidance => $(`<tr><td>${guidance.message}</td></tr>`).dblclick( function(event){
       $("#guidanceTable tr").removeClass("clicked");
-      console.log($(this));
       $(this).addClass("clicked");
-    let aceDoc = self.editor.getSession().getDocument();
+      let aceDoc = self.editor.getSession().getDocument();
       for(let seg of guidance.segments){
       let id = seg.segmentId;
       let offset = self.segmentManager.getSegmentStartIndex(id);
       let start_ = aceDoc.indexToPosition(seg.start+offset,0);
       let end_ = aceDoc.indexToPosition(seg.end+offset,0);
-      let className = "ace_highlight-guidance";
-      let marker = self.editor.session.addMarker(new Range(start_.row, start_.column,end_.row, end_.column), className);
       self.goToSegment(id);
-      setTimeout( () => {
-        self.editor.session.removeMarker(marker);
-      }, 1500);
+      self.editor.selection.setRange(new Range(start_.row, start_.column,end_.row, end_.column));
     }
     }) );
     $("#guidanceTable").html(rows);
@@ -236,10 +229,19 @@ export default class CodeEditor{
     this.resizeHandler();
   }
 
+  /**
+   *	Hide the table of the guidances
+   */
+
   hideGuidances(){
     $("#guidanceTablePanel").hide();
     this.resizeHandler();
   }
+
+  /**
+   *	Create a new SegmentManager
+   *	@return {SegmentManager} The created SegmentManager
+   */
 
   createSegmentManager(){
     let segmentManager = new SegmentManager(this.editor);
@@ -260,6 +262,12 @@ export default class CodeEditor{
 
     return segmentManager;
   }
+
+  /**
+   *	Create the actual ace editor instance and mount it to the element with the given id
+   *	@param {string} elementId  - The mount point
+   *  @return {object}  The created ace editor instance
+   */
 
   createAceEditor(editorId){
     ace.config.set('basePath', 'http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/ace-builds/src-noconflict');
@@ -284,6 +292,11 @@ export default class CodeEditor{
     return editor;
   }
 
+  /**
+   *	Set and update the status of the modal shown when a file is loaded
+   *	@param {number} status - The new status of the bar.
+   */
+
   setModalStatus(status){
     let tasks = $("div#loading-body ul li");
     let task = tasks.eq(status);
@@ -297,13 +310,27 @@ export default class CodeEditor{
     }
   }
 
+  /**
+   * Set the editor title
+   * @param {string} title  - The new title
+   */
+
   setEditorTitle(title){
     $("#title").text(`${title}`);
   }
 
+  /**
+   * Set the modal text
+   * @param {string} text - The new modal text
+   */
+
   setModalText(text){
     $("div#loading-body span#text").text(text);
   }
+
+  /**
+   * Show the modal
+   */
 
   showModal(){
     $(".editor").hide();
@@ -311,20 +338,33 @@ export default class CodeEditor{
     $("main").addClass("onTop");
   }
 
+  /**
+   *	Hide the modal
+   */
+
   hideModal(){
     $(".splash-card-wide").hide();
     $(".editor").show();
     $("main").removeClass("onTop");
   }
 
-  workspaceHandler(traceModel,segmentValues, segmentOrder, reordered,orders){
+  /**
+   *	A handler called when the workspace has finished (re-)loading a file
+   *	@param {TraceModel} traceModel           - A TraceModel instance of the loaded file
+   *	@param {object} yjsSegmentMap            - A yjs map for the segments of the file
+   *	@param {object} yjsSegmentRootList       - A yjs array for the order of segments of the file
+   *	@param {object} yjsSegmentChildrenLists  - Yjs arrays for the order of each individual composition of segments
+   *	@param {boolean} forceReload         - If true, the content of the yjs map containing the segments content will be overwritten by the segment manager
+   */
+
+  workspaceHandler(traceModel,yjsSegmentMap, yjsSegmentRootList, yjsSegmentChildrenLists,forceReload){
     this.setModalStatus(2);
     this.printParticipants();
 
     let deferred = $.Deferred();
     let editor = this.editor;
 
-    this.segmentManager.bindSegments(traceModel, segmentValues, segmentOrder, reordered,orders).then( () =>{
+    this.segmentManager.bindSegments(traceModel, yjsSegmentMap, yjsSegmentRootList, yjsSegmentChildrenLists, forceReload).then( () =>{
       this.traceHighlighter.setActiveSegment();
       this.traceHighlighter.updateSegments();
       this.setModalStatus(3);
@@ -365,8 +405,8 @@ export default class CodeEditor{
 
   /**
   *	Load and displays the files of the repository of an optional path or the root folder
-  *	@param {string} [filePath]  - An optional parameter containing the absolute path of the dir that files should be loaded. If not given, the files of the root dir are loaded
-  *	@return {Promise}           - A promise that is resolved after fetching the data
+  *	@param {string} [filePath=""] - An optional parameter containing the absolute path of the dir that files should be loaded. If not given, the files of the root dir are loaded
+  *	@return {Promise}             - A promise that is resolved after fetching the data
   */
 
   loadFiles(filePath=""){
@@ -410,16 +450,16 @@ export default class CodeEditor{
     let aceMode = "text";
     switch(extension){
       case ".js" :
-      aceMode = "javascript";
-      this.hideSideBar();
+        aceMode = "javascript";
+        this.hideSideBar();
       break;
       case ".xml" :
-      aceMode = "xml";
-      this.showSideBar();
+        aceMode = "xml";
+        this.showSideBar();
       break;
       case ".java" :
-      aceMode = "java";
-      this.hideSideBar();
+        aceMode = "java";
+        this.hideSideBar();
       break;
     }
     this.editor.getSession().setMode(`ace/mode/${aceMode}`);
@@ -427,9 +467,9 @@ export default class CodeEditor{
 
   /**
   *	Loads and open a new file. While loading a splash screen is displayed.
-  *	@param {string} fileName   - The filename of the file
-  *	@param {boolean} [reload]  - Indicates if the the file should be reloaded completely. If so, the yjs data structures of the file will also be reinitialized
-  *	@return {Promise}          - A promise that is resolved when the loading is finished
+  *	@param {string} fileName        - The filename of the file
+  *	@param {boolean} [reload=false] - Indicates if the the file should be reloaded completely. If so, the yjs data structures of the file will also be reinitialized
+  *	@return {Promise}               - A promise that is resolved when the loading is finished
   */
 
   open(fileName,reload=false){
@@ -448,3 +488,5 @@ export default class CodeEditor{
     }
   }
 }
+
+export default CodeEditor;

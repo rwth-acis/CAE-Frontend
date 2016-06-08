@@ -18,6 +18,12 @@ class ContentProvider extends EventEmitter{
     this.removeListener("event", listener );
   }
 
+  /**
+   * Requests a merge / push command to the github proxy server.
+   * @param {string} repoName - The name of the repository
+   * @return {Promise}        - A promise that is resolved when the request was successfully executed and rejects if it failed.  
+   */
+
   push(repoName){
     repoName = repoName.replace(" ", "-");
     return $.ajax({
@@ -35,22 +41,21 @@ class ContentProvider extends EventEmitter{
   }
 
   /**
-   * @typedef {Object} File
-   * @property {String} fileName  - The name of the fileName
-   * @property {String} content  - The content of the file
+   * @typedef {object} ContentProvider~File
+   * @property {string} fileName  - The name of the file
+   * @property {string} content  - The content of the file
    */
 
   /**
    * Get the content of all files needed for the live preview of widgets. Therefore, a special endpoint of the github proxy service is called
    * @param {string} modelName  - The name of the model
-   * @return {Promise.<File[]>}  - A promise that resolve with the needed files
+   * @return {promise.<ContentProvider~File[]>}  - A promise that resolve with the needed files
    */
 
   getLivePreviewFiles(modelName){
     let deferred = $.Deferred();
 
     let repoName = modelName.replace(" ", "-");
-
     $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/livePreviewFiles/`
     ).then(function(data){
@@ -60,15 +65,15 @@ class ContentProvider extends EventEmitter{
         return file;
       });
       deferred.resolve(files);
-    });
+    }).fail( deferred.reject );
 
     return deferred.promise();
   }
 
   /**
    * Get the file content and trace information for a file of a modelName
-   * @param {String} modelName  - The name of the model
-   * @param {String} fileName   - The file name
+   * @param {string} modelName  - The name of the model
+   * @param {string} fileName   - The file name
    */
 
   getContent(modelName,fileName){
@@ -88,8 +93,8 @@ class ContentProvider extends EventEmitter{
 
   /**
    * Get the file list of all traced files from the github proxy service
-   * @param {String}    modelName - The name of the model
-   * @param {String}    [path]    - An optional sub directory. Defines the folder whose traced files should be returned.
+   * @param {string}    modelName - The name of the model
+   * @param {string}    [path=""]    - An optional sub directory. Defines the folder whose traced files should be returned.
    *                              	If not given, the default empty path "" will be used. An empty path corresponds to the root folder
    */
 
@@ -100,6 +105,13 @@ class ContentProvider extends EventEmitter{
     );
   }
 
+  /**
+   * Get the location of a model entity by its id from a model using an endpoint of the github proxy service
+   * @param {string}  modelName - The name of the model
+   * @param {string}  entityId  - The id of the model element
+   * @return {promise}          - Resolved when the request is finished
+   */
+
   getSegmentLocation(modelName,entityId){
     let repoName = modelName.replace(" ", "-");
 
@@ -108,7 +120,18 @@ class ContentProvider extends EventEmitter{
     );
   }
 
-  saveFile(filename,repoName,{code,traces,changedSegment,user}, callback){
+  /**
+   * Save the content and trace information of a single file to the github proxy service and commit its changes.
+   * @param {string} fileName             - The file name
+   * @param {string} repoName             - The name of the repository
+   * @param {object} data                 - A data object containing more information
+   * @param {string} data.content         - The content of the file
+   * @param {object} data.traces          - The traces of the file
+   * @param {string} data.changedSegment  - The name of the changed segment used in the commit message
+   * @param {string} data.user            - The user name of the author
+   */
+
+  saveFile(filename,repoName,{code,traces,changedSegment,user} ){
     repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');
     let commitMessage = `${changedSegment} edited by ${user}`;

@@ -1,22 +1,51 @@
 import SegmentManager from "./SegmentManager";
 import {delayed} from "./Utils";
 
-export default class CommandDecorator{
+/**
+* This class is responsible to decorate all ace editor commands in such a way it respect unprotected/protected segment.
+* Additionaly, a whitelist is used to explicitly define allowed commands.
+*/
+
+class CommandDecorator{
+
+  /**
+  * Creates a new CommandDecorator instance
+  * @param {object} editor - An ace editor instance
+  * @param {SegmentManager} segmentManager - An manager that is responsible for the segments
+  * @param {TraceHighlighter} traceHighlighter - An instance that hightlights the traces/segments
+  */
 
   constructor(editor,segmentManager,traceHighlighter){
     this.traceHighlighter = traceHighlighter;
     this.editor = editor;
     this.segmentManager = segmentManager;
-    this.undos=[];
-    this.redos=[];
   }
 
+  /**
+  * Check if a command is a deletion command
+  * @param  {string}  cmdName  - The name of the command
+  * @return {boolean}          - True, if the command is a deletion command. Otherwise, false
+  */
   isDeleteCommand(cmdName){
     return !!~["del","backspace"].indexOf(cmdName);
   }
+
+  /**
+  * Check if a command is a navigation command, i.e. the cursor is moved
+  * @param {string} cmdName  - The name of the command
+  * @return {boolean}         - True, if the command is a deletion command. Otherwise, false
+  */
+
   isNavigationCommand(cmdName){
     return !!~["gotoleft","gotoright","golineup","golinedown"].indexOf(cmdName);
   }
+
+  /**
+  * Check if a command is allowed
+  * @param {string}  cmdName - The name of the command
+  * @return {boolean}        - True, if the command is whitelisted and therefore allowed;
+  */
+
   isAllowedCommand(cmdName){
     return this.isDeleteCommand(cmdName) || !!~["insertstring","selectleft","selectright","selectdown","selectup","selectlineend","selectlinestart","copy","paste","indent"].indexOf(cmdName);
   }
@@ -33,22 +62,6 @@ export default class CommandDecorator{
     return this.traceHighlighter.getCursorIndex();
   }
 
-  getLastUndo(){
-    return this.undos.pop();
-  }
-
-  addUndo(undo){
-    this.undos.push(undos);
-  }
-
-  getLastRedo(){
-    return this.redos.pop();
-  }
-
-  addRedo(redo){
-    this.redos.push(redo);
-  }
-
   render(){
     this.traceHighlighter.updateSegments();
   }
@@ -59,6 +72,11 @@ export default class CommandDecorator{
       self.traceHighlighter.renderActiveSegment();
     },20,false);
   }
+
+  /**
+  *	Decorator for the goToRight command
+  *	@return {boolean}  - True, if the decorator has performed its action
+  */
 
   goToRightDecorator(){
     let aceDoc = this.editor.getSession().getDocument();
@@ -74,6 +92,11 @@ export default class CommandDecorator{
     }
   }
 
+  /**
+  * Decorator for the goToLeft command
+  * @return {boolean}  - True, if the decorator has performed its action
+  */
+
   goToLeftDecorator(){
     let aceDoc = this.editor.getSession().getDocument();
     let curPosIndex = this.getCursorIndex();
@@ -88,6 +111,12 @@ export default class CommandDecorator{
     }
   }
 
+  /**
+  * Decorator for the goLineUp or goLineDown command
+  * @param {object} e  - The event object of the ace editor
+  * @return {boolean}  - True, if the decorator has performed its action
+  */
+
   goLineUpOrDown(e){
     let res = e.command.exec(e.editor, e.args || {});
     let curPosIndex = this.getCursorIndex();
@@ -95,6 +124,12 @@ export default class CommandDecorator{
     this.setActiveSegment(nextSegment);
     return true;
   }
+
+  /**
+  * Decorator for the deletion command
+  * @param {object} e  - The event object of the ace editor
+  * @return {boolean}  - True, if the decorator has performed its action
+  */
 
   delDecorator(e){
     let curPosIndex = this.getCursorIndex();
@@ -106,6 +141,12 @@ export default class CommandDecorator{
       return true;
     }
   }
+
+  /**
+  * Decorator for the backspace command
+  * @param {object} e  - The event object of the ace editor
+  * @return {boolean}  - True, if the decorator has performed its action
+  */
 
   backspaceDecorator(e){
 
@@ -122,6 +163,13 @@ export default class CommandDecorator{
     }
   }
 
+  /**
+  * Decorator for the paste command. In fact, this decorator only checks if we are allowed to paste content, i.e. the current selection is not out of bounds of the
+  * active segment
+  * @param {object} e  - The event object of the ace editor
+  * @return {boolean}  - True, if the decorator has performed its action
+  */
+
   pasteDecorator(e){
     let curPosIndex = this.getCursorIndex();
     let dim = this.segmentManager.getSegmentDim(this.getActiveSegment());
@@ -132,6 +180,14 @@ export default class CommandDecorator{
       return false;
     }
   }
+
+  /**
+  * Determines if the current selection of the ace editor is out of the bounds of a given dimension of a segment
+  * @param {object} dim  - The dimension of a segment
+  * @param {number} dim.start  - The start position of the segment
+  * @param {number} dim.end    - The end position of the segment
+  * @return {boolean}          - True, if the curren selection is out of the bounds of the dimension. Otherwise, false
+  */
 
   isSelectionOutOfDim(dim){
     let aceDoc = this.editor.getSession().getDocument();
@@ -144,8 +200,6 @@ export default class CommandDecorator{
       let endP =range.end;
       let startIndex = aceDoc.positionToIndex(startP,0);
       let endIndex = aceDoc.positionToIndex(endP,0);
-      console.log(startIndex < start);
-      console.log(endIndex > end);
       if (startIndex < start || endIndex > end) {
         return true;
       }
@@ -153,6 +207,13 @@ export default class CommandDecorator{
       return false;
     }
   }
+
+  /**
+  * Decorator for navigation commands
+  * @param {string} cmdName  - The name of the command
+  * @param {object} e        - The event object of the ace editor
+  * @return {boolean}        - True, if any navigation decorator has performed its action
+  */
 
   executeNavigationCommand(cmdName,e){
     switch (cmdName) {
@@ -171,6 +232,13 @@ export default class CommandDecorator{
     }
   }
 
+  /**
+  * Decorator for deletion commands
+  * @param {string} cmdName  - The name of the command
+  * @param {object} e        - The event object of the ace editor
+  * @return {boolean}        - True, if any deletion decorator has performed its action
+  */
+
   executeDeleteCommand(cmdName,e){
     switch (cmdName) {
       case "del":
@@ -181,6 +249,12 @@ export default class CommandDecorator{
       break;
     }
   }
+
+  /**
+  * Decorator for insert command. Needed to avoid error prone behaviour for the code editor
+  * @param {object} e        - The event object of the ace editor
+  * @return {boolean}        - True, if the decorator has performed its action or the current selection is out of bounds.
+  */
 
   insertDecorator(e){
     let text = e.args || "";
@@ -199,6 +273,13 @@ export default class CommandDecorator{
     }
   }
 
+  /**
+  * Handle other allowed commands
+  * @param {string} cmdName  - The name of the command
+  * @param {object} e        - The event object of the ace editor
+  * @return {boolean}        - True, if a decorator has performed its action.
+  */
+
   executeOtherCommand(cmdName,e){
     switch(cmdName){
       case "paste":
@@ -211,6 +292,12 @@ export default class CommandDecorator{
 
     return false;
   }
+
+  /**
+  * The main command handler. Delegate the given event object of the ace editor to its corresponding decorator
+  * @param {object} e        - The event object of the ace editor
+  * @return {boolean}        - True, if a decorator has performed its action and the event should not be further executed. Otherwise, false.
+  */
 
   commandHandler(e){
     let cmdName = e.command.name;
@@ -228,7 +315,6 @@ export default class CommandDecorator{
     }
 
     if ( this.isDeleteCommand(cmdName)  ) {
-      console.log("isDeleteCommand");
       if (typeof activeSegment != "undefined") {
         if(this.segmentManager.isProtected(activeSegment)) {
           return true;
@@ -250,7 +336,6 @@ export default class CommandDecorator{
       }
     }
     //if we dont have handled the command yet, we will now do it
-    console.log(cmdName);
     if(this.isAllowedCommand(cmdName)){
       if( this.executeOtherCommand(cmdName,e) ){
         return true;
@@ -265,3 +350,4 @@ export default class CommandDecorator{
   }
 
 }
+export default CommandDecorator;

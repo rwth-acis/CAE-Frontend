@@ -68,7 +68,21 @@ function runGenObj(genObj, callbacks = undefined) {
     }
   }
 }
+/** @module Utils */
 
+export function delayed(callback,time,clear=true){
+  if (this.timer && clear) {
+    clearTimeout(this.timer);
+    this.timer = false;
+  }
+  if (!this.timer) {
+    this.timer = setTimeout(function(){
+      callback.bind(this)();
+      this.timer=false;
+    }.bind(this),time);
+
+  }
+}
 
 export function debounce(callback,time,clear=true){
   let timer = false;
@@ -87,12 +101,22 @@ export function debounce(callback,time,clear=true){
   }
 }
 
+/**
+ *	Runs a generator function
+ *	@param {function} - The generator function to run
+ */
+
 export function run(generator){
   runGenObj(generator());
 }
 
+/**
+ *	Calculates the bg and fg color of an user
+ *	@param {number} count  - The count of the user
+ *	@return {object}       - An object containing bg and fg color
+ */
+
 export function getParticipantColor(count){
-  console.log(count);
   let colors = [
     {bg:"#ff9900",fg:"#ffffff"},
     {bg:"#cbff00",fg:"#ffffff"},
@@ -102,6 +126,12 @@ export function getParticipantColor(count){
   ];
   return colors[ count % colors.length ];
 }
+
+/**
+ *	Converts a given callback function to a generator function
+ *	@param {function} callback - The callback function
+ *	@return {function}  - The converted generator function
+ */
 
 export function genBind(callback){
   let self = this;
@@ -144,18 +174,3 @@ export function waitPromise(time){
   return deferred.promise();
 }
 
-export function delayed(callback,time,clear=true){
-  console.log(this.timer,clear);
-  if (this.timer && clear) {
-    clearTimeout(this.timer);
-    this.timer = false;
-  }
-  if (!this.timer) {
-    console.log("new timer");
-    this.timer = setTimeout(function(){
-      callback.bind(this)();
-      this.timer=false;
-    }.bind(this),time);
-
-  }
-}
