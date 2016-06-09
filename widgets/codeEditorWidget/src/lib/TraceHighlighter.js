@@ -55,8 +55,9 @@ class TraceHighlighter{
   updateCursor(){
     this.setCursor(this.getCursorIndex());
   }
-  setCursor(cursorPosIndex,segment){
-    this.workspace.setCursor(this.workspace.getUserId(),cursorPosIndex);
+  
+  setCursor(cursorPosIndex){
+    this.workspace.setCursor(cursorPosIndex);
   }
 
   getCursorIndex(){

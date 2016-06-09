@@ -12,8 +12,8 @@ const _hashes = {};
 
 //initialize role space, then start the polling
 roleSpace.init().then( () => {
-  roleSpace.getComponentName()
-    .then( (componentName) => pollFiles(componentName) );
+  let componentName = roleSpace.getComponentName();
+  pollFiles(componentName)
 });
 
 function nextTick(componentName){

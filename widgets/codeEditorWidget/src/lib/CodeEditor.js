@@ -2,7 +2,7 @@ import SegmentManager from "./SegmentManager";
 import HtmlTree from "./HtmlTree";
 import TraceHighlighter from "./TraceHighlighter";
 import CommandDecorator from "./CommandDecorator";
-import Workspace from "./workspace";
+import Workspace from "./Workspace";
 import ContentProvider from "./ContentProvider";
 import Path from "path";
 import {getParticipantColor} from "./Utils";
@@ -26,12 +26,11 @@ class CodeEditor{
   constructor(editorId){
     //create needed data structures
     this.contentProvider = new ContentProvider();
-    this.workspace = new Workspace( this.contentProvider ,this);
+    this.workspace = new Workspace(this);
     this.editor = this.createAceEditor(editorId);
     this.segmentManager = this.createSegmentManager();
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
     this.commandDecorator = new CommandDecorator(this.editor, this.segmentManager, this.traceHighlighter);
-
     this.htmlTree = new HtmlTree();
     this.sideBar = new SideBar(this.htmlTree);
     this.fileList = new FileList(this);
@@ -92,7 +91,7 @@ class CodeEditor{
     if( from == to ){
       return;
     }
-    
+
     this.segmentManager.reorderSegmentsByPosition(from,to,parent);
     this.workspace.saveFile(this.segmentManager.getTraceModel(), `Reordered ${modelName} from position ${from+1} to ${to+1}` );
   }
@@ -180,14 +179,13 @@ class CodeEditor{
   */
 
   feedback( message ,error){
-    console.log(message,error);
     let snackBar = document.querySelector("#snackbar");
     if(error && error.generationIdConflict){
         this.open(this.workspace.getCurrentFile(), true);
 
     }
     //guidances are handled separately by their own handler in the workspace instance
-    else if(error && !error.guidances){
+    else if(!error || (error && !error.guidances) ){
       let snackbarData = {message};
       snackBar.MaterialSnackbar.showSnackbar(snackbarData);
     }
@@ -280,6 +278,7 @@ class CodeEditor{
     editor.getSession().setUndoManager({execute:function(){},undo:function(){},redo:function(){}});
     //enable line wrapping
     editor.getSession().setUseWrapMode(true);
+    editor.getSession().setNewLineMode('unix');
     //disable active line hightlighting and drag & drop
     editor.setOption("highlightActiveLine", false)
     editor.setOption("dragEnabled",false);
@@ -473,12 +472,11 @@ class CodeEditor{
   */
 
   open(fileName,reload=false){
-    this.hideGuidances();
     this.showModal();
     this.setModalStatus(0);
     this.setAceModeByExtension( Path.extname(fileName) );
     this.setEditorTitle(Path.basename(fileName));
-    if (!this.workspace.isRoomSynchronized()) {
+    if (!this.workspace.isRoleInitiated()) {
       return this.workspace.init()
       .then( () => this.workspace.loadFile(fileName,reload) )
       .then( this.workspaceHandler );

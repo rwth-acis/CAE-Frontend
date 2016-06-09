@@ -99,9 +99,7 @@ export default class RoleSpace extends EventEmitter{
   }
 
   getComponentName(){
-    let deferred = $.Deferred();
-    deferred.resolve(this.componentName);
-    return deferred.promise();
+    return this.componentName;
   }
 
   getSpaceObj(){

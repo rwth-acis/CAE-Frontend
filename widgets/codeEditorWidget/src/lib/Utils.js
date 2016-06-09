@@ -1,74 +1,21 @@
-function runGenObj(genObj, callbacks = undefined) {
-  handleOneNext();
-
-  /**
-  * Handle one invocation of `next()`:
-  * If there was a `prevResult`, it becomes the parameter.
-  * What `next()` returns is what we have to run next.
-  * The `success` callback triggers another round,
-  * with the result assigned to `prevResult`.
-  */
-  function handleOneNext(prevResult = null) {
-    try {
-      let yielded = genObj.next(prevResult); // may throw
-      if (yielded.done) {
-        if (yielded.value !== undefined) {
-          // Something was explicitly returned:
-          // Report the value as a result to the caller
-          callbacks.success(yielded.value);
-        }
-      } else {
-        setTimeout(runYieldedValue, 0, yielded.value);
-      }
-    }
-    // Catch unforeseen errors in genObj
-    catch (error) {
-      if (callbacks) {
-        callbacks.failure(error);
-      } else {
-        throw error;
-      }
-    }
-  }
-  function runYieldedValue(yieldedValue) {
-    if (yieldedValue === undefined) {
-      // If code yields `undefined`, it wants callbacks
-      handleOneNext(callbacks);
-    } else if (Array.isArray(yieldedValue)) {
-      runInParallel(yieldedValue);
-    } else {
-      // Yielded value is a generator object
-      runGenObj(yieldedValue, {
-        success(result) {
-          handleOneNext(result);
-        },
-        failure(err) {
-          genObj.throw(err);
-        },
-      });
-    }
-  }
-
-  function runInParallel(genObjs) {
-    let resultArray = new Array(genObjs.length);
-    let resultCountdown = genObjs.length;
-    for (let [i,genObj] of genObjs.entries()) {
-      runGenObj(genObj, {
-        success(result) {
-          resultArray[i] = result;
-          resultCountdown--;
-          if (resultCountdown <= 0) {
-            handleOneNext(resultArray);
-          }
-        },
-        failure(err) {
-          genObj.throw(err);
-        },
-      });
-    }
-  }
-}
 /** @module Utils */
+
+/**
+ * Generates a simple hash value for a string
+ * @param {string} string - The string to hash
+ * @return {string}       - The hashed string
+ */
+
+export function getHash(string){
+  let hash = 0, i, chr, len;
+  if (string.length === 0) return hash;
+  for (i = 0, len = string.length; i < len; i++) {
+    chr   = string.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
 
 export function delayed(callback,time,clear=true){
   if (this.timer && clear) {
@@ -102,15 +49,6 @@ export function debounce(callback,time,clear=true){
 }
 
 /**
- *	Runs a generator function
- *	@param {function} - The generator function to run
- */
-
-export function run(generator){
-  runGenObj(generator());
-}
-
-/**
  *	Calculates the bg and fg color of an user
  *	@param {number} count  - The count of the user
  *	@return {object}       - An object containing bg and fg color
@@ -125,20 +63,6 @@ export function getParticipantColor(count){
     {bg:"#cc00ff",fg:"#ffffff"}
   ];
   return colors[ count % colors.length ];
-}
-
-/**
- *	Converts a given callback function to a generator function
- *	@param {function} callback - The callback function
- *	@return {function}  - The converted generator function
- */
-
-export function genBind(callback){
-  let self = this;
-  return function*(){
-    const caller = yield;
-    callback.apply(this,arguments).then( caller.success );
-  }
 }
 
 /**
