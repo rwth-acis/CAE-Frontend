@@ -19,8 +19,7 @@ function _initYjs( componentName ){
   return new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: _createRoomName( componentName ),
-    url: "http://localhost:1234",
-    debug:true
+    url: "http://localhost:1234"
   },
   sourceDir: config.CodeEditorWidget.bower_components,
   share:{'workspace':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
@@ -219,7 +218,7 @@ class Workspace extends EventEmitter{
       this.emit("cursorChange",name);
     }
   }
-  
+
   /**
    *	The double click handler for the canvas widget. Requests the file name and position of the clicked model element and  jumps to the location of that element within the file
    *	@param {string} entityId - The id of the model element
@@ -356,8 +355,8 @@ class Workspace extends EventEmitter{
    */
 
   guidanceFeedbackHandler(message, data){
-    if( data && data.guidances ){
-      this.guidances.set("data",data.guidances);
+    if( data  ){
+      this.guidances.set("data",data.guidances || [] );
     }
   }
 
@@ -542,13 +541,6 @@ class Workspace extends EventEmitter{
 
   saveFile(traceModel, changedSegment){
 
-    let guidances = traceModel.modelCheck();
-    this.guidances.set("data",guidances);
-
-    if(guidances && guidances.length > 0){
-      return;
-    }
-
     let path = Path.relative("/", this.getCurrentFile() );
     let userName = this.getUserNameByJabberId( this.getUserId() );
 
@@ -561,6 +553,15 @@ class Workspace extends EventEmitter{
 
     this.contentProvider.saveFile(path, this.roleSpace.getComponentName() ,data)
     .fail( (error) => {console.error(error)} );
+  }
+
+  /**
+   *	Update the guidances such that all users can see the guidances.
+   *	@param {object[]} guidances  - The guidances to set
+   */
+
+  setGuidances(guidances){
+    this.guidances.set("data",guidances);
   }
 
   /**
