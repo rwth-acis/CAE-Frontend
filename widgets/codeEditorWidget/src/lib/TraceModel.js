@@ -115,14 +115,14 @@ class TraceModel{
   }
 
   /**
-  *  Returns the model name of a segment used for the commit message
+  *  Returns the name and id of the model linked to the segment, used for the commit message
   *  @param {string} segmentId    - The segment id
   *  @param {boolean} [withType]  - If true, the model name will also contain the model type
-  *  @return {string}             - The name of the model element
+  *  @return {object}             - The name and id of the model element
   */
 
-  getModelName(segmentId, withType=false){
-    let model = this.getModel(segmentId);
+  getModelInformation(segmentId, withType=false){
+    let {modelId,model} = this.getModel(segmentId);
     if(!model){
       return`Untraced Segment[${segmentId}]`;
     }else{
@@ -130,7 +130,7 @@ class TraceModel{
       if(withType && model.type && model.type.length > 0){
         modelName = `${model.type}[${modelName}]`
       }
-      return modelName;
+      return {modelId,modelName};
     }
   }
 
@@ -156,7 +156,7 @@ class TraceModel{
           let model = this.traces[modelId];
           let segments = model.segments.filter( segment => segment == segmentId);
           if(segments && segments.length > 0){
-            return model;
+            return {modelId,model};
             break;
           }
         }

@@ -22,6 +22,31 @@ export default class RoleSpace extends EventEmitter{
     }
   }
 
+  iwcSendActivity(entityId,changedComponent){
+    let time = new Date().getTime();
+    //"{"type":"ValueChangeActivity","entityId":"2ef545b328cde3ae536c09ca[id]","text":".. changed id of HTML Element","data":{"value":"","subjectEntityName":"id","rootSubjectEntityType":"HTML Element","rootSubjectEntityId":"2ef545b328cde3ae536c09ca"}}"
+    //that.setText(ValueChangeOperation.getOperationDescription(_subjectEntityName, _rootSubjectEntityType, operation.getData().value));
+    alert("ja");
+    let data = JSON.stringify({
+      type:"ValueChangeActivity",entityId:entityId,"text":".. changed source code of "+ changedComponent,
+      data:{
+        value:"",subjectEntityName:"source code",rootSubjectEntityType: changedComponent, rootSubjectEntityId : entityId
+      },
+      sender : this.getUserId()
+    });
+
+    let intent = {
+      "component": "ACTIVITY",
+      "data": "",
+      "dataType": "",
+      "action": "ACTION_DATA",
+      "flags": ["PUBLISH_LOCAL"],
+      "extras": {"payload":{"data":{"data":data,"type":"ActivityOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
+      "sender": "CODE_EDITOR"
+    };
+    this.iwcClient.publish(intent);
+  }
+
   iwcHandler(indent){
     console.log(indent);
     let {action,extras:{payload}} = indent;

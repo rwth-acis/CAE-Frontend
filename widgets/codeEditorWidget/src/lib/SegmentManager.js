@@ -25,13 +25,13 @@ class SegmentManager extends EventEmitter{
   }
 
   /**
-   *  Get the name of the segment of the given id
+   *  Get the name and the id of the model linked to the segment of the given id
    *  @param {string} segmentId - The id of the segment
    *  @param {boolean} withType - It ture, the model name will also contain the model type
    */
 
-  getModelName(segmentId,withType=false){
-    return this.traceModel.getModelName(segmentId.toString(),withType);
+  getModelInformation(segmentId,withType=false){
+    return this.traceModel.getModelInformation(segmentId.toString(),withType);
   }
 
   getSegmentsRaw(withComposites){
@@ -225,14 +225,15 @@ class SegmentManager extends EventEmitter{
     .map( (key) => {
       let res = this.orders[key].toArray()
       .filter( id => {
-        let model = this.traceModel.getModel(id);
+        let {model} = this.traceModel.getModel(id);
         return model && model.type && model.type == "HTML Element";
       })
       .map( id => {
+        let {modelName} = this.getModelInformation(id);
         return {
           id,
           parent:key,
-          text: this.getModelName(id)
+          text: modelName
         }
       } );
 

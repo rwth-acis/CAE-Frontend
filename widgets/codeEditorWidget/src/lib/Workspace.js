@@ -166,7 +166,7 @@ class Workspace extends EventEmitter{
   }
 
   /**
-   * Create or return the user yjs type for a file and bind its observers
+   * Create or return the Y.Map type for the user list of a file and bind its observers
    * @param {object} map  - The yjs map of the file
    * @return {promise}    - A promise that is resolved after creating/getting the user yjs type
    */
@@ -186,6 +186,14 @@ class Workspace extends EventEmitter{
 
     });
   }
+
+  /**
+   * Create or return the promises to create the Y.Array types for the ordering of the segments
+   * @param {object[]} indexes              - The segment information
+   * @param {string}   indexes[].id         - The id of one segment
+   * @param {object[]} [indexes[].children] - Optional children of a segment
+   * @return {promise[]}                    - The promises to create the Y.Array types
+   */
 
   createYArrays(indexes,map){
     let todos = [];
@@ -367,9 +375,9 @@ class Workspace extends EventEmitter{
   guidanceHandler(){
     let data = this.guidances.get("data");
     if( data && data.length > 0){
-      this.codeEditor.showGuidances(data);
+      this.codeEditor.showFeedback(data);
     }else{
-      this.codeEditor.hideGuidances();
+      this.codeEditor.hideFeedback();
     }
   }
 
@@ -463,7 +471,7 @@ class Workspace extends EventEmitter{
             });
           });
       }
-
+      // if we are already connected to yjs room, we first need to delete the local user from the participant list
       if(_y){
         this.user.delete( this.roleSpace.getUserId().toString() );
         this.user.observe(() => {
@@ -534,12 +542,12 @@ class Workspace extends EventEmitter{
   }
 
   /**
-   * Persist a trace model to the github proxy server.
+   * Persist a trace model, i.e. its file content and file traces, to the github proxy server.
    * @param {TraceModel} TraceModel - A TraceModel instance to saveFile
    * @param {string} changedSegment - The name of the changed segment
    */
 
-  saveFile(traceModel, changedSegment){
+  saveFile(traceModel, {modelName:changedSegment,modelId}){
 
     let path = Path.relative("/", this.getCurrentFile() );
     let userName = this.getUserNameByJabberId( this.getUserId() );
@@ -549,6 +557,10 @@ class Workspace extends EventEmitter{
       traces : traceModel.toJSON(),
       changedSegment,
       user: userName
+    }
+
+    if(modelId){
+      this.roleSpace.iwcSendActivity(modelId,changedSegment);
     }
 
     this.contentProvider.saveFile(path, this.roleSpace.getComponentName() ,data)
