@@ -21,7 +21,7 @@ class ContentProvider extends EventEmitter{
   /**
    * Requests a merge / push command to the github proxy server.
    * @param {string} repoName - The name of the repository
-   * @return {Promise}        - A promise that is resolved when the request was successfully executed and rejects if it failed.  
+   * @return {Promise}        - A promise that is resolved when the request was successfully executed and rejects if it failed.
    */
 
   push(repoName){
@@ -86,6 +86,8 @@ class ContentProvider extends EventEmitter{
     ).then(function(data){
       let content = new Buffer(data.content,"base64").toString("utf-8");
       deferred.resolve({traces:data.traceModel,text:content})
+    }).fail(()=>{
+      deferred.reject();
     });
 
     return deferred.promise();

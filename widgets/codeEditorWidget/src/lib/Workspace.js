@@ -296,6 +296,8 @@ class Workspace extends EventEmitter{
       let traceModel = new TraceModel(model);
       traceModel.parseModel();
       deferred.resolve(traceModel);
+    }).fail(()=>{
+      deferred.reject();
     });
 
     return deferred.promise();
@@ -434,7 +436,6 @@ class Workspace extends EventEmitter{
     }else{
       // just an anonymous function for reuse and privacy purpose
       let _loadFile = () => {
-
         if(_y){
           _y.destroy();
         }
@@ -476,20 +477,29 @@ class Workspace extends EventEmitter{
                 this.workspace.set("generatedId",traceModel.getGenerationId());
               }
             });
+          },() => {
+            this.codeEditor.setModalStatus(0);
+            this.codeEditor.hideModal();
+            this.codeEditor.hideEditor();
+            this.codeEditor.setEditorTitle("File not found");
           });
       }
       // if we are already connected to yjs room, we first need to delete the local user from the participant list
       if(_y){
         this.cursors.set(this.getUserId(),-1);
-        this.user.delete( this.roleSpace.getUserId().toString() );
-        this.user.observe(() => {
-          if( once ){
-            once = false;
-            _loadFile();
-          }else{
-            deferred.reject("Can only load file once");
-          }
-        });
+        if(this.user.get(this.roleSpace.getUserId().toString())){
+          _loadFile();
+        }else{
+          this.user.delete( this.roleSpace.getUserId().toString() );
+          this.user.observe(() => {
+            if( once ){
+              once = false;
+              _loadFile();
+            }else{
+              deferred.reject("Can only load file once");
+            }
+          });
+        }
       }else{
         _loadFile();
       }

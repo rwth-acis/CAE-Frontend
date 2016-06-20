@@ -348,6 +348,14 @@ class CodeEditor{
   }
 
   /**
+   * Hide the editor
+   */
+
+  hideEditor(){
+    $(".editor").hide();
+  }
+
+  /**
    *	A handler called when the workspace has finished (re-)loading a file
    *	@param {TraceModel} traceModel           - A TraceModel instance of the loaded file
    *	@param {object} yjsSegmentMap            - A yjs map for the segments of the file
