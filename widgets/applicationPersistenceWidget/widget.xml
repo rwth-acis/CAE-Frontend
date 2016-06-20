@@ -24,7 +24,7 @@
   <Content type="html">
   <![CDATA[
 <!--
-Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, 
+Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
 All rights reserved.
 
@@ -103,6 +103,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </div>
       <div class="btn-group">
         <button id="store-model" class="btn btn-default">Store</button>
+      </div>
+      <div class="btn-group">
+        <button id="deploy-model" class="btn btn-default" disabled>Deploy</button>
       </div>
       <div class="btn-group">
         <button id="delete-model" class="btn btn-default">Reset</button>
