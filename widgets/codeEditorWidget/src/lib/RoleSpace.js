@@ -148,7 +148,7 @@ export default class RoleSpace extends EventEmitter{
         this.componentName = `${this.getComponentType()}-${name}`;
         deferred.resolve();
       }else{
-        deferred.reject(new Error("Model not yet persisted."));
+        deferred.reject(new Error("Model was not yet loaded until now.."));
       }
     });
     return deferred.promise();
