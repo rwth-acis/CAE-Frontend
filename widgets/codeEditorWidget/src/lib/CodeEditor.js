@@ -113,7 +113,6 @@ class CodeEditor{
     //bind publish button
     $("#publishButton").click( (e) => {
 
-      this.hideGuidances();
       //hide publish button and show spinner loading animation
       $("#publishButton").hide();
       $("#publishSpinner").show();
