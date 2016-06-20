@@ -17,6 +17,18 @@ div.mdl-cell{
   margin:0px !important;
 }
 
+
+div#feedbackTablePanel{
+  min-height:200px !important;
+  height:200px;
+  overflow-y:scroll;
+}
+
+div#feedbackTablePanel table { border-collapse: collapse;width:100%; }
+div#feedbackTablePanel td { padding: 0; padding-left: 10px;width:100% }
+div#feedbackTablePanel tr { border-bottom:1px dashed #494949; width:100%; height:25px; cursor: pointer;}
+div#feedbackTablePanel tr.clicked { background-color:#e6f5fc;}
+
 div#container.sidebar-is-visible{
   margin-right:-250px;
 }
@@ -43,12 +55,7 @@ div#orderableSegments .jstree-children>ul>li.jstree-node{
   background: #e6f5fc; /* color */
   z-index: 4; /* in front of all other markers */
 }
-.ace_highlight-block{
-  position: absolute; /* without this positions will be erong */
-  border: 1px solid black;
-  background: rgba(120,120,120,0.1); /* color */
-  z-index: 1000; /* in front of all other markers */
-}
+
 .target{
   pointer-events: auto;
   position:absolute;
