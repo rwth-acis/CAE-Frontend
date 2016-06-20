@@ -57,10 +57,10 @@ export function debounce(callback,time,clear=true){
 export function getParticipantColor(count){
   let colors = [
     {bg:"#ff9900",fg:"#ffffff"},
-    {bg:"#cbff00",fg:"#ffffff"},
-    {bg:"#00ff66",fg:"#ffffff"},
+    {bg:"#cc00ff",fg:"#ffffff"},
     {bg:"#0066ff",fg:"#ffffff"},
-    {bg:"#cc00ff",fg:"#ffffff"}
+    {bg:"#cbff00",fg:"#394700"},
+    {bg:"#00ff66",fg:"#005C25"}
   ];
   return colors[ count % colors.length ];
 }
