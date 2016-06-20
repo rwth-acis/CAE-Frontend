@@ -19,10 +19,10 @@ function _initYjs( componentName ){
   return new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: _createRoomName( componentName ),
-    url: "http://localhost:1234"
+    url: "http://192.168.2.101:1234"
   },
   sourceDir: config.CodeEditorWidget.bower_components,
-  share:{'workspace':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
+  share:{'workspace':'Map','user':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
 }
 
 /**
@@ -41,14 +41,14 @@ class Workspace extends EventEmitter{
 
     //binding methods to this class
     this.contentFeedbackHandler = this.contentFeedbackHandler.bind(this);
-    this.guidanceFeedbackHandler = this.guidanceFeedbackHandler.bind(this);
+    this.modelViolationFeedbackHandler = this.modelViolationFeedbackHandler.bind(this);
     this.saveFile = this.saveFile.bind(this);
     this.doubleClickHandler = this.doubleClickHandler.bind(this);
     this.modelUpdatedHandler = this.modelUpdatedHandler.bind(this);
 
     this.contentProvider = new ContentProvider();
     this.contentProvider.addEventListener( this.contentFeedbackHandler );
-    this.contentProvider.addEventListener( this.guidanceFeedbackHandler );
+    this.contentProvider.addEventListener( this.modelViolationFeedbackHandler );
 
     this.currentFile = "";
     this.currentPath = Path.resolve("/");
@@ -76,8 +76,8 @@ class Workspace extends EventEmitter{
     if(error && error.generationIdConflict){
         this.open(this.getCurrentFile(), true);
     }
-    //guidances are handled separately by their own handler in the workspace instance
-    else if(!error || (error && !error.guidances) ){
+    //feedback is handled separately by their own handler in the workspace instance
+    else if(!error || (error && !error.feedbackItems) ){
       this.codeEditor.feedback(message);
     }
   }
@@ -126,7 +126,7 @@ class Workspace extends EventEmitter{
 
       this.createUserFileEntry(map)
         .then( () => this.createCursorsFileEntry(map) )
-        .then( () => this.createGuidanceFileEntry(map) )
+        .then( () => this.createFeedbackFileEntry(map) )
         .then( () => $.when.apply($,entries) )
         .then( (segmentValues, segmentOrder) => {
           deferred.resolve(map,segmentValues, segmentOrder, newCreated);
@@ -155,13 +155,13 @@ class Workspace extends EventEmitter{
 
   }
 
-  createGuidanceFileEntry(map){
-    return this.createFileEntry("guidances",Y.Map,map).then( guidances => {
-        guidances.observe( () =>{
-          this.guidanceHandler();
+  createFeedbackFileEntry(map){
+    return this.createFileEntry("feedback",Y.Map,map).then( feedbackItems => {
+        feedbackItems.observe( () =>{
+          this.feedbackItemsHandler();
         });
-        this.guidances = guidances;
-        this.guidanceHandler();
+        this.feedbackItems = feedbackItems;
+        this.feedbackItemsHandler();
     })
   }
 
@@ -172,19 +172,24 @@ class Workspace extends EventEmitter{
    */
 
   createUserFileEntry(map){
-    return this.createFileEntry("user",Y.Map,map).then( (user) => {
-      this.user = user;
+    //return this.createFileEntry("user",Y.Map,map).then( (user) => {
+    //  this.user = user;
 
       let count = this.user.keys().length;
       let workspaceUser = this.user.get(this.roleSpace.getUserId()) || {count};
       workspaceUser.name = this.roleSpace.getUserName();
+      workspaceUser.fileName = this.getCurrentFile();
+      workspaceUser.id = this.roleSpace.getUserId();
 
       this.user.set( this.roleSpace.getUserId(), workspaceUser );
       this.user.observe( () => {
         this.codeEditor.printParticipants();
       });
+      let deferred = $.Deferred();
+      deferred.resolve();
+      return deferred.promise();
 
-    });
+    //});
   }
 
   /**
@@ -313,7 +318,7 @@ class Workspace extends EventEmitter{
    */
 
   getParticipants(){
-    return this.user.keys().map( (userId) => this.user.get(userId) );
+    return this.user.keys().map( (userId) => this.user.get(userId) ).filter( (user) => user.fileName == this.getCurrentFile() );
   }
 
   /**
@@ -356,24 +361,24 @@ class Workspace extends EventEmitter{
   }
 
   /**
-   * Method to handle potential guidances when a commit request was rejected
+   * Method to handle potential model violations when a commit request was rejected
    * @param {String} message             - The message from the content provider after a request
-   * @param {Object} [data]              - Optional data object containing the guidances
-   * @param {Object[]} [data.guidances]  - Optional guidances
+   * @param {Object} [data]              - Optional data object containing the feedback of the model violation
+   * @param {Object[]} [data.feedbackItems]  - Optional feedback
    */
 
-  guidanceFeedbackHandler(message, data){
+  modelViolationFeedbackHandler(message, data){
     if( data  ){
-      this.guidances.set("data",data.guidances || [] );
+      this.feedbackItems.set("data",data.feedbackItems || [] );
     }
   }
 
   /**
-   * Method to handle shared guidances of the current fileName
+   * Method to handle shared feedback of model violation of the current fileName
    */
 
-  guidanceHandler(){
-    let data = this.guidances.get("data");
+  feedbackItemsHandler(){
+    let data = this.feedbackItems.get("data");
     if( data && data.length > 0){
       this.codeEditor.showFeedback(data);
     }else{
@@ -438,6 +443,8 @@ class Workspace extends EventEmitter{
         _initYjs(componentName).then( (y) => {
             _y = y;
             this.workspace = _y.share.workspace;
+            this.user = _y.share.user;
+
             this.workspace.observe( (events) => {
               for(event of events){
                 if(event.name === "generatedId"){
@@ -473,6 +480,7 @@ class Workspace extends EventEmitter{
       }
       // if we are already connected to yjs room, we first need to delete the local user from the participant list
       if(_y){
+        this.cursors.set(this.getUserId(),-1);
         this.user.delete( this.roleSpace.getUserId().toString() );
         this.user.observe(() => {
           if( once ){
@@ -548,7 +556,6 @@ class Workspace extends EventEmitter{
    */
 
   saveFile(traceModel, {modelName:changedSegment,modelId}){
-
     let path = Path.relative("/", this.getCurrentFile() );
     let userName = this.getUserNameByJabberId( this.getUserId() );
 
@@ -568,13 +575,13 @@ class Workspace extends EventEmitter{
   }
 
   /**
-   *	Update the guidances such that all users can see the guidances.
-   *	@param {object[]} guidances  - The guidances to set
+   *	Update the feedback items such that all users can see them.
+   *	@param {object[]} feedbackItems  - The feedback to set
    */
 
-  setGuidances(guidances){
-    this.guidances.set("data",guidances);
-  }
+  //setGuidances(feedbackItems){
+  //  this.feedbackItems.set("data",feedbackItems);
+  //}
 
   /**
    * Set and update the cursor index of this user in the yjs cursor map
@@ -582,6 +589,16 @@ class Workspace extends EventEmitter{
 
   setRemoteCursor(){
     this.cursors.set(this.getUserId(),this.cursor);
+  }
+
+  /**
+   * Get the cursor index of a remote user
+   * @param {string} userId - A user id
+   * @return {number}       - The index position of the user's cursor
+   */
+
+  getRemoteCursor(userId){
+    return this.cursors.get(userId);
   }
 
   /**

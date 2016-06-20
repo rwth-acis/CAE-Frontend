@@ -58,8 +58,8 @@ class CodeEditor{
   */
 
   resizeHandler(){
-    let guidanceTableHeight = $("#guidanceTablePanel").is(":visible") ? $("#guidanceTablePanel").height() : 0;
-    let height = $(window).height()-$("header:eq(0)").height() - guidanceTableHeight - 20;
+    let feedbackTableHeight = $("#feedbackTablePanel").is(":visible") ? $("#feedbackTablePanel").height() : 0;
+    let height = $(window).height()-$("header:eq(0)").height() - feedbackTableHeight - 20;
     $('.editor, #editor').height(height);
     this.sideBar.height(height);
     this.editor.resize();
@@ -86,14 +86,14 @@ class CodeEditor{
 
   reorderSegmentDNDHandler(e,data){
     let {old_position:from, position:to, parent} = data;
-    let modelName = this.segmentManager.getModelName(data.node.id);
+    let {modelName,modelId} = this.segmentManager.getModelInformation(data.node.id);
 
     if( from == to ){
       return;
     }
 
     this.segmentManager.reorderSegmentsByPosition(from,to,parent);
-    this.workspace.saveFile(this.segmentManager.getTraceModel(), `Reordered ${modelName} from position ${from+1} to ${to+1}` );
+    this.workspace.saveFile(this.segmentManager.getTraceModel(), {modelName:`Reordered ${modelName} from position ${from+1} to ${to+1}`} );
   }
 
   /**
@@ -184,17 +184,17 @@ class CodeEditor{
         this.open(this.workspace.getCurrentFile(), true);
 
     }
-    //guidances are handled separately by their own handler in the workspace instance
-    else if(!error || (error && !error.guidances) ){
+    //feeback is handled separately by their own handler in the workspace instance
+    else if(!error || (error && !error.feedbackItems) ){
       let snackbarData = {message};
       snackBar.MaterialSnackbar.showSnackbar(snackbarData);
     }
   }
 
   /**
-   *	@typedef CodeEditor~Guidance
+   *	@typedef CodeEditor~Feedback
    *	@type {object}
-   *	@property {string} message - A message explaining the guidance
+   *	@property {string} message - A message explaining the feedback
    *	@property {object[]} segment  - The affected segments
    *  @property {string} segment.segmentId  - The id of the segment
    *  @property {number} segment.start      - The relative start within the segment
@@ -202,18 +202,18 @@ class CodeEditor{
    */
 
   /**
-   *	Creates and display a table containing guidances
-   *	@param {CodeEditor~Guidance[]} guidances  - The guidances to display
+   *	Creates and display a table containing feedback of the model violation detection
+   *	@param {CodeEditor~Feedback[]} feedbackItems  - The feedack to display
    */
 
-  showGuidances(guidances){
-    this.feedback("Please follow the guidances.");
+  showFeedback(feedbackItems){
+    this.feedback("Please follow the feedback.");
     let self = this;
-    let rows = guidances.map( guidance => $(`<tr><td>${guidance.message}</td></tr>`).dblclick( function(event){
-      $("#guidanceTable tr").removeClass("clicked");
+    let rows = feedbackItems.map( feedback => $(`<tr><td>${feedback.message}</td></tr>`).click( function(event){
+      $("#feedbackTable tr").removeClass("clicked");
       $(this).addClass("clicked");
       let aceDoc = self.editor.getSession().getDocument();
-      for(let seg of guidance.segments){
+      for(let seg of feedback.segments){
       let id = seg.segmentId;
       let offset = self.segmentManager.getSegmentStartIndex(id);
       let start_ = aceDoc.indexToPosition(seg.start+offset,0);
@@ -222,17 +222,17 @@ class CodeEditor{
       self.editor.selection.setRange(new Range(start_.row, start_.column,end_.row, end_.column));
     }
     }) );
-    $("#guidanceTable").html(rows);
-    $("#guidanceTablePanel").show();
+    $("#feedbackTable").html(rows);
+    $("#feedbackTablePanel").show();
     this.resizeHandler();
   }
 
   /**
-   *	Hide the table of the guidances
+   *	Hide the table of the feedback
    */
 
-  hideGuidances(){
-    $("#guidanceTablePanel").hide();
+  hideFeedback(){
+    $("#feedbackTablePanel").hide();
     this.resizeHandler();
   }
 
@@ -255,7 +255,7 @@ class CodeEditor{
     });
 
     segmentManager.addSaveListener(function(segmentId){
-      self.workspace.delayedSaveFile(segmentManager.getTraceModel(), segmentManager.getModelName(segmentId,true) );
+      self.workspace.delayedSaveFile(segmentManager.getTraceModel(), segmentManager.getModelInformation(segmentId,true) );
     });
 
     return segmentManager;
@@ -366,6 +366,7 @@ class CodeEditor{
     this.segmentManager.bindSegments(traceModel, yjsSegmentMap, yjsSegmentRootList, yjsSegmentChildrenLists, forceReload).then( () =>{
       this.traceHighlighter.setActiveSegment();
       this.traceHighlighter.updateSegments();
+      this.traceHighlighter.renderCursors();
       this.setModalStatus(3);
       this.hideModal();
       deferred.resolve();
@@ -387,7 +388,9 @@ class CodeEditor{
    */
 
   printParticipants(){
-    let users = this.workspace.getParticipants().map( (user) => {
+    let users = this.workspace.getParticipants().filter( (user) => {
+      return user.fileName == this.workspace.getCurrentFile();
+    }).map( (user) => {
       let color = getParticipantColor(user.count) || {bg:"#ffffff",fg:"#000000"};
       return $(
         `<li class="mdl-list__item">
@@ -473,6 +476,7 @@ class CodeEditor{
 
   open(fileName,reload=false){
     this.showModal();
+    this.traceHighlighter.clearCursorMarkers();
     this.setModalStatus(0);
     this.setAceModeByExtension( Path.extname(fileName) );
     this.setEditorTitle(Path.basename(fileName));
