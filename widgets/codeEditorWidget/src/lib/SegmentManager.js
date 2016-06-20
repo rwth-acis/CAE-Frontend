@@ -257,7 +257,8 @@ class SegmentManager extends EventEmitter{
     this.traceModel.setIndexes(indexes);
     let self = this,
     content = this.traceModel.getContent();
-    this.editor.setValue( content ,1 );
+    this.editor.setValue( content ,-1 );
+    this.setActiveSegment(undefined);
     this.emit("change",{}, content );
     this.token=true;
   }

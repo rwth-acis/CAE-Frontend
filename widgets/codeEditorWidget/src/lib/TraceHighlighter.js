@@ -34,6 +34,7 @@ class TraceHighlighter{
       console.error(e);
     }
   }
+
   addMarker(start, end, klaaz, front){
     this.markers.push( this.editor.getSession().addMarker(new Range(start.row, start.column,end.row, end.column), klaaz, "text", front ) );
   }
@@ -55,7 +56,7 @@ class TraceHighlighter{
   updateCursor(){
     this.setCursor(this.getCursorIndex());
   }
-  
+
   setCursor(cursorPosIndex){
     this.workspace.setCursor(cursorPosIndex);
   }
@@ -85,6 +86,11 @@ class TraceHighlighter{
   hideUserName(usr){
     let id = `u${this.cursorMarkers[usr].id}`;
     let self = this;
+    let cursor = $(`div#${id}`);
+    if(cursor.size() <= 0){
+      this.cursorMarkers[usr].hidden = true;
+      this.renderCursor(usr);
+    }
     $(`div#${id}`).fadeOut(400,function(){
       self.cursorMarkers[usr].hidden = true;
     });
@@ -112,11 +118,28 @@ class TraceHighlighter{
     }
   }
 
-  renderCursor(usr){
-    console.log("renderCursor",usr);
-    let index = this.workspace.getCursor(usr);
-    let cursor = this.cursorMarkers[usr];
+  clearCursorMarkers(){
+    for(let usr in this.cursorMarkers){
+      let cursor = this.cursorMarkers[usr];
+      if(cursor){
+        this.editor.getSession().removeMarker(cursor.marker);
+        delete this.cursorMarkers[usr].marker;
+      }
+    }
+  }
 
+  renderCursors(){
+    let users = this.workspace.getParticipants().filter( (user) => {
+      return user.fileName == this.workspace.getCurrentFile();
+    });
+    for(let user of users){
+      this.remoteCursorChangeHandler(user.id.toString());
+    }
+  }
+
+  renderCursor(usr){
+    let index = this.workspace.getRemoteCursor(usr);
+    let cursor = this.cursorMarkers[usr];
     let userName = this.workspace.getUserNameByJabberId(usr);
     let aceDoc = this.editor.getSession().getDocument();
     let start = aceDoc.indexToPosition(index,0);
@@ -124,17 +147,19 @@ class TraceHighlighter{
       this.editor.getSession().removeMarker(cursor.marker);
       delete this.cursorMarkers[usr].marker;
     }
-    let color = getParticipantColor( this.workspace.getUserByJabberId(usr).count );
-    let id = `u${this.cursorMarkers[usr].id}`;
-    this.cursorMarkers[usr].marker=this.editor.session.addMarker(new Range(start.row,start.column,start.row,start.column+1), "moveable", function(html,range,left,top,config){
-      html.push(`<div style="top:${top};left:${left};height:${config.lineHeight};background-color:${color.bg};color:${color.fg}" class="remoteCursor"></div>`);
-      let width = userName.length * config.characterWidth;
-      let leftName = left;
-      let display = !cursor.hidden ? "block" : "none";
-      leftName = Math.max(0,leftName-width+4);
-      html.push(`<div id="${id}" style="display:${display};top:${top+config.lineHeight};left:${leftName};width:${width};height:${config.lineHeight};background-color:${color.bg};color:${color.fg}" class="remoteCursor username">${userName}</div>`);
-    },true);
-    this.cursorMarkers[usr].hide(usr);
+    if( index > -1 ){
+      let color = getParticipantColor( this.workspace.getUserByJabberId(usr).count );
+      let id = `u${this.cursorMarkers[usr].id}`;
+      this.cursorMarkers[usr].marker=this.editor.session.addMarker(new Range(start.row,start.column,start.row,start.column+1), "moveable", function(html,range,left,top,config){
+        html.push(`<div style="top:${top};left:${left};height:${config.lineHeight};background-color:${color.bg};color:${color.fg}" class="remoteCursor"></div>`);
+        let width = userName.length * config.characterWidth;
+        let leftName = left;
+        let display = !cursor.hidden ? "block" : "none";
+        leftName = Math.max(0,leftName-width+4);
+        html.push(`<div id="${id}" style="display:${display};top:${top+config.lineHeight};left:${leftName};width:${width};height:${config.lineHeight};background-color:${color.bg};color:${color.fg}" class="remoteCursor username">${userName}</div>`);
+      },true);
+      this.cursorMarkers[usr].hide(usr);
+    }
   }
 
 
