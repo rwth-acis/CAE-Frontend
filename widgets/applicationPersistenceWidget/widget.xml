@@ -3,7 +3,7 @@
   <ModulePrefs title="Application Persistence Widget"
     description="This widget is responsible for persisting applications."
     author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
-    width="400" height="300">
+    width="600" height="300">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>
@@ -114,6 +114,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <br>
     <div class="form-group">
       <input type="text" class="form-control" id="status" placeholder="Status..">
+      <br>
+      <textarea id="deploy-status" class="form-control" readonly></textarea>
     </div>
   </div>
 

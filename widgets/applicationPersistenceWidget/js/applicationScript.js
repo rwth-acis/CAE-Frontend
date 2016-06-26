@@ -70,6 +70,10 @@ var init = function() {
   $('#load-model').on('click', function() {
     loadModel();
   })
+
+  $('#deploy-model').on('click',function(){
+    deployModel();
+  })
 }
 
 // deletes the current model (empties the current model of this space)
@@ -89,6 +93,91 @@ var resetCurrentModel = function() {
     }
   });
 };
+var pendingDots = 0;
+var getJobConsoleText = function(queueItem,jobAlias){
+  client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "application/json", {},
+  function(data,type){
+    if(data.indexOf("Pending") > -1){
+      data = jobAlias + " job pending" + Array(pendingDots+1).join(".");
+    }
+
+    pendingDots = (pendingDots + 1) % 4;
+
+    $("#deploy-status").text(data);
+    $('#deploy-status').scrollTop($('#deploy-status')[0].scrollHeight);
+    if(data.indexOf("Finished: SUCCESS") > -1){
+      switch(jobAlias){
+        case "Build":
+          feedback("Building was successfully!");
+          deployRequest("Docker");
+        break;
+        case "Docker":
+          $("#deploy-model").prop('disabled',true);
+          feedback("Application is now ready!");
+          $("#deploy-status").hide();
+          gadgets.window.adjustHeight();
+        break;
+      }
+    }else if(data.indexOf("Finished: FAILURE") > - 1){
+      feedback("Error during deployment!");
+    }
+    else{
+      pollJobConsoleText(queueItem,jobAlias);
+    }
+  },
+  function(error){
+    feedback(error);
+  }
+  );
+
+}
+
+var pollJobConsoleText = function(location,jobAlias){
+  $("#deploy-status").show();
+  gadgets.window.adjustHeight();
+  setTimeout(function(){
+    var feedbackString = "Deployment in progess" + Array(pendingDots+1).join(".");
+    feedback(feedbackString);
+    getJobConsoleText(location,jobAlias);
+  },1000);
+}
+
+var deployRequest = function(jobAlias){
+  client.sendRequest("GET", "deploy/"+loadedModel+"/"+jobAlias, "", "application/json", {},
+    function(data, type) {
+      if(data.indexOf("Error") > -1){
+        feedback(data);
+      }else{
+        console.log("Starting deployment");
+        console.log("Start polling job console text");
+        pollJobConsoleText(data,jobAlias);
+      }
+    },
+    function(error) {
+      console.log(error);
+      feedback(error);
+    });
+}
+
+// start the deployment process
+var deployModel = function(){
+  getData("my:ns:model").then(function(modelUris){
+      if(modelUris.length > 0 && loadedModel){
+        $("#deploy-model").prop('disabled',true);
+        $.get(modelUris[0]+"/:representation").done(function(data){
+          // add name, version and type to model
+          data.attributes.label.value.value = $("#name").val();
+          data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+          data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+
+          deployRequest("Build");
+
+          });
+      } else {
+        feedback("No model!");
+      }
+  });
+}
 
 // retrieves the JSON representation of this space
 var storeModel = function() {
@@ -133,12 +222,13 @@ var storeModel = function() {
             client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
             function(data, type) {
               console.log("Model updated!");
+              $("#deploy-model").prop('disabled',false);
               feedback("Model updated!");
             },
             function(error) {
               console.log(error);
               feedback(error);
-            });            
+            });
           }
         });
       } else {
@@ -197,7 +287,7 @@ var getData = function(type){
       deferred = $.Deferred();
 
   openapp.resource.get(spaceUri,(function(deferred){
-    
+
     return function(space){
       var resourceUri, resourceObj, values;
       for(resourceUri in space.data){
@@ -246,7 +336,7 @@ var generateRandomId = function(){
 
 // generates an attribute according to the SyncMeta specification
 var generateAttribute = function(name, value){
-  var attribute = 
+  var attribute =
   {
     "name": name,
     "id": "modelAttributes[" + name + "]",
