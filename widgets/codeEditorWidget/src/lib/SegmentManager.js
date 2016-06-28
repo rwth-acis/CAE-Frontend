@@ -157,6 +157,12 @@ class SegmentManager extends EventEmitter{
     return nIndexes;
   }
 
+  /**
+   * Move a segment before another segment. Note: The two segments must have the same parent segment
+   * @param {string} fromId - The id of the segment that should be moved
+   * @param {string} beforeId - The id of the segment to which the other segment should be placed before
+   */
+
   reorderSegmentsById(fromId,beforeId,parent){
     let list = this.orders[parent];
     let listArray = list.toArray();
@@ -169,8 +175,14 @@ class SegmentManager extends EventEmitter{
     }
   }
 
-  //currently only html elements can be reordered
-
+  /**
+   * Reorder a segment to another position
+   * Note: currently only html elements can be reordered
+   *
+   * @param  {number} from   The old position
+   * @param  {number} to     The new position
+   * @param  {string} parent The id of the parent
+   */
   reorderSegmentsByPosition(from,to,parent){
     if(from == to){
       //nothing to do
@@ -205,12 +217,12 @@ class SegmentManager extends EventEmitter{
       //our destination is the first "to" element
       toId = toIds[0];
     }else{
-      //we need to reverse the "from" elements if we sort from top to down
+      //we need to reverse the "from" elements if we reorder from top to down
       fromIds = fromIds.reverse();
       //our destination is the last "to" element
       toId = toIds.slice(-1).pop();
     }
-
+    // now reorder all previously collected segments to the new position
     for(let i=0;i<fromIds.length;i++){
       this.reorderSegmentsById(fromIds[i],toId,parent);
     }
@@ -218,6 +230,12 @@ class SegmentManager extends EventEmitter{
     this.emit("orderChange");
 
   }
+
+  /**
+   * Get the list of segments that can be reordered.
+   * Note: currently only html elements are orderable
+   * @return {Array}  - The list of segments that can be reordered. 
+   */
 
   getOrderAbleSegments(){
     let orderAbleSegments = Object.keys(this.orders)
@@ -246,6 +264,7 @@ class SegmentManager extends EventEmitter{
           opened : true
         }
       })
+      console.log("orderAble",res);
       return res;
     } );
 
@@ -270,7 +289,9 @@ class SegmentManager extends EventEmitter{
       if (index.children) {
         this.buildOrders(index.children,segments);
       }
+      //root segments are stored in the list array
       if (seg.getParent()) {
+        //children are stored in the order list of its parent
         this.orders[seg.getParent()].push([index.id]);
       }else{
         this.list.push([index.id]);
@@ -285,7 +306,6 @@ class SegmentManager extends EventEmitter{
   }
 
   bindOrders(orders){
-    console.log(orders);
     let self = this;
     for(let order of orders){
       order.list.observe(function(){
@@ -370,7 +390,7 @@ class SegmentManager extends EventEmitter{
       if (count === flattenWithComposites.length) {
         self.setSegments(synchedSegs,indexes);
         let value = flattenIndexes.map( elm => synchedSegs[elm.id].segment.toString() ).join("");
-        self.editor.setValue(value,1 );
+        self.editor.setValue(value,-1 );
         self.bindOrders(yjsSegmentChildrenLists);
 
         self.emitLoadingUpdate(count,flattenWithComposites.length);

@@ -38,6 +38,7 @@ class CodeEditor{
     //binding functions
     this.workspaceHandler = this.workspaceHandler.bind(this);
     this.orderChangeListener = this.orderChangeListener.bind(this);
+    this.cursorChangeHandler = this.cursorChangeHandler.bind(this);
     this.resizeHandler = this.resizeHandler.bind(this);
     this.feedback = this.feedback.bind(this);
 
@@ -133,6 +134,17 @@ class CodeEditor{
 
   }
 
+  cursorChangeHandler(){
+      this.traceHighlighter.updateCursor();
+  }
+
+  /**
+   * Unbinds all ace editor listeners
+   */
+
+  unbindAceEditor(){
+  }
+
   /**
   *	Binds the ace editor instance to the needed listener
   */
@@ -140,12 +152,8 @@ class CodeEditor{
   bindAceEditor(){
     let traceHighlighter = this.traceHighlighter;
 
-    this.editor.getSession().selection.on('changeCursor', (e)=>{
-      traceHighlighter.updateCursor();
-    });
-
     this.editor.on("change",this.segmentManager.editorChangeHandler.bind(this.segmentManager) );
-    this.editor.on("mouseup",() => this.traceHighlighter.updateActiveSegment() );
+    this.editor.on("mouseup", this.traceHighlighter.updateActiveSegment.bind(this.traceHighlighter) );
     this.editor.commands.setDefaultHandler("exec", this.commandDecorator.commandHandler.bind(this.commandDecorator) );
   }
 
@@ -254,7 +262,14 @@ class CodeEditor{
     });
 
     segmentManager.addSaveListener(function(segmentId){
-      self.workspace.delayedSaveFile(segmentManager.getTraceModel(), segmentManager.getModelInformation(segmentId,true) );
+      let modelInformation = segmentManager.getModelInformation(segmentId,true);
+      if(!modelInformation.modelName){
+        modelInformation= {
+          modelName :  Path.basename(self.workspace.getCurrentFile())
+        };
+      }
+      console.log(modelInformation);
+      self.workspace.delayedSaveFile(segmentManager.getTraceModel(), modelInformation );
     });
 
     return segmentManager;
@@ -376,6 +391,7 @@ class CodeEditor{
       this.traceHighlighter.renderCursors();
       this.setModalStatus(3);
       this.hideModal();
+      this.editor.getSession().selection.on('changeCursor', this.cursorChangeHandler );
       deferred.resolve();
     });
     return deferred.promise();
@@ -482,6 +498,7 @@ class CodeEditor{
   */
 
   open(fileName,reload=false){
+    this.editor.getSession().selection.removeListener('changeCursor', this.cursorChangeHandler );
     this.showModal();
     this.traceHighlighter.clearCursorMarkers();
     this.setModalStatus(0);

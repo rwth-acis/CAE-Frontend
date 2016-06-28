@@ -6,8 +6,10 @@ import Path from "path";
 import config from "./config.js";
 import ContentProvider from "./ContentProvider";
 
-//private yjs instance
+// private yjs instance
 let _y;
+// private flag used to not listen on my own changes of the Y.Map for the current file
+let _listenOnFileSpaceChanges = true;
 
 //private static helper
 function _createRoomName( fileName ){
@@ -19,10 +21,10 @@ function _initYjs( componentName ){
   return new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: _createRoomName( componentName ),
-    url: "http://192.168.2.101:1234"
+    url: "http://localhost:1234"
   },
   sourceDir: config.CodeEditorWidget.bower_components,
-  share:{'workspace':'Map','user':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
+  share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
 }
 
 /**
@@ -64,6 +66,8 @@ class Workspace extends EventEmitter{
     this.delayedSaveFile = Utils.debounce(this.saveFile, 2000);
     this.delayedSetRemoteCursor = Utils.debounce(this.setRemoteCursor, 15, false);
 
+    this.heartBeatIntervall = setInterval( ()=> {this.heartBeat()},2500);
+
   }
 
   /**
@@ -74,7 +78,7 @@ class Workspace extends EventEmitter{
 
   contentFeedbackHandler( message ,error){
     if(error && error.generationIdConflict){
-        this.open(this.getCurrentFile(), true);
+        this.codeEditor.open(this.getCurrentFile(), true);
     }
     //feedback is handled separately by their own handler in the workspace instance
     else if(!error || (error && !error.feedbackItems) ){
@@ -89,10 +93,10 @@ class Workspace extends EventEmitter{
     })
   }
 
-  createFileEntry(id,yjsType,map){
+  createFileEntry(id,yjsType,map,reload){
     let deferred = $.Deferred();
     let promise = map.get(id);
-    if (promise === undefined) {
+    if (promise === undefined || reload) {
       map.set(id,yjsType).then( (yjsObj) => {
         deferred.resolve(yjsObj);
       });
@@ -117,8 +121,17 @@ class Workspace extends EventEmitter{
     let promise = this.workspace.get(id);
 
     let fileSpaceInit = (map, newCreated=false) => {
-
       map.set("generationId",generationId);
+      map.observe( (events) => {
+        for(let event of events){
+          if(event.name == "reload"){
+            if(event.value == this.getUserId()){
+              map.set("reload",true);
+              _listenOnFileSpaceChanges = false;
+            }
+          }
+        }
+      });
 
       let entries = [];
       entries.push( this.createFileEntry("segmentValues",Y.Map,map) );
@@ -315,12 +328,13 @@ class Workspace extends EventEmitter{
       .then( data => this.getDecoratedFiles(data.files) );
   }
   /**
-   * Get the current participant list of the file
+   * Get the current participant list of the file. User that are longer than 30 seconds inactive are filtered
    * @return {object[]} - The list of the participants
    */
 
   getParticipants(){
-    return this.user.keys().map( (userId) => this.user.get(userId) ).filter( (user) => user.fileName == this.getCurrentFile() );
+    return this.user.keys().map( (userId) => this.user.get(userId) )
+    .filter( (user) => user.fileName == this.getCurrentFile() && (new Date()).getTime() - user.time <= 1000 * 30  );
   }
 
   /**
@@ -363,6 +377,20 @@ class Workspace extends EventEmitter{
   }
 
   /**
+   * Heartbeat for online participants
+   */
+
+  heartBeat(){
+    if( this.isRoleInitiated() && this.getCurrentFile().length > 0 && _y){
+      let user = this.user.get( this.getUserId() );
+      if(user){
+        user.time = new Date().getTime();
+        this.user.set( this.getUserId(), user);
+      }
+    }
+  }
+
+  /**
    * Method to handle potential model violations when a commit request was rejected
    * @param {String} message             - The message from the content provider after a request
    * @param {Object} [data]              - Optional data object containing the feedback of the model violation
@@ -370,7 +398,7 @@ class Workspace extends EventEmitter{
    */
 
   modelViolationFeedbackHandler(message, data){
-    if( data  ){
+    if( data && this.feedbackItems ){
       this.feedbackItems.set("data",data.feedbackItems || [] );
     }
   }
@@ -399,6 +427,8 @@ class Workspace extends EventEmitter{
     this.roleSpace.init().then( (spaceObj) => {
       this.roleInit = true;
       deferred.resolve();
+    }).fail( (e) => {
+      this.codeEditor.setEditorTitle(e.message);
     });
     return deferred.promise();
   }
@@ -429,80 +459,69 @@ class Workspace extends EventEmitter{
 
   loadFile(fileName, forceReload=false){
     let deferred = $.Deferred();
-    let token = true;
-    let once = true;
     if( !this.isRoleInitiated() ){
       deferred.reject( new Error("Not connected to the role space!") );
     }else{
       // just an anonymous function for reuse and privacy purpose
       let _loadFile = () => {
-        if(_y){
-          _y.destroy();
-        }
-
         let componentName = this.roleSpace.getComponentName();
         _initYjs(componentName).then( (y) => {
-            _y = y;
-            this.workspace = _y.share.workspace;
-            this.user = _y.share.user;
+          _y = y;
+          this.workspace = _y.share.workspace;
+          this.user = _y.share.user;
+          this.jobs = _y.share.jobs;
 
-            this.workspace.observe( (events) => {
-              for(event of events){
-                if(event.name === "generatedId"){
-                  //check if we need to reload
-                  if(token && event.value != event.oldValue){
-                    setTimeout( () => {
-                      this.codeEditor.open(fileName);
-                    });
-                  }else{
-                    token=true;
-                  }
-                  break;
-                }
+          this.jobs.observe( (events) =>{
+            for(let event of events){
+              console.log(event);
+              //we may already edit another file
+              if( event.name != this.getCurrentFile()){
+                return;
               }
-            });
-            this.codeEditor.setModalStatus(1);
-          })
-          .then( () => this.getFile(componentName, fileName ) )
-          .then( (traceModel) => {
-            this.codeEditor.setModalStatus(2);
-            if(traceModel.getGenerationId() != this.workspace.get("generatedId")){
-              forceReload=true;
-              token = false;
+              if(event.value.user == this.getUserId() && event.value.state == "pending"){
+                let job = event.value;
+                //acknowledge job
+                job.state ="received";
+                this.jobs.set( this.getCurrentFile(), job);
+                setTimeout( () => {
+                  this.codeEditor.open(this.getCurrentFile(),true).then( () => {
+                    //mark job as completed
+                    job.state = "completed";
+                    this.jobs.set( this.getCurrentFile(), job);
+                  });
+                });
+              }else if(event.value.user != this.getUserId() && event.value.state == "completed"){
+                //reload file after other use has reinitialized the file space
+                setTimeout( () => {
+                  this.codeEditor.open(this.getCurrentFile());
+                });
+              }
             }
-            this.processTraceModel(traceModel, forceReload)
-            .then( deferred.resolve )
-            .then( () => {
-              if(!token && forceReload){
-                this.workspace.set("generatedId",traceModel.getGenerationId());
-              }
-            });
-          },() => {
-            this.codeEditor.setModalStatus(0);
-            this.codeEditor.hideModal();
-            this.codeEditor.hideEditor();
-            this.codeEditor.setEditorTitle("File not found");
           });
+          this.codeEditor.setModalStatus(1);
+        })
+        .then( () => this.getFile(componentName, fileName ) )
+        .then( (traceModel) => {
+          this.codeEditor.setModalStatus(2);
+          this.processTraceModel(traceModel, forceReload)
+          .then( deferred.resolve );
+        },() => {
+          _y.destroy();
+          _y = null;
+          this.codeEditor.setModalStatus(0);
+          this.codeEditor.hideModal();
+          this.codeEditor.hideEditor();
+          this.codeEditor.setEditorTitle("File not found");
+        });
       }
       // if we are already connected to yjs room, we first need to delete the local user from the participant list
       if(_y){
-        this.cursors.set(this.getUserId(),-1);
-        if(this.user.get(this.roleSpace.getUserId().toString())){
-          _loadFile();
-        }else{
-          this.user.delete( this.roleSpace.getUserId().toString() );
-          this.user.observe(() => {
-            if( once ){
-              once = false;
-              _loadFile();
-            }else{
-              deferred.reject("Can only load file once");
-            }
-          });
-        }
-      }else{
-        _loadFile();
+        _y.destroy();
+        _y = null;
       }
+      setTimeout( () => {
+        _loadFile();
+      });
 
     }
 
@@ -515,8 +534,71 @@ class Workspace extends EventEmitter{
 
   modelUpdatedHandler(){
     if( this.getCurrentFile().length > 0){
-      //force reload
-      this.codeEditor.open(this.getCurrentFile(),true);
+      //first reload my own file
+      this.codeEditor.open(this.getCurrentFile(),true).then( () => {
+        let users = this.user.keys().map( (userId) => this.user.get(userId) ).sort( (userA,userB) => userB.time - userA.time);
+        let fileToUser = {};
+        for(let i=0;i<users.length;i++){
+          let file = users[i].fileName;
+          if( typeof fileToUser[file] == "undefined"){
+            fileToUser[file] = [];
+          }
+          fileToUser[file].push(users[i]);
+        }
+
+        for(let fileName in fileToUser){
+          if( fileName != this.getCurrentFile() ){
+            if(fileToUser.hasOwnProperty(fileName)){
+              let users = fileToUser[fileName];
+              let index = 0;
+              if(users && users[index]){
+
+                let lastActiveUser = users[index];
+                let _observer;
+                let _filename = fileName +"";
+                let reloaded = false;
+
+                let _reloadFile = ()=>{
+                  let job = {
+                    task : "reload",
+                    user : lastActiveUser.id,
+                    state : "pending"
+                  }
+
+                  _observer = (events) => {
+                    for(let event of events){
+                      if(event.name === _filename && event.value && event.value.state == "received"){
+                          reloaded = true;
+                      }
+                    }
+                  }
+                  this.jobs.observe( _observer );
+                  this.jobs.set(_filename,job);
+                  //check if job was received, and if not ask the next user for that file
+                  setTimeout( () => {
+                    if(!reloaded && index < users.length-1){
+                      this.jobs.unobserve( _observer );
+                      lastActiveUser = users[++index];
+                      _reloadFile();
+                    }
+                  }, 1000);
+                }
+
+                _reloadFile();
+
+              }
+            }
+          }else{
+            //inform other user that we have reloaded our file
+            let job = {
+              task : "reload",
+              user : this.getUserId(),
+              state : "completed"
+            }
+            this.jobs.set(fileName,job);
+          }
+        }
+      });
     }
   }
 
@@ -530,6 +612,7 @@ class Workspace extends EventEmitter{
   processTraceModel(traceModel, forceReload){
     return this.createFileSpace( traceModel.getGenerationId(), forceReload )
       .then( (workspaceMap, yjsSegmentMap, yjsSegmentRootList, newCreated) => {
+        //this.cursors.set(this.getUserId(),-1);
         let deferred = $.Deferred();
         let todos = this.createYArrays(traceModel.getIndexes(), workspaceMap);
         $.when.apply($,todos).then( function(){

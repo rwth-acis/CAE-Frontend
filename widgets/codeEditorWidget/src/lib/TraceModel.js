@@ -128,7 +128,9 @@ class TraceModel{
     }else{
       let modelName = model.name;
       if(withType && model.type && model.type.length > 0){
-        modelName = `${model.type}[${modelName}]`
+        if(model.type != modelName){
+          modelName = `${model.type}[${modelName}]`
+        }
       }
       return {modelId,modelName};
     }
@@ -137,12 +139,14 @@ class TraceModel{
   /**
    *	@typedef TraceModel~Model
    *	@type object
-   *	@property {string} name    - The name of the model element
-   *	@property {string} [type]  - An optional type of the model element
+   *	@property {string} modelId    - The id of the model element
+   *	@property {object} model      - The model element
+   *	@property {string} model.name - The name of the model element
+   *	@property {string} [model.type]  - An optional type of the model element
    */
 
   /**
-   *	Returns the model that is linked to the given segment. If we cant find a model for that segment and the segment does have a parent,
+   *	Returns the model and its model id that are linked to the given segment. If we cant find a model for that segment and the segment does have a parent,
    *	we try to findcthe model if its parent.
    *	@param {string} segmentId          - The segment of the id
    *	@return {TraceModel~Model|boolean} - The linked model or false if the model was not found

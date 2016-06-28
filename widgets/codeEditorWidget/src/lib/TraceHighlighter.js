@@ -84,16 +84,20 @@ class TraceHighlighter{
   }
 
   hideUserName(usr){
-    let id = `u${this.cursorMarkers[usr].id}`;
-    let self = this;
-    let cursor = $(`div#${id}`);
-    if(cursor.size() <= 0){
-      this.cursorMarkers[usr].hidden = true;
-      this.renderCursor(usr);
+    try{
+      let id = `u${this.cursorMarkers[usr].id}`;
+      let self = this;
+      let cursor = $(`div#${id}`);
+      if(cursor.size() <= 0){
+        this.cursorMarkers[usr].hidden = true;
+        this.renderCursor(usr);
+      }
+      $(`div#${id}`).fadeOut(400,function(){
+        self.cursorMarkers[usr].hidden = true;
+      });
+    }catch(e){
+
     }
-    $(`div#${id}`).fadeOut(400,function(){
-      self.cursorMarkers[usr].hidden = true;
-    });
   }
 
   render(){
