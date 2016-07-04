@@ -28,7 +28,7 @@ let _parseSegments = function(segments,text,s=0,depth=0,parent){
         }
       }
 
-      res[segment.id] = new CompositeSegment(segment.id,parent,segment.orderAble,subI.map( elm => subS[elm.id]), segment.type );
+      res[segment.id] = new CompositeSegment(segment.id,parent,subI.map( elm => subS[elm.id]), segment.type );
       indexes.push({id:segment.id,children:subI});
       s+=length;
 

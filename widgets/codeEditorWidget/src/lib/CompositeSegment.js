@@ -1,7 +1,8 @@
 import AbstractSegment from "./AbstractSegment";
 
 export default class CompositeSegment extends AbstractSegment{
-  constructor(id,parent,orderAble,children, type){
+  
+  constructor(id,parent,children, type){
     super(id,parent);
     this.children = children;
     this.type = type;

@@ -19,6 +19,7 @@ class TraceHighlighter{
   remoteCursorChangeHandler(name){
     try{
       if (name != this.workspace.getUserId()) {
+        //create a new cursor if it does not yet exists
         if (typeof this.cursorMarkers[name] === "undefined") {
           this.cursorMarkers[name]={
             id:this.userCount,
