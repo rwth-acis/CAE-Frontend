@@ -1,6 +1,6 @@
 import AbstractSegment from "./AbstractSegment";
 
-export default class Segment extends AbstractSegment{
+export default class UnprotectedSegment extends AbstractSegment{
   constructor(value,id,parent){
     super(id,parent);
     this.value=value;
