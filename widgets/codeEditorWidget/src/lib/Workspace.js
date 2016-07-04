@@ -8,8 +8,6 @@ import ContentProvider from "./ContentProvider";
 
 // private yjs instance
 let _y;
-// private flag used to not listen on my own changes of the Y.Map for the current file
-let _listenOnFileSpaceChanges = true;
 
 //private static helper
 function _createRoomName( fileName ){
@@ -21,7 +19,7 @@ function _initYjs( componentName ){
   return new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: _createRoomName( componentName ),
-    url: "http://localhost:1234"
+    url : "http://localhost:1234"
   },
   sourceDir: config.CodeEditorWidget.bower_components,
   share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
@@ -63,15 +61,15 @@ class Workspace extends EventEmitter{
     this.roleSpace.addModelUpdatedListener( this.modelUpdatedHandler );
 
     //defining debounced methods
-    this.delayedSaveFile = Utils.debounce(this.saveFile, 2000);
-    this.delayedSetRemoteCursor = Utils.debounce(this.setRemoteCursor, 15, false);
+    this.delayedSaveFile = Utils.debounce(this.saveFile, 3500);
+    this.delayedSetRemoteCursor = Utils.debounce(this.setRemoteCursor, 25, false);
 
-    this.heartBeatIntervall = setInterval( ()=> {this.heartBeat()},2500);
+    this.heartBeatIntervall = setInterval( ()=> {this.heartBeat()},2000);
 
   }
 
   /**
-  * The main handler for the content provider. Shows a snackbar notification
+  * The main handler for the content provider.
   * @param {string} message  - The message to display
   * @param {object} [error]  - Optional error object
   */
@@ -80,16 +78,13 @@ class Workspace extends EventEmitter{
     if(error && error.generationIdConflict){
         this.codeEditor.open(this.getCurrentFile(), true);
     }
-    //feedback is handled separately by their own handler in the workspace instance
-    else if(!error || (error && !error.feedbackItems) ){
-      this.codeEditor.feedback(message);
-    }
+    this.codeEditor.feedback(message);
   }
 
   createCursorsFileEntry(map){
-    return this.createFileEntry("cursor",Y.Map,map).then( cursor =>  {
-        cursor.observe(this.cursorChangeHandler.bind(this));
-        this.cursors = cursor;
+    return this.createFileEntry("cursors",Y.Map,map).then( cursors =>  {
+        cursors.observe(this.cursorChangeHandler.bind(this));
+        this.cursors = cursors;
     })
   }
 
@@ -122,16 +117,6 @@ class Workspace extends EventEmitter{
 
     let fileSpaceInit = (map, newCreated=false) => {
       map.set("generationId",generationId);
-      map.observe( (events) => {
-        for(let event of events){
-          if(event.name == "reload"){
-            if(event.value == this.getUserId()){
-              map.set("reload",true);
-              _listenOnFileSpaceChanges = false;
-            }
-          }
-        }
-      });
 
       let entries = [];
       entries.push( this.createFileEntry("segmentValues",Y.Map,map) );
@@ -156,7 +141,9 @@ class Workspace extends EventEmitter{
     }else{
       promise.then( (map) => {
         let fileId = map.get("generationId");
+        //are we are using an old file space?
         if(generationId != fileId){
+          //if so create a new one
           this.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
         }else{
           fileSpaceInit(map);
@@ -234,7 +221,7 @@ class Workspace extends EventEmitter{
   }
 
   /**
-   * Method to handle the updates on the remote cursors. Propagate the changed to the cursor listener of the workspace
+   * Method to handle the updates on the remote cursors. Propagate the changed cursors to the cursor listener of the workspace
    * @param{object[]} e - Yjs events
    */
 
@@ -253,10 +240,14 @@ class Workspace extends EventEmitter{
   doubleClickHandler(entityId){
     let componentName = this.roleSpace.getComponentName();
     this.contentProvider.getSegmentLocation(componentName, entityId).then( ({fileName, segmentId}) => {
-      this.codeEditor.open( fileName, false).then( () => {
+      if( fileName == this.getCurrentFile()){
         this.codeEditor.goToSegment(segmentId);
-        this.codeEditor.loadFiles(this.getCurrentPath());
-      });
+      }else{
+        this.codeEditor.open( fileName, false).then( () => {
+          this.codeEditor.goToSegment(segmentId);
+          this.codeEditor.loadFiles(this.getCurrentPath());
+        });
+      }
     });
   }
 
@@ -470,10 +461,9 @@ class Workspace extends EventEmitter{
           this.workspace = _y.share.workspace;
           this.user = _y.share.user;
           this.jobs = _y.share.jobs;
-
+          // listening for jobs
           this.jobs.observe( (events) =>{
             for(let event of events){
-              console.log(event);
               //we may already edit another file
               if( event.name != this.getCurrentFile()){
                 return;
@@ -545,7 +535,7 @@ class Workspace extends EventEmitter{
           }
           fileToUser[file].push(users[i]);
         }
-
+        //dispatch reload jobs
         for(let fileName in fileToUser){
           if( fileName != this.getCurrentFile() ){
             if(fileToUser.hasOwnProperty(fileName)){
@@ -666,15 +656,6 @@ class Workspace extends EventEmitter{
     this.contentProvider.saveFile(path, this.roleSpace.getComponentName() ,data)
     .fail( (error) => {console.error(error)} );
   }
-
-  /**
-   *	Update the feedback items such that all users can see them.
-   *	@param {object[]} feedbackItems  - The feedback to set
-   */
-
-  //setGuidances(feedbackItems){
-  //  this.feedbackItems.set("data",feedbackItems);
-  //}
 
   /**
    * Set and update the cursor index of this user in the yjs cursor map

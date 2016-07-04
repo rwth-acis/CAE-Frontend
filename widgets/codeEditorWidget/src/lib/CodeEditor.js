@@ -3,7 +3,6 @@ import HtmlTree from "./HtmlTree";
 import TraceHighlighter from "./TraceHighlighter";
 import CommandDecorator from "./CommandDecorator";
 import Workspace from "./Workspace";
-import ContentProvider from "./ContentProvider";
 import Path from "path";
 import {getParticipantColor} from "./Utils";
 import SideBar from "./SideBar";
@@ -25,7 +24,6 @@ class CodeEditor{
 
   constructor(editorId){
     //create needed data structures
-    this.contentProvider = new ContentProvider();
     this.workspace = new Workspace(this);
     this.editor = this.createAceEditor(editorId);
     this.segmentManager = this.createSegmentManager();
@@ -41,8 +39,6 @@ class CodeEditor{
     this.cursorChangeHandler = this.cursorChangeHandler.bind(this);
     this.resizeHandler = this.resizeHandler.bind(this);
     this.feedback = this.feedback.bind(this);
-
-    this.contentProvider.addEventListener( this.feedback );
 
     this.segmentManager.addChangeListener( (e) => {
       this.traceHighlighter.updateSegments(e);
@@ -127,14 +123,15 @@ class CodeEditor{
       e.preventDefault();
     });
 
-
     //bind resize handler
     $(window).resize(this.resizeHandler);
     this.resizeHandler();
 
   }
 
+
   cursorChangeHandler(){
+    // update my cursor position
       this.traceHighlighter.updateCursor();
   }
 
@@ -180,22 +177,14 @@ class CodeEditor{
   }
 
   /**
-  *	The feedback callback for the content provider. Shows a snackbar notification
+  *	Displays a snackbar notification with the given message
   *	@param {string} message  - The message to display
-  *	@param {object} [error]  - Optional error object
   */
 
-  feedback( message ,error){
+  feedback( message){
     let snackBar = document.querySelector("#snackbar");
-    if(error && error.generationIdConflict){
-        this.open(this.workspace.getCurrentFile(), true);
-
-    }
-    //feeback is handled separately by their own handler in the workspace instance
-    else if(!error || (error && !error.feedbackItems) ){
-      let snackbarData = {message};
-      snackBar.MaterialSnackbar.showSnackbar(snackbarData);
-    }
+    let snackbarData = {message};
+    snackBar.MaterialSnackbar.showSnackbar(snackbarData);
   }
 
   /**
