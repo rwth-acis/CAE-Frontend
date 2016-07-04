@@ -26,7 +26,6 @@ function nextTick(componentName){
 }
 
 function pollFiles(componentName){
-  console.log("poll");
   contentProvider.getLivePreviewFiles( componentName )
     .done( ( files ) => {
         processFiles( files ).always( () => {
@@ -145,11 +144,18 @@ function processFiles(files){
     let widgetFile = _fileDictionary["widget.xml"];
     let widgetFileXml = $.parseXML( widgetFile );
     let widgetFileDoc = $( widgetFileXml );
+    let height = widgetFileDoc.find("ModulePrefs:first").attr("height");
+    let width = widgetFileDoc.find("ModulePrefs:first").attr("width");
     let contentText = widgetFileDoc.find("Content:first").text();
 
     htmlDoc = $(contentText);
-    if( _hashes["widget.xml"] != getHash(contentText) ){
-      _hashes["widget.xml"] = getHash(contentText);
+    if( _hashes["widget.xml"] != getHash(widgetFile) ){
+      _hashes["widget.xml"] = getHash(widgetFile);
+
+      let inlineStyles = htmlDoc.filter("style[type='text/css']");
+      $("head style[type='text/css']").remove();
+      $("head").append(inlineStyles);
+
       let mainContent =  htmlDoc.closest("div").eq(0).html();
 
       //destroy old yjs instance before we can update the widget and initialize it again
@@ -158,6 +164,9 @@ function processFiles(files){
       }
 
       $("div#main-content").html( mainContent );
+
+      $("div#main-content").height(height);
+      gadgets.window.adjustHeight();
 
       if( typeof init === "function"){
         try{
@@ -174,3 +183,4 @@ function processFiles(files){
 
   return loadFiles(htmlDoc);
 }
+
