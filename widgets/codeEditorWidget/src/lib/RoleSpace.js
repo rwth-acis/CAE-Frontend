@@ -72,8 +72,7 @@ export default class RoleSpace extends EventEmitter{
     if(!!this.lastClick){
       if(entityId && this.lastEntityId == entityId){
         let diff = now - this.lastClick;
-        if(diff <= 500){
-          console.log(entityId);
+        if(diff <= 250){
           this.emit("doubleClickEvent",entityId);
         }
       }
