@@ -86,29 +86,6 @@ div#orderableSegments .jstree-children>ul>li.jstree-node{
   height:22px;
 }
 
-.username{
-  color:#ffffff;
-}
-
-.moveable{
-  position: absolute;
-  pointer-events: auto;
-  z-index: 1001; /* in front of all other markers */
-  cursor:move!important;
-  background-color: #ffffff;
-  background-image:url("./img/move-icon.png");
-  background-size:20px;
-  width:20px;
-  height:20px;
-}
-
-.moveObject{
-  border: 1px solid rgba(119,116,139,1);
-  position:absolute;
-  z-index:10000;
-  background: #ffffff;
-}
-
 .ace_highlight-unprotected{
   position: absolute; /* without this positions will be erong */
   border: 1px solid #dedede;
@@ -181,3 +158,6 @@ main.mdl-layout__content.onTop{
   display: block;
   z-index: 1009;
 }
+nav#files a {
+   white-space: nowrap;
+ }
