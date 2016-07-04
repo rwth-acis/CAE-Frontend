@@ -134,6 +134,7 @@ class ContentProvider extends EventEmitter{
    */
 
   saveFile(filename,repoName,{code,traces,changedSegment,user} ){
+
     repoName = repoName.replace(" ", "-");
     let encodedContent = new Buffer(code).toString('base64');
     let commitMessage = `${changedSegment} edited by ${user}`;
@@ -145,7 +146,7 @@ class ContentProvider extends EventEmitter{
     };
     //return $.Deferred();
     return $.ajax({
-      type: 'POST',
+      type: 'PUT',
       contentType: "application/json;charset=utf-8",
       url: `${config.GitHubProxyService.endPointBase}/${repoName}/file/`,
       data: JSON.stringify(requestData)
@@ -153,12 +154,14 @@ class ContentProvider extends EventEmitter{
       let message = `Changes saved`
       this.emit("event",message, data);
     }).fail( (status) =>{
-      console.log(status.status == 409, status.responseText)
       if(status.status == 409 && status.responseText.indexOf("Wrong generation id") > -1){
         let  message = `Error while saving: ${status.responseText}`;
         this.emit("event", message, {generationIdConflict:true});
-      }else{
+      }else if(status.responseText){
         let  message = `Error while saving: ${status.responseText}`;
+        this.emit("event", message, status);
+      }else{
+        let  message = `Error while saving`;
         this.emit("event", message, status);
       }
     });
