@@ -17,13 +17,13 @@
     "tests"
   ],
   "dependencies": {
-    "y-js": "*",
-    "y-map": "~8.0.4",
+    "yjs": "~10.0.3",
+    "y-map": "8.0.4",
     "ace-builds": "~1.2.3",
-    "y-array": "~8.1.2",
-    "y-memory": "~8.0.3",
-    "y-text": "~8.0.4",
-    "y-websockets-client": "~8.0.6",
+    "y-array": "8.1.2",
+    "y-memory": "8.0.3",
+    "y-text": "8.0.4",
+    "y-websockets-client": "8.0.6",
     "jquery": "~2.2.3",
     "material-design-lite": "~1.1.3",
     "jstree": "~3.3.1"
