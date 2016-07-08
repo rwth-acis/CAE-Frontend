@@ -25,7 +25,7 @@ class ContentProvider extends EventEmitter{
    */
 
   push(repoName){
-    repoName = repoName.replace(" ", "-");
+    repoName = repoName.split(" ").join("-");
     return $.ajax({
       type: 'PUT',
       contentType: "text/plain",
@@ -54,8 +54,7 @@ class ContentProvider extends EventEmitter{
 
   getLivePreviewFiles(modelName){
     let deferred = $.Deferred();
-
-    let repoName = modelName.replace(" ", "-");
+    let repoName = modelName.split(" ").join("-");
     $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/livePreviewFiles/`
     ).then(function(data){
@@ -78,9 +77,7 @@ class ContentProvider extends EventEmitter{
 
   getContent(modelName,fileName){
     let deferred = $.Deferred();
-
-    let repoName = modelName.replace(" ", "-");
-
+    let repoName = modelName.split(" ").join("-");
     $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/file/?file=${fileName}`
     ).then(function(data){
@@ -101,7 +98,7 @@ class ContentProvider extends EventEmitter{
    */
 
   getFiles(modelName,path=""){
-    let repoName = modelName.replace(" ", "-");
+    let repoName = modelName.split(" ").join("-");
     return $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/files?path=${path}`
     );
@@ -115,7 +112,7 @@ class ContentProvider extends EventEmitter{
    */
 
   getSegmentLocation(modelName,entityId){
-    let repoName = modelName.replace(" ", "-");
+    let repoName = modelName.split(" ").join("-");
 
     return $.getJSON(
       `${config.GitHubProxyService.endPointBase}/${repoName}/segment/${entityId}`
@@ -135,7 +132,7 @@ class ContentProvider extends EventEmitter{
 
   saveFile(filename,repoName,{code,traces,changedSegment,user} ){
 
-    repoName = repoName.replace(" ", "-");
+    repoName = repoName.split(" ").join("-");
     let encodedContent = new Buffer(code).toString('base64');
     let commitMessage = `${changedSegment} edited by ${user}`;
     let requestData = {
@@ -144,7 +141,6 @@ class ContentProvider extends EventEmitter{
       filename,
       commitMessage
     };
-    //return $.Deferred();
     return $.ajax({
       type: 'PUT',
       contentType: "application/json;charset=utf-8",
