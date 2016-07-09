@@ -1,7 +1,7 @@
 import {EventEmitter} from 'events';
 import {toPromise,waitPromise} from './Utils';
 import CONFIG from "./roleSpaceConfig";
-
+import openapp from "openapp";
 
 let resourceSpace = new openapp.oo.Resource(openapp.param.space());
 let resourceGetPromise = toPromise(openapp.resource.get);
@@ -18,7 +18,6 @@ export default class RoleSpace extends EventEmitter{
       this.iwcClient = new iwc.Client("ACTIVITY");
       this.iwcClient.connect( this.iwcHandler.bind(this) );
     }catch(e){
-      console.error(e);
     }
   }
 
