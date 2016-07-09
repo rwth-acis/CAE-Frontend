@@ -2,7 +2,7 @@
 
 ## Build steps
 1. Please make sure to have *npm*, *bower* and *grunt* already installed
-    * Use your favorite package manager or grab *npm* from [here][2]
+    * Use your favorite package manager to install *npm*
     * Use *npm* to install *bower*: ```npm install -g bower```
     * Use *npm* to first install grunt-cli and then grunt itself: ```npm install -g grunt-cli grunt```
 2. Install dependencies: ```bower install```
