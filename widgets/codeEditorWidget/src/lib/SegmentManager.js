@@ -234,7 +234,7 @@ class SegmentManager extends EventEmitter{
   /**
    * Get the list of segments that can be reordered.
    * Note: currently only html elements are orderable
-   * @return {Array}  - The list of segments that can be reordered. 
+   * @return {Array}  - The list of segments that can be reordered.
    */
 
   getOrderAbleSegments(){
@@ -264,7 +264,6 @@ class SegmentManager extends EventEmitter{
           opened : true
         }
       })
-      console.log("orderAble",res);
       return res;
     } );
 
@@ -384,8 +383,7 @@ class SegmentManager extends EventEmitter{
       this.buildOrders(indexes,segments);
     }
 
-
-    function finish(){
+    function _yield(){
       count++;
       if (count === flattenWithComposites.length) {
         self.setSegments(synchedSegs,indexes);
@@ -412,23 +410,21 @@ class SegmentManager extends EventEmitter{
       //distinguish between composites and text segments
       if ( segment instanceof CompositeSegment ) {
         synchedSegs[index]={id:index,segment:segment};
-        finish();
+        _yield();
       }else{
         if (!(segment instanceof ProtectedSegment)) {
           //create yText for segment if it does not already exists
           this.createSegValue(index,segment.toString()).then(function(yText){
-            let length  = yText.toString().length;
             synchedSegs[index]={id:index,yText,segment:segment};
             segment.setValue(yText.toString());
             //bind yText to Segment
             self.bindYTextSegment(segment,yText);
-            finish();
+            _yield();
           });
         }else{
           //segment is protected
-          //we use a "isProtected" property as it is faster than "instanceof ProtectedSegment"
-          synchedSegs[index]={id:index,segment:segment,isProtected:1};
-          finish();
+          synchedSegs[index]={id:index,segment:segment};
+          _yield();
         }
       }
     }
@@ -550,7 +546,7 @@ class SegmentManager extends EventEmitter{
 
   isProtected(segmentId){
     let binding = this.getSegmentByIdRaw(segmentId);
-    return  binding && binding.isProtected;
+    return  binding && binding.segment instanceof ProtectedSegment;
   }
 
   addSaveListener(listener){
