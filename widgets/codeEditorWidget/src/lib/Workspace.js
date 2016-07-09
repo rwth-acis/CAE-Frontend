@@ -22,7 +22,7 @@ function _initYjs( componentName ){
     url : "http://localhost:1234"
   },
   sourceDir: config.CodeEditorWidget.bower_components,
-  share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});//.then( deferred.resolve );
+  share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});
 }
 
 /**
