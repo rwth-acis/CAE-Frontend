@@ -7,6 +7,7 @@ import Path from "path";
 import {getParticipantColor} from "./Utils";
 import SideBar from "./SideBar";
 import FileList from "./FileList";
+import config from "./config.js";
 
 let Range = ace.require('ace/range').Range
 
@@ -50,7 +51,7 @@ class CodeEditor{
   }
 
   /**
-  *  The resize handler called when a window resize event is emitted. Updates the height of the div containing
+  *  A resize handler called when a window resize event is emitted. Updates the height of the div containing
   *  the mount point of the code editor and the height of the ace editor.
   */
 
@@ -63,7 +64,7 @@ class CodeEditor{
   }
 
   /**
-   *	A change handler called when the html elements of a widget was changed. Updates the html tree of the code editor
+   *	A change handler called when the order of html elements of a widget was changed. Updates the html tree of the code editor
    */
 
   orderChangeListener(){
@@ -210,13 +211,13 @@ class CodeEditor{
       $(this).addClass("clicked");
       let aceDoc = self.editor.getSession().getDocument();
       for(let seg of feedback.segments){
-      let id = seg.segmentId;
-      let offset = self.segmentManager.getSegmentStartIndex(id);
-      let start_ = aceDoc.indexToPosition(seg.start+offset,0);
-      let end_ = aceDoc.indexToPosition(seg.end+offset,0);
-      self.goToSegment(id);
-      self.editor.selection.setRange(new Range(start_.row, start_.column,end_.row, end_.column));
-    }
+        let id = seg.segmentId;
+        let offset = self.segmentManager.getSegmentStartIndex(id);
+        let start_ = aceDoc.indexToPosition(seg.start+offset,0);
+        let end_ = aceDoc.indexToPosition(seg.end+offset,0);
+        self.goToSegment(id);
+        self.editor.selection.setRange(new Range(start_.row, start_.column,end_.row, end_.column));
+      }
     }) );
     $("#feedbackTable").html(rows);
     $("#feedbackTablePanel").show();
@@ -257,7 +258,6 @@ class CodeEditor{
           modelName :  Path.basename(self.workspace.getCurrentFile())
         };
       }
-      console.log(modelInformation);
       self.workspace.delayedSaveFile(segmentManager.getTraceModel(), modelInformation );
     });
 
@@ -271,10 +271,9 @@ class CodeEditor{
    */
 
   createAceEditor(editorId){
-    ace.config.set('basePath', 'http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/ace-builds/src-noconflict');
+    ace.config.set('basePath', config.CodeEditorWidget.bower_components + 'ace-builds/src-noconflict');
     let editor = ace.edit(editorId);
     editor.$blockScrolling = Infinity;
-    editor.setOptions({enableBasicAutocompletion: false, enableLiveAutocompletion: false});
 
     //dirty way to disable the built-in undomanager completely
     //we need to build our on as we need to additionally store the affected segments
@@ -391,7 +390,7 @@ class CodeEditor{
    */
 
   init(){
-    this.workspace.init()
+    return this.workspace.init()
     .then( () => this.loadFiles() );
   }
 

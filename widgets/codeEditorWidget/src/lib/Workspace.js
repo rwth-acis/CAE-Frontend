@@ -77,8 +77,9 @@ class Workspace extends EventEmitter{
   contentFeedbackHandler( message ,error){
     if(error && error.generationIdConflict){
         this.codeEditor.open(this.getCurrentFile(), true);
+    }else if( !(error && error.feedbackItems) ){
+      this.codeEditor.feedback(message);
     }
-    this.codeEditor.feedback(message);
   }
 
   createCursorsFileEntry(map){
