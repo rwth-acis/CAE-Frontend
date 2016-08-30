@@ -68,7 +68,7 @@ function getMultiScripts(arr) {
         deferred.resolve();
       }else{
         let src = arr.shift();
-        $.getScript(src,loadSingle);
+        $.getScript(src,loadSingle).fail(loadSingle);
       }
   }
   loadSingle();
@@ -183,4 +183,3 @@ function processFiles(files){
 
   return loadFiles(htmlDoc);
 }
-
