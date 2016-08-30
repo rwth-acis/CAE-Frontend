@@ -1,3 +1,4 @@
+//Initial file can be found at: https://github.com/ajaxorg/ace-builds/blob/master/src/mode-xml.js
 ace.define("ace/mode/xml_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(require, exports, module) {
 "use strict";
 
