@@ -181,6 +181,7 @@ var loadModel = function(y) {
   function(data, type) {
     console.log("Model loaded!");
     y.share.data.set('model', data);
+    y.share.canvas.set('ReloadWidgetOperation', 'import');
     feedback("Model loaded, please refresh browser!");
   },
   function(error) {
