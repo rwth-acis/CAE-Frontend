@@ -35,13 +35,47 @@ var client,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null;
-    
+
 var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
-  
+
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+  if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+      spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+  }
+
+  Y({
+      db: {
+          name: 'memory' // store the shared data in memory
+      },
+      connector: {
+          name: 'websockets-client', // use the websockets connector
+          room: spaceTitle,
+          //url: 'https://yjs.dbis.rwth-aachen.de:5080'
+          url: 'http://yjs.dbis.rwth-aachen.de:5079'
+      },
+      share: { // specify the shared content
+          users: 'Map',
+          undo: 'Array',
+          redo: 'Array',
+          join: 'Map',
+          canvas: 'Map',
+          nodes: 'Map',
+          edges: 'Map',
+          userList: 'Map',
+          select: 'Map',
+          views: 'Map',
+          data: 'Map',
+          text: "Text"
+      },
+      sourceDir: 'http://localhost/frontendComponentPersistenceWidget/js'
+    }).then(function (y) {
+        console.info('PERSISTENCE: Yjs successfully initialized');
+
+
    // retrieve current model from the space and store it
   getData("my:ns:model").then(function(modelUris){
     if(modelUris.length > 0){
@@ -62,7 +96,7 @@ var init = function() {
   });
 
   $('#delete-model').on('click', function() {
-    resetCurrentModel();
+    resetCurrentModel(y);
   })
   $('#store-model').on('click', function() {
     storeModel();
@@ -70,24 +104,20 @@ var init = function() {
   $('#load-model').on('click', function() {
     loadModel();
   })
-}
+
+});
+
+};
 
 // deletes the current model (empties the current model of this space)
-var resetCurrentModel = function() {
-  $("#name").val("");
-  $("#version").val("");
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri,function(){
-          loadedModel = null;
-          feedback("Model reset, please refresh browser!");
-        });
-      });
-    } else {
-      feedback("No model!");
-    }
-  });
+var resetCurrentModel = function(y) {
+  if (y.share.data.get('model')) {
+    y.share.data.set('model', null);
+    y.share.canvas.set('ReloadWidgetOperation', 'delete');
+    feedback("Done!");
+  } else {
+    feedback("No model!")
+  }
 };
 
 // retrieves the JSON representation of this space
@@ -129,7 +159,7 @@ var storeModel = function() {
             function(error) {
               console.log(error);
               feedback(error);
-            });            
+            });
           }
         });
       } else {
@@ -188,7 +218,7 @@ var getData = function(type){
       deferred = $.Deferred();
 
   openapp.resource.get(spaceUri,(function(deferred){
-    
+
     return function(space){
       var resourceUri, resourceObj, values;
       for(resourceUri in space.data){
@@ -237,7 +267,7 @@ var generateRandomId = function(){
 
 // generates an attribute according to the SyncMeta specification
 var generateAttribute = function(name, value){
-  var attribute = 
+  var attribute =
   {
     "name": name,
     "id": "modelAttributes[" + name + "]",
