@@ -212,52 +212,50 @@ var storeModel = function() {
     feedback("Version has to be a number!");
     return;
   }
-  getData("my:ns:model").then(function(modelUris){
-      if(modelUris.length > 0){
-        $.get(modelUris[0]+"/:representation").done(function(data){
-          // add name, version and type to model
-          data.attributes.label.value.value = $("#name").val();
-          data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-          data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
-          if(loadedModel === null){
-            client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              // save currently loaded model
-              loadedModel = $("#name").val();
-              console.log("Model stored, retrieving communication view..");
-              // send request for communication model
-              client.sendRequest("GET", "commView/" + loadedModel, "", "", {},
-              function(data, type) {
-                console.log("retrieved communication model: " + data);
-              },
-              function(error) {
-                console.log(error);
-                feedback(error);
-              });
-              feedback("Communication view loaded, please refresh screen!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });
-          }
-          else{
-            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              console.log("Model updated!");
-              $("#deploy-model").prop('disabled',false);
-              feedback("Model updated!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });
-          }
+
+  if(y.share.data.get('model')){
+    var data = y.share.data.get('model');
+    // add name, version and type to model
+    data.attributes.label.value.value = $("#name").val();
+    data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+    data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+
+    if(loadedModel === null){
+      client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
+      function(data, type) {
+        // save currently loaded model
+        loadedModel = $("#name").val();
+        console.log("Model stored, retrieving communication view..");
+        // send request for communication model
+        client.sendRequest("GET", "commView/" + loadedModel, "", "", {},
+        function(data, type) {
+          console.log("retrieved communication model: " + data);
+        },
+        function(error) {
+          console.log(error);
+          feedback(error);
         });
-      } else {
-        feedback("No model!");
+        feedback("Communication view loaded, please refresh screen!");
+      },
+      function(error) {
+        console.log(error);
+        feedback(error);
+      });
+      } else{
+        client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
+        function(data, type) {
+          console.log("Model updated!");
+          $("#deploy-model").prop('disabled',false);
+          feedback("Model updated!");
+        },
+        function(error) {
+          console.log(error);
+          feedback(error);
+        });
       }
-  });
+  } else {
+    feedback("No model!");
+  }
 };
 
 // loads the model from a given JSON file and sets it as the space's model
