@@ -45,7 +45,7 @@ var init = function() {
   spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
         spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    }
+    };
 
     Y({
         db: {
@@ -183,7 +183,7 @@ var deployRequest = function(jobAlias){
 }
 
 // start the deployment process
-var deployModel = function(){
+var deployModel = function(y){
   getData("my:ns:model").then(function(modelUris){
       if(modelUris.length > 0 && loadedModel){
         $("#deploy-model").prop('disabled',true);
@@ -203,7 +203,7 @@ var deployModel = function(){
 }
 
 // retrieves the JSON representation of this space
-var storeModel = function() {
+var storeModel = function(y) {
   if($("#name").val().length == 0 || $("#version").val().length == 0){
     feedback("Please choose application name & version!");
     return;
