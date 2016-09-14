@@ -24,7 +24,7 @@
   <Content type="html">
   <![CDATA[
 <!--
-Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, 
+Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
 All rights reserved.
 
@@ -79,6 +79,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <link rel="stylesheet" href="http://localhost:80/microservicePersistenceWidget/css/style.css">
   <!-- import the client library -->
   <script type="text/javascript" src="http://localhost:80/microservicePersistenceWidget/js/las2peerWidgetLibrary.js"></script>
+  <!-- import yjs -->
+  <script type="text/javascript" src="http://localhost:80/microservicePersistenceWidget/js/yjs/y.js"></script>
   <!-- import application script -->
   <script type="text/javascript" src="http://localhost:80/microservicePersistenceWidget/js/applicationScript.js"></script>
 

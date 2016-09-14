@@ -79,6 +79,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <link rel="stylesheet" href="http://localhost:80/applicationPersistenceWidget/css/style.css">
   <!-- import the client library -->
   <script type="text/javascript" src="http://localhost:80/applicationPersistenceWidget/js/las2peerWidgetLibrary.js"></script>
+  <!-- import yjs -->
+  <script type="text/javascript" src="http://localhost:80/applicationPersistenceWidget/js/yjs/y.js"></script>
   <!-- import application script -->
   <script type="text/javascript" src="http://localhost:80/applicationPersistenceWidget/js/applicationScript.js"></script>
 
