@@ -99,10 +99,10 @@ var init = function() {
     resetCurrentModel(y);
   })
   $('#store-model').on('click', function() {
-    storeModel();
+    storeModel(y);
   })
   $('#load-model').on('click', function() {
-    loadModel();
+    loadModel(y);
   })
 
 });
@@ -121,7 +121,7 @@ var resetCurrentModel = function(y) {
 };
 
 // retrieves the JSON representation of this space
-var storeModel = function() {
+var storeModel = function(y) {
   if($("#name").val().length == 0 || $("#version").val().length == 0){
     feedback("Please choose frontend component name & version!");
     return;
@@ -130,59 +130,57 @@ var storeModel = function() {
     feedback("Version has to be a number!");
     return;
   }
-  getData("my:ns:model").then(function(modelUris){
-      if(modelUris.length > 0){
-        $.get(modelUris[0]+"/:representation").done(function(data){
-          // add name, version and type to model
-          data.attributes.label.value.value = $("#name").val();
-          data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-          data.attributes.attributes[generateRandomId()] = generateAttribute("type", "frontend-component");
-          if(loadedModel === null){
-            client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              // save currently loaded model
-              loadedModel = $("#name").val();
-              console.log("Model stored!");
-              feedback("Model stored!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });
-          }
-          else{
-            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              console.log("Model updated!");
-              feedback("Model updated!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });
-          }
+
+  if(y.share.data.get('model')){
+      var data = y.share.data.get('model');
+      // add name, version and type to model
+      data.attributes.label.value.value = $("#name").val();
+      data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+      data.attributes.attributes[generateRandomId()] = generateAttribute("type", "frontend-component");
+
+      if(loadedModel === null){
+        client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
+        function(data, type) {
+          // save currently loaded model
+          loadedModel = $("#name").val();
+          console.log("Model stored!");
+          feedback("Model stored!");
+        },
+        function(error) {
+          console.log(error);
+          feedback(error);
         });
-      } else {
-        feedback("No model!");
+      } else{
+        client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
+        function(data, type) {
+          console.log("Model updated!");
+          feedback("Model updated!");
+        },
+        function(error) {
+          console.log(error);
+          feedback(error);
+        });
       }
-  });
+  } else {
+    feedback("No model!");
+  }
 };
 
 // loads the model from a given JSON file and sets it as the space's model
-var loadModel = function() {
+var loadModel = function(y) {
   if($("#name").val().length == 0){
     feedback("Please choose model name!");
     return;
   }
   // first, clean the current model
-  yjs.data.set('model', null);
+  y.share.data.set('model', null);
 
   // now read in the file content
   modelName = $("#name").val();
   client.sendRequest("GET", modelName, "", "", {},
   function(data, type) {
     console.log("Model loaded!");
-    yjs.data.set('model', data);
+    y.share.data.set('model', data);
     feedback("Model loaded, please refresh browser!");
   },
   function(error) {
