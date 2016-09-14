@@ -42,57 +42,80 @@ var init = function() {
   };
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
 
-  // retrieve current model from the space and store it
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      $.get(modelUris[0]+"/:representation").done(function(data){
-        loadedModel = data.attributes.label.value.value;
-        // special case if model was only saved in the space (not loaded from db)
-        if(loadedModel == "Model attributes"){
-          loadedModel = null;
-          feedback("Model was not loaded from database until now..");
-        } else{
-          $("#name").val(loadedModel);
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+    }
+
+    Y({
+        db: {
+            name: 'memory' // store the shared data in memory
+        },
+        connector: {
+            name: 'websockets-client', // use the websockets connector
+            room: spaceTitle,
+            //url: 'https://yjs.dbis.rwth-aachen.de:5080'
+            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+        },
+        share: { // specify the shared content
+            users: 'Map',
+            undo: 'Array',
+            redo: 'Array',
+            join: 'Map',
+            canvas: 'Map',
+            nodes: 'Map',
+            edges: 'Map',
+            userList: 'Map',
+            select: 'Map',
+            views: 'Map',
+            data: 'Map',
+            text: "Text"
+        },
+        sourceDir: 'http://localhost/frontendComponentPersistenceWidget/js'
+    }).then(function(y) {
+        console.info('PERSISTENCE: Yjs successfully initialized');
+
+        // retrieve current model from the space and store it
+        if (y.share.data.get('model')) {
+            var data = y.share.data.get('model');
+            loadedModel = data.attributes.label.value.value;
+            // special case if model was only saved in the space (not loaded from db)
+            if (loadedModel == "Model Attributes") {
+                loadedModel = null;
+                feedback("Model was not loaded from database until now..");
+            } else {
+                $("#name").val(loadedModel);
+            }
+        } else {
+            loadedModel = null;
         }
-      });
-    }
-    else{
-      loadedModel = null;
-    }
-  });
 
-  $('#delete-model').on('click', function() {
-    resetCurrentModel();
-  })
-  $('#store-model').on('click', function() {
-    storeModel();
-  })
-  $('#load-model').on('click', function() {
-    loadModel();
-  })
-
-  $('#deploy-model').on('click',function(){
-    deployModel();
-  })
-}
+        $('#delete-model').on('click', function() {
+          resetCurrentModel(y);
+        })
+        $('#store-model').on('click', function() {
+          storeModel(y);
+        })
+        $('#load-model').on('click', function() {
+          loadModel(y);
+        })
+        $('#deploy-model').on('click',function(){
+          deployModel(y);
+        })
+    });
+};
 
 // deletes the current model (empties the current model of this space)
-var resetCurrentModel = function() {
-  $("#name").val("");
-  $("#version").val("");
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri,function(){
-          loadedModel = null;
-          feedback("Model reset, please refresh browser!");
-        });
-      });
+var resetCurrentModel = function(y) {
+    if (y.share.data.get('model')) {
+        y.share.data.set('model', null);
+        y.share.canvas.set('ReloadWidgetOperation', 'delete');
+        feedback("Done!");
     } else {
-      feedback("No model!");
+        feedback("No model!")
     }
-  });
 };
+
 var pendingDots = 0;
 var getJobConsoleText = function(queueItem,jobAlias){
   client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "application/json", {},
@@ -238,38 +261,27 @@ var storeModel = function() {
 };
 
 // loads the model from a given JSON file and sets it as the space's model
-var loadModel = function() {
-  if($("#name").val().length == 0){
-    feedback("Please choose model name!");
-    return;
-  }
-  // first, clean the current model
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri);
-      });
+var loadModel = function(y) {
+    if ($("#name").val().length == 0) {
+        feedback("Please choose model name!");
+        return;
     }
+    // first, clean the current model
+    y.share.data.set('model', null);
+
     // now read in the file content
     modelName = $("#name").val();
     client.sendRequest("GET", modelName, "", "", {},
-    function(data, type) {
-      console.log("Model loaded!");
-      resourceSpace.create({
-        relation: openapp.ns.role + "data",
-        type: "my:ns:model",
-        representation: data,
-        callback: function(){
-          feedback("Model loaded, please refresh browser!");
-        }
-      });
-    },
-    function(error) {
-      console.log(error);
-      feedback(error);
-    });
-
-  });
+        function(data, type) {
+            console.log("Model loaded!");
+            y.share.data.set('model', data);
+            y.share.canvas.set('ReloadWidgetOperation', 'import');
+            feedback("Model loaded, please refresh browser!");
+        },
+        function(error) {
+            console.log(error);
+            feedback(error);
+        });
 };
 
 $(document).ready(function() {
