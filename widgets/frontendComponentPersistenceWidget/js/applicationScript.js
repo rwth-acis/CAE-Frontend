@@ -175,31 +175,19 @@ var loadModel = function() {
     return;
   }
   // first, clean the current model
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri);
-      });
-    }
-    // now read in the file content
-    modelName = $("#name").val();
-    client.sendRequest("GET", modelName, "", "", {},
-    function(data, type) {
-      console.log("Model loaded!");
-      resourceSpace.create({
-        relation: openapp.ns.role + "data",
-        type: "my:ns:model",
-        representation: data,
-        callback: function(){
-          feedback("Model loaded, please refresh browser!");
-        }
-      });
-    },
-    function(error) {
-      console.log(error);
-      feedback(error);
-    });
+  yjs.data.set('model', null);
 
+  // now read in the file content
+  modelName = $("#name").val();
+  client.sendRequest("GET", modelName, "", "", {},
+  function(data, type) {
+    console.log("Model loaded!");
+    yjs.data.set('model', data);
+    feedback("Model loaded, please refresh browser!");
+  },
+  function(error) {
+    console.log(error);
+    feedback(error);
   });
 };
 
