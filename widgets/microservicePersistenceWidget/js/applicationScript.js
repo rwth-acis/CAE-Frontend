@@ -119,7 +119,7 @@ var resetCurrentModel = function(y) {
 // retrieves the JSON representation of this space
 var storeModel = function(y) {
     if ($("#name").val().length == 0 || $("#version").val().length == 0) {
-        feedback("Please choose frontend component name & version!");
+        feedback("Please choose microservice name & version!");
         return;
     }
     if (isNaN($("#version").val())) {
@@ -132,7 +132,7 @@ var storeModel = function(y) {
         // add name, version and type to model
         data.attributes.label.value.value = $("#name").val();
         data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-        data.attributes.attributes[generateRandomId()] = generateAttribute("type", "frontend-component");
+        data.attributes.attributes[generateRandomId()] = generateAttribute("type", "microservice");
 
         if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},

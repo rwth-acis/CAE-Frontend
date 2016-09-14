@@ -71,7 +71,7 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: 'http://localhost/frontendComponentPersistenceWidget/js'
+        sourceDir: 'http://localhost/applicationPersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
