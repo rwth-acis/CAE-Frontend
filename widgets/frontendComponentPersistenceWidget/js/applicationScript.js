@@ -81,7 +81,7 @@ var init = function() {
             var data = y.share.data.get('model');
             loadedModel = data.attributes.label.value.value;
             // special case if model was only saved in the space (not loaded from db)
-            if (loadedModel == "Model attributes") {
+            if (loadedModel == "Model Attributes") {
                 loadedModel = null;
                 feedback("Model was not loaded from database until now..");
             } else {
