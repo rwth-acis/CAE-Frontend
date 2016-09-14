@@ -77,23 +77,20 @@ var init = function() {
 
 
    // retrieve current model from the space and store it
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      $.get(modelUris[0]+"/:representation").done(function(data){
-        loadedModel = data.attributes.label.value.value;
-        // special case if model was only saved in the space (not loaded from db)
-        if(loadedModel == "Model attributes"){
-          loadedModel = null;
-          feedback("Model was not loaded from database until now..");
-        } else{
-          $("#name").val(loadedModel);
-        }
-      });
-    }
-    else{
+  if(y.share.data.get('model')){
+    var data = y.share.data.get('model');
+    loadedModel = data.attributes.label.value.value;
+    // special case if model was only saved in the space (not loaded from db)
+    if(loadedModel == "Model attributes"){
       loadedModel = null;
+      feedback("Model was not loaded from database until now..");
+    } else{
+      $("#name").val(loadedModel);
     }
-  });
+  }
+  else{
+    loadedModel = null;
+  }
 
   $('#delete-model').on('click', function() {
     resetCurrentModel(y);
