@@ -40,7 +40,7 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
+  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE", iwcCallback);
 
   spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
@@ -184,22 +184,16 @@ var deployRequest = function(jobAlias){
 
 // start the deployment process
 var deployModel = function(y){
-  getData("my:ns:model").then(function(modelUris){
-      if(modelUris.length > 0 && loadedModel){
-        $("#deploy-model").prop('disabled',true);
-        $.get(modelUris[0]+"/:representation").done(function(data){
-          // add name, version and type to model
-          data.attributes.label.value.value = $("#name").val();
-          data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-          data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
-
-          deployRequest("Build");
-
-          });
-      } else {
-        feedback("No model!");
-      }
-  });
+  var data = y.share.data.get('model');
+  if (data && loadedModel) {
+    $("#deploy-model").prop('disabled',true);
+    data.attributes.label.value.value = $("#name").val();
+    data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+    data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+    deployRequest("Build");
+  } else {
+    feedback("No model!");
+  }
 }
 
 // retrieves the JSON representation of this space
@@ -221,13 +215,13 @@ var storeModel = function(y) {
     data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
 
     if(loadedModel === null){
-      client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
+      client.sendRequest("POST", "models", JSON.stringify(data), "application/json", {},
       function(data, type) {
         // save currently loaded model
         loadedModel = $("#name").val();
         console.log("Model stored, retrieving communication view..");
         // send request for communication model
-        client.sendRequest("GET", "commView/" + loadedModel, "", "", {},
+        client.sendRequest("GET", "models/commView/" + loadedModel, "", "", {},
         function(data, type) {
           console.log("retrieved communication model: " + data);
         },
@@ -242,7 +236,7 @@ var storeModel = function(y) {
         feedback(error);
       });
       } else{
-        client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
+        client.sendRequest("PUT", "models/" + loadedModel, JSON.stringify(data), "application/json", {},
         function(data, type) {
           console.log("Model updated!");
           $("#deploy-model").prop('disabled',false);
@@ -269,7 +263,7 @@ var loadModel = function(y) {
 
     // now read in the file content
     modelName = $("#name").val();
-    client.sendRequest("GET", modelName, "", "", {},
+    client.sendRequest("GET", "models/" + modelName, "", "", {},
         function(data, type) {
             console.log("Model loaded!");
             y.share.data.set('model', data);
