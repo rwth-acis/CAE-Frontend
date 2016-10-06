@@ -2,21 +2,21 @@
  * Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, Chair
  * of Computer Science 5 (Databases & Information Systems), RWTH Aachen
  * University, Germany All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * Neither the name of the ACIS Group nor the names of its contributors may be
  * used to endorse or promote products derived from this software without
  * specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -35,32 +35,72 @@ var client;
 // until the iwc callback can be executed (which needs this name)
 var lastMicroserviceName;
 
+// hold a yjs reference
+var yRef;
+
 var init = function() {
+
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+    }
+
+    Y({
+        db: {
+            name: 'memory' // store the shared data in memory
+        },
+        connector: {
+            name: 'websockets-client', // use the websockets connector
+            room: spaceTitle,
+            //url: 'https://yjs.dbis.rwth-aachen.de:5080'
+            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+        },
+        share: { // specify the shared content
+            users: 'Map',
+            undo: 'Array',
+            redo: 'Array',
+            join: 'Map',
+            canvas: 'Map',
+            nodes: 'Map',
+            edges: 'Map',
+            userList: 'Map',
+            select: 'Map',
+            views: 'Map',
+            data: 'Map',
+            text: "Text"
+        },
+        sourceDir: 'http://localhost/microservicePersistenceWidget/js'
+    }).then(function(y) {
+        console.info('PERSISTENCE: Yjs successfully initialized');
+        yRef = y;
+    });
 
   var iwcCallback = function(intent) {
     // catch node creation message to add label to node
-    if(intent.extras.payload.data != null && intent.extras.payload.data.type != null 
-        && intent.extras.payload.data.type == "insert" && intent.extras.payload.data.value != null 
+    if(intent.extras.payload.data != null && intent.extras.payload.data.type != null
+        && intent.extras.payload.data.type == "insert" && intent.extras.payload.data.value != null
         && intent.extras.payload.data.name != null && intent.extras.payload.data.name.indexOf("node:") !=-1){
       // TODO: Parse twice...something is not right with the original format it seems..
       var value = $.parseJSON($.parseJSON(intent.extras.payload.data.value));
       if(value.type == "Microservice"){
         var nodeId = intent.extras.payload.data.name.substring(intent.extras.payload.data.name.indexOf("node:")+5);
-        client.sendMicroserviceName(lastMicroserviceName, nodeId);
+        client.sendMicroserviceName(lastMicroserviceName, nodeId, yRef);
       }
     }
   };
 
   client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
+
+
 }
 
 
 /**
- * 
+ *
  * Calls the persistence service first for a list of services,
  * then retrieves all services and adds all microservices
  * to the microservice table.
- * 
+ *
  */
 var getServices = function() {
   client.sendRequest("GET", "", "", "application/json", {},
@@ -81,13 +121,13 @@ var getServices = function() {
             }
           });
           if(type == "microservice"){
-          $("#microserviceTable").append("<tr><td>" + name + 
+          $("#microserviceTable").append("<tr><td>" + name +
             "</td><td>" + version + "</td></tr>");
           // make table rows "clickable"
           $("#microserviceTable").find("tr").click(function() {
             // get the name
             var name = $(this).find("td").get(0).innerHTML;
-            sendMicroserviceNode();
+            sendMicroserviceNode(yRef);
             lastMicroserviceName = name; // used in IWC response
           });
           }
@@ -104,13 +144,13 @@ var getServices = function() {
 
 
 /**
- * 
+ *
  * Calls the client function that sends a
  * "microservice was selected" signal to SyncMeta.
- * 
+ *
  */
-var sendMicroserviceNode = function() {
-  client.sendMicroserviceSelected();
+var sendMicroserviceNode = function(y) {
+  client.sendMicroserviceSelected(y);
 }
 
 

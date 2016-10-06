@@ -2,21 +2,21 @@
  * Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, Chair
  * of Computer Science 5 (Databases & Information Systems), RWTH Aachen
  * University, Germany All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * Neither the name of the ACIS Group nor the names of its contributors may be
  * used to endorse or promote products derived from this software without
  * specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -52,7 +52,7 @@ function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
 
 /**
  * Sends an AJAX request to a resource.
- * 
+ *
  * @override
  * @this {Las2peerWidgetLibrary}
  * @param {string}
@@ -144,11 +144,29 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
  * next click there will add a microservice to the canvas.
  *
  */
-Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
+Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(y) {
+  var node = {};
+  //node.id = data.nodes[0].name;
   // element creation
-  var time = new Date().getTime();
-  var data = JSON.stringify({selectedToolName: "Microservice"});
-  var intent = {
+  //var time = new Date().getTime();
+  var json = JSON.stringify({selectedToolName: "Microservice"});
+  //var data = {};
+
+
+  node.id = null;
+  node.type = "Microservice"
+  node.left = 2000;
+  node.top = 2000;
+  node.width = 100;
+  node.height = 100;
+  node.zIndex = 10;
+
+  y.share.canvas.set("NodeAddOperation",node);
+
+  //y.share.canvas.set("ToolSelectOperation", data);
+
+
+  /*var intent = {
     "component": "MAIN",
     "data": "",
     "dataType": "",
@@ -157,7 +175,10 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
     "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
     "sender": "MICROSERVICE_SELECT_WIDGET"
   };
-  this.iwcClient.publish(intent);
+  */
+  //this.iwcClient.publish(intent);
+
+  //y.share.canvas.set("NodeAddOperation",node);
 };
 
 
@@ -166,45 +187,10 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
  * Sends the microservices label to SyncMeta.
  *
  */
-Las2peerWidgetLibrary.prototype.sendMicroserviceName = function(microserviceName, nodeId) {
-  var time = new Date().getTime();
-  var microserviceArray = microserviceName.split('');
-  var arrayLength = microserviceArray.length;
-  var payload = [];
-  payload.length = arrayLength;
-  for (var i = 0; i < arrayLength; i++) {
+Las2peerWidgetLibrary.prototype.sendMicroserviceName = function(microserviceName, nodeId, y) {
   var data = {};
-  data.name = "val:" + nodeId + "[label]";
-  data.position = i;
-  data.type = "insert";
-  data.value = microserviceArray[i];
-  var singlePayload = {};
-  
-  singlePayload.data = data;
-  singlePayload.type = "OTOperation";
-  singlePayload.sender = null;
-  payload[i] = singlePayload;
-  }
-  var intent = {
-    "component": "MAIN",
-    "data": "",
-    "dataType": "",
-    "action": "ACTION_DATA_ARRAY",
-    "flags": ["PUBLISH_LOCAL"],
-    "extras": {"payload":payload, "time":time},
-    "sender": "MICROSERVICE_SELECT_WIDGET"
-  };
-  this.iwcClient.publish(intent);
-  intent = {
-    "component": "ATTRIBUTE",
-    "data": "",
-    "dataType": "",
-    "action": "ACTION_DATA_ARRAY",
-    "flags": ["PUBLISH_LOCAL"],
-    "extras": {"payload":payload, "time":time},
-    "sender": "MICROSERVICE_SELECT_WIDGET"
-  };
-  this.iwcClient.publish(intent);
+  data.id = nodeId;
+  //y.share.canvas.set("NodeAddOperation", data);
 };
 
 

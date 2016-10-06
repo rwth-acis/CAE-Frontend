@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Microservice Select Widget" description="This widget loads microservices from the CAE Model Persistence Service."
-    author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
-    width="500" height="600">
+  <ModulePrefs title="Live Code Editor"
+    description="This widget provides the actual live code editing facilities for model-based community web applications."
+    author="Thomas Winkler" author_email="winkler@dbis.rwth-aachen.de"
+    width="800" height="500">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>
@@ -58,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Microservice Select Widget</title>
+  <title>Model Persistence Widget</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -67,44 +68,29 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <!-- Bootstrap stylesheet import -->
-  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-
-  <!-- import jQuery for AJAX calls -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- OpenApp import -->
+  <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
   <!-- Inter Widget Communication library import-->
-  <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
-  <!-- style information -->
-  <link rel="stylesheet" href="http://localhost:80/microserviceSelectWidget/css/style.css">
-  <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/yjs/y.js"></script>
-  <!-- import the client library -->
-  <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js"></script>
-  <!-- import application script -->
-  <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/applicationScript.js"></script>
 
+  <script type="text/javascript" src="http://localhost/liveCodeEditorWidget/iwc.js"></script>
+  <!-- <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script> -->
+  <!-- import the client library -->
+
+  <!-- Additional widget specific imports -->
+  <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+  <script type="text/javascript" src="http://localhost/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
 </head>
 <body>
-
-  <!-- Container for actual page content -->
-  <div class="container" id="main-content">
-    <div class="scrolltable">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Version</th>
-          </tr>
-        </thead>
-        <tbody id="microserviceTable">
-        </tbody>
-      </table>
-    </div>
-  </div>
-
+      <script type="text/javascript">
+        window.localStorage.componentType = "frontendComponent";
+      </script>
+      <script type="text/javascript" src="http://localhost/liveCodeEditorWidget/dist/livePreview.dev.js"></script>
+      <div id="main-content">
+      </div>
 </body>
 </html>
-
   ]]>
   </Content>
-
 </Module>
