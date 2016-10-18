@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>QUnit Example</title>
+  <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-2.0.0.css">
+<script tpye="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.9.1/polyfill.min.js"></script>
+  <!-- OpenApp import -->
+  <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+  <!-- Inter Widget Communication library import-->
+  <script type="text/javascript" src="../iwc.js"></script>
+  <!-- <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script> -->
+  <!-- import the client library -->
+
+
+  <!-- Additional widget specific imports -->
+  <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+  <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="../bower_components/yjs/y.js"></script>
+  <script type="text/javascript" src="../bower_components/ace-builds/src-noconflict/ace.js"></script>
+  <script type="text/javascript" src="../mode-xml.js"></script>
+  <script type="text/javascript" src="../bower_components/material-design-lite/material.min.js"></script>
+  <script type="text/javascript" src="../bower_components/jstree/dist/jstree.min.js"></script>
+  <link rel="stylesheet" href="../bower_components/material-design-lite/material.min.css">
+  <link rel="stylesheet" href="../bower_components/jstree/dist/themes/default/style.min.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="../css/style.css">
+
+</head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+  <div id="editor1" style="display:none"></div>
+  <div id="sidebar">
+    <div class="mdl-card mdl-shadow--2dp editor" style="width:100%" id="sidebar-panel">
+    </div>
+  </div>
+  <script src="http://code.jquery.com/qunit/qunit-2.0.0.js"></script>
+  <script src="../dist/specs.js"></script>
+</body>
+</html>
