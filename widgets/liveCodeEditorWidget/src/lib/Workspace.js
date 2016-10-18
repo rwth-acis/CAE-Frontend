@@ -19,7 +19,7 @@ function _initYjs( componentName ){
   return new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: _createRoomName( componentName ),
-    url : "http://localhost:1234"
+    url : "http://yjs.dbis.rwth-aachen.de:5079"
   },
   sourceDir: config.CodeEditorWidget.bower_components,
   share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});

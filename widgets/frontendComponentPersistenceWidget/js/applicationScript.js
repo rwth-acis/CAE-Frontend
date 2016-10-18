@@ -71,7 +71,7 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: 'http://localhost/frontendComponentPersistenceWidget/js'
+        sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/widgets/frontendComponentPersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
@@ -81,7 +81,7 @@ var init = function() {
             var data = y.share.data.get('model');
             loadedModel = data.attributes.label.value.value;
             // special case if model was only saved in the space (not loaded from db)
-            if (loadedModel == "Model Attributes") {
+            if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
                 loadedModel = null;
                 feedback("Model was not loaded from database until now..");
             } else {
@@ -133,6 +133,8 @@ var storeModel = function(y) {
         data.attributes.label.value.value = $("#name").val();
         data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
         data.attributes.attributes[generateRandomId()] = generateAttribute("type", "frontend-component");
+        y.share.data.set('model',data)
+        y.share.canvas.set('ReloadWidgetOperation', 'import');
 
         if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},

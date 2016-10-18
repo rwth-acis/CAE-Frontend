@@ -1,6 +1,7 @@
 import {EventEmitter} from 'events';
 import {toPromise,waitPromise} from './Utils';
 import CONFIG from "./roleSpaceConfig";
+import config from "./config.js";
 import openapp from "openapp";
 
 let resourceSpace = new openapp.oo.Resource(openapp.param.space());
@@ -19,6 +20,48 @@ export default class RoleSpace extends EventEmitter{
       this.iwcClient.connect( this.iwcHandler.bind(this) );
     }catch(e){
     }
+
+    // init Yjs
+    var spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+    }
+
+    var self = this
+
+    this.yInitCallback = function() {}
+
+    Y({
+        db: {
+            name: 'memory' // store the shared data in memory
+        },
+        connector: {
+            name: 'websockets-client', // use the websockets connector
+            room: spaceTitle,
+            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+        },
+        share: { // specify the shared content
+            users: 'Map',
+            undo: 'Array',
+            redo: 'Array',
+            join: 'Map',
+            canvas: 'Map',
+            nodes: 'Map',
+            edges: 'Map',
+            userList: 'Map',
+            select: 'Map',
+            views: 'Map',
+            data: 'Map',
+            text: "Text"
+        },
+        sourceDir: config.CodeEditorWidget.bower_components
+    }).then(function(y) {
+        console.info('LIVEEDIT: Yjs successfully initialized');
+
+        self.y = y
+
+        self.yInitCallback()
+    });
   }
 
   iwcSendActivity(entityId,changedComponent){
@@ -49,6 +92,7 @@ export default class RoleSpace extends EventEmitter{
   iwcHandler(indent){
     let {action,extras:{payload}} = indent;
     if( action === "MODEL_UPDATED"){
+      console.log('MODELU PDATED EVENT')
       this.emit("modelUpdatedEvent");
     }
     else if(payload){
@@ -98,25 +142,34 @@ export default class RoleSpace extends EventEmitter{
   }
 
   getModelResource(){
-    let deferred = $.Deferred();
-    resourceSpace.getSubResources({
-      relation: openapp.ns.role + "data",
-      type: CONFIG.NS.MY.MODEL,
-      onAll: function(data) {
-        if(data === null || data.length === 0){
-          deferred.resolve({});
-        } else {
-          data[0].getRepresentation("rdfjson",function(representation){
-            if(!representation){
-              //if no representation is found, return an empty object
-              deferred.resolve({});
-            } else {
-              deferred.resolve(representation);
-            }
-          });
-        }
+    function getFromYjs(y, deferred) {
+      if (y.share.data.get('model')) {
+          var data = y.share.data.get('model');
+          var loadedModel = data.attributes.label.value.value;
+          // special case if model was only saved in the space (not loaded from db)
+          if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+              deferred.resolve({})
+          } else {
+              deferred.resolve(data)
+          }
+      } else {
+        //if no representation is found, return an empty object
+        deferred.resolve({});
       }
-    });
+    }
+
+    let deferred = $.Deferred();
+
+    if (this.y == undefined) {
+      var self = this
+      this.yInitCallback = function() {
+        getFromYjs(self.y, deferred)
+      }
+    }
+    else {
+      getFromYjs(this.y, deferred)
+    }
+
     return deferred.promise();
   }
 

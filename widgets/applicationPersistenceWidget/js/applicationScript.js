@@ -71,24 +71,30 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: 'http://localhost/applicationPersistenceWidget/js'
+        sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/widgets/applicationPersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
-        // retrieve current model from the space and store it
-        if (y.share.data.get('model')) {
+          // retrieve current model from the space and store it
+
+          if (y.share.data.get('model')) {
             var data = y.share.data.get('model');
-            loadedModel = data.attributes.label.value.value;
-            // special case if model was only saved in the space (not loaded from db)
-            if (loadedModel == "Model Attributes") {
-                loadedModel = null;
-                feedback("Model was not loaded from database until now..");
-            } else {
-                $("#name").val(loadedModel);
-            }
-        } else {
-            loadedModel = null;
-        }
+              if (data.attributes.label && data.attributes.label.value) {
+                loadedModel = data.attributes.label.value.value;
+                // special case if model was only saved in the space (not loaded from db)
+                if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+                    loadedModel = null;
+                    feedback("Model was not loaded from database until now..");
+                } else {
+                    $("#name").val(loadedModel);
+                }
+              }
+          } else {
+              loadedModel = null;
+          }
+
+
+
 
         $('#delete-model').on('click', function() {
           resetCurrentModel(y);
@@ -120,6 +126,7 @@ var pendingDots = 0;
 var getJobConsoleText = function(queueItem,jobAlias){
   client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "application/json", {},
   function(data,type){
+    console.log(data, type)
     if(data.indexOf("Pending") > -1){
       data = jobAlias + " job pending" + Array(pendingDots+1).join(".");
     }
@@ -190,6 +197,8 @@ var deployModel = function(y){
     data.attributes.label.value.value = $("#name").val();
     data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
     data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+    y.share.data.set('model',data)
+    y.share.canvas.set('ReloadWidgetOperation', 'import');
     deployRequest("Build");
   } else {
     feedback("No model!");
@@ -213,6 +222,8 @@ var storeModel = function(y) {
     data.attributes.label.value.value = $("#name").val();
     data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
     data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+    y.share.data.set('model',data)
+    y.share.canvas.set('ReloadWidgetOperation', 'import');
 
     if(loadedModel === null){
       client.sendRequest("POST", "models", JSON.stringify(data), "application/json", {},
@@ -229,7 +240,7 @@ var storeModel = function(y) {
           console.log(error);
           feedback(error);
         });
-        feedback("Communication view loaded, please refresh screen!");
+        feedback("Model stored! To deploy, store again.");
       },
       function(error) {
         console.log(error);

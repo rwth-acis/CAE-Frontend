@@ -81,6 +81,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js"></script>
   <!-- import application script -->
   <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/applicationScript.js"></script>
+    <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/frontendComponentSelectWidget/js/syncmeta-plugin.js"></script>
 
 </head>
 <body>

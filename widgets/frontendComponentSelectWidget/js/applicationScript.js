@@ -2,21 +2,21 @@
  * Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, Chair
  * of Computer Science 5 (Databases & Information Systems), RWTH Aachen
  * University, Germany All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- * 
+ *
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * 
+ *
  * Neither the name of the ACIS Group nor the names of its contributors may be
  * used to endorse or promote products derived from this software without
  * specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -29,38 +29,40 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+ var client;
+ var lastName = null;
 
-var client;
-// needed to store the last selected frontend component (temporary)
-// until the iwc callback can be executed (which needs this name)
-var lastFrontendComponentName;
+ $(function() {
+     syncmeta.connect().done(function() {
+         syncmeta.onNodeAdd(function(event) {
 
-var init = function() {
+             if (lastName != null) {
+               window.setTimeout(function() {
+                 console.log(event)
+                 syncmeta.setAttributeValue(event.id, event.id+'[label]', lastName);
+                 lastName = null;
+               }, 100)
+             }
+         });
+     });
 
-  var iwcCallback = function(intent) {
-    // catch node creation message to add label to node
-    if(intent.extras.payload.data != null && intent.extras.payload.data.type != null 
-        && intent.extras.payload.data.type == "insert" && intent.extras.payload.data.value != null 
-        && intent.extras.payload.data.name != null && intent.extras.payload.data.name.indexOf("node:") !=-1){
-      // TODO: Parse twice...something is not right with the original format it seems..
-      var value = $.parseJSON($.parseJSON(intent.extras.payload.data.value));
-      if(value.type == "Frontend Component"){
-        var nodeId = intent.extras.payload.data.name.substring(intent.extras.payload.data.name.indexOf("node:")+5);
-        client.sendFrontendComponentName(lastFrontendComponentName, nodeId);
-      }
-    }
-  };
+     client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models");
 
-  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
-}
+     getServices()
+ });
+
+ function createNode(name) {
+   lastName = name;
+   client.sendFrontendComponentSelected()
+ }
 
 
 /**
- * 
+ *
  * Calls the persistence service first for a list of services,
  * then retrieves all services and adds all frontend components
  * to the frontend component table.
- * 
+ *
  */
 var getServices = function() {
   client.sendRequest("GET", "", "", "application/json", {},
@@ -81,14 +83,13 @@ var getServices = function() {
             }
           });
           if(type == "frontend-component"){
-          $("#frontendComponentTable").append("<tr><td>" + name + 
+          $("#frontendComponentTable").append("<tr><td>" + name +
             "</td><td>" + version + "</td></tr>");
           // make table rows "clickable"
           $("#frontendComponentTable").find("tr").click(function() {
             // get the name
             var name = $(this).find("td").get(0).innerHTML;
-            sendFrontendComponentNode(name);
-            lastFrontendComponentName = name; // used in IWC response
+            createNode(name);
           });
           }
         }, function(error) {
@@ -104,17 +105,11 @@ var getServices = function() {
 
 
 /**
- * 
+ *
  * Calls the client function that sends a
  * "frontend component was selected" signal to SyncMeta.
- * 
+ *
  */
 var sendFrontendComponentNode = function(name) {
   client.sendFrontendComponentSelected(name);
 }
-
-
-$(document).ready(function() {
-  init();
-  getServices();
-});

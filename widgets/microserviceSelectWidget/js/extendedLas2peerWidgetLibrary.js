@@ -34,7 +34,7 @@
  * Instantiates a new Las2peerWidgetLibrary, given its endpoint URL and the
  * IWC-callback function.
  */
-function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
+function Las2peerWidgetLibrary(endpointUrl) {
   // care for widget frontends without a microservice backend
   if (endpointUrl === null) {
     endpointUrl = "not specified";
@@ -46,8 +46,6 @@ function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
     this._serviceEndpoint = endpointUrl;
   }
   this.iwcClient = new iwc.Client();
-  this.callback = iwcCallback;
-  this.iwcClient.connect(this.callback);
 }
 
 /**
@@ -144,29 +142,11 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
  * next click there will add a microservice to the canvas.
  *
  */
-Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(y) {
-  var node = {};
-  //node.id = data.nodes[0].name;
+Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
   // element creation
-  //var time = new Date().getTime();
-  var json = JSON.stringify({selectedToolName: "Microservice"});
-  //var data = {};
-
-
-  node.id = null;
-  node.type = "Microservice"
-  node.left = 2000;
-  node.top = 2000;
-  node.width = 100;
-  node.height = 100;
-  node.zIndex = 10;
-
-  y.share.canvas.set("NodeAddOperation",node);
-
-  //y.share.canvas.set("ToolSelectOperation", data);
-
-
-  /*var intent = {
+  var time = new Date().getTime();
+  var data = JSON.stringify({selectedToolName: "Microservice"});
+  var intent = {
     "component": "MAIN",
     "data": "",
     "dataType": "",
@@ -175,22 +155,7 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(y) {
     "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
     "sender": "MICROSERVICE_SELECT_WIDGET"
   };
-  */
-  //this.iwcClient.publish(intent);
-
-  //y.share.canvas.set("NodeAddOperation",node);
-};
-
-
-/**
- *
- * Sends the microservices label to SyncMeta.
- *
- */
-Las2peerWidgetLibrary.prototype.sendMicroserviceName = function(microserviceName, nodeId, y) {
-  var data = {};
-  data.id = nodeId;
-  //y.share.canvas.set("NodeAddOperation", data);
+  this.iwcClient.publish(intent);
 };
 
 
