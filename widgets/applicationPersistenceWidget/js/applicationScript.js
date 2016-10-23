@@ -40,58 +40,173 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
+  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE", iwcCallback);
 
-  // retrieve current model from the space and store it
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      $.get(modelUris[0]+"/:representation").done(function(data){
-        loadedModel = data.attributes.label.value.value;
-        // special case if model was only saved in the space (not loaded from db)
-        if(loadedModel == "Model attributes"){
-          loadedModel = null;
-          feedback("Model was not loaded from database until now..");
-        } else{
-          $("#name").val(loadedModel);
-        }
-      });
-    }
-    else{
-      loadedModel = null;
-    }
-  });
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+    };
 
-  $('#delete-model').on('click', function() {
-    resetCurrentModel();
-  })
-  $('#store-model').on('click', function() {
-    storeModel();
-  })
-  $('#load-model').on('click', function() {
-    loadModel();
-  })
-}
+    Y({
+        db: {
+            name: 'memory' // store the shared data in memory
+        },
+        connector: {
+            name: 'websockets-client', // use the websockets connector
+            room: spaceTitle,
+            //url: 'https://yjs.dbis.rwth-aachen.de:5080'
+            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+        },
+        share: { // specify the shared content
+            users: 'Map',
+            undo: 'Array',
+            redo: 'Array',
+            join: 'Map',
+            canvas: 'Map',
+            nodes: 'Map',
+            edges: 'Map',
+            userList: 'Map',
+            select: 'Map',
+            views: 'Map',
+            data: 'Map',
+            text: "Text"
+        },
+        sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/widgets/applicationPersistenceWidget/js'
+    }).then(function(y) {
+        console.info('PERSISTENCE: Yjs successfully initialized');
 
-// deletes the current model (empties the current model of this space)
-var resetCurrentModel = function() {
-  $("#name").val("");
-  $("#version").val("");
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri,function(){
-          loadedModel = null;
-          feedback("Model reset, please refresh browser!");
-        });
-      });
-    } else {
-      feedback("No model!");
-    }
-  });
+          // retrieve current model from the space and store it
+
+          if (y.share.data.get('model')) {
+            var data = y.share.data.get('model');
+              if (data.attributes.label && data.attributes.label.value) {
+                loadedModel = data.attributes.label.value.value;
+                // special case if model was only saved in the space (not loaded from db)
+                if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+                    loadedModel = null;
+                    feedback("Model was not loaded from database until now..");
+                } else {
+                    $("#name").val(loadedModel);
+                }
+              }
+          } else {
+              loadedModel = null;
+          }
+
+
+
+
+        $('#delete-model').on('click', function() {
+          resetCurrentModel(y);
+        })
+        $('#store-model').on('click', function() {
+          storeModel(y);
+        })
+        $('#load-model').on('click', function() {
+          loadModel(y);
+        })
+        $('#deploy-model').on('click',function(){
+          deployModel(y);
+        })
+    });
 };
 
+// deletes the current model (empties the current model of this space)
+var resetCurrentModel = function(y) {
+    if (y.share.data.get('model')) {
+        y.share.data.set('model', null);
+        y.share.canvas.set('ReloadWidgetOperation', 'delete');
+        feedback("Done!");
+    } else {
+        feedback("No model!")
+    }
+};
+
+var pendingDots = 0;
+var getJobConsoleText = function(queueItem,jobAlias){
+  client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "application/json", {},
+  function(data,type){
+    console.log(data, type)
+    if(data.indexOf("Pending") > -1){
+      data = jobAlias + " job pending" + Array(pendingDots+1).join(".");
+    }
+
+    pendingDots = (pendingDots + 1) % 4;
+
+    $("#deploy-status").text(data);
+    $('#deploy-status').scrollTop($('#deploy-status')[0].scrollHeight);
+    if(data.indexOf("Finished: SUCCESS") > -1){
+      switch(jobAlias){
+        case "Build":
+          feedback("Building was successfully!");
+          deployRequest("Docker");
+        break;
+        case "Docker":
+          $("#deploy-model").prop('disabled',true);
+          feedback("Application is now ready!");
+          $("#deploy-status").hide();
+          gadgets.window.adjustHeight();
+        break;
+      }
+    }else if(data.indexOf("Finished: FAILURE") > - 1){
+      feedback("Error during deployment!");
+    }
+    else{
+      pollJobConsoleText(queueItem,jobAlias);
+    }
+  },
+  function(error){
+    feedback(error);
+  }
+  );
+
+}
+
+var pollJobConsoleText = function(location,jobAlias){
+  $("#deploy-status").show();
+  gadgets.window.adjustHeight();
+  setTimeout(function(){
+    var feedbackString = "Deployment in progess" + Array(pendingDots+1).join(".");
+    feedback(feedbackString);
+    getJobConsoleText(location,jobAlias);
+  },1000);
+}
+
+var deployRequest = function(jobAlias){
+  client.sendRequest("GET", "deploy/"+loadedModel+"/"+jobAlias, "", "application/json", {},
+    function(data, type) {
+      if(data.indexOf("Error") > -1){
+        feedback(data);
+      }else{
+        console.log("Starting deployment");
+        console.log("Start polling job console text");
+        pollJobConsoleText(data,jobAlias);
+      }
+    },
+    function(error) {
+      console.log(error);
+      feedback(error);
+    });
+}
+
+// start the deployment process
+var deployModel = function(y){
+  var data = y.share.data.get('model');
+  if (data && loadedModel) {
+    $("#deploy-model").prop('disabled',true);
+    data.attributes.label.value.value = $("#name").val();
+    data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+    data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+    y.share.data.set('model',data)
+    y.share.canvas.set('ReloadWidgetOperation', 'import');
+    deployRequest("Build");
+  } else {
+    feedback("No model!");
+  }
+}
+
 // retrieves the JSON representation of this space
-var storeModel = function() {
+var storeModel = function(y) {
   if($("#name").val().length == 0 || $("#version").val().length == 0){
     feedback("Please choose application name & version!");
     return;
@@ -100,86 +215,76 @@ var storeModel = function() {
     feedback("Version has to be a number!");
     return;
   }
-  getData("my:ns:model").then(function(modelUris){
-      if(modelUris.length > 0){
-        $.get(modelUris[0]+"/:representation").done(function(data){
-          // add name, version and type to model
-          data.attributes.label.value.value = $("#name").val();
-          data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-          data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
-          if(loadedModel === null){
-            client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              // save currently loaded model
-              loadedModel = $("#name").val();
-              console.log("Model stored, retrieving communication view..");
-              // send request for communication model
-              client.sendRequest("GET", "commView/" + loadedModel, "", "", {},
-              function(data, type) {
-                console.log("retrieved communication model: " + data);
-              },
-              function(error) {
-                console.log(error);
-                feedback(error);
-              });
-              feedback("Communication view loaded, please refresh screen!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });
-          }
-          else{
-            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              console.log("Model updated!");
-              feedback("Model updated!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });            
-          }
+
+  if(y.share.data.get('model')){
+    var data = y.share.data.get('model');
+    // add name, version and type to model
+    data.attributes.label.value.value = $("#name").val();
+    data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+    data.attributes.attributes[generateRandomId()] = generateAttribute("type", "application");
+    y.share.data.set('model',data)
+    y.share.canvas.set('ReloadWidgetOperation', 'import');
+
+    if(loadedModel === null){
+      client.sendRequest("POST", "models", JSON.stringify(data), "application/json", {},
+      function(data, type) {
+        // save currently loaded model
+        loadedModel = $("#name").val();
+        console.log("Model stored, retrieving communication view..");
+        // send request for communication model
+        client.sendRequest("GET", "models/commView/" + loadedModel, "", "", {},
+        function(data, type) {
+          console.log("retrieved communication model: " + data);
+        },
+        function(error) {
+          console.log(error);
+          feedback(error);
         });
-      } else {
-        feedback("No model!");
+        feedback("Model stored! To deploy, store again.");
+      },
+      function(error) {
+        console.log(error);
+        feedback(error);
+      });
+      } else{
+        client.sendRequest("PUT", "models/" + loadedModel, JSON.stringify(data), "application/json", {},
+        function(data, type) {
+          console.log("Model updated!");
+          $("#deploy-model").prop('disabled',false);
+          feedback("Model updated!");
+        },
+        function(error) {
+          console.log(error);
+          feedback(error);
+        });
       }
-  });
+  } else {
+    feedback("No model!");
+  }
 };
 
 // loads the model from a given JSON file and sets it as the space's model
-var loadModel = function() {
-  if($("#name").val().length == 0){
-    feedback("Please choose model name!");
-    return;
-  }
-  // first, clean the current model
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri);
-      });
+var loadModel = function(y) {
+    if ($("#name").val().length == 0) {
+        feedback("Please choose model name!");
+        return;
     }
+    // first, clean the current model
+    y.share.data.set('model', null);
+
     // now read in the file content
     modelName = $("#name").val();
-    client.sendRequest("GET", modelName, "", "", {},
-    function(data, type) {
-      console.log("Model loaded!");
-      resourceSpace.create({
-        relation: openapp.ns.role + "data",
-        type: "my:ns:model",
-        representation: data,
-        callback: function(){
-          feedback("Model loaded, please refresh browser!");
-        }
-      });
-    },
-    function(error) {
-      console.log(error);
-      feedback(error);
-    });
-
-  });
+    client.sendRequest("GET", "models/" + modelName, "", "", {},
+        function(data, type) {
+            console.log("Model loaded!");
+            y.share.data.set('model', data);
+            y.share.canvas.set('ReloadWidgetOperation', 'import');
+            feedback("Model loaded, please refresh browser!");
+        },
+        function(error) {
+            console.log(error);
+            feedback(error);
+        });
 };
 
 $(document).ready(function() {
@@ -197,7 +302,7 @@ var getData = function(type){
       deferred = $.Deferred();
 
   openapp.resource.get(spaceUri,(function(deferred){
-    
+
     return function(space){
       var resourceUri, resourceObj, values;
       for(resourceUri in space.data){
@@ -246,7 +351,7 @@ var generateRandomId = function(){
 
 // generates an attribute according to the SyncMeta specification
 var generateAttribute = function(name, value){
-  var attribute = 
+  var attribute =
   {
     "name": name,
     "id": "modelAttributes[" + name + "]",

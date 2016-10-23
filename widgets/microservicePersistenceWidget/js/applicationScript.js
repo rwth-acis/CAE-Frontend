@@ -37,140 +37,155 @@ var client,
     loadedModel = null;
 
 var init = function() {
-  var iwcCallback = function(intent) {
-    console.log(intent);
-  };
-  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
+    var iwcCallback = function(intent) {
+        console.log(intent);
+    };
+    client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models", iwcCallback);
 
-  // retrieve current model from the space and store it
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      $.get(modelUris[0]+"/:representation").done(function(data){
-        loadedModel = data.attributes.label.value.value;
-        // special case if model was only saved in the space (not loaded from db)
-        if(loadedModel == "Model attributes"){
-          loadedModel = null;
-          feedback("Model was not loaded from database until now..");
-        } else{
-          $("#name").val(loadedModel);
+    spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+    }
+
+    Y({
+        db: {
+            name: 'memory' // store the shared data in memory
+        },
+        connector: {
+            name: 'websockets-client', // use the websockets connector
+            room: spaceTitle,
+            //url: 'https://yjs.dbis.rwth-aachen.de:5080'
+            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+        },
+        share: { // specify the shared content
+            users: 'Map',
+            undo: 'Array',
+            redo: 'Array',
+            join: 'Map',
+            canvas: 'Map',
+            nodes: 'Map',
+            edges: 'Map',
+            userList: 'Map',
+            select: 'Map',
+            views: 'Map',
+            data: 'Map',
+            text: "Text"
+        },
+        sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/widgets/microservicePersistenceWidget/js'
+    }).then(function(y) {
+        console.info('PERSISTENCE: Yjs successfully initialized');
+
+
+        // retrieve current model from the space and store it
+        if (y.share.data.get('model')) {
+            var data = y.share.data.get('model');
+            loadedModel = data.attributes.label.value.value;
+            // special case if model was only saved in the space (not loaded from db)
+            if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+                loadedModel = null;
+                feedback("Model was not loaded from database until now..");
+            } else {
+                $("#name").val(loadedModel);
+            }
+        } else {
+            loadedModel = null;
         }
-      });
-    }
-    else{
-      loadedModel = null;
-    }
-  });
 
-  $('#delete-model').on('click', function() {
-    resetCurrentModel();
-  })
-  $('#store-model').on('click', function() {
-    storeModel();
-  })
-  $('#load-model').on('click', function() {
-    loadModel();
-  })
-}
+        $('#delete-model').on('click', function() {
+            resetCurrentModel(y);
+        })
+        $('#store-model').on('click', function() {
+            storeModel(y);
+        })
+        $('#load-model').on('click', function() {
+            loadModel(y);
+        })
+
+    });
+
+};
 
 // deletes the current model (empties the current model of this space)
-var resetCurrentModel = function() {
-  $("#name").val("");
-  $("#version").val("");
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri,function(){
-          loadedModel = null;
-          feedback("Model reset, please refresh browser!");
-        });
-      });
+var resetCurrentModel = function(y) {
+    if (y.share.data.get('model')) {
+        y.share.data.set('model', null);
+        y.share.canvas.set('ReloadWidgetOperation', 'delete');
+        feedback("Done!");
     } else {
-      feedback("No model!");
+        feedback("No model!")
     }
-  });
 };
 
 // retrieves the JSON representation of this space
-var storeModel = function() {
-  if($("#name").val().length == 0 || $("#version").val().length == 0){
-    feedback("Please choose microservice name & version!");
-    return;
-  }
-  if(isNaN($("#version").val())){
-    feedback("Version has to be a number!");
-    return;
-  }
-  getData("my:ns:model").then(function(modelUris){
-      if(modelUris.length > 0){
-        $.get(modelUris[0]+"/:representation").done(function(data){
-          // add name, version and type to model
-          data.attributes.label.value.value = $("#name").val();
-          data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-          data.attributes.attributes[generateRandomId()] = generateAttribute("type", "microservice");
-          if(loadedModel === null){
+var storeModel = function(y) {
+    if ($("#name").val().length == 0 || $("#version").val().length == 0) {
+        feedback("Please choose microservice name & version!");
+        return;
+    }
+    if (isNaN($("#version").val())) {
+        feedback("Version has to be a number!");
+        return;
+    }
+
+    if (y.share.data.get('model')) {
+        var data = y.share.data.get('model');
+        // add name, version and type to model
+        data.attributes.label.value.value = $("#name").val();
+        data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
+        data.attributes.attributes[generateRandomId()] = generateAttribute("type", "microservice");
+        y.share.data.set('model',data)
+        y.share.canvas.set('ReloadWidgetOperation', 'import');
+
+        if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              // save currently loaded model
-              loadedModel = $("#name").val();
-              console.log("Model stored!");
-              feedback("Model stored!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });
-          }
-          else{
+                function(data, type) {
+                    // save currently loaded model
+                    loadedModel = $("#name").val();
+                    console.log("Model stored!");
+                    feedback("Model stored!");
+                },
+                function(error) {
+                    console.log(error);
+                    feedback(error);
+                });
+        } else {
             client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
-            function(data, type) {
-              console.log("Model updated!");
-              feedback("Model updated!");
-            },
-            function(error) {
-              console.log(error);
-              feedback(error);
-            });            
-          }
-        });
-      } else {
+                function(data, type) {
+                    console.log("Model updated!");
+                    feedback("Model updated!");
+                },
+                function(error) {
+                    console.log(error);
+                    feedback(error);
+                });
+        }
+    } else {
         feedback("No model!");
-      }
-  });
+    }
 };
 
 // loads the model from a given JSON file and sets it as the space's model
-var loadModel = function() {
-  if($("#name").val().length == 0){
-    feedback("Please choose model name!");
-    return;
-  }
-  // first, clean the current model
-  getData("my:ns:model").then(function(modelUris){
-    if(modelUris.length > 0){
-      _.map(modelUris,function(uri){
-        openapp.resource.del(uri);
-      });
+var loadModel = function(y) {
+    if ($("#name").val().length == 0) {
+        feedback("Please choose model name!");
+        return;
     }
+    // first, clean the current model
+    y.share.data.set('model', null);
+
     // now read in the file content
     modelName = $("#name").val();
     client.sendRequest("GET", modelName, "", "", {},
-    function(data, type) {
-      console.log("Model loaded!");
-      resourceSpace.create({
-        relation: openapp.ns.role + "data",
-        type: "my:ns:model",
-        representation: data,
-        callback: function(){
-          feedback("Model loaded, please refresh browser!");
-        }
-      });
-    },
-    function(error) {
-      console.log(error);
-      feedback(error);
-    });
-
-  });
+        function(data, type) {
+            console.log("Model loaded!");
+            y.share.data.set('model', data);
+            y.share.canvas.set('ReloadWidgetOperation', 'import');
+            feedback("Model loaded, please refresh browser!");
+        },
+        function(error) {
+            console.log(error);
+            feedback(error);
+        });
 };
 
 $(document).ready(function() {
@@ -188,7 +203,7 @@ var getData = function(type){
       deferred = $.Deferred();
 
   openapp.resource.get(spaceUri,(function(deferred){
-    
+
     return function(space){
       var resourceUri, resourceObj, values;
       for(resourceUri in space.data){
@@ -237,7 +252,7 @@ var generateRandomId = function(){
 
 // generates an attribute according to the SyncMeta specification
 var generateAttribute = function(name, value){
-  var attribute = 
+  var attribute =
   {
     "name": name,
     "id": "modelAttributes[" + name + "]",
@@ -253,6 +268,9 @@ var generateAttribute = function(name, value){
 // displays a message in the status box on the screen for the time of "feedbackTimeout"
 feedback = function(msg){
     $("#status").val(msg);
+    if(msg === "Model updated!"){
+      client.sendIntent("MODEL_UPDATED", "" , false);
+    }
     clearTimeout(feedbackTimeout);
     feedbackTimeout = setTimeout(function(){
       $("#status").val("");

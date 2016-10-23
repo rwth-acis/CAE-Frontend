@@ -23,7 +23,7 @@
   <Content type="html">
   <![CDATA[
 <!--
-Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, 
+Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
 All rights reserved.
 
@@ -76,11 +76,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
   <!-- style information -->
   <link rel="stylesheet" href="http://localhost:80/microserviceSelectWidget/css/style.css">
+  <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/yjs/y.js"></script>
   <!-- import the client library -->
   <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js"></script>
   <!-- import application script -->
   <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/js/applicationScript.js"></script>
-  
+    <script type="text/javascript" src="http://localhost:80/microserviceSelectWidget/frontendComponentSelectWidget/js/syncmeta-plugin.js"></script>
+
 </head>
 <body>
 

@@ -1,0 +1,4 @@
+node_modules
+bower_components
+src/lib/config.js
+docs
