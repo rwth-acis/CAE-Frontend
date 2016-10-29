@@ -67,6 +67,16 @@ module.exports = function (Y/* :any */) {
       this.whenSyncedListeners = []
       return this.y.db.stopGarbageCollector()
     }
+    repair () {
+      console.info('Repairing the state of Yjs. This can happen if messages get lost, and Yjs detects that something is wrong. If this happens often, please report an issue here: https://github.com/y-js/yjs/issues')
+      for (var name in this.connections) {
+        this.connections[name].isSynced = false
+      }
+      this.isSynced = false
+      this.currentSyncTarget = null
+      this.broadcastedHB = false
+      this.findNextSyncTarget()
+    }
     setUserId (userId) {
       if (this.userId == null) {
         this.userId = userId
@@ -696,6 +706,41 @@ module.exports = function (Y /* :any */) {
       if (this.gcTimeout > 0) {
         garbageCollect()
       }
+      this.repairCheckInterval = !opts.repairCheckInterval ? 6000 : opts.repairCheckInterval
+      this.opsReceivedTimestamp = new Date()
+      this.startRepairCheck()
+    }
+    startRepairCheck () {
+      var os = this
+      if (this.repairCheckInterval > 0) {
+        this.repairCheckIntervalHandler = setInterval(function repairOnMissingOperations () {
+          /*
+            Case 1. No ops have been received in a while (new Date() - os.opsReceivedTimestamp > os.repairCheckInterval)
+              - 1.1 os.listenersById is empty. Then the state was correct the whole time. -> Nothing to do (nor to update)
+              - 1.2 os.listenersById is not empty.
+                      * Then the state was incorrect for at least {os.repairCheckInterval} seconds.
+                      * -> Remove everything in os.listenersById and sync again (connector.repair())
+            Case 2. An op has been received in the last {os.repairCheckInterval } seconds.
+                    It is not yet necessary to check for faulty behavior. Everything can still resolve itself. Wait for more messages.
+                    If nothing was received for a while and os.listenersById is still not emty, we are in case 1.2
+                    -> Do nothing
+
+            Baseline here is: we really only have to catch case 1.2..
+          */
+          if (
+            new Date() - os.opsReceivedTimestamp > os.repairCheckInterval &&
+            Object.keys(os.listenersById).length > 0 // os.listenersById is not empty
+          ) {
+            // haven't received operations for over {os.repairCheckInterval} seconds, resend state vector
+            os.listenersById = {}
+            os.opsReceivedTimestamp = new Date() // update so you don't send repair several times in a row
+            os.y.connector.repair()
+          }
+        }, this.repairCheckInterval)
+      }
+    }
+    stopRepairCheck () {
+      clearInterval(this.repairCheckIntervalHandler)
     }
     queueGarbageCollector (id) {
       if (this.y.isConnected()) {
@@ -791,6 +836,7 @@ module.exports = function (Y /* :any */) {
     * destroy () {
       clearInterval(this.gcInterval)
       this.gcInterval = null
+      this.stopRepairCheck()
       for (var key in this.initializedTypes) {
         var type = this.initializedTypes[key]
         if (type._destroy != null) {
@@ -830,12 +876,14 @@ module.exports = function (Y /* :any */) {
     /*
       Apply a list of operations.
 
+      * we save a timestamp, because we received new operations that could resolve ops in this.listenersById (see this.startRepairCheck)
       * get a transaction
       * check whether all Struct.*.requiredOps are in the OS
       * check if it is an expected op (otherwise wait for it)
       * check if was deleted, apply a delete operation after op was applied
     */
     apply (ops) {
+      this.opsReceivedTimestamp = new Date()
       for (var i = 0; i < ops.length; i++) {
         var o = ops[i]
         if (o.id == null || o.id[0] !== this.y.connector.userId) {
@@ -1088,6 +1136,48 @@ module.exports = function (Y /* :any */) {
           this.transact(this.getNextRequest())
         }, 0)
       }
+    }
+    /*
+      Get a created/initialized type.
+    */
+    getType (id) {
+      return this.initializedTypes[JSON.stringify(id)]
+    }
+    /*
+      Init type. This is called when a remote operation is retrieved, and transformed to a type
+      TODO: delete type from store.initializedTypes[id] when corresponding id was deleted!
+    */
+    * initType (id, args) {
+      var sid = JSON.stringify(id)
+      var t = this.store.initializedTypes[sid]
+      if (t == null) {
+        var op/* :MapStruct | ListStruct */ = yield* this.getOperation(id)
+        if (op != null) {
+          t = yield* Y[op.type].typeDefinition.initType.call(this, this.store, op, args)
+          this.store.initializedTypes[sid] = t
+        }
+      }
+      return t
+    }
+    /*
+     Create type. This is called when the local user creates a type (which is a synchronous action)
+    */
+    createType (typedefinition, id) {
+      var structname = typedefinition[0].struct
+      id = id || this.getNextOpId(1)
+      var op = Y.Struct[structname].create(id)
+      op.type = typedefinition[0].name
+
+      this.requestTransaction(function * () {
+        if (op.id[0] === '_') {
+          yield* this.setOperation(op)
+        } else {
+          yield* this.applyCreatedOperations([op])
+        }
+      })
+      var t = Y[op.type].typeDefinition.createType(this, op, typedefinition[1])
+      this.initializedTypes[JSON.stringify(op.id)] = t
+      return t
     }
   }
   Y.AbstractDatabase = AbstractDatabase
@@ -1590,57 +1680,6 @@ module.exports = function (Y/* :any */) {
     os: Store;
     ss: Store;
     */
-    /*
-      Get a type based on the id of its model.
-      If it does not exist yes, create it.
-      TODO: delete type from store.initializedTypes[id] when corresponding id was deleted!
-    */
-    * getType (id, args) {
-      var sid = JSON.stringify(id)
-      var t = this.store.initializedTypes[sid]
-      if (t == null) {
-        var op/* :MapStruct | ListStruct */ = yield* this.getOperation(id)
-        if (op != null) {
-          t = yield* Y[op.type].typeDefinition.initType.call(this, this.store, op, args)
-          this.store.initializedTypes[sid] = t
-        }
-      }
-      return t
-    }
-    * createType (typedefinition, id) {
-      var structname = typedefinition[0].struct
-      id = id || this.store.getNextOpId(1)
-      var op
-      if (id[0] === '_') {
-        op = yield* this.getOperation(id)
-      } else {
-        op = Y.Struct[structname].create(id)
-        op.type = typedefinition[0].name
-      }
-      if (typedefinition[0].appendAdditionalInfo != null) {
-        yield* typedefinition[0].appendAdditionalInfo.call(this, op, typedefinition[1])
-      }
-      if (op[0] === '_') {
-        yield* this.setOperation(op)
-      } else {
-        yield* this.applyCreatedOperations([op])
-      }
-      return yield* this.getType(id, typedefinition[1])
-    }
-    /* createType (typedefinition, id) {
-      var structname = typedefinition[0].struct
-      id = id || this.store.getNextOpId(1)
-      var op = Y.Struct[structname].create(id)
-      op.type = typedefinition[0].name
-      if (typedefinition[0].appendAdditionalInfo != null) {
-        yield* typedefinition[0].appendAdditionalInfo.call(this, op, typedefinition[1])
-      }
-      // yield* this.applyCreatedOperations([op])
-      yield* Y.Struct[op.struct].execute.call(this, op)
-      yield* this.addOperation(op)
-      yield* this.store.operationAdded(this, op)
-      return yield* this.getType(id, typedefinition[1])
-    }*/
     /*
       Apply operations that this user created (no remote ones!)
         * does not check for Struct.*.requiredOps()
@@ -2234,7 +2273,7 @@ module.exports = function (Y/* :any */) {
         }
         if (this.store.forwardAppliedOperations) {
           var ops = []
-          ops.push({struct: 'Delete', target: [d[0], d[1]], length: del[2]})
+          ops.push({struct: 'Delete', target: [del[0], del[1]], length: del[2]})
           this.store.y.connector.broadcastOps(ops)
         }
       }
@@ -2843,7 +2882,13 @@ module.exports = function (Y /* : any*/) {
           // finished with remaining operations
           self.waiting.push(d)
         }
-        checkDelete(op)
+        if (op.key == null) {
+          // deletes in list
+          checkDelete(op)
+        } else {
+          // deletes in map
+          this.waiting.push(op)
+        }
       } else {
         this.waiting.push(op)
       }
@@ -2892,7 +2937,11 @@ module.exports = function (Y /* : any*/) {
           var o = this.waiting[i]
           if (o.struct === 'Insert') {
             var _o = yield* transaction.getInsertion(o.id)
-            if (!Y.utils.compareIds(_o.id, o.id)) {
+            if (_o.parentSub != null && _o.left != null) {
+              // if o is an insertion of a map struc (parentSub is defined), then it shouldn't be necessary to compute left
+              this.waiting.splice(i, 1)
+              i-- // update index
+            } else if (!Y.utils.compareIds(_o.id, o.id)) {
               // o got extended
               o.left = [o.id[0], o.id[1] - 1]
             } else if (_o.left == null) {
@@ -3053,6 +3102,14 @@ module.exports = function (Y /* : any*/) {
   Y.utils.EventHandler = EventHandler
 
   /*
+    Default class of custom types!
+  */
+  class CustomType {
+
+  }
+  Y.utils.CustomType = CustomType
+
+  /*
     A wrapper for the definition of a custom type.
     Every custom type must have three properties:
 
@@ -3063,7 +3120,7 @@ module.exports = function (Y /* : any*/) {
     * class
       - the constructor of the custom type (e.g. in order to inherit from a type)
   */
-  class CustomType { // eslint-disable-line
+  class CustomTypeDefinition { // eslint-disable-line
     /* ::
     struct: any;
     initType: any;
@@ -3074,12 +3131,14 @@ module.exports = function (Y /* : any*/) {
       if (def.struct == null ||
         def.initType == null ||
         def.class == null ||
-        def.name == null
+        def.name == null ||
+        def.createType == null
       ) {
         throw new Error('Custom type was not initialized correctly!')
       }
       this.struct = def.struct
       this.initType = def.initType
+      this.createType = def.createType
       this.class = def.class
       this.name = def.name
       if (def.appendAdditionalInfo != null) {
@@ -3091,13 +3150,13 @@ module.exports = function (Y /* : any*/) {
       this.parseArguments.typeDefinition = this
     }
   }
-  Y.utils.CustomType = CustomType
+  Y.utils.CustomTypeDefinition = CustomTypeDefinition
 
   Y.utils.isTypeDefinition = function isTypeDefinition (v) {
     if (v != null) {
-      if (v instanceof Y.utils.CustomType) return [v]
-      else if (v.constructor === Array && v[0] instanceof Y.utils.CustomType) return v
-      else if (v instanceof Function && v.typeDefinition instanceof Y.utils.CustomType) return [v.typeDefinition]
+      if (v instanceof Y.utils.CustomTypeDefinition) return [v]
+      else if (v.constructor === Array && v[0] instanceof Y.utils.CustomTypeDefinition) return v
+      else if (v instanceof Function && v.typeDefinition instanceof Y.utils.CustomTypeDefinition) return [v.typeDefinition]
     }
     return false
   }
@@ -3357,19 +3416,31 @@ module.exports = Y
 Y.requiringModules = requiringModules
 
 Y.extend = function (name, value) {
-  if (value instanceof Y.utils.CustomType) {
-    Y[name] = value.parseArguments
+  if (arguments.length === 2 && typeof name === 'string') {
+    if (value instanceof Y.utils.CustomTypeDefinition) {
+      Y[name] = value.parseArguments
+    } else {
+      Y[name] = value
+    }
+    if (requiringModules[name] != null) {
+      requiringModules[name].resolve()
+      delete requiringModules[name]
+    }
   } else {
-    Y[name] = value
-  }
-  if (requiringModules[name] != null) {
-    requiringModules[name].resolve()
-    delete requiringModules[name]
+    for (var i = 0; i < arguments.length; i++) {
+      var f = arguments[i]
+      if (typeof f === 'function') {
+        f(Y)
+      } else {
+        throw new Error('Expected function!')
+      }
+    }
   }
 }
 
 Y.requestModules = requestModules
 function requestModules (modules) {
+  var sourceDir = Y.sourceDir || '/bower_components'
   // determine if this module was compiled for es5 or es6 (y.js vs. y.es6)
   // if Insert.execute is a Function, then it isnt a generator..
   // then load the es5(.js) files..
@@ -3383,7 +3454,7 @@ function requestModules (modules) {
         // module does not exist
         if (typeof window !== 'undefined' && window.Y !== 'undefined') {
           var imported = document.createElement('script')
-          imported.src = Y.sourceDir + '/' + modulename + '/' + modulename + extention
+          imported.src = sourceDir + '/' + modulename + '/' + modulename + extention
           document.head.appendChild(imported)
 
           let requireModule = {}
@@ -3434,12 +3505,14 @@ type YOptions = {
 */
 
 function Y (opts/* :YOptions */) /* :Promise<YConfig> */ {
+  if (opts.sourceDir != null) {
+    Y.sourceDir = opts.sourceDir
+  }
   opts.types = opts.types != null ? opts.types : []
   var modules = [opts.db.name, opts.connector.name].concat(opts.types)
   for (var name in opts.share) {
     modules.push(opts.share[name])
   }
-  Y.sourceDir = opts.sourceDir
   return new Promise(function (resolve, reject) {
     setTimeout(function () {
       Y.requestModules(modules).then(function () {
@@ -3483,6 +3556,9 @@ class YConfig {
       for (var propertyname in opts.share) {
         var typeConstructor = opts.share[propertyname].split('(')
         var typeName = typeConstructor.splice(0, 1)
+        var type = Y[typeName]
+        var typedef = type.typeDefinition
+        var id = ['_', typedef.struct + '_' + typeName + '_' + propertyname + '_' + typeConstructor]
         var args = []
         if (typeConstructor.length === 1) {
           try {
@@ -3490,11 +3566,13 @@ class YConfig {
           } catch (e) {
             throw new Error('Was not able to parse type definition! (share.' + propertyname + ')')
           }
+          if (type.typeDefinition.parseArguments == null) {
+            throw new Error(typeName + ' does not expect arguments!')
+          } else {
+            args = typedef.parseArguments(args[0])[1]
+          }
         }
-        var type = Y[typeName]
-        var typedef = type.typeDefinition
-        var id = ['_', typedef.struct + '_' + typeName + '_' + propertyname + '_' + typeConstructor]
-        share[propertyname] = yield* this.createType(type.apply(typedef, args), id)
+        share[propertyname] = yield* this.store.initType.call(this, id, args)
       }
       this.store.whenTransactionsFinished()
         .then(callback)

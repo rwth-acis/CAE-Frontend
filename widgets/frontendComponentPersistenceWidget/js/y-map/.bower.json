@@ -1,0 +1,34 @@
+{
+  "name": "y-map",
+  "version": "10.0.3",
+  "homepage": "http://y-js.org",
+  "authors": [
+    "Kevin Jahns <kevin.jahns@rwth-aachen.de>"
+  ],
+  "description": "Map type for Yjs",
+  "main": "./y-map.js",
+  "keywords": [
+    "Yjs",
+    "OT",
+    "Collaboration",
+    "Synchronization",
+    "ShareJS",
+    "Coweb",
+    "Concurrency"
+  ],
+  "license": "MIT",
+  "ignore": [],
+  "dependencies": {
+    "yjs": "^11.0.0 || ^12.0.0"
+  },
+  "_release": "10.0.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "v10.0.3",
+    "commit": "c310ff22cfc2d671abc98fdb39ad48ee7959c90e"
+  },
+  "_source": "https://github.com/y-js/y-map.git",
+  "_target": "^10.0.3",
+  "_originalSource": "y-map",
+  "_direct": true
+}

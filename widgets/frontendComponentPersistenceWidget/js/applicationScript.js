@@ -212,7 +212,7 @@ var getData = function(type) {
                     if (resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] &&
                         _.isArray(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'])) {
 
-                        values = _.map(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'], function(e) {
+                        values = _.map(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'],function(e){
                             return e.value;
                         });
 

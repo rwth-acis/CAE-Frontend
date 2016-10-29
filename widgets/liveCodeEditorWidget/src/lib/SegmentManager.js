@@ -112,13 +112,14 @@ class SegmentManager extends EventEmitter{
     let promise = this.map.get(id);
     //if yText for the segment id does not exist, we create it first
     if (promise === undefined) {
-      this.map.set(id,Y.Text).then(function(yText){
-        //set initial text value
-        yText.insert(0,value);
-        deferred.resolve(yText);
-      }.bind(this));
+      var yText = this.map.set(id,Y.Text);
+      //set initial text value
+      yText.insert(0,value);
+      deferred.resolve(yText);
+      yText.bind(this);
     }else{
-      promise.then( (yText) => { deferred.resolve(yText) });
+      var yText = promise;
+      deferred.resolve(yText);
     }
     return deferred.promise();
   }

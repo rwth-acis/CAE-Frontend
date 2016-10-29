@@ -7,8 +7,8 @@ Y({
     name: 'memory'
   },
   connector: {
-    name: 'webrtc',
-    room: 'richtext-example-quill-beta'
+    name: 'websockets-client',
+    room: 'richtext-example-quill-1.0-test'
   },
   sourceDir: '/bower_components',
   share: {
@@ -38,3 +38,15 @@ Y({
   y.share.richtext.bind(window.quill)
 })
 
+Y({
+  db: {
+    name: 'indexeddb'
+  },
+  connector: {
+    name: 'websockets-client',
+    room: 'test42'
+  },
+  share: {
+    state : 'Map'
+  }
+}).then((y) => { window.y = y })

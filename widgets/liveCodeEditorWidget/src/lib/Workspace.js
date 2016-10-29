@@ -93,13 +93,11 @@ class Workspace extends EventEmitter{
     let deferred = $.Deferred();
     let promise = map.get(id);
     if (promise === undefined || reload) {
-      map.set(id,yjsType).then( (yjsObj) => {
-        deferred.resolve(yjsObj);
-      });
+      var yjsObj = map.set(id,yjsType);
+      deferred.resolve(yjsObj);
     }else{
-      promise.then( (yjsObj) => {
-        deferred.resolve(yjsObj);
-      });
+      var yjsObj = promise;
+      deferred.resolve(yjsObj);
     }
     return deferred;
   }
@@ -133,23 +131,24 @@ class Workspace extends EventEmitter{
     };
 
     if (promise === undefined ) {
-      this.workspace.set(id,Y.Map).then( map => fileSpaceInit(map,true) );
+      var map = this.workspace.set(id,Y.Map);
+      fileSpaceInit(map,true);
     }else if (reload) {
-      promise.then( (map) => {
-        this.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
-      });
+      var map = promise;
+      map = this.workspace.set(id,Y.Map);
+      fileSpaceInit(map, true);
 
     }else{
-      promise.then( (map) => {
+      var map = promise;
         let fileId = map.get("generationId");
         //are we are using an old file space?
         if(generationId != fileId){
           //if so create a new one
-          this.workspace.set(id,Y.Map).then( map => fileSpaceInit(map, true) );
+          map = this.workspace.set(id,Y.Map);
+          fileSpaceInit(map, true);
         }else{
           fileSpaceInit(map);
         }
-      } );
     }
 
     return deferred.promise();
