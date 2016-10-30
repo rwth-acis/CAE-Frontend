@@ -38,7 +38,7 @@ export default class RoleSpace extends EventEmitter{
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
-            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+            url: config.Yjs.websockets_server
         },
         share: { // specify the shared content
             users: 'Map',

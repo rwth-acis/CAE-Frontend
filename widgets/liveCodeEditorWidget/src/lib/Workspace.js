@@ -19,7 +19,7 @@ function _initYjs( componentName ){
   return new Y({db:{name:"memory"},connector:{
     name:"websockets-client",
     room: _createRoomName( componentName ),
-    url : "http://yjs.dbis.rwth-aachen.de:5079"
+    url : config.Yjs.websockets_server
   },
   sourceDir: config.CodeEditorWidget.bower_components,
   share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});
@@ -222,14 +222,12 @@ class Workspace extends EventEmitter{
 
   /**
    * Method to handle the updates on the remote cursors. Propagate the changed cursors to the cursor listener of the workspace
-   * @param{object[]} e - Yjs events
+   * @param{object} e - Yjs event
    */
 
   cursorChangeHandler(e){
-    for(let o of e){
-      let {name} = o;
-      this.emit("cursorChange",name);
-    }
+    let {name} = e;
+    this.emit("cursorChange",name);
   }
 
   /**
