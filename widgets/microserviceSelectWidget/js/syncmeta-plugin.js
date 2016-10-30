@@ -391,8 +391,8 @@ syncmeta_api.define('lib/yjs-sync',['jquery', 'yjs'], function($) {
                 text:"Text"
             },
             type:["Text","Map"],
-            sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/syncmeta/js/lib/vendor'
-        }).then(function(y) {   
+            sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/syncmeta2/js/lib/vendor'
+        }).then(function(y) {
             deferred.resolve(y);
         });
         return deferred.promise();
@@ -500,7 +500,7 @@ syncmeta_api.define('plugin/plugin',['lib/yjs-sync'], function(yjsSync) {
         /**
          * If are already connected to a syncmeta yjs space then use this funnction to init the plugin
          * Otherwise connect to yjs with the connect function
-         * @param {object} yInstance - the y instance 
+         * @param {object} yInstance - the y instance
          */
         init: function(yInstance) {
             ySyncMetaInstance = yInstance;
@@ -769,7 +769,7 @@ syncmeta_api.define('plugin/plugin',['lib/yjs-sync'], function(yjsSync) {
 
                     if (attr.constructor.name === "t") {
                         var ytext = attr;
-                       
+
                             var l = ytext.toString().length;
                             if (l > 0) {
                                 ytext.delete(0, l);
@@ -780,7 +780,7 @@ syncmeta_api.define('plugin/plugin',['lib/yjs-sync'], function(yjsSync) {
                             setTimeout(function () {
                                 if (jabberId)
                                     ySyncMetaInstance.share.canvas.set('triggerSave', jabberId);
-                            }, 500);                   
+                            }, 500);
                     }
                     else
                         ymap.set(attrId, { 'entityId': attrId, 'value': value, 'type': 'update', 'position': 0 });
@@ -791,7 +791,7 @@ syncmeta_api.define('plugin/plugin',['lib/yjs-sync'], function(yjsSync) {
 
             if (idx != -1) {
                 var ymap = ySyncMetaInstance.share.nodes.get(entityId);
-                findAttr(ymap, attrId, value); 
+                findAttr(ymap, attrId, value);
             } else {
                 idx = ySyncMetaInstance.share.edges.keys().indexOf(entityId);
                 if (idx != -1) {
