@@ -460,30 +460,28 @@ class Workspace extends EventEmitter{
           this.user = _y.share.user;
           this.jobs = _y.share.jobs;
           // listening for jobs
-          this.jobs.observe( (events) =>{
-            for(let event of events){
-              //we may already edit another file
-              if( event.name != this.getCurrentFile()){
-                return;
-              }
-              if(event.value.user == this.getUserId() && event.value.state == "pending"){
-                let job = event.value;
-                //acknowledge job
-                job.state ="received";
-                this.jobs.set( this.getCurrentFile(), job);
-                setTimeout( () => {
-                  this.codeEditor.open(this.getCurrentFile(),true).then( () => {
-                    //mark job as completed
-                    job.state = "completed";
-                    this.jobs.set( this.getCurrentFile(), job);
-                  });
+          this.jobs.observe( (event) =>{
+            //we may already edit another file
+            if( event.name != this.getCurrentFile()){
+              return;
+            }
+            if(event.value.user == this.getUserId() && event.value.state == "pending"){
+              let job = event.value;
+              //acknowledge job
+              job.state ="received";
+              this.jobs.set( this.getCurrentFile(), job);
+              setTimeout( () => {
+                this.codeEditor.open(this.getCurrentFile(),true).then( () => {
+                  //mark job as completed
+                  job.state = "completed";
+                  this.jobs.set( this.getCurrentFile(), job);
                 });
-              }else if(event.value.user != this.getUserId() && event.value.state == "completed"){
-                //reload file after other use has reinitialized the file space
-                setTimeout( () => {
-                  this.codeEditor.open(this.getCurrentFile());
-                });
-              }
+              });
+            }else if(event.value.user != this.getUserId() && event.value.state == "completed"){
+              //reload file after other use has reinitialized the file space
+              setTimeout( () => {
+                this.codeEditor.open(this.getCurrentFile());
+              });
             }
           });
           this.codeEditor.setModalStatus(1);
@@ -553,11 +551,9 @@ class Workspace extends EventEmitter{
                     state : "pending"
                   }
 
-                  _observer = (events) => {
-                    for(let event of events){
-                      if(event.name === _filename && event.value && event.value.state == "received"){
-                          reloaded = true;
-                      }
+                  _observer = (event) => {
+                    if(event.name === _filename && event.value && event.value.state == "received"){
+                        reloaded = true;
                     }
                   }
                   this.jobs.observe( _observer );
