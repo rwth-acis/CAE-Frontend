@@ -326,19 +326,16 @@ class SegmentManager extends EventEmitter{
     yText.observe(function(events){
       //ignore empty events
       if(events && events.length){
-        self.mutualExclusion(function(elm){
+        self.mutualExclusion(function(event){
           let segStart = self.getSegmentStartIndex(segment.getId());
-          for(let i=0;i<elm.length;i++){
-            let event = elm[i];
-            if (event.type === 'insert') {
-              let start = aceDocument.indexToPosition(event.index + segStart, 0);
-              aceDocument.insert(start, event.value);
-            } else if (event.type === 'delete') {
-              let start = aceDocument.indexToPosition(event.index + segStart, 0);
-              let end = aceDocument.indexToPosition(event.index  + segStart + event.length, 0);
-              let range = new Range(start.row, start.column, end.row, end.column);
-              aceDocument.remove(range);
-            }
+          if (event.type === 'insert') {
+            let start = aceDocument.indexToPosition(event.index + segStart, 0);
+            aceDocument.insert(start, event.values.join(""));
+          } else if (event.type === 'delete') {
+            let start = aceDocument.indexToPosition(event.index + segStart, 0);
+            let end = aceDocument.indexToPosition(event.index  + segStart + event.length, 0);
+            let range = new Range(start.row, start.column, end.row, end.column);
+            aceDocument.remove(range);
           }
           segment.setValue(yText.toString());
         })(events);
