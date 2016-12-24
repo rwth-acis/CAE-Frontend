@@ -79,14 +79,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
-    <script type="text/javascript" src="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
-  <script type="text/javascript" src="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/yjs/y.js"></script>
-  <script type="text/javascript" src="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/ace-builds/src-noconflict/ace.js"></script>
-  <script type="text/javascript" src="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/material-design-lite/material.min.js"></script>
+    <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/yjs/y.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/ace-builds/src-noconflict/ace.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/material-design-lite/material.min.js"></script>
 
-  <link rel="stylesheet" href="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/bower_components/material-design-lite/material.min.css">
+  <link rel="stylesheet" href="@@host/liveCodeEditorWidget/bower_components/material-design-lite/material.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <link rel="stylesheet" href="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/css/style.css">
+  <link rel="stylesheet" href="@@host/liveCodeEditorWidget/css/style.css">
 </head>
 <body>
   <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
@@ -139,7 +139,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </div>
     </main>
   </div>
-  <script type="text/javascript" src="http://eiche.informatik.rwth-aachen.de/editor/codeEditor/codeEditorWidget/dist/main.dev.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/main.dev.js"></script>
   <script type="text/javascript">
     function resizeAce() {
       return $('.editor, #editor').height($(window).height()-$("header:eq(0)").height() - 20);
