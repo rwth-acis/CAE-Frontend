@@ -125,7 +125,10 @@ module.exports = function(grunt) {
 					//Images
 					{expand: true, cwd: "src/liveCodeEditorWidget", src:"img/*", dest: "dist/liveCodeEditorWidget/"},
 					//Copy bower components
-					{expand: true, src: "bower_components/**", dest: "dist/liveCodeEditorWidget/"}
+					{expand: true, src: "bower_components/**", dest: "dist/liveCodeEditorWidget/"},
+					//static js
+					{expand: true, flatten: true, filter: 'isFile', src: "src/liveCodeEditorWidget/mode-xml.js", dest: "dist/liveCodeEditorWidget/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/liveCodeEditorWidget/iwc.js", dest: "dist/liveCodeEditorWidget/"}
 				]
 			}
 		}
