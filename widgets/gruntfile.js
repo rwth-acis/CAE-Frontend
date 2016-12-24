@@ -13,25 +13,25 @@ module.exports = function(grunt) {
 				dest : 'dist/liveCodeEditorWidget/specs.js',
         options:{
           alias : {
-            'openapp' : "./tests/roleSpaceMockup.js"
+            'openapp' : "./tests/liveCodeEditorWidget/roleSpaceMockup.js"
           }
         }
       },
 			CAECode:{
-				src : ['node_modules/regenerator/runtime.js','src/main.js'],
+				src : ['node_modules/regenerator/runtime.js','src/liveCodeEditorWidget/main.js'],
 				dest : 'dist/liveCodeEditorWidget/main.dev.js',
         options:{
           alias : {
-            'openapp' : "./src/lib/openapp.js"
+            'openapp' : "./src/liveCodeEditorWidget/lib/openapp.js"
           }
         }
 			},
       CAELivePreview:{
-        src: ["src/livePreview.js"],
+        src: ["src/liveCodeEditorWidget/livePreview.js"],
         dest : 'dist/liveCodeEditorWidget/livePreview.dev.js',
         options:{
           alias : {
-            'openapp' : "./src/lib/openapp.js"
+            'openapp' : "./src/liveCodeEditorWidget/lib/openapp.js"
           }
         }
       }
