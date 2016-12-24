@@ -116,6 +116,14 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/microserviceSelectWidget", src:"css/*", dest: "dist/microserviceSelectWidget/"}
 				]
+			},
+			liveCodeEditorWidget: {
+				files: [
+					//CSS
+					{expand: true, cwd: "src/liveCodeEditorWidget", src:"css/*", dest: "dist/liveCodeEditorWidget/"},
+					//Images
+					{expand: true, cwd: "src/liveCodeEditorWidget", src:"img/*", dest: "dist/liveCodeEditorWidget/"}
+				]
 			}
 		}
 });
