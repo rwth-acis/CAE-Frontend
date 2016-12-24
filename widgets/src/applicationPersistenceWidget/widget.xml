@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="Application Persistence Widget"
+    description="This widget is responsible for persisting applications."
+    author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
+    width="600" height="300">
+
+    <Require feature="opensocial-0.8"></Require>
+    <Require feature="openapp"></Require>
+    <Require feature="dynamic-height"></Require>
+
+    <OAuth>
+      <Service name="openapp"
+        xmlns:openapp="http://www.role-project.eu/xml/openapp/opensocialext/"
+        openapp:service="http://purl.org/role/terms/spaceService"
+        openapp:permitReadAppend="http://purl.org/role/terms/data">
+        <Request method="" url=""></Request>
+        <Authorization url=""></Authorization>
+        <Access method="" url=""></Access>
+      </Service>
+    </OAuth>
+
+  </ModulePrefs>
+  <Content type="html">
+  <![CDATA[
+<!--
+Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
+Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the ACIS Group nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Application Persistence Widget</title>
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Bootstrap stylesheet import -->
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
+  <!-- import jQuery for AJAX calls -->
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- Inter Widget Communication library import-->
+  <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
+  <!-- style information -->
+  <link rel="stylesheet" href="@@host/applicationPersistenceWidget/css/style.css">
+  <!-- import the client library -->
+  <script type="text/javascript" src="@@host/applicationPersistenceWidget/js/las2peerWidgetLibrary.js"></script>
+  <!-- import yjs -->
+  <script type="text/javascript" src="@@host/applicationPersistenceWidget/js/yjs/y.js"></script>
+  <!-- import application script -->
+  <script type="text/javascript" src="@@host/applicationPersistenceWidget/js/applicationScript.js"></script>
+
+  <!-- Additional widget specific imports -->
+  <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+
+</head>
+<body>
+
+  <!-- container for actual page content -->
+  <div class="container" id="main-content">
+    <div class="form-group">
+      <label for="name">Application Name</label><input type="text" class="form-control" id="name" placeholder="Application Name..">
+      </div>
+      <div class="form-group">
+      <label for="version">Version</label><input type="text" class="form-control" id="version" placeholder="Version..">
+    </div>
+    <div class="btn-group btn-group-justified">
+      <div class="btn-group">
+        <button id="load-model" class="btn btn-default">Load</button>
+      </div>
+      <div class="btn-group">
+        <button id="store-model" class="btn btn-default">Store</button>
+      </div>
+      <div class="btn-group">
+        <button id="deploy-model" class="btn btn-default" disabled>Deploy</button>
+      </div>
+      <div class="btn-group">
+        <button id="delete-model" class="btn btn-default">Reset</button>
+      </div>
+    </div>
+    <br>
+    <div class="form-group">
+      <input type="text" class="form-control" id="status" placeholder="Status..">
+      <br>
+      <textarea id="deploy-status" class="form-control" readonly></textarea>
+    </div>
+  </div>
+
+</body>
+</html>
+
+  ]]>
+  </Content>
+
+</Module>
