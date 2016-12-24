@@ -123,7 +123,9 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/liveCodeEditorWidget", src:"css/*", dest: "dist/liveCodeEditorWidget/"},
 					//Images
-					{expand: true, cwd: "src/liveCodeEditorWidget", src:"img/*", dest: "dist/liveCodeEditorWidget/"}
+					{expand: true, cwd: "src/liveCodeEditorWidget", src:"img/*", dest: "dist/liveCodeEditorWidget/"},
+					//Copy bower components
+					{expand: true, src: "bower_components/**", dest: "dist/liveCodeEditorWidget/"}
 				]
 			}
 		}
