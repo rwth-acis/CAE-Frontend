@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:80',
+		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
 		browserify:{
 			options:{
 				transform: [
@@ -63,7 +63,8 @@ module.exports = function(grunt) {
 			server: {
 				options: {
 					port: 8001,
-					base: '.'
+					base: './dist',
+					keepalive: true
         }
 			}
 		},
@@ -83,7 +84,12 @@ module.exports = function(grunt) {
 					{src: "src/microservicePersistenceWidget/widget.xml", dest: "dist/microservicePersistenceWidget/widget.xml"},
 					{src: "src/frontendComponentSelectWidget/widget.xml", dest: "dist/frontendComponentSelectWidget/widget.xml"},
 					{src: "src/microserviceSelectWidget/widget.xml", dest: "dist/microserviceSelectWidget/widget.xml"},
-					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"}
+					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
+					// Code Editor
+					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
+					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
+					{src: "src/liveCodeEditorWidget/livePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/livePreviewWidget.xml"},
+					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"}
 				]
 			}
 		},
@@ -91,31 +97,41 @@ module.exports = function(grunt) {
 			applicationPersistenceWidget: {
 				files: [
 					//CSS
-					{expand: true, cwd: "src/applicationPersistenceWidget", src:"css/*", dest: "dist/applicationPersistenceWidget/"}
+					{expand: true, cwd: "src/applicationPersistenceWidget", src:"css/*", dest: "dist/applicationPersistenceWidget/"},
+					//Static JS
+					{expand: true, cwd: "src/applicationPersistenceWidget", src:"js/*", dest:"dist/applicationPersistenceWidget/"}
 				]
 			},
 			frontendComponentPersistenceWidget: {
 				files: [
 					//CSS
-					{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"css/*", dest: "dist/frontendComponentPersistenceWidget/"}
+					{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"css/*", dest: "dist/frontendComponentPersistenceWidget/"},
+					//Static JS
+					{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"js/*", dest:"dist/frontendComponentPersistenceWidget/"}
 				]
 			},
 			microservicePersistenceWidget: {
 				files: [
 					//CSS
-					{expand: true, cwd: "src/microservicePersistenceWidget", src:"css/*", dest: "dist/microservicePersistenceWidget/"}
+					{expand: true, cwd: "src/microservicePersistenceWidget", src:"css/*", dest: "dist/microservicePersistenceWidget/"},
+					//Static JS
+					{expand: true, cwd: "src/microservicePersistenceWidget", src:"js/*", dest: "dist/microservicePersistenceWidget/"}
 				]
 			},
 			frontendComponentSelectWidget: {
 				files: [
 					//CSS
-					{expand: true, cwd: "src/frontendComponentSelectWidget", src:"css/*", dest: "dist/frontendComponentSelectWidget/"}
+					{expand: true, cwd: "src/frontendComponentSelectWidget", src:"css/*", dest: "dist/frontendComponentSelectWidget/"},
+					//Static JS
+					{expand: true, cwd: "src/frontendComponentSelectWidget", src:"js/*", dest: "dist/frontendComponentSelectWidget/"}
 				]
 			},
 			microserviceSelectWidget: {
 				files: [
 					//CSS
-					{expand: true, cwd: "src/microserviceSelectWidget", src:"css/*", dest: "dist/microserviceSelectWidget/"}
+					{expand: true, cwd: "src/microserviceSelectWidget", src:"css/*", dest: "dist/microserviceSelectWidget/"},
+					//Static JS
+					{expand: true, cwd: "src/microserviceSelectWidget", src:"js/*", dest: "dist/microserviceSelectWidget/"}
 				]
 			},
 			liveCodeEditorWidget: {
