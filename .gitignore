@@ -53,3 +53,5 @@ bower_components
 
 # Exclude compiled/processed files
 dist
+
+config.js
