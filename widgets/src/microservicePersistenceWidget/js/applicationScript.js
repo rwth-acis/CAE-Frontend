@@ -71,7 +71,7 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/widgets/microservicePersistenceWidget/js'
+        sourceDir: '@@host/microservicePersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
