@@ -4,5 +4,8 @@ export default{
   },
   CodeEditorWidget:{
     bower_components: "http://steen.informatik.rwth-aachen.de/~commedit/CodeEditor/liveCodeEditorWidget/bower_components/" // location of bower components
+  },
+  Yjs:{
+    websockets_server: "wss://yjs.dbis.rwth-aachen.de:5082" //yjs server url
   }
 }

@@ -38,7 +38,7 @@ export default class RoleSpace extends EventEmitter{
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
-            url: "wss://yjs.dbis.rwth-aachen.de:5082"
+            url: config.Yjs.websockets_server
         },
         share: { // specify the shared content
             users: 'Map',
@@ -54,7 +54,7 @@ export default class RoleSpace extends EventEmitter{
             data: 'Map',
             text: "Text"
         },
-        sourceDir: 'http://steen.informatik.rwth-aachen.de/~commedit/CodeEditor/liveCodeEditorWidget/bower_components'
+        sourceDir: config.CodeEditorWidget.bower_components
     }).then(function(y) {
         console.info('LIVEEDIT: Yjs successfully initialized');
 
