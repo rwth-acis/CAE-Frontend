@@ -213,7 +213,7 @@ var getData = function(type){
               _.isArray(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'])){
 
             values = _.map(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type']);
-            });
+            }
 
             if(_.contains(values,"http://purl.org/role/terms/Data") && _.contains(values,type)){
               listOfDataUris.push(resourceUri);
@@ -223,9 +223,9 @@ var getData = function(type){
         }
       }
       deferred.resolve();
-    };
+    }
 
-  })(deferred));
+  )(deferred));
   promises.push(deferred.promise());
 
   $.when.apply($,promises).then(function(){
