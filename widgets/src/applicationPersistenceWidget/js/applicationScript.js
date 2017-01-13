@@ -40,7 +40,7 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("http://localhost:8080/CAE", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
   spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {

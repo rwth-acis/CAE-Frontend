@@ -15,7 +15,7 @@ $(function() {
         });
     });
 
-    client = new Las2peerWidgetLibrary("http://localhost:8080/CAE/models");
+    client = new Las2peerWidgetLibrary("@@caehost/CAE/models");
 
     getServices()
 });
