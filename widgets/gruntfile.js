@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 			}
 		},
 		replace: {
-			widgetXMLPaths: {
+			widgetPaths: {
 				options: {
 					patterns: [
 						{
