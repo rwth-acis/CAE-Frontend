@@ -54,8 +54,7 @@ var init = function() {
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
-            //url: 'https://yjs.dbis.rwth-aachen.de:5080'
-            url: 'http://yjs.dbis.rwth-aachen.de:5079'
+            url: '@@yjsserver'
         },
         share: { // specify the shared content
             users: 'Map',
@@ -71,7 +70,7 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/widgets/applicationPersistenceWidget/js'
+        sourceDir: '@@host/applicationPersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 

@@ -2,6 +2,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
+		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('host') : 'wss://yjs.dbis.rwth-aachen.de:5082',
 		browserify:{
 			options:{
 				transform: [
@@ -75,6 +76,10 @@ module.exports = function(grunt) {
 						{
 							match: 'host',
 							replace: '<%= host %>'
+						},
+						{
+							match: 'yjsserver',
+							replace: '<%= yjsserver %>'
 						}
 					]
 				},
@@ -88,6 +93,10 @@ module.exports = function(grunt) {
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 					//CAE widgets JS
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
+					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
+					{src: "src/applicationPersistenceWidget/js/applicationScript.js", dest: "dist/applicationPersistenceWidget/js/applicationScript.js"},
+					{src: "src/frontendComponentSelectWidget/js/syncmeta-plugin.js", dest:"dist/frontendComponentSelectWidget/js/syncmeta-plugin.js"},
+					{src: "src/microserviceSelectWidget/js/syncmeta-plugin.js", dest:"dist/microserviceSelectWidget/js/syncmeta-plugin.js"},
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
@@ -102,7 +111,15 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/applicationPersistenceWidget", src:"css/*", dest: "dist/applicationPersistenceWidget/"},
 					//Static JS
-					{expand: true, cwd: "src/applicationPersistenceWidget", src:"js/*", dest:"dist/applicationPersistenceWidget/"}
+					//{expand: true, cwd: "src/applicationPersistenceWidget", src:"js/*", dest:"dist/applicationPersistenceWidget/"}
+					{expand: true, flatten: true, filter: 'isFile', src: "src/applicationPersistenceWidget/js/las2peerWidgetLibrary.js", dest: "dist/applicationPersistenceWidget/js/"},
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/applicationPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/applicationPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/applicationPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/applicationPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/applicationPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/applicationPersistenceWidget/js/"}
 				]
 			},
 			frontendComponentPersistenceWidget: {
@@ -110,7 +127,15 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"css/*", dest: "dist/frontendComponentPersistenceWidget/"},
 					//Static JS
-					{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"js/*", dest:"dist/frontendComponentPersistenceWidget/"}
+				  //{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"js/*", dest:"dist/frontendComponentPersistenceWidget/"}
+					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentPersistenceWidget/js/las2peerWidgetLibrary.js", dest: "dist/frontendComponentPersistenceWidget/js/"},
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/frontendComponentPersistenceWidget/js/"}
 				]
 			},
 			microservicePersistenceWidget: {
@@ -134,7 +159,16 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/frontendComponentSelectWidget", src:"css/*", dest: "dist/frontendComponentSelectWidget/"},
 					//Static JS
-					{expand: true, cwd: "src/frontendComponentSelectWidget", src:"js/*", dest: "dist/frontendComponentSelectWidget/"}
+					//{expand: true, cwd: "src/frontendComponentSelectWidget", src:"js/*", dest: "dist/frontendComponentSelectWidget/"}
+					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/extendedLas2peerWidgetLibrary.js", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest: "dist/frontendComponentSelectWidget/js/"},
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/frontendComponentSelectWidget/js/"}
 				]
 			},
 			microserviceSelectWidget: {
@@ -142,7 +176,16 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/microserviceSelectWidget", src:"css/*", dest: "dist/microserviceSelectWidget/"},
 					//Static JS
-					{expand: true, cwd: "src/microserviceSelectWidget", src:"js/*", dest: "dist/microserviceSelectWidget/"}
+					//{expand: true, cwd: "src/microserviceSelectWidget", src:"js/*", dest: "dist/microserviceSelectWidget/"}
+					{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/applicationScript.js", dest: "dist/microserviceSelectWidget/js/"},
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/microserviceSelectWidget/js/"}
 				]
 			},
 			liveCodeEditorWidget: {

@@ -374,7 +374,7 @@ syncmeta_api.define('lib/yjs-sync',['jquery', 'yjs'], function($) {
             connector: {
                 name: 'websockets-client', // use the websockets connector
                 room: spaceTitle,
-                url:"http://ginkgo.informatik.rwth-aachen.de:9080"
+                url:"@@yjsserver"
             },
             share: { // specify the shared content
                 users: 'Map',
@@ -391,7 +391,7 @@ syncmeta_api.define('lib/yjs-sync',['jquery', 'yjs'], function($) {
                 text:"Text"
             },
             type:["Text","Map"],
-            sourceDir: 'http://ginkgo.informatik.rwth-aachen.de/ugnm1617/syncmeta2/js/lib/vendor'
+            sourceDir: '@@host/microserviceSelectWidget/js'
         }).then(function(y) {
             deferred.resolve(y);
         });
