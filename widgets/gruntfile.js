@@ -93,6 +93,7 @@ module.exports = function(grunt) {
 					{src: "src/applicationPersistenceWidget/widget.xml", dest: "dist/applicationPersistenceWidget/widget.xml"},
 					{src: "src/frontendComponentPersistenceWidget/widget.xml", dest: "dist/frontendComponentPersistenceWidget/widget.xml"},
 					{src: "src/microservicePersistenceWidget/widget.xml", dest: "dist/microservicePersistenceWidget/widget.xml"},
+					
 					{src: "src/frontendComponentSelectWidget/widget.xml", dest: "dist/frontendComponentSelectWidget/widget.xml"},
 					{src: "src/microserviceSelectWidget/widget.xml", dest: "dist/microserviceSelectWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
@@ -100,8 +101,11 @@ module.exports = function(grunt) {
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
 					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
 					{src: "src/applicationPersistenceWidget/js/applicationScript.js", dest: "dist/applicationPersistenceWidget/js/applicationScript.js"},
+					
 					{src: "src/frontendComponentSelectWidget/js/syncmeta-plugin.js", dest:"dist/frontendComponentSelectWidget/js/syncmeta-plugin.js"},
+					{src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest:"dist/frontendComponentSelectWidget/js/applicationScript.js"},
 					{src: "src/microserviceSelectWidget/js/syncmeta-plugin.js", dest:"dist/microserviceSelectWidget/js/syncmeta-plugin.js"},
+					{src: "src/microserviceSelectWidget/js/applicationScript.js", dest:"dist/microserviceSelectWidget/js/applicationScript.js"},
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
@@ -166,7 +170,7 @@ module.exports = function(grunt) {
 					//Static JS
 					//{expand: true, cwd: "src/frontendComponentSelectWidget", src:"js/*", dest: "dist/frontendComponentSelectWidget/"}
 					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/extendedLas2peerWidgetLibrary.js", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest: "dist/frontendComponentSelectWidget/js/"},
+					//{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest: "dist/frontendComponentSelectWidget/js/"},
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/frontendComponentSelectWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/frontendComponentSelectWidget/js/"},
@@ -183,7 +187,7 @@ module.exports = function(grunt) {
 					//Static JS
 					//{expand: true, cwd: "src/microserviceSelectWidget", src:"js/*", dest: "dist/microserviceSelectWidget/"}
 					{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/applicationScript.js", dest: "dist/microserviceSelectWidget/js/"},
+					//{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/applicationScript.js", dest: "dist/microserviceSelectWidget/js/"},
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/microserviceSelectWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/microserviceSelectWidget/js/"},
