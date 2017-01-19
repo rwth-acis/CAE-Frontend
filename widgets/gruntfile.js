@@ -2,7 +2,7 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
-		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('host') : 'wss://yjs.dbis.rwth-aachen.de:5082',
+		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'wss://yjs.dbis.rwth-aachen.de:5082',
 		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
 		browserify:{
 			options:{
