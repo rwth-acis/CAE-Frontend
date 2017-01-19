@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Module>
+  <ModulePrefs title="Live Code Editor"
+    description="This widget provides the actual live code editing facilities for model-based community web applications."
+    author="Thomas Winkler" author_email="winkler@dbis.rwth-aachen.de"
+    width="800" height="500">
+
+    <Require feature="opensocial-0.8"></Require>
+    <Require feature="openapp"></Require>
+    <Require feature="dynamic-height"></Require>
+
+    <OAuth>
+      <Service name="openapp"
+        xmlns:openapp="http://www.role-project.eu/xml/openapp/opensocialext/"
+        openapp:service="http://purl.org/role/terms/spaceService"
+        openapp:permitReadAppend="http://purl.org/role/terms/data">
+        <Request method="" url=""></Request>
+        <Authorization url=""></Authorization>
+        <Access method="" url=""></Access>
+      </Service>
+    </OAuth>
+
+  </ModulePrefs>
+  <Content type="html">
+  <![CDATA[
+<!--
+Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
+Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the ACIS Group nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Model Persistence Widget</title>
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- OpenApp import -->
+  <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+  <!-- Inter Widget Communication library import-->
+
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/iwc.js"></script>
+  <!-- <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script> -->
+  <!-- import the client library -->
+
+  <!-- Additional widget specific imports -->
+  <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
+
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/yjs/y.js"></script>
+</head>
+<body>
+      <script type="text/javascript">
+        window.localStorage.componentType = "frontendComponent";
+      </script>
+      <script type="text/javascript" src="@@host/liveCodeEditorWidget/livePreview.dev.js"></script>
+      <div id="main-content">
+      </div>
+</body>
+</html>
+  ]]>
+  </Content>
+</Module>
