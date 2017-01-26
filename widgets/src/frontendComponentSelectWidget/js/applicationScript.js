@@ -102,14 +102,3 @@ var getServices = function() {
     $("#frontendComponentTable").html(error);
   })
 };
-
-
-/**
- *
- * Calls the client function that sends a
- * "frontend component was selected" signal to SyncMeta.
- *
- */
-var sendFrontendComponentNode = function(name) {
-  client.sendFrontendComponentSelected(name);
-}
