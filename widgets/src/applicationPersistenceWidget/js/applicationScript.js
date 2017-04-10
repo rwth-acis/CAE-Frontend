@@ -123,7 +123,7 @@ var resetCurrentModel = function(y) {
 
 var pendingDots = 0;
 var getJobConsoleText = function(queueItem,jobAlias){
-  client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "application/json", {},
+  client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "text/plain", {},
   function(data,type){
     console.log(data, type)
     if(data.indexOf("Pending") > -1){
@@ -172,7 +172,7 @@ var pollJobConsoleText = function(location,jobAlias){
 }
 
 var deployRequest = function(jobAlias){
-  client.sendRequest("GET", "deploy/"+loadedModel+"/"+jobAlias, "", "application/json", {},
+  client.sendRequest("GET", "deploy/"+loadedModel+"/"+jobAlias, "", "text/plain", {},
     function(data, type) {
       if(data.indexOf("Error") > -1){
         feedback(data);
