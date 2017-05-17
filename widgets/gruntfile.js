@@ -109,7 +109,7 @@ module.exports = function(grunt) {
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
-					{src: "src/liveCodeEditorWidget/livePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/livePreviewWidget.xml"},
+					{src: "src/liveCodeEditorWidget/LivePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/LivePreviewWidget.xml"},
 					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"}
 				]
 			}
