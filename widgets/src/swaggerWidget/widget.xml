@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Metadata Widget"
-    description="This widget is responsible for showing CAE connections"
+  <ModulePrefs title="Swagger Widget"
+    description="This widget is to manage swagger metadata in microservice components"
     author="Melisa Cecilia" author_email="cecilia@dbis.rwth-aachen.de"
     width="600" height="300">
 
@@ -92,25 +92,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <body>
 
   <!-- container for actual page content -->
-  <div class="container" id="main-content">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Component Name</th>
-                <th>Endpoint Name</th>
-                <th>Data Type</th>
-                <th>Connect</th>
-            </tr>
-        </thead>
-            <tr>
-                <td>Test</td>
-                <td>Get Data</td>
-                <td>String</td>
-                <td><label class="checkbox-inline"><input type="checkbox" value=""></label></td>
-            </tr>
-        <tbody>
-        </tbody>
-    </table>
+  <div class="container" id="swagger-content">
+    <div class="form-group">
+      <label for="type">Swagger Type</label>
+      <select class="form-control" id="swaggerType">
+        <option value="json">Json</option>
+        <option value="yaml">Yaml</option>
+      </select>
+      <label for="script">Swagger Script</label>
+      <textarea class="form-control" id="swaggerScript" placeholder="Put your swagger script here">
+    </div>
+    <div class="btn-group btn-group-justified">
+      <div class="btn-group">
+        <button id="store-doc" class="btn btn-default">Store</button>
+      </div>
+    </div>
+    <br>
+    <div class="form-group">
+      <input type="text" class="form-control" id="status" placeholder="Status..">
+      <br>
+      <textarea id="deploy-status" class="form-control" readonly></textarea>
+    </div>
   </div>
 
 </body>
