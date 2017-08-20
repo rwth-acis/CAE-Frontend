@@ -35,6 +35,7 @@
  * IWC-callback function
  */
 function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
+  console.log("INIT LAS2PEER WIDGET WITH ENDPOINT " + endpointUrl);
   // care for widget frontends without a microservice backend
   if (endpointUrl === null) {
     endpointUrl = "not specified";

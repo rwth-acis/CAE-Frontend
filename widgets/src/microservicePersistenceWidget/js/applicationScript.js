@@ -127,7 +127,10 @@ var storeModel = function(y) {
         return;
     }
 
+    console.log("TRYING TO GET DATA FROM Y SHARE");
+
     if (y.share.data.get('model')) {
+        console.log("MODEL DATA GET, STORE MODEL");
         var data = y.share.data.get('model');
         // add name, version and type to model
         data.attributes.label.value.value = $("#name").val();

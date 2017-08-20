@@ -99,6 +99,7 @@ module.exports = function(grunt) {
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
+					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
 					//CAE widgets JS
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
 					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
@@ -110,6 +111,7 @@ module.exports = function(grunt) {
 					{src: "src/microserviceSelectWidget/js/applicationScript.js", dest:"dist/microserviceSelectWidget/js/applicationScript.js"},
 
 					{src: "src/metadataWidget/js/applicationScript.js", dest: "dist/metadataWidget/js/applicationScript.js"},
+					{src: "src/swaggerWidget/js/applicationScript.js", dest: "dist/swaggerWidget/js/applicationScript.js"},
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
@@ -219,6 +221,7 @@ module.exports = function(grunt) {
 					//CSS
 					{expand: true, cwd: "src/metadataWidget", src:"css/*", dest: "dist/metadataWidget/"},
 					//Static JS
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/las2peerWidgetLibrary.js", dest: "dist/metadataWidget/js/"},
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/metadataWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/metadataWidget/js/"},
@@ -226,6 +229,21 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/metadataWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/metadataWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/metadataWidget/js/"}
+				]
+			},
+			swaggerWidget: {
+				files: [
+					//CSS
+					{expand: true, cwd: "src/swaggerWidget", src:"css/*", dest: "dist/swaggerWidget/"},
+					//Static JS
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/swaggerWidget/js/"}
 				]
 			},
 		}

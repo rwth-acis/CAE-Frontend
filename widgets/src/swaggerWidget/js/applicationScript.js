@@ -37,104 +37,63 @@ var client,
     loadedSwaggerDoc = null;
 
 var init = function() {
+  console.log("INIT SWAGGER WIDGET");
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("@@caehost/metadata/metadatadoc", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    };
-
-    Y({
-        db: {
-            name: 'memory' // store the shared data in memory
-        },
-        connector: {
-            name: 'websockets-client', // use the websockets connector
-            room: spaceTitle,
-            url: '@@yjsserver'
-        },
-        share: { // specify the shared content
-            users: 'Map',
-            undo: 'Array',
-            redo: 'Array',
-            join: 'Map',
-            canvas: 'Map',
-            nodes: 'Map',
-            edges: 'Map',
-            userList: 'Map',
-            select: 'Map',
-            views: 'Map',
-            data: 'Map',
-            text: "Text"
-        },
-        sourceDir: '@@host/swaggerWidget/js'
-    }).then(function(y) {
-        console.info('PERSISTENCE: Yjs successfully initialized');
-
-          // retrieve current swagger doc from the space and store it
-
-          if (y.share.data.get('metadataDoc')) {
-            var data = y.share.data.get('metadataDoc');
-              if (data.attributes.docString && data.attributes.docString.value) {
-                loadedSwaggerType = data.attributes.docType.value;
-                loadedSwaggerDoc = data.attributes.docString.value;
-                $("#swaggerType").val(loadedSwaggerType);
-                $("#swaggerScript").val(loadedSwaggerDoc);
-                feedback("Swagger script loaded");
-              }
-          } else {
-              loadedSwaggerDoc = null;
-          }
-
-        $('#store-doc').on('click', function() {
-          storeDoc(y);
-        })
-    });
+  console.log("====BIND STORE DOC BUTTON=====");
+  $('#store-doc').on('click', function() {
+    console.log("========STORE DOC CLICK=========");
+    storeDoc();
+  })
 };
 
 // retrieves the JSON representation of this space
-var storeDoc = function(y) {
+var storeDoc = function() {
 
+  console.log("========STORE DOC=========");
+
+  var componentId = $("#name").val();
   var swaggerType = $("#swaggerType").val();
   var swaggerScript = $("#swaggerScript").val();
   // TODO validate swagger script
 
-  if(y.share.data.get('metadataDoc')){
-    var data = y.share.data.get('metadataDoc');
-    // add type and script to metadataDoc
-    data.attributes.type.value = swaggerType;
-    data.attributes.docString.value = swaggerScript;
-    y.share.data.set('metadataDoc',data)
+  var data = {
+    "componentId": "Lalala",
+    "docType": swaggerType,
+    "docString": swaggerScript
+  }
 
-    if(loadedModel === null){
-      client.sendRequest("POST", "metadataDoc/", JSON.stringify(data), "application/json", {},
+  console.log("========DATA DOC=========");
+  console.log(JSON.stringify(data));
+
+  if(loadedSwaggerDoc === null){
+    console.log("POST SWAGGER DATA");
+    client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
+    function(data, type) {
+      // save currently loaded model
+      loadedSwaggerDoc = $("#name").val();
+      console.log("Swagger doc stored, retrieving communication view..");
+      feedback("Swagger doc stored!");
+    },
+    function(error) {
+      console.log(error);
+      feedback(error);
+    });
+  } else{
+      console.log("PUT SWAGGER DATA");
+      client.sendRequest("PUT", "docs/" + loadedSwaggerDoc, JSON.stringify(data), "application/json", {},
       function(data, type) {
-        // save currently loaded model
-        loadedModel = $("#name").val();
-        console.log("Model stored, retrieving communication view..");
-        feedback("Swagger doc stored!");
+        console.log("Swagger doc updated!");
+        feedback("Swagger doc updated!");
       },
       function(error) {
         console.log(error);
         feedback(error);
       });
-      } else{
-        client.sendRequest("PUT", "metadataDoc/" + loadedModel, JSON.stringify(data), "application/json", {},
-        function(data, type) {
-          console.log("Swagger doc updated!");
-          feedback("Swagger doc updated!");
-        },
-        function(error) {
-          console.log(error);
-          feedback(error);
-        });
-      }
-  } else {
-    feedback("No swagger doc!");
-  }
+    };
 };
 
 $(document).ready(function() {

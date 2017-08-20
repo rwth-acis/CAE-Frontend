@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- style information -->
   <link rel="stylesheet" href="@@host/metadataWidget/css/style.css">
   <!-- import the client library -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/las2peerWidgetLibrary.js"></script>
+  <script type="text/javascript" src="@@host/microservicePersistenceWidget/js/las2peerWidgetLibrary.js"></script>
   <!-- import yjs -->
   <script type="text/javascript" src="@@host/metadataWidget/js/yjs/y.js"></script>
   <!-- import application script -->

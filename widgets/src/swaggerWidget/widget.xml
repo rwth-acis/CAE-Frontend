@@ -76,13 +76,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- Inter Widget Communication library import-->
   <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
   <!-- style information -->
-  <link rel="stylesheet" href="@@host/metadataWidget/css/style.css">
+  <link rel="stylesheet" href="@@host/swaggerWidget/css/style.css">
   <!-- import the client library -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/las2peerWidgetLibrary.js"></script>
+  <script type="text/javascript" src="@@host/swaggerWidget/js/las2peerWidgetLibrary.js"></script>
   <!-- import yjs -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/yjs/y.js"></script>
+  <script type="text/javascript" src="@@host/swaggerWidget/js/yjs/y.js"></script>
   <!-- import application script -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/applicationScript.js"></script>
+  <script type="text/javascript" src="@@host/swaggerWidget/js/applicationScript.js"></script>
 
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
@@ -94,13 +94,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- container for actual page content -->
   <div class="container" id="swagger-content">
     <div class="form-group">
+      <label for="type">Microservice Name</label>
+      <input type="text" class="form-control" value="Lalala" id="name" disable placeholder="Microservice name...">
       <label for="type">Swagger Type</label>
       <select class="form-control" id="swaggerType">
         <option value="json">Json</option>
         <option value="yaml">Yaml</option>
       </select>
       <label for="script">Swagger Script</label>
-      <textarea class="form-control" id="swaggerScript" placeholder="Put your swagger script here">
+      <textarea class="form-control" id="swaggerScript" placeholder="Put your swagger script here" />
     </div>
     <div class="btn-group btn-group-justified">
       <div class="btn-group">
@@ -109,9 +111,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </div>
     <br>
     <div class="form-group">
-      <input type="text" class="form-control" id="status" placeholder="Status..">
-      <br>
-      <textarea id="deploy-status" class="form-control" readonly></textarea>
+      <input type="text" class="form-control" disable id="status" placeholder="Status..">
     </div>
   </div>
 
