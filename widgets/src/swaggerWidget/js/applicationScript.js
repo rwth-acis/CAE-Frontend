@@ -34,66 +34,141 @@
 var client,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
+    loadedModel = null,
     loadedSwaggerDoc = null;
 
 var init = function() {
-  console.log("INIT SWAGGER WIDGET");
+  console.log("[Swagger Widget] INIT SWAGGER WIDGET");
   var iwcCallback = function(intent) {
     console.log(intent);
   };
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  console.log("====BIND STORE DOC BUTTON=====");
-  $('#store-doc').on('click', function() {
-    console.log("========STORE DOC CLICK=========");
-    storeDoc();
-  })
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
+    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
+        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
+    }
+  
+  Y({
+        db: {
+            name: 'memory' // store the shared data in memory
+        },
+        connector: {
+            name: 'websockets-client', // use the websockets connector
+            room: spaceTitle,
+            url: '@@yjsserver'
+        },
+        share: { // specify the shared content
+            users: 'Map',
+            undo: 'Array',
+            redo: 'Array',
+            join: 'Map',
+            canvas: 'Map',
+            nodes: 'Map',
+            edges: 'Map',
+            userList: 'Map',
+            select: 'Map',
+            views: 'Map',
+            data: 'Map',
+            text: "Text"
+        },
+        sourceDir: '@@host/microservicePersistenceWidget/js'
+        //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
+    }).then(function(y) {
+        console.info('[Swagger Widget] Yjs successfully initialized');
+
+        // retrieve current model from the space and store it
+        if (y.share.data.get('model')) {
+            console.log('[Swagger Widget] Saved model exists');
+            var data = y.share.data.get('model');
+            loadedModel = data.attributes.label.value.value;
+            // special case if model was only saved in the space (not loaded from db)
+            if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+                loadedModel = null;
+                feedback("Model was not loaded from database until now..");
+            } else {
+                $("#name").val(loadedModel);
+            }
+        } else {
+            loadedModel = null;
+        }
+
+        // retrieve current model from the space and store it
+        if (y.share.data.get('metadataDoc')) {
+          // load model
+            var data = y.share.data.get('metadataDoc');
+            loadedSwaggerDoc = data;
+            $("#swaggerType").val(loadedSwaggerDoc.docType);
+            $("#swaggerScript").val(loadedSwaggerDoc.docString);
+        } else {
+            loadedSwaggerDoc = null;
+        }
+
+        $('#store-doc').on('click', function() {
+          storeDoc();
+        })
+    });
 };
 
 // retrieves the JSON representation of this space
 var storeDoc = function() {
 
-  console.log("========STORE DOC=========");
-
-  var componentId = $("#name").val();
-  var swaggerType = $("#swaggerType").val();
-  var swaggerScript = $("#swaggerScript").val();
-  // TODO validate swagger script
-
-  var data = {
-    "componentId": "Lalala",
-    "docType": swaggerType,
-    "docString": swaggerScript
+  if ($("#swaggerScript").val().length == 0) {
+      feedback("Please input swagger script");
+      return;
   }
 
-  console.log("========DATA DOC=========");
-  console.log(JSON.stringify(data));
+  if (y.share.data.get('model')) {
+    console.log("[Swagger Widget] STORE DOC");
+    var componentId = $("#name").val();
+    var swaggerType = $("#swaggerType").val();
+    var swaggerScript = $("#swaggerScript").val();
+    // TODO validate swagger script
 
-  if(loadedSwaggerDoc === null){
-    console.log("POST SWAGGER DATA");
-    client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
-    function(data, type) {
-      // save currently loaded model
-      loadedSwaggerDoc = $("#name").val();
-      console.log("Swagger doc stored, retrieving communication view..");
-      feedback("Swagger doc stored!");
-    },
-    function(error) {
-      console.log(error);
-      feedback(error);
-    });
-  } else{
-      console.log("PUT SWAGGER DATA");
-      client.sendRequest("PUT", "docs/" + loadedSwaggerDoc, JSON.stringify(data), "application/json", {},
+    var data = {
+      "componentId": "Lalala",
+      "docType": swaggerType,
+      "docString": swaggerScript
+    }
+
+    console.log("[Swagger Widget] ========DATA DOC=========");
+    console.log(JSON.stringify(data));
+
+    y.share.data.set('metadataDoc',data);
+    y.share.canvas.set('ReloadWidgetOperation', 'import');
+
+    if(loadedSwaggerDoc === null){
+      console.log("[Swagger Widget] POST DATA");
+      client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
       function(data, type) {
-        console.log("Swagger doc updated!");
-        feedback("Swagger doc updated!");
+        // save currently loaded model
+        loadedSwaggerDoc = $("#name").val();
+        console.log("[Swagger Widget] Swagger doc stored, retrieving communication view..");
+        feedback("Swagger doc stored!");
       },
       function(error) {
+        console.log("[Swagger Widget] Error occured while storing swagger doc");
         console.log(error);
         feedback(error);
       });
-    };
+    } else{
+        console.log("[Swagger Widget] PUT SWAGGER DATA");
+        client.sendRequest("PUT", "docs/" + loadedSwaggerDoc, JSON.stringify(data), "application/json", {},
+        function(data, type) {
+          console.log("[Swagger Widget] Swagger doc updated!");
+          feedback("Swagger doc updated!");
+        },
+        function(error) {
+          console.log("[Swagger Widget] Error occured while updating swagger doc");
+          console.log(error);
+          feedback(error);
+        });
+      };
+  }
+  else {
+    console.log("[Swagger Widget] No model loaded");
+    feedback("No model!");
+  }
 };
 
 $(document).ready(function() {
