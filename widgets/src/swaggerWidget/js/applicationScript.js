@@ -105,13 +105,13 @@ var init = function() {
         }
 
         $('#store-doc').on('click', function() {
-          storeDoc();
+          storeDoc(y);
         })
     });
 };
 
 // retrieves the JSON representation of this space
-var storeDoc = function() {
+var storeDoc = function(y) {
 
   if ($("#swaggerScript").val().length == 0) {
       feedback("Please input swagger script");
@@ -126,7 +126,7 @@ var storeDoc = function() {
     // TODO validate swagger script
 
     var data = {
-      "componentId": "Lalala",
+      "componentId": componentId,
       "docType": swaggerType,
       "docString": swaggerScript
     }
