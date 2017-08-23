@@ -95,13 +95,24 @@ var init = function() {
 
         // retrieve current model from the space and store it
         if (y.share.data.get('metadataDoc')) {
+          console.log("[Swagger Widget] Shared metadata doc found");
           // load model
-            var data = y.share.data.get('metadataDoc');
-            loadedSwaggerDoc = data;
+          var data = y.share.data.get('metadataDoc');
+          console.log(data);
+          loadedSwaggerDoc = data;
+          if(loadedSwaggerDoc.componentId === loadedModel) {
+            console.log("[Swagger Widget] Shared metadata have some component id");
             $("#swaggerType").val(loadedSwaggerDoc.docType);
             $("#swaggerScript").val(loadedSwaggerDoc.docString);
-        } else {
+          } else {
+            console.log("[Swagger Widget] Shared metadata doesnt have some component id, load metadata");
             loadedSwaggerDoc = null;
+            loadModel(y);
+          }
+        } else {
+            console.log("[Swagger Widget] No shared metadata, load metadata");
+            loadedSwaggerDoc = null;
+            loadModel(y);
         }
 
         $('#store-doc').on('click', function() {
@@ -137,7 +148,10 @@ var storeDoc = function(y) {
     y.share.data.set('metadataDoc',data);
     y.share.canvas.set('ReloadWidgetOperation', 'import');
 
-    if(loadedSwaggerDoc === null){
+    console.log("[Swagger Widget] Checking loaded swagger doc");
+    console.log(loadedSwaggerDoc);
+
+    if(!loadedSwaggerDoc || !loadedSwaggerDoc.id){
       console.log("[Swagger Widget] POST DATA");
       client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
       function(data, type) {
@@ -145,6 +159,7 @@ var storeDoc = function(y) {
         loadedSwaggerDoc = $("#name").val();
         console.log("[Swagger Widget] Swagger doc stored, retrieving communication view..");
         feedback("Swagger doc stored!");
+        loadModel(y);
       },
       function(error) {
         console.log("[Swagger Widget] Error occured while storing swagger doc");
@@ -153,7 +168,7 @@ var storeDoc = function(y) {
       });
     } else{
         console.log("[Swagger Widget] PUT SWAGGER DATA");
-        client.sendRequest("PUT", "docs/" + loadedSwaggerDoc, JSON.stringify(data), "application/json", {},
+        client.sendRequest("PUT", "docs/" + loadedSwaggerDoc.id, JSON.stringify(data), "application/json", {},
         function(data, type) {
           console.log("[Swagger Widget] Swagger doc updated!");
           feedback("Swagger doc updated!");
@@ -169,6 +184,31 @@ var storeDoc = function(y) {
     console.log("[Swagger Widget] No model loaded");
     feedback("No model!");
   }
+};
+
+// loads the model from a given JSON file and sets it as the space's model
+var loadModel = function(y) {
+  console.log("[Swagger Widget] Load model");
+  if (loadedModel) {
+    console.log("[Swagger Widget] Load metadata for model " + loadedModel);
+    // first, clean the current model
+    y.share.data.set('metadataDoc', null);
+    client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {},
+        function(data, type) {
+            console.log("[Swagger Widget] Metadata doc loaded!");
+            console.log(data);
+            y.share.data.set('metadataDoc', data);
+            y.share.canvas.set('ReloadWidgetOperation', 'import');
+            feedback("Metadata doc loaded, please refresh browser!");
+        },
+        function(error) {
+            console.log(error);
+            feedback(error);
+        });  
+  } else {
+      console.log('[Swagger Widget] No shared model');
+      return
+    }    
 };
 
 $(document).ready(function() {
