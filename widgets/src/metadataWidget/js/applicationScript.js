@@ -34,9 +34,11 @@
 var client,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
-    loadedModel = null;
+    loadedModel = null,
+    loadedMetadataDocList = null;
 
 var init = function() {
+  console.log("[Metadata Widget] INIT METADATA WIDGET");
   var iwcCallback = function(intent) {
     console.log(intent);
   };
@@ -70,9 +72,77 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: '@@host/applicationPersistenceWidget/js'
+        sourceDir: '@@host/metadataWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
+
+        // get loaded metadata doc list
+        if (y.share.data.get('metadataDocList')) {
+          console.log("[Metadata Widget] Shared metadata doc list found");
+          // load model
+          var data = y.share.data.get('metadataDocList');
+          console.log(data);
+          loadedSwaggerDoc = data;
+        } else {
+            console.log("[Metadata Widget] No shared metadata doc list, load metadata doc list");
+            loadedSwaggerDoc = null;
+            loadMetadataList(y);
+        }
+    });
+};
+
+// loads the metadata doc list from API or yjs
+var loadMetadataList = function(y) {
+  console.log("[Metadata Widget] Load all metadata docs");
+  // first, clean the current metadata doc list
+  y.share.data.set('metadataDocList', null);
+  client.sendRequest("GET", "docs/" , "", "application/json", {},
+    function(data, type) {
+        data.forEach(function(value) {
+            console.log("[Metadata Widget] Going through list of available metadata doc")
+            console.log(value);
+            var docObject = null;
+
+            if (value.docType === "json") {
+                // parse json string to object
+                var docObject = JSON.parse(value.docString);
+                console.log("[Metadata Widget] Parse docString to object");
+                console.log(docObject);
+            }
+
+            var docPaths = docObject.paths;
+
+            // iterate through the paths
+            for (var docProperty in docPaths) {
+                // make sure it actually has the property
+                if (docPaths.hasOwnProperty(docProperty)) {
+
+                    var docPath = docPaths[docProperty];
+                    for (var docOperation in docPath) {
+                        if (docPath.hasOwnProperty(docOperation)) {
+                            // iterate per operations available
+                            var docOperationDetail = docPath[docOperation];
+                            $("#componentMetadataTable").append("<tr>" +
+                                "<td>" + value.componentId + "</td>" + 
+                                "<td>" + docProperty + "</td>" +
+                                "<td>" + docOperation + "</td>" +
+                                "<td>" + docOperationDetail.parameters[0].type + "</td>" +
+                                "<td>" + "<input id='" + value.id + value.componentId + "checkBox' type='checkbox'>" + "</td>" + 
+                            "</tr>");
+                        }
+                    }
+                    
+                }
+            };
+        });
+
+        y.share.data.set('metadataDoc', data);
+        y.share.canvas.set('ReloadWidgetOperation', 'import');
+        feedback("Metadata doc loaded, please refresh browser!");
+    },
+    function(error) {
+        console.log(error);
+        feedback(error);
     });
 };
 

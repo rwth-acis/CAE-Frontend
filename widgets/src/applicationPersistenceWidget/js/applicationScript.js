@@ -268,7 +268,7 @@ var loadModel = function(y) {
         feedback("Please choose model name!");
         return;
     }
-    // first, clean the current model
+    // first, clean the current swagger doc
     y.share.data.set('model', null);
 
     // now read in the file content

@@ -72,7 +72,7 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: '@@host/microservicePersistenceWidget/js'
+        sourceDir: '@@host/swaggerWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
     }).then(function(y) {
         console.info('[Swagger Widget] Yjs successfully initialized');
@@ -186,7 +186,7 @@ var storeDoc = function(y) {
   }
 };
 
-// loads the model from a given JSON file and sets it as the space's model
+// loads the metadata doc from API or yjs
 var loadModel = function(y) {
   console.log("[Swagger Widget] Load model");
   if (loadedModel) {
