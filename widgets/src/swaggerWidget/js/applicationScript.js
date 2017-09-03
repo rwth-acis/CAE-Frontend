@@ -151,7 +151,7 @@ var storeDoc = function(y) {
     console.log("[Swagger Widget] Checking loaded swagger doc");
     console.log(loadedSwaggerDoc);
 
-    if(!loadedSwaggerDoc || !loadedSwaggerDoc.id){
+    if(loadedSwaggerDoc || loadedSwaggerDoc.id){
       console.log("[Swagger Widget] POST DATA");
       client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
       function(data, type) {
