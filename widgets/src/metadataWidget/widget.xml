@@ -99,7 +99,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 <th>Component Name</th>
                 <th>Endpoint Name</th>
                 <th>Operation</th>
-                <th>Data Type</th>
+                <th>Parameters</th>
+                <th>Produces</th>
                 <th>Connect</th>
             </tr>
         </thead>

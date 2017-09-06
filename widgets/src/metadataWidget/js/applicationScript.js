@@ -93,7 +93,7 @@ var init = function() {
 
 // loads the metadata doc list from API or yjs
 var loadMetadataList = function(y) {
-  console.log("[Metadata Widget] Load all metadata docs");
+  console.log("[Metadata Widget] Load all metadata docs for metadata widget");
   // first, clean the current metadata doc list
   y.share.data.set('metadataDocList', null);
   client.sendRequest("GET", "docs/" , "", "application/json", {},
@@ -121,12 +121,48 @@ var loadMetadataList = function(y) {
                     for (var docOperation in docPath) {
                         if (docPath.hasOwnProperty(docOperation)) {
                             // iterate per operations available
+                            console.log("[Metadata Widget] Get operation detail, append row");
                             var docOperationDetail = docPath[docOperation];
+                            var parametersList = [];
+
+                            // process parameters
+                            var parameters = docOperationDetail.parameters;
+                            console.log("[Metadata Widget] Processing parameters list");
+                            console.log(parameters);
+                            
+                            for (var index in parameters) {
+                                if (parameters.hasOwnProperty(index)) {
+                                    var parameter = parameters[index];
+                                    console.log("[Metadata Widget] Processing parameter");
+                                    console.log(parameter);
+                                    // get name and type
+                                    var parameterName =  parameter.name;
+                                    var parameterFormat = "";
+
+                                    if(parameter.type) {
+                                        parameterFormat = parameter.type;
+                                    } else if(parameter.schema) {
+                                        console.log("[Metadata Widget] Schema detected");
+                                        console.log(parameter.schema);
+                                        console.log(parameter.schema["$ref"]);
+                                        parameterFormat = parameter.schema["$ref"].replace(/^.*[\\\/]/, '');
+                                    }
+
+                                    var parameterString = parameterName + " - (" + parameterFormat + ")"
+                                    parametersList.push(parameterString);
+                                }
+                            };
+
+                            // process produces
+                            var producesString = docOperationDetail.produces.join(' , ');
+                            var parametersString = parametersList.join(' , ');
+
                             $("#componentMetadataTable").append("<tr>" +
                                 "<td>" + value.componentId + "</td>" + 
                                 "<td>" + docProperty + "</td>" +
                                 "<td>" + docOperation + "</td>" +
-                                "<td>" + docOperationDetail.parameters[0].type + "</td>" +
+                                "<td>" + parametersString  + "</td>" +
+                                "<td>" + producesString  + "</td>" +
                                 "<td>" + "<input id='" + value.id + value.componentId + "checkBox' type='checkbox'>" + "</td>" + 
                             "</tr>");
                         }
@@ -149,3 +185,14 @@ var loadMetadataList = function(y) {
 $(document).ready(function() {
   init();
 });
+
+/******************* Helper Functions ********************/
+
+// displays a message in the status box on the screen for the time of "feedbackTimeout"
+feedback = function(msg){
+    $("#status").val(msg);
+    clearTimeout(feedbackTimeout);
+    feedbackTimeout = setTimeout(function(){
+      $("#status").val("");
+    },6000);
+};
