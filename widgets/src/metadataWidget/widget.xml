@@ -83,6 +83,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="@@host/metadataWidget/js/yjs/y.js"></script>
   <!-- import application script -->
   <script type="text/javascript" src="@@host/metadataWidget/js/applicationScript.js"></script>
+  <script type="text/javascript" src="@@host/metadataWidget/js/iwc.js"></script>
 
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
@@ -93,6 +94,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- container for actual page content -->
   <div class="container" id="main-content">
+    <label for="type">Selected Component: </label><label for="type" id="metadataComponent"></label>
     <table class="table table-striped" id="metadata-table">
         <thead>
             <tr>
