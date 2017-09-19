@@ -459,8 +459,8 @@
                     "value": "Widget to HTML Element"
                 }
             },
-            "left": 4389,
-            "top": 4905,
+            "left": 4386,
+            "top": 4853,
             "width": 230,
             "height": 100,
             "zIndex": 16008,
@@ -989,10 +989,10 @@
                     "value": "HTML Type"
                 }
             },
-            "left": 4385,
-            "top": 5052,
-            "width": 150,
-            "height": 191,
+            "left": 3928,
+            "top": 4998,
+            "width": 185.31746031746036,
+            "height": 313.53968253968253,
             "zIndex": 16031,
             "type": "Enumeration",
             "attributes": {
@@ -1071,6 +1071,60 @@
                                 "id": "dec2e37280f4b8bd86222bb6",
                                 "name": "dec2e37280f4b8bd86222bb6",
                                 "value": "CUSTOM"
+                            }
+                        },
+                        "6b5143a488f2078d1c183141[value]": {
+                            "id": "6b5143a488f2078d1c183141[value]",
+                            "name": "6b5143a488f2078d1c183141[value]",
+                            "value": {
+                                "id": "6b5143a488f2078d1c183141[value]",
+                                "name": "6b5143a488f2078d1c183141[value]",
+                                "value": "a"
+                            }
+                        },
+                        "93563874b9183e959de58540[value]": {
+                            "id": "93563874b9183e959de58540[value]",
+                            "name": "93563874b9183e959de58540[value]",
+                            "value": {
+                                "id": "93563874b9183e959de58540[value]",
+                                "name": "93563874b9183e959de58540[value]",
+                                "value": "img"
+                            }
+                        },
+                        "35773c52500c91aa81d0ef4f[value]": {
+                            "id": "35773c52500c91aa81d0ef4f[value]",
+                            "name": "35773c52500c91aa81d0ef4f[value]",
+                            "value": {
+                                "id": "35773c52500c91aa81d0ef4f[value]",
+                                "name": "35773c52500c91aa81d0ef4f[value]",
+                                "value": "audio"
+                            }
+                        },
+                        "a75bd3d11a97f5a77e29a1e9[value]": {
+                            "id": "a75bd3d11a97f5a77e29a1e9[value]",
+                            "name": "a75bd3d11a97f5a77e29a1e9[value]",
+                            "value": {
+                                "id": "a75bd3d11a97f5a77e29a1e9[value]",
+                                "name": "a75bd3d11a97f5a77e29a1e9[value]",
+                                "value": "video"
+                            }
+                        },
+                        "d19c847ee92c067ee63b84e4[value]": {
+                            "id": "d19c847ee92c067ee63b84e4[value]",
+                            "name": "d19c847ee92c067ee63b84e4[value]",
+                            "value": {
+                                "id": "d19c847ee92c067ee63b84e4[value]",
+                                "name": "d19c847ee92c067ee63b84e4[value]",
+                                "value": "text"
+                            }
+                        },
+                        "32d6ff636bfd6a2da455e63a[value]": {
+                            "id": "32d6ff636bfd6a2da455e63a[value]",
+                            "name": "32d6ff636bfd6a2da455e63a[value]",
+                            "value": {
+                                "id": "32d6ff636bfd6a2da455e63a[value]",
+                                "name": "32d6ff636bfd6a2da455e63a[value]",
+                                "value": "iframe"
                             }
                         }
                     }
@@ -1826,6 +1880,161 @@
                     }
                 }
             }
+        },
+        "6d9f778f5e6d61dca81a0470": {
+            "label": {
+                "id": "6d9f778f5e6d61dca81a0470[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6d9f778f5e6d61dca81a0470[label]",
+                    "name": "Label",
+                    "value": "hasChild"
+                }
+            },
+            "left": 4369.107491629465,
+            "top": 5304.127371651786,
+            "width": 185.71428571428572,
+            "height": 101.42857142857144,
+            "zIndex": 16044,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "8f0634d38cf44170ad5ee07f": {
+            "label": {
+                "id": "8f0634d38cf44170ad5ee07f[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8f0634d38cf44170ad5ee07f[label]",
+                    "name": "Label",
+                    "value": "hasChildShape"
+                }
+            },
+            "left": 4176.393205915178,
+            "top": 5259.264997209822,
+            "width": 150,
+            "height": 150,
+            "zIndex": 16045,
+            "type": "Edge Shape",
+            "attributes": {
+                "8f0634d38cf44170ad5ee07f[arrow]": {
+                    "id": "8f0634d38cf44170ad5ee07f[arrow]",
+                    "name": "Arrow",
+                    "value": {
+                        "id": "8f0634d38cf44170ad5ee07f[arrow]",
+                        "name": "Arrow",
+                        "value": "generalisation"
+                    },
+                    "option": "--▷"
+                },
+                "8f0634d38cf44170ad5ee07f[shape]": {
+                    "id": "8f0634d38cf44170ad5ee07f[shape]",
+                    "name": "Shape",
+                    "value": {
+                        "id": "8f0634d38cf44170ad5ee07f[shape]",
+                        "name": "Shape",
+                        "value": "segmented"
+                    },
+                    "option": "Segmented"
+                },
+                "8f0634d38cf44170ad5ee07f[color]": {
+                    "id": "8f0634d38cf44170ad5ee07f[color]",
+                    "name": "Color",
+                    "value": {
+                        "id": "8f0634d38cf44170ad5ee07f[color]",
+                        "name": "Color",
+                        "value": "blue"
+                    }
+                },
+                "8f0634d38cf44170ad5ee07f[overlay]": {
+                    "id": "8f0634d38cf44170ad5ee07f[overlay]",
+                    "name": "Overlay Text",
+                    "value": {
+                        "id": "8f0634d38cf44170ad5ee07f[overlay]",
+                        "name": "Overlay Text",
+                        "value": "hasChild"
+                    }
+                },
+                "8f0634d38cf44170ad5ee07f[overlayPosition]": {
+                    "id": "8f0634d38cf44170ad5ee07f[overlayPosition]",
+                    "name": "Overlay Position",
+                    "value": {
+                        "id": "8f0634d38cf44170ad5ee07f[overlayPosition]",
+                        "name": "Overlay Position",
+                        "value": "hidden"
+                    },
+                    "option": "Hide"
+                },
+                "8f0634d38cf44170ad5ee07f[overlayRotate]": {
+                    "id": "8f0634d38cf44170ad5ee07f[overlayRotate]",
+                    "name": "Autoflip Overlay",
+                    "value": {
+                        "id": "8f0634d38cf44170ad5ee07f[overlayRotate]",
+                        "name": "Autoflip Overlay",
+                        "value": true
+                    }
+                }
+            }
+        },
+        "37beb94a6fea9a33b5197c0d": {
+            "label": {
+                "id": "37beb94a6fea9a33b5197c0d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "37beb94a6fea9a33b5197c0d[label]",
+                    "name": "Label",
+                    "value": "Model Attributes"
+                }
+            },
+            "left": 3866.333435058591,
+            "top": 4040.333435058591,
+            "width": 435,
+            "height": 308.33333333333337,
+            "zIndex": 16046,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "6799ef51e99f2b5d7dd6121b": {
+                            "id": "6799ef51e99f2b5d7dd6121b",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "6799ef51e99f2b5d7dd6121b[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "6799ef51e99f2b5d7dd6121b[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "7123edd98e7fb1045ef13c35": {
+                            "id": "7123edd98e7fb1045ef13c35",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "7123edd98e7fb1045ef13c35[key]",
+                                "name": "",
+                                "value": "version"
+                            },
+                            "value": {
+                                "id": "7123edd98e7fb1045ef13c35[value]",
+                                "name": "",
+                                "value": "integer"
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "edges": {
@@ -2471,6 +2680,36 @@
             },
             "source": "7dda20432d876a2570295ced",
             "target": "fdc394238a8893cda5cde6a0",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "1f65c9f39ea7eca4cfb98a1a": {
+            "label": {
+                "id": "1f65c9f39ea7eca4cfb98a1a[label]",
+                "name": "Label",
+                "value": {
+                    "id": "1f65c9f39ea7eca4cfb98a1a[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "ff8ef51660b61ef2ca96a874",
+            "target": "6d9f778f5e6d61dca81a0470",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "63391bd9f93491785e85b20d": {
+            "label": {
+                "id": "63391bd9f93491785e85b20d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "63391bd9f93491785e85b20d[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "8f0634d38cf44170ad5ee07f",
+            "target": "6d9f778f5e6d61dca81a0470",
             "attributes": {},
             "type": "Bi-Dir-Association"
         }

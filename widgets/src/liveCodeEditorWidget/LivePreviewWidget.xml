@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Live Code Editor"
+  <ModulePrefs title="Live Preview Editor"
     description="This widget provides the actual live code editing facilities for model-based community web applications."
     author="Thomas Winkler" author_email="winkler@dbis.rwth-aachen.de"
     width="800" height="500">
