@@ -1992,10 +1992,10 @@
                     "value": "Model Attributes"
                 }
             },
-            "left": 3866.333435058591,
-            "top": 4040.333435058591,
-            "width": 435,
-            "height": 308.33333333333337,
+            "left": 3691.333435058591,
+            "top": 4105.333435058591,
+            "width": 182.5,
+            "height": 158.33333333333337,
             "zIndex": 16046,
             "type": "Object",
             "attributes": {
@@ -2006,7 +2006,7 @@
                     "list": {
                         "6799ef51e99f2b5d7dd6121b": {
                             "id": "6799ef51e99f2b5d7dd6121b",
-                            "name": "Attribute",
+                            "name": "6799ef51e99f2b5d7dd6121b",
                             "key": {
                                 "id": "6799ef51e99f2b5d7dd6121b[key]",
                                 "name": "",
@@ -2020,7 +2020,7 @@
                         },
                         "7123edd98e7fb1045ef13c35": {
                             "id": "7123edd98e7fb1045ef13c35",
-                            "name": "Attribute",
+                            "name": "7123edd98e7fb1045ef13c35",
                             "key": {
                                 "id": "7123edd98e7fb1045ef13c35[key]",
                                 "name": "",
@@ -2030,6 +2030,41 @@
                                 "id": "7123edd98e7fb1045ef13c35[value]",
                                 "name": "",
                                 "value": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "3ec5d2ddcd6d185b008866c9": {
+            "label": {
+                "id": "3ec5d2ddcd6d185b008866c9[label]",
+                "name": "Label",
+                "value": {
+                    "id": "3ec5d2ddcd6d185b008866c9[label]",
+                    "name": "Label",
+                    "value": "ModelTypes"
+                }
+            },
+            "left": 3389.895935058595,
+            "top": 4159.895935058596,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16047,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "654f00b8354db254ec324943[value]": {
+                            "id": "654f00b8354db254ec324943[value]",
+                            "name": "654f00b8354db254ec324943[value]",
+                            "value": {
+                                "id": "654f00b8354db254ec324943[value]",
+                                "name": "654f00b8354db254ec324943[value]",
+                                "value": "frontend-component"
                             }
                         }
                     }
@@ -2712,6 +2747,21 @@
             "target": "6d9f778f5e6d61dca81a0470",
             "attributes": {},
             "type": "Bi-Dir-Association"
+        },
+        "e870233b9e6a62901f062ce6": {
+            "label": {
+                "id": "e870233b9e6a62901f062ce6[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e870233b9e6a62901f062ce6[label]",
+                    "name": "Label",
+                    "value": "type"
+                }
+            },
+            "source": "37beb94a6fea9a33b5197c0d",
+            "target": "3ec5d2ddcd6d185b008866c9",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
         }
     }
 }

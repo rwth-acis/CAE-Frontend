@@ -32,20 +32,22 @@
 
 // global variables
 var client,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
-    loadedModel = null;
+    loadedModel = null,
+    selectedModel = null;
 
 var init = function() {
     var iwcCallback = function(intent) {
         console.log(intent);
     };
     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
-
+    getStoredModels();
     spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
         spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
     }
+
+   
 
     Y({
         db: {
@@ -74,7 +76,6 @@ var init = function() {
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
-
         // retrieve current model from the space and store it
         if (y.share.data.get('model')) {
             var data = y.share.data.get('model');
@@ -92,14 +93,13 @@ var init = function() {
 
         $('#delete-model').on('click', function() {
             resetCurrentModel(y);
-        })
+        });
         $('#store-model').on('click', function() {
             storeModel(y);
-        })
+        });
         $('#load-model').on('click', function() {
             loadModel(y);
-        })
-
+        });
     });
 
 };
@@ -117,31 +117,27 @@ var resetCurrentModel = function(y) {
 
 // retrieves the JSON representation of this space
 var storeModel = function(y) {
-    if ($("#name").val().length == 0 || $("#version").val().length == 0) {
-        feedback("Please choose frontend component name & version!");
-        return;
-    }
-    if (isNaN($("#version").val())) {
-        feedback("Version has to be a number!");
-        return;
-    }
-
     if (y.share.data.get('model')) {
         var data = y.share.data.get('model');
         // add name, version and type to model
-        data.attributes.label.value.value = $("#name").val();
-        data.attributes.attributes[generateRandomId()] = generateAttribute("version", $("#version").val());
-        data.attributes.attributes[generateRandomId()] = generateAttribute("type", "frontend-component");
-        y.share.data.set('model',data)
-        y.share.canvas.set('ReloadWidgetOperation', 'import');
+        
+        //TODO ugly workaround for now
+        var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
+        data.attributes.label.value.value = modelName;
+
+
+        var wireframeModel = y.share.data.get('wireframe');
+        if(wireframeModel)
+            data.wireframe = wireframeModel;
 
         if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     // save currently loaded model
-                    loadedModel = $("#name").val();
+                    loadedModel = modelName;
+                    getStoredModels();
                     console.log("Model stored!");
-                    feedback("Model stored!");
+                    feedback("Model with name " + modelName + " stored!");
                 },
                 function(error) {
                     console.log(error);
@@ -165,15 +161,11 @@ var storeModel = function(y) {
 
 // loads the model from a given JSON file and sets it as the space's model
 var loadModel = function(y) {
-    if ($("#name").val().length == 0) {
-        feedback("Please choose model name!");
-        return;
-    }
     // first, clean the current model
     y.share.data.set('model', null);
 
     // now read in the file content
-    modelName = $("#name").val();
+    modelName = $('#model-list option:selected').text();
     client.sendRequest("GET", modelName, "", "", {},
         function(data, type) {
             console.log("Model loaded!");
@@ -192,49 +184,6 @@ $(document).ready(function() {
 });
 
 /******************* Helper Functions ********************/
-
-// function that retrieves the model of the current space
-var getData = function(type) {
-    var spaceUri = openapp.param.space(),
-        listOfDataUris = [],
-        promises = [],
-        mainDeferred = $.Deferred(),
-        deferred = $.Deferred();
-
-    openapp.resource.get(spaceUri, (function(deferred) {
-
-        return function(space) {
-            var resourceUri, resourceObj, values;
-            for (resourceUri in space.data) {
-                if (space.data.hasOwnProperty(resourceUri)) {
-                    resourceObj = space.data[resourceUri];
-                    if (resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] &&
-                        _.isArray(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'])) {
-
-                        values = _.map(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'],function(e){
-                            return e.value;
-                        });
-
-                        if (_.contains(values, "http://purl.org/role/terms/Data") && _.contains(values, type)) {
-                            listOfDataUris.push(resourceUri);
-                        }
-
-                    }
-                }
-            }
-            deferred.resolve();
-        };
-
-    })(deferred));
-    promises.push(deferred.promise());
-
-    $.when.apply($, promises).then(function() {
-        mainDeferred.resolve(listOfDataUris);
-    });
-
-    return mainDeferred.promise();
-};
-
 // needed to add attributes to the model
 var generateRandomId = function() {
     var chars = "1234567890abcdef";
@@ -272,5 +221,27 @@ feedback = function(msg) {
     clearTimeout(feedbackTimeout);
     feedbackTimeout = setTimeout(function() {
         $("#status").val("");
-    }, 6000);
+    }, 10000);
 };
+
+var getStoredModels = function(){
+    client.sendRequest("GET", "", "", "application/json", {},
+    function(data, type) {
+        var $list = $('#model-list');
+        var list = $list.find('option').map(function(){
+            return $(this).text();
+        }).get().join();
+
+        for(var i=0;i<data.length;i++){
+            if(list.indexOf(data[i]) == -1){
+                var $entry = $.parseHTML('<option>'+ data[i] +'</option>');
+                $list.append($entry);
+            }
+        }
+        feedback("Updated list of available models!");
+    },
+    function(error) {
+        console.log(error);
+        feedback(error);
+    });
+}
