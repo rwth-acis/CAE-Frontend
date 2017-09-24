@@ -76,21 +76,6 @@ var init = function() {
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
-        // retrieve current model from the space and store it
-        if (y.share.data.get('model')) {
-            var data = y.share.data.get('model');
-            loadedModel = data.attributes.label.value.value;
-            // special case if model was only saved in the space (not loaded from db)
-            if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-                loadedModel = null;
-                feedback("Model was not loaded from database until now..");
-            } else {
-                $("#name").val(loadedModel);
-            }
-        } else {
-            loadedModel = null;
-        }
-
         $('#delete-model').on('click', function() {
             resetCurrentModel(y);
         });
@@ -241,7 +226,7 @@ var getStoredModels = function(){
         feedback("Updated list of available models!");
     },
     function(error) {
-        console.log(error);
-        feedback(error);
+        console.error("Not able to get list of stored models from the backend! Check if services are started.");
+        feedback("Not able to get list of models from backend! Check if services are started.");
     });
 }
