@@ -119,7 +119,7 @@ var storeModel = function(y) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     // save currently loaded model
-                    loadedModel = modelName;
+                    setLoadedModel(modelName);
                     getStoredModels();
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
@@ -156,6 +156,7 @@ var loadModel = function(y) {
             console.log("Model loaded!");
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');
+            setLoadedModel(modelName);
             feedback("Model loaded, please refresh browser!");
         },
         function(error) {
@@ -229,4 +230,10 @@ var getStoredModels = function(){
         console.error("Not able to get list of stored models from the backend! Check if services are started.");
         feedback("Not able to get list of models from backend! Check if services are started.");
     });
+}
+
+var setLoadedModel = function(loaded){
+    loadedModel = loaded;
+    $.parseHTML('<h4 id="loaded-model-info>Loaded Model: <span id="loaded-model" class="label label-warning">' + loaded +'</span></h4>');
+    $('#loaded-model').text(loadedModel);
 }
