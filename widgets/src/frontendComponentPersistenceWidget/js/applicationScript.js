@@ -59,6 +59,7 @@ var init = function() {
             url: '@@yjsserver'
         },
         share: { // specify the shared content
+            //syncmeta
             users: 'Map',
             undo: 'Array',
             redo: 'Array',
@@ -70,7 +71,9 @@ var init = function() {
             select: 'Map',
             views: 'Map',
             data: 'Map',
-            text: "Text"
+            text: "Text",
+            //Wireframe editor 
+            action: 'Map'
         },
         sourceDir: '@@host/frontendComponentPersistenceWidget/js'
     }).then(function(y) {
@@ -116,6 +119,7 @@ var storeModel = function(y) {
             data.wireframe = wireframeModel;
 
         if (loadedModel === null) {
+            addSpinner();
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     // save currently loaded model
@@ -123,20 +127,26 @@ var storeModel = function(y) {
                     getStoredModels();
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
+                    removeSpinner();
                 },
                 function(error) {
                     console.log(error);
                     feedback(error);
+                    removeSpinner();
+                    
                 });
         } else {
+            addSpinner();
             client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     console.log("Model updated!");
                     feedback("Model updated!");
+                    removeSpinner();
                 },
                 function(error) {
                     console.log(error);
                     feedback(error);
+                    removeSpinner();
                 });
         }
     } else {
@@ -151,17 +161,30 @@ var loadModel = function(y) {
 
     // now read in the file content
     modelName = $('#model-list option:selected').text();
+    addSpinner();
     client.sendRequest("GET", modelName, "", "", {},
         function(data, type) {
             console.log("Model loaded!");
             y.share.data.set('model', data);
+            if(data.hasOwnProperty("wireframe")){
+                y.share.data.set('wireframe', data.wireframe);
+                y.share.action.set('reload', true);
+                /*
+                $('.widget-title-bar', parent.document).map(function(){
+                    var widgetTitle = $(this).find('span').text();
+                    if(widgetTitle === 'CAE-WireframingEditor')
+                        $('iframe', this.offsetParent)[0].contentWindow.location.reload();
+                });*/
+            }
             y.share.canvas.set('ReloadWidgetOperation', 'import');
             setLoadedModel(modelName);
             feedback("Model loaded, please refresh browser!");
+            removeSpinner();
         },
         function(error) {
             console.log(error);
             feedback(error);
+            removeSpinner();
         });
 };
 
@@ -234,6 +257,16 @@ var getStoredModels = function(){
 
 var setLoadedModel = function(loaded){
     loadedModel = loaded;
-    $.parseHTML('<h4 id="loaded-model-info>Loaded Model: <span id="loaded-model" class="label label-warning">' + loaded +'</span></h4>');
-    $('#loaded-model').text(loadedModel);
+    var $label = $.parseHTML('<span id="loaded-model" class="label label-info">' + loaded +'</span></h4>');
+    var $info = $('#loaded-model-info');
+    $info.empty();
+    $info.text("Loaded Model:").append($label);
+}
+
+var addSpinner = function(){
+    $('#status-container').prepend($.parseHTML('<div class="loader"></div>'));
+}
+
+var removeSpinner = function(){
+    $('.loader').remove();
 }

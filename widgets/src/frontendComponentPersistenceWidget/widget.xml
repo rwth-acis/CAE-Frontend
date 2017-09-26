@@ -87,7 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </head>
 <body>
   <!-- container for actual page content -->
-    <h4>No model loaded from the database</h4>
+    <h4 id="loaded-model-info">No model loaded from the database</h4>
     <div class="btn-group btn-group-justified">
     <div class="btn-group">
         <button id="load-model" class="btn btn-default">Load</button>
@@ -100,8 +100,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </div>
     </div>
     <br>
-    <div class="form-group">
-      <input type="text" class="form-control" id="status" placeholder="Status..">
+    <div id="status-container" class="form-group">
+      <input type="text" class="form-control" id="status" placeholder="Status.." disabled>
     </div>
   </div>
 
