@@ -79,6 +79,25 @@ var init = function() {
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
+        //check if the model is loaded from the database
+        //we just check if the model attribute label is equal to the model attributes name
+        var data = y.share.data.get('model');
+        if(data){
+            var modelLabel = data.attributes.label.value.value;
+            var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
+            if(modelLabel === modelName){
+                setLoadedModel(modelName, 'success');
+            }
+            else if(modelLabel.length > 0){
+                setLoadedModel(modelName + '!=' + modelLabel, 'danger');
+                feedback('Model was persisted in the backend with a different name!');
+            }
+            else if(modelLabel.length == 0){
+                feedbackTimeout('Found model in the shared space! It was not persisted yet.');
+                setLoadedModel(modelName, 'warning');
+            }
+        }
+
         $('#delete-model').on('click', function() {
             resetCurrentModel(y);
         });
@@ -99,7 +118,7 @@ var resetCurrentModel = function(y) {
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
         feedback("Done!");
     } else {
-        feedback("No model!")
+        feedback("No model!");
     }
 };
 
@@ -111,6 +130,11 @@ var storeModel = function(y) {
         
         //TODO ugly workaround for now
         var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
+        //Check if the model has a name
+        if(modelName.length < 1){
+            feedback('Provide a name for the model');
+            return;
+        }
         data.attributes.label.value.value = modelName;
 
 
@@ -123,7 +147,7 @@ var storeModel = function(y) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     // save currently loaded model
-                    setLoadedModel(modelName);
+                    setLoadedModel(modelName, 'success');
                     getStoredModels();
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
@@ -255,9 +279,11 @@ var getStoredModels = function(){
     });
 }
 
-var setLoadedModel = function(loaded){
+var setLoadedModel = function(loaded, style){
+    if(!style)
+        style = 'info';
     loadedModel = loaded;
-    var $label = $.parseHTML('<span id="loaded-model" class="label label-info">' + loaded +'</span></h4>');
+    var $label = $.parseHTML('<span id="loaded-model" class="label label-'+ style +'">' + loaded +'</span></h4>');
     var $info = $('#loaded-model-info');
     $info.empty();
     $info.text("Loaded Model:").append($label);
