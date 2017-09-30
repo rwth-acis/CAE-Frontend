@@ -146,6 +146,7 @@ var storeModel = function (y) {
                     setLoadedModel(modelName, 'success');
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
+                    getStoredModels();
                     removeSpinner();
                 },
                 function (error) {
