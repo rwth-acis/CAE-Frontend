@@ -32,22 +32,19 @@
 
 // global variables
 var client,
-    feedbackTimeout,
-    loadedModel = null,
-    selectedModel = null;
+    feedbackTimeout;
 
-var init = function() {
-    var iwcCallback = function(intent) {
+var init = function () {
+    var iwcCallback = function (intent) {
         console.log(intent);
     };
     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
-    getStoredModels();
     spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
         spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
     }
 
-   
+
 
     Y({
         db: {
@@ -76,35 +73,32 @@ var init = function() {
             action: 'Map'
         },
         sourceDir: '@@host/frontendComponentPersistenceWidget/js'
-    }).then(function(y) {
+    }).then(function (y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
         //check if the model is loaded from the database
         //we just check if the model attribute label is equal to the model attributes name
-        var data = y.share.data.get('model');
-        if(data){
-            var modelLabel = data.attributes.label.value.value;
-            var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
-            if(modelLabel === modelName){
-                setLoadedModel(modelName, 'success');
+        getStoredModels().done(function(storedModels){
+            feedback("Updated list of available models!");            
+            var data = y.share.data.get('model');
+            if (data) {
+                var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
+                if (storedModels.indexOf(modelName) != -1) 
+                    setLoadedModel(modelName, 'success');
+                else if (modelName.length == 0) 
+                    feedbackTimeout('Found model in the space with no name.');
             }
-            else if(modelLabel.length > 0){
-                setLoadedModel(modelName + '!=' + modelLabel, 'danger');
-                feedback('Model was persisted in the backend with a different name!');
-            }
-            else if(modelLabel.length == 0){
-                feedbackTimeout('Found model in the shared space! It was not persisted yet.');
-                setLoadedModel(modelName, 'warning');
-            }
-        }
+        });
+       
+      
 
-        $('#delete-model').on('click', function() {
+        $('#delete-model').on('click', function () {
             resetCurrentModel(y);
         });
-        $('#store-model').on('click', function() {
+        $('#store-model').on('click', function () {
             storeModel(y);
         });
-        $('#load-model').on('click', function() {
+        $('#load-model').on('click', function () {
             loadModel(y);
         });
     });
@@ -112,7 +106,7 @@ var init = function() {
 };
 
 // deletes the current model (empties the current model of this space)
-var resetCurrentModel = function(y) {
+var resetCurrentModel = function (y) {
     if (y.share.data.get('model')) {
         y.share.data.set('model', null);
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
@@ -123,63 +117,63 @@ var resetCurrentModel = function(y) {
 };
 
 // retrieves the JSON representation of this space
-var storeModel = function(y) {
-    if (y.share.data.get('model')) {
+var storeModel = function (y) {
+    if (!y.share.data.get('model')) {
+        feedback("No model!");
+        return;
+    }
+    addSpinner();
+    getStoredModels().done(function (storedModels) {
         var data = y.share.data.get('model');
         // add name, version and type to model
-        
+
         //TODO ugly workaround for now
         var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
         //Check if the model has a name
-        if(modelName.length < 1){
+        if (modelName.length < 1) {
             feedback('Provide a name for the model');
+            removeSpinner();
             return;
         }
-        data.attributes.label.value.value = modelName;
-
 
         var wireframeModel = y.share.data.get('wireframe');
-        if(wireframeModel)
+        if (wireframeModel)
             data.wireframe = wireframeModel;
-
-        if (loadedModel === null) {
-            addSpinner();
+        if (storedModels.indexOf(modelName) == -1) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
-                function(data, type) {
+                function (data, type) {
                     // save currently loaded model
                     setLoadedModel(modelName, 'success');
-                    getStoredModels();
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
                     removeSpinner();
                 },
-                function(error) {
+                function (error) {
                     console.log(error);
                     feedback(error);
                     removeSpinner();
-                    
+
                 });
-        } else {
-            addSpinner();
-            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
-                function(data, type) {
+        }
+        else {
+            client.sendRequest("PUT", modelName, JSON.stringify(data), "application/json", {},
+                function (data, type) {
                     console.log("Model updated!");
                     feedback("Model updated!");
                     removeSpinner();
                 },
-                function(error) {
+                function (error) {
                     console.log(error);
                     feedback(error);
                     removeSpinner();
                 });
+
         }
-    } else {
-        feedback("No model!");
-    }
+    });
 };
 
 // loads the model from a given JSON file and sets it as the space's model
-var loadModel = function(y) {
+var loadModel = function (y) {
     // first, clean the current model
     y.share.data.set('model', null);
 
@@ -187,10 +181,10 @@ var loadModel = function(y) {
     modelName = $('#model-list option:selected').text();
     addSpinner();
     client.sendRequest("GET", modelName, "", "", {},
-        function(data, type) {
+        function (data, type) {
             console.log("Model loaded!");
             y.share.data.set('model', data);
-            if(data.hasOwnProperty("wireframe")){
+            if (data.hasOwnProperty("wireframe")) {
                 y.share.data.set('wireframe', data.wireframe);
                 y.share.action.set('reload', true);
                 /*
@@ -202,23 +196,23 @@ var loadModel = function(y) {
             }
             y.share.canvas.set('ReloadWidgetOperation', 'import');
             setLoadedModel(modelName);
-            feedback("Model loaded, please refresh browser!");
+            feedback("Model loaded!");
             removeSpinner();
         },
-        function(error) {
+        function (error) {
             console.log(error);
             feedback(error);
             removeSpinner();
         });
 };
 
-$(document).ready(function() {
+$(document).ready(function () {
     init();
 });
 
 /******************* Helper Functions ********************/
 // needed to add attributes to the model
-var generateRandomId = function() {
+var generateRandomId = function () {
     var chars = "1234567890abcdef";
     var numOfChars = chars.length;
     var i, rand;
@@ -232,7 +226,7 @@ var generateRandomId = function() {
 };
 
 // generates an attribute according to the SyncMeta specification
-var generateAttribute = function(name, value) {
+var generateAttribute = function (name, value) {
     var attribute = {
         "name": name,
         "id": "modelAttributes[" + name + "]",
@@ -246,53 +240,50 @@ var generateAttribute = function(name, value) {
 };
 
 // displays a message in the status box on the screen for the time of "feedbackTimeout"
-feedback = function(msg) {
+feedback = function (msg) {
     $("#status").val(msg);
     if (msg === "Model updated!") {
         client.sendIntent("MODEL_UPDATED", "", false);
     }
     clearTimeout(feedbackTimeout);
-    feedbackTimeout = setTimeout(function() {
+    feedbackTimeout = setTimeout(function () {
         $("#status").val("");
     }, 10000);
 };
 
-var getStoredModels = function(){
+var getStoredModels = function () {
+    var deferred = $.Deferred();
     client.sendRequest("GET", "", "", "application/json", {},
-    function(data, type) {
-        var $list = $('#model-list');
-        var list = $list.find('option').map(function(){
-            return $(this).text();
-        }).get().join();
+        function (data, type) {
+            var $list = $('#model-list');
+            $list.empty();
 
-        for(var i=0;i<data.length;i++){
-            if(list.indexOf(data[i]) == -1){
-                var $entry = $.parseHTML('<option>'+ data[i] +'</option>');
+            for (var i = 0; i < data.length; i++) {
+                var $entry = $.parseHTML('<option>' + data[i] + '</option>');
                 $list.append($entry);
             }
-        }
-        feedback("Updated list of available models!");
-    },
-    function(error) {
-        console.error("Not able to get list of stored models from the backend! Check if services are started.");
-        feedback("Not able to get list of models from backend! Check if services are started.");
-    });
+            deferred.resolve(data);
+        },
+        function (error) {
+            console.error("Not able to get list of stored models from the backend! Check if services are started.");
+            feedback("Not able to get list of models from backend! Check if services are started.");
+        });
+    return deferred.promise();
 }
 
-var setLoadedModel = function(loaded, style){
-    if(!style)
+var setLoadedModel = function (loaded, style) {
+    if (!style)
         style = 'info';
-    loadedModel = loaded;
-    var $label = $.parseHTML('<span id="loaded-model" class="label label-'+ style +'">' + loaded +'</span></h4>');
+    var $label = $.parseHTML('<span id="loaded-model" class="label label-' + style + '">' + loaded + '</span></h4>');
     var $info = $('#loaded-model-info');
     $info.empty();
     $info.text("Loaded Model:").append($label);
 }
 
-var addSpinner = function(){
+var addSpinner = function () {
     $('#status-container').prepend($.parseHTML('<div class="loader"></div>'));
 }
 
-var removeSpinner = function(){
+var removeSpinner = function () {
     $('.loader').remove();
 }
