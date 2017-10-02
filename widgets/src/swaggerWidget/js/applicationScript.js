@@ -35,9 +35,60 @@ var client,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null,
-    loadedSwaggerDoc = null;
+    loadedSwaggerDoc = null,
+    iwcClient = null,
+    selectedNodeId = null,
+    nodeMetadataList = new Map();
+
+var iwcHandler = function(y, intent) {
+    let data = intent.extras.payload.data.data;
+    let jsonData = JSON.parse(data);
+    
+    if (jsonData) {
+        //load metadata details based on widget name
+        let componentName = null;
+        let nodeId = jsonData.selectedEntityId;
+        let nodeType = jsonData.selectedEntityType;
+
+        selectedNodeId = nodeId;
+
+        // only process payload and response
+        if (nodeType === "HTTP Payload" || nodeType === "HTTP Response") {
+          var model = y.share.data.get('model');
+          console.log("====TRY FETCH MODEL=====");
+          console.log(model);
+
+          if (model.nodes.hasOwnProperty(nodeId)) {
+              componentName = model.nodes[nodeId].label.value.value;
+              console.log("=====COMPONENT NAME");
+              console.log(componentName);
+
+              if (componentName) {
+                  $("#node-name").html(componentName);
+
+                  // search for description in map
+                  var savedDescription = nodeMetadataList.get(nodeId);
+                  if (savedDescription)
+                    $("#node-description").val(savedDescription);
+                  else
+                    $("#node-description").val("");
+              }
+          }
+
+          $("#node-form").show();
+  
+        }
+    }
+};
 
 var init = function() {
+  // hide node form
+  $("#node-description").blur(function() {
+    nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+  });
+
+  $("#node-form").hide();
+
   console.log("[Swagger Widget] INIT SWAGGER WIDGET");
   var iwcCallback = function(intent) {
     console.log(intent);
@@ -77,6 +128,15 @@ var init = function() {
     }).then(function(y) {
         console.info('[Swagger Widget] Yjs successfully initialized');
 
+        try {
+            console.log("[Swagger Widget] BIND IWC CLIENT");
+            iwcClient = new iwc.Client("OPENAPI");
+            iwcClient.connect( iwcHandler.bind(this, y) );
+        } catch(e){
+            console.log("[Swagger Widget] ERROR METADATA WIDGET");
+            console.log(e);
+        }
+
         // retrieve current model from the space and store it
         if (y.share.data.get('model')) {
             console.log('[Swagger Widget] Saved model exists');
@@ -102,21 +162,26 @@ var init = function() {
           loadedSwaggerDoc = data;
           if(loadedSwaggerDoc.componentId === loadedModel) {
             console.log("[Swagger Widget] Shared metadata have some component id");
-            $("#swaggerType").val(loadedSwaggerDoc.docType);
-            $("#swaggerScript").val(loadedSwaggerDoc.docString);
+            loadDivs(loadedSwaggerDoc);
           } else {
             console.log("[Swagger Widget] Shared metadata doesnt have some component id, load metadata");
             loadedSwaggerDoc = null;
-            loadModel(y);
+            loadModel(y, false);
           }
         } else {
             console.log("[Swagger Widget] No shared metadata, load metadata");
             loadedSwaggerDoc = null;
-            loadModel(y);
+            loadModel(y, false);
         }
 
         $('#store-doc').on('click', function() {
+          console.log("Store user input metadata doc");
           storeDoc(y);
+        })
+
+        $('#load-doc').on('click', function() {
+          console.log("Load metadata doc from database");
+          loadModel(y, true);
         })
     });
 };
@@ -124,22 +189,42 @@ var init = function() {
 // retrieves the JSON representation of this space
 var storeDoc = function(y) {
 
-  if ($("#swaggerScript").val().length == 0) {
-      feedback("Please input swagger script");
-      return;
-  }
-
   if (y.share.data.get('model')) {
     console.log("[Swagger Widget] STORE DOC");
     var componentId = $("#name").val();
-    var swaggerType = $("#swaggerType").val();
-    var swaggerScript = $("#swaggerScript").val();
-    // TODO validate swagger script
+    
+    var description = $("#description").val();
+    var version = $("#version").val();
+    var termsOfService = $("#termsOfService").val();
 
+    var nodeMetadataJson = {};
+    // process leftover in node form
+    if (selectedNodeId && $("#node-description").val())
+      nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+
+    // generate string for method nodes
+    nodeMetadataList.forEach((value, key) => {
+      console.log("PROCESS NODE " + key);
+      var nodeId = key;
+      var nodeDescription = value;
+      nodeMetadataJson[nodeId] = {};
+      nodeMetadataJson[nodeId]["description"] = nodeDescription;
+    });
+
+    var infoNode = `{
+        "info": {
+          "description": "${description}",
+          "version": "${version}",
+          "termsOfService": "${termsOfService}"
+        },
+        "nodes": ${JSON.stringify(nodeMetadataJson)}
+    }`;
+    
     var data = {
       "componentId": componentId,
-      "docType": swaggerType,
-      "docString": swaggerScript
+      "docType": "json",
+      "docString": "",
+      "docInput": infoNode,
     }
 
     console.log("[Swagger Widget] ========DATA DOC=========");
@@ -151,34 +236,20 @@ var storeDoc = function(y) {
     console.log("[Swagger Widget] Checking loaded swagger doc");
     console.log(loadedSwaggerDoc);
 
-    if(loadedSwaggerDoc || loadedSwaggerDoc.id){
-      console.log("[Swagger Widget] POST DATA");
-      client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
-      function(data, type) {
-        // save currently loaded model
-        loadedSwaggerDoc = $("#name").val();
-        console.log("[Swagger Widget] Swagger doc stored, retrieving communication view..");
-        feedback("Swagger doc stored!");
-        loadModel(y);
-      },
-      function(error) {
-        console.log("[Swagger Widget] Error occured while storing swagger doc");
-        console.log(error);
-        feedback(error);
-      });
-    } else{
-        console.log("[Swagger Widget] PUT SWAGGER DATA");
-        client.sendRequest("PUT", "docs/" + loadedSwaggerDoc.id, JSON.stringify(data), "application/json", {},
-        function(data, type) {
-          console.log("[Swagger Widget] Swagger doc updated!");
-          feedback("Swagger doc updated!");
-        },
-        function(error) {
-          console.log("[Swagger Widget] Error occured while updating swagger doc");
-          console.log(error);
-          feedback(error);
-        });
-      };
+    console.log("[Swagger Widget] POST DATA");
+    client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
+    function(data, type) {
+      // save currently loaded model
+      loadedSwaggerDoc = $("#name").val();
+      console.log("[Swagger Widget] Swagger doc stored, retrieving communication view..");
+      feedback("Swagger doc stored!");
+      loadModel(y, false);
+    },
+    function(error) {
+      console.log("[Swagger Widget] Error occured while storing swagger doc");
+      console.log(error);
+      feedback(error);
+    });
   }
   else {
     console.log("[Swagger Widget] No model loaded");
@@ -186,8 +257,36 @@ var storeDoc = function(y) {
   }
 };
 
+var loadDivs = function(data) {
+    if (data.docInput) {
+    try {
+      var jsonSwaggerInputDoc = JSON.parse(data.docInput);
+      if (jsonSwaggerInputDoc.info) {
+        var description = jsonSwaggerInputDoc.info.description;
+        var version = jsonSwaggerInputDoc.info.version;
+        var terms = jsonSwaggerInputDoc.info.termsOfService;
+
+        $("#description").val((description) ? description : "");
+        $("#version").val((version) ? version : "");
+        $("#termsOfService").val((terms) ? terms : "");
+      }
+
+      // set map for nodes
+      if (jsonSwaggerInputDoc.nodes) {
+        Object.keys(jsonSwaggerInputDoc.nodes).forEach((key) => {
+          nodeMetadataList.set(key, jsonSwaggerInputDoc.nodes[key].description);
+        });
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }
+
+  $("#swaggerScript").val(data.docString);
+}
+
 // loads the metadata doc from API or yjs
-var loadModel = function(y) {
+var loadModel = function(y, fromDatabase) {
   console.log("[Swagger Widget] Load model");
   if (loadedModel) {
     console.log("[Swagger Widget] Load metadata for model " + loadedModel);
@@ -197,6 +296,8 @@ var loadModel = function(y) {
         function(data, type) {
             console.log("[Swagger Widget] Metadata doc loaded!");
             console.log(data);
+            loadDivs(data);
+
             y.share.data.set('metadataDoc', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');
             feedback("Metadata doc loaded, please refresh browser!");

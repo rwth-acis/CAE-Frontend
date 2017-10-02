@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Metadata Widget"
-    description="This widget is responsible for showing CAE connections"
-    author="Melisa Cecilia" author_email="cecilia@dbis.rwth-aachen.de"
-    width="600" height="500">
+  <ModulePrefs title="Open API viewer"
+    description="This widget provides readable preview of the component open API based metadata"
+    author="Thomas Winkler" author_email="winkler@dbis.rwth-aachen.de"
+    width="800" height="500">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>
@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Metadata Widget</title>
+  <title>Swagger UI</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -68,66 +68,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-  <!-- Bootstrap stylesheet import -->
-  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-
-  <!-- import jQuery for AJAX calls -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- OpenApp import -->
+  <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
   <!-- Inter Widget Communication library import-->
-  <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
-  <!-- style information -->
-  <link rel="stylesheet" href="@@host/metadataWidget/css/style.css">
-  <!-- import the client library -->
-  <script type="text/javascript" src="@@host/microservicePersistenceWidget/js/las2peerWidgetLibrary.js"></script>
-  <!-- import yjs -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/yjs/y.js"></script>
-  <!-- import application script -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/applicationScript.js"></script>
-  <script type="text/javascript" src="@@host/metadataWidget/js/iwc.js"></script>
-
-  <!-- Additional widget specific imports -->
-  <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
 
 </head>
 <body>
-
-  <!-- container for actual page content -->
-  <div class="container" id="mainContent">
-    <label for="type">Selected Component: </label><label for="type" id="metadataComponent"></label>
-    <table class="scrolltable table table-striped" id="metadataTable">
-        <thead>
-            <tr>
-                <th>Component Name</th>
-                <th>Endpoint Name</th>
-                <th>Operation</th>
-                <th>Parameters</th>
-                <th>Produces</th>
-            </tr>
-        </thead>
-        <tbody id="componentMetadataTable">
-    </table>
-
-    <label for="type">Matching endpoints</label>
-    <table class="scrolltable table table-striped" id="metadataMatchTable">
-        <thead>
-            <tr>
-                <th>Component Name</th>
-                <th>Endpoint Name</th>
-                <th>Operation</th>
-                <th>Parameters</th>
-                <th>Produces</th>
-                <th>Connect</th>
-            </tr>
-        </thead>
-        <tbody id="componentMetadataMatchTable">
-    </table>
-  </div>
-
+      <script type="text/javascript" src="@@host/swaggerWidget/js/swaggerUi.dev.js"></script>
+      <div id="swagger-ui">
+      </div>
 </body>
 </html>
-
   ]]>
   </Content>
-
 </Module>

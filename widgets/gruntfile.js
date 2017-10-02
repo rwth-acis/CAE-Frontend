@@ -36,6 +36,10 @@ module.exports = function(grunt) {
             'openapp' : "./src/liveCodeEditorWidget/lib/openapp.js"
           }
         }
+      },
+      SwaggerUI:{
+        src: ["src/swaggerWidget/js/swaggerUi.js"],
+        dest : 'dist/swaggerWidget/js/swaggerUi.dev.js',
       }
 		},
 		uglify: {
@@ -116,7 +120,9 @@ module.exports = function(grunt) {
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
 					{src: "src/liveCodeEditorWidget/LivePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/LivePreviewWidget.xml"},
-					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"}
+					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"},
+					// Swagger
+					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
 				]
 			}
 		},
@@ -222,7 +228,7 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "src/metadataWidget", src:"css/*", dest: "dist/metadataWidget/"},
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/las2peerWidgetLibrary.js", dest: "dist/metadataWidget/js/"},
-					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/iwc.js", dest: "dist/metadataWidget/js"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/iwc.js", dest: "dist/metadataWidget/js/"},
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/metadataWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/metadataWidget/js/"},
@@ -238,6 +244,7 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "src/swaggerWidget", src:"css/*", dest: "dist/swaggerWidget/"},
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwc.js", dest: "dist/swaggerWidget/js/"},
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/swaggerWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/swaggerWidget/js/"},
