@@ -86,13 +86,13 @@ var init = function () {
                 if (storedModels.indexOf(modelName) != -1) 
                     setLoadedModel(modelName, 'success');
                 else if (modelName.length == 0) 
-                    feedbackTimeout('Found model in the space with no name.');
+                    feedback('Found model in the space with no name.');
             }
         });
        
       
 
-        $('#delete-model').on('click', function () {
+        $('#reset-model').on('click', function () {
             resetCurrentModel(y);
         });
         $('#store-model').on('click', function () {
@@ -100,6 +100,9 @@ var init = function () {
         });
         $('#load-model').on('click', function () {
             loadModel(y);
+        });
+        $('#delete-model').click(function(){
+            deleteModel();
         });
     });
 
@@ -110,6 +113,10 @@ var resetCurrentModel = function (y) {
     if (y.share.data.get('model')) {
         y.share.data.set('model', null);
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
+        
+        //reset wireframing editor as well
+        y.share.data.set('wireframe', null);        
+        y.share.action.set('reload', true);
         feedback("Done!");
     } else {
         feedback("No model!");
@@ -179,7 +186,7 @@ var loadModel = function (y) {
     y.share.data.set('model', null);
 
     // now read in the file content
-    modelName = $('#model-list option:selected').text();
+    var modelName = $('#model-list option:selected').text();
     addSpinner();
     client.sendRequest("GET", modelName, "", "", {},
         function (data, type) {
@@ -206,6 +213,27 @@ var loadModel = function (y) {
             removeSpinner();
         });
 };
+
+function deleteModel(){
+    addSpinner();
+    var modelName = $('#model-list option:selected').text();
+    client.sendRequest("DELETE", modelName, "", "", {}, 
+        function(data, type){
+            setLoadedModel("", "default");
+            getStoredModels().done(function(storedModels){
+                if(storedModels.indexOf(modelName) != -1)
+                    feedback("Model is still in there! Someting went wrong");
+                else feedback("Successfully deleted model!");
+                removeSpinner();
+            });
+            
+        }, 
+        function(error){
+            console.log(error);
+            feedback(error);
+            removeSpinner();
+        });
+}
 
 $(document).ready(function () {
     init();
