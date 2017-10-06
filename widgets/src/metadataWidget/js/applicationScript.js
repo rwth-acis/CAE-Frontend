@@ -68,6 +68,20 @@ var iwcHandler = function(y, intent) {
     }
 };
 
+var createEdge = function(source, target) {
+  client.sendConnectionSelected()
+}
+
+var isSame = function(arr1, arr2) {
+    if (arr1.length !== arr2.length) return false;
+    for (var i = 0, len = arr1.length; i < len; i++){
+        if (arr1[i] !== arr2[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
 var sorter = function(x, y) {
     var pre = ['string' , 'number' , 'bool']
     if(typeof x!== typeof y )return pre.indexOf(typeof y) - pre.indexOf(typeof x);
@@ -88,7 +102,7 @@ var addTableRowHandler = function(y) {
             function(value, type) {
 
                 console.log("[Metadata Widget] Get path consumes and produces")
-                //console.log(value);
+                console.log(value);
                 var docObject = null;
 
                 if (value.docType === "json") {
@@ -118,6 +132,11 @@ var addTableRowHandler = function(y) {
                         client.sendRequest("GET", "docs/", "", "application/json", {}, function(data, type) {
                             
                             $("#metadataMatchTable").show();
+                            
+                            console.log("ALL DATA length");
+                            console.log(data.length);
+                            console.log(data);
+
                             // iterate through each component available except self
                             data.forEach(function(componentValue) {
                                 if (componentValue.componentId !== componentName) {
@@ -125,9 +144,9 @@ var addTableRowHandler = function(y) {
                                     //console.log(componentValue);
                                     var componentDocObject = null;
 
-                                    if (componentDocObject.docType === "json") {
+                                    if (componentValue.docType === "json") {
                                         // parse json string to object
-                                        componentDocObject = JSON.parse(componentDocObject.docString);
+                                        componentDocObject = JSON.parse(componentValue.docString);
                                         console.log("[Metadata Widget] Parse other component docString to object");
                                         console.log(componentDocObject);
                                     }
@@ -152,8 +171,17 @@ var addTableRowHandler = function(y) {
                                                 var sortedComponentOperationConsumes = componentOperationConsumes.sort(sorter);
                                                 var sortedComponentOperationProduces = componentOperationProduces.sort(sorter);
                                                 
+                                                console.log("SORTED COMPONENT OPERATIONS");
+                                                console.log(sortedComponentOperationConsumes);
+                                                console.log(sortedComponentOperationProduces);
+
+                                                console.log("SORTED OPERATIONS");
+                                                console.log(sortedOperationConsumes);
+                                                console.log(sortedOperationProduces);
+
                                                 // compare with operation consumes produces
-                                                if (sortedOperationConsumes.equals(sortedComponentOperationProduces) || sortedComponentOperationConsumes.equals(sortedOperationProduces)) {
+                                                if (isSame(sortedOperationConsumes, sortedComponentOperationProduces) && isSame(sortedComponentOperationConsumes, sortedOperationProduces)) {
+                                                    console.log("Found matching components")
                                                     var parametersList = [];
 
                                                     // process parameters
@@ -192,7 +220,6 @@ var addTableRowHandler = function(y) {
                                                         "<td class='doc_operation'>" + componentDocOperation + "</td>" +
                                                         "<td class='doc_parameters'>" + parametersString  + "</td>" +
                                                         "<td class='doc_produces'>" + producesString  + "</td>" +
-                                                        "<td class='doc_check'>" + "<input id='" + componentValue.id + componentValue.componentId + "checkBox' type='checkbox'>" + "</td>" + 
                                                     "</tr>");
                                                 }
 
@@ -200,7 +227,11 @@ var addTableRowHandler = function(y) {
                                         }
                                     }
                                 }
-                            })
+                            });
+
+                            $("#metadataTable").delegate('tr', 'click', function() {
+                                createEdge(componentName, $(this).find(".doc_id").html());
+                            });
                         });
                     }
                 };

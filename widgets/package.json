@@ -28,7 +28,6 @@
   "dependencies": {
     "parse-filepath": "^1.0.1",
     "path": "^0.12.7",
-    "swagger": "^0.7.5",
-    "swagger-ui": "^3.2.2"
+    "swagger": "^0.7.5"
   }
 }

@@ -242,6 +242,13 @@ module.exports = function(grunt) {
 				files: [
 					//CSS
 					{expand: true, cwd: "src/swaggerWidget", src:"css/*", dest: "dist/swaggerWidget/"},
+					//Swagger
+					{expand: true, cwd: "src/swaggerWidget", src:"lib/*", dest: "dist/swaggerWidget/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.css", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-bundle.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-standalone-preset.js", dest: "dist/swaggerWidget/lib/swagger/"},
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwc.js", dest: "dist/swaggerWidget/js/"},

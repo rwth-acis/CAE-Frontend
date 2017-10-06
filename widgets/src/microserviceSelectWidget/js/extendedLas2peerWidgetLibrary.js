@@ -143,6 +143,7 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
  *
  */
 Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function() {
+  console.log("[sendMicroserviceSelected] Microservice selected");
   // element creation
   var time = new Date().getTime();
   var data = JSON.stringify({selectedToolName: "Microservice"});

@@ -137,6 +137,29 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
   }
 };
 
+/**
+ *
+ * Sends a signal to the canvas that a connection was selected, such that the
+ * next click there will add a microservice to the canvas.
+ *
+ */
+Las2peerWidgetLibrary.prototype.sendConnectionSelected = function() {
+  console.log("[sendConnectionSelected] Connection selected");
+  // element creation
+  var time = new Date().getTime();
+  var data = JSON.stringify({selectedToolName: "HTTP Call"});
+  var intent = {
+    "component": "MAIN",
+    "data": "",
+    "dataType": "",
+    "action": "ACTION_DATA",
+    "flags": ["PUBLISH_LOCAL"],
+    "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
+    "sender": "METADATA_WIDGET"
+  };
+  this.iwcClient.publish(intent);
+};
+
 Las2peerWidgetLibrary.prototype.sendIntent = function(action, data, global) {
   if (global == null) {
     global = true;
