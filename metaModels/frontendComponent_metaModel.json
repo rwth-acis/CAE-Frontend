@@ -992,7 +992,7 @@
             "left": 3928,
             "top": 4998,
             "width": 185.31746031746036,
-            "height": 313.53968253968253,
+            "height": 393.53968253968253,
             "zIndex": 16031,
             "type": "Enumeration",
             "attributes": {
@@ -1125,6 +1125,51 @@
                                 "id": "32d6ff636bfd6a2da455e63a[value]",
                                 "name": "32d6ff636bfd6a2da455e63a[value]",
                                 "value": "iframe"
+                            }
+                        },
+                        "c19e3c4a16297d9c278ec213[value]": {
+                            "id": "c19e3c4a16297d9c278ec213[value]",
+                            "name": "c19e3c4a16297d9c278ec213[value]",
+                            "value": {
+                                "id": "c19e3c4a16297d9c278ec213[value]",
+                                "name": "c19e3c4a16297d9c278ec213[value]",
+                                "value": "radio"
+                            }
+                        },
+                        "0af873b185fd7e55d9904dcd[value]": {
+                            "id": "0af873b185fd7e55d9904dcd[value]",
+                            "name": "0af873b185fd7e55d9904dcd[value]",
+                            "value": {
+                                "id": "0af873b185fd7e55d9904dcd[value]",
+                                "name": "0af873b185fd7e55d9904dcd[value]",
+                                "value": "checkbox"
+                            }
+                        },
+                        "dcc0f9b634805d92ea1a37e1[value]": {
+                            "id": "dcc0f9b634805d92ea1a37e1[value]",
+                            "name": "dcc0f9b634805d92ea1a37e1[value]",
+                            "value": {
+                                "id": "dcc0f9b634805d92ea1a37e1[value]",
+                                "name": "dcc0f9b634805d92ea1a37e1[value]",
+                                "value": "ul"
+                            }
+                        },
+                        "4e2322277da7b1deaa69d5ae[value]": {
+                            "id": "4e2322277da7b1deaa69d5ae[value]",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "4e2322277da7b1deaa69d5ae[value]",
+                                "name": "Attribute",
+                                "value": "ol"
+                            }
+                        },
+                        "607b0b8e92ece01634530d53[value]": {
+                            "id": "607b0b8e92ece01634530d53[value]",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "607b0b8e92ece01634530d53[value]",
+                                "name": "Attribute",
+                                "value": "dl"
                             }
                         }
                     }
