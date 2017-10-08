@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Metadata Widget"
-    description="This widget is to manage open API based metadata in microservice components"
+  <ModulePrefs title="Open API viewer"
+    description="This widget provides readable preview of the component open API based metadata"
     author="Melisa Cecilia" author_email="cecilia@dbis.rwth-aachen.de"
-    width="600" height="500">
+    width="800" height="800">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>
@@ -59,7 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Metadata Widget</title>
+  <title>Swagger UI</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -83,58 +83,75 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="@@host/swaggerWidget/js/yjs/y.js"></script>
   
   <!-- import application script -->
-  <script type="text/javascript" src="@@host/swaggerWidget/js/applicationScript.js"></script>
+  <script type="text/javascript" src="@@host/swaggerWidget/js/swaggerUiEditor.js"></script>
   <script type="text/javascript" src="@@host/swaggerWidget/js/iwc.js"></script>
 
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
 
+  <!-- Swagger Editor Import -->
+  <script src="@@host/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js"> </script>
+  <script src="@@host/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js"> </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="@@host/swaggerWidget/lib/swagger-editor/swagger-editor.css" >
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Roboto,sans-serif;
+      font-size: 9px;
+      line-height: 1.42857143;
+      color: #444;
+      margin: 0px;
+    }
+
+    #swagger-editor {
+      font-size: 1.3em;
+    }
+
+    .container {
+      height: 100%;
+      max-width: 880px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    #editor-wrapper {
+      height: 100%;
+      border:1em solid #000;
+      border:none;
+    }
+
+    .Pane2 {
+      overflow-y: scroll;
+    }
+  </style>
+
+
+  <!-- End Swagger Import -->
+
 </head>
 <body>
 
-  <!-- container for actual page content -->
-  <div class="container" id="swagger-content">
-    <div class="form-group" id="node-form">
-      
-      <label>Selected Node: </label><label id="node-name"></label>
-      <br />
-      <label for="type">Description</label>
-      <input type="text" class="form-control" value="" id="node-description" disable placeholder="Description...">
-      
-    </div>
-    <div class="form-group">
-      <label for="type">Component Name</label>
-      <input type="text" class="form-control" value="" id="name" disabled placeholder="Name...">
-      
-      <label for="type">Description</label>
-      <input type="text" class="form-control" value="" id="description" placeholder="Description...">
-      
-      <label for="type">Version</label>
-      <input type="text" class="form-control" value="" id="version" placeholder="Version...">
-
-      <label for="type">Terms of Service</label>
-      <input type="text" class="form-control" value="" id="termsOfService" placeholder="Terms of Service file...">
-      
-      <label for="script">Swagger Script</label>
-      <textarea class="form-control" id="swaggerScript" disabled placeholder="Generated Swagger script" />
-    </div>
+<div class="container" id="swagger-editor-content">
+  <div class="form-group" id="swagger-editor-form">
+    <label>Component: </label><label id="name"></label>
+    <br />
     <div class="btn-group btn-group-justified">
       <div class="btn-group">
         <button id="load-doc" class="btn btn-default">Load</button>
-        <button id="store-doc" class="btn btn-default">Store</button>
       </div>
     </div>
-    <br>
-    <div class="form-group">
-      <input type="text" class="form-control" disable id="status" placeholder="Status..">
-    </div>
   </div>
+  <div id="swagger-editor"></div>
+</div>
 
 </body>
 </html>
-
   ]]>
   </Content>
-
 </Module>

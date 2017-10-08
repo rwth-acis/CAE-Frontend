@@ -93,6 +93,7 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
+  console.log("CAE HOST " + "@@caehost/CAE");
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
   spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);

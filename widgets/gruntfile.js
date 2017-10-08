@@ -36,10 +36,6 @@ module.exports = function(grunt) {
             'openapp' : "./src/liveCodeEditorWidget/lib/openapp.js"
           }
         }
-      },
-      SwaggerUI:{
-        src: ["src/swaggerWidget/js/swaggerUi.js"],
-        dest : 'dist/swaggerWidget/js/swaggerUi.dev.js',
       }
 		},
 		uglify: {
@@ -104,6 +100,10 @@ module.exports = function(grunt) {
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
 					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
+
+					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
+					{src: "src/swaggerWidget/swaggerUiEditor.xml", dest: "dist/swaggerWidget/swaggerUiEditor.xml"},
+
 					//CAE widgets JS
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
 					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
@@ -116,13 +116,15 @@ module.exports = function(grunt) {
 
 					{src: "src/metadataWidget/js/applicationScript.js", dest: "dist/metadataWidget/js/applicationScript.js"},
 					{src: "src/swaggerWidget/js/applicationScript.js", dest: "dist/swaggerWidget/js/applicationScript.js"},
+					
+					{src: "src/swaggerWidget/js/swaggerUi.js", dest: "dist/swaggerWidget/js/swaggerUi.js"},
+					{src: "src/swaggerWidget/js/swaggerUiEditor.js", dest: "dist/swaggerWidget/js/swaggerUiEditor.js"},
+
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
 					{src: "src/liveCodeEditorWidget/LivePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/LivePreviewWidget.xml"},
 					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"},
-					// Swagger
-					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
 				]
 			}
 		},
@@ -242,13 +244,48 @@ module.exports = function(grunt) {
 				files: [
 					//CSS
 					{expand: true, cwd: "src/swaggerWidget", src:"css/*", dest: "dist/swaggerWidget/"},
+					
 					//Swagger
-					{expand: true, cwd: "src/swaggerWidget", src:"lib/*", dest: "dist/swaggerWidget/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/favicon-16x16.png", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/favicon-32x32.png", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/index.html", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/oauth2-redirect.html", dest: "dist/swaggerWidget/lib/swagger/"},
 
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.css", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.css.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.js.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-bundle.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-bundle.js.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-standalone-preset.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-standalone-preset.js.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					//Swagger Editor
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/favicon-16x16.png", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/favicon-32x32.png", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/index.html", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.css", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.css.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/validation.worker.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/validation.worker.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwc.js", dest: "dist/swaggerWidget/js/"},
