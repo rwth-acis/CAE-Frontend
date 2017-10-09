@@ -1,5 +1,21 @@
 {
-    "attributes": {},
+    "attributes": {
+        "3ec5d2ddcd6d185b008866c9": {
+            "key": "type",
+            "value": "ModelTypes",
+            "options": {
+                "frontend-component": "frontend-component"
+            }
+        },
+        "6799ef51e99f2b5d7dd6121b": {
+            "key": "name",
+            "value": "string"
+        },
+        "7123edd98e7fb1045ef13c35": {
+            "key": "version",
+            "value": "integer"
+        }
+    },
     "nodes": {
         "182e51d01e990b398cd0b4cc": {
             "label": "Widget",
@@ -49,13 +65,26 @@
                     "key": "type",
                     "value": "HTML Type",
                     "options": {
-                        "input": "input",
-                        "table": "table",
-                        "br": "br",
-                        "button": "button",
+                        "span": "span",
                         "p": "p",
-                        "div": "div",
+                        "input": "input",
                         "textarea": "textarea",
+                        "br": "br",
+                        "a": "a",
+                        "button": "button",
+                        "radio": "radio",
+                        "checkbox": "checkbox",
+                        "div": "div",
+                        "img": "img",
+                        "video": "video",
+                        "audio": "audio",
+                        "table": "table",
+                        "ul": "ul",
+                        "ol": "ol",
+                        "dl": "dl",
+                        "canvas": "canvas",
+                        "svg": "svg",
+                        "iframe": "iframe",
                         "CUSTOM": "CUSTOM"
                     }
                 },
@@ -447,6 +476,28 @@
                     ],
                     "targetTypes": [
                         "Function"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "6d9f778f5e6d61dca81a0470": {
+            "label": "hasChild",
+            "shape": {
+                "arrow": "generalisation",
+                "shape": "segmented",
+                "color": "blue",
+                "overlay": "hasChild",
+                "overlayPosition": "hidden",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "HTML Element"
+                    ],
+                    "targetTypes": [
+                        "HTML Element"
                     ]
                 }
             ],

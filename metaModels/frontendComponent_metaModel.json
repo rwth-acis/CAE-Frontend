@@ -991,8 +991,8 @@
             },
             "left": 3928,
             "top": 4998,
-            "width": 185.31746031746036,
-            "height": 393.53968253968253,
+            "width": 187.69841269841274,
+            "height": 474.73015873015873,
             "zIndex": 16031,
             "type": "Enumeration",
             "attributes": {
@@ -1007,7 +1007,7 @@
                             "value": {
                                 "id": "c6e515ba9212dafd3769e178",
                                 "name": "c6e515ba9212dafd3769e178",
-                                "value": "input"
+                                "value": "span"
                             }
                         },
                         "b4b55ac49aa4cf04dee80928": {
@@ -1016,7 +1016,7 @@
                             "value": {
                                 "id": "b4b55ac49aa4cf04dee80928",
                                 "name": "b4b55ac49aa4cf04dee80928",
-                                "value": "table"
+                                "value": "p"
                             }
                         },
                         "718de67f68585b1d6da9853f": {
@@ -1025,7 +1025,7 @@
                             "value": {
                                 "id": "718de67f68585b1d6da9853f",
                                 "name": "718de67f68585b1d6da9853f",
-                                "value": "br"
+                                "value": "input"
                             }
                         },
                         "628bf7626a32ae50275afa70": {
@@ -1034,7 +1034,7 @@
                             "value": {
                                 "id": "628bf7626a32ae50275afa70",
                                 "name": "628bf7626a32ae50275afa70",
-                                "value": "button"
+                                "value": "textarea"
                             }
                         },
                         "2304ecf395d636b353fe11dc": {
@@ -1043,7 +1043,7 @@
                             "value": {
                                 "id": "2304ecf395d636b353fe11dc",
                                 "name": "2304ecf395d636b353fe11dc",
-                                "value": "p"
+                                "value": "br"
                             }
                         },
                         "b67d6e4086191f580df1bb04": {
@@ -1052,7 +1052,7 @@
                             "value": {
                                 "id": "b67d6e4086191f580df1bb04",
                                 "name": "b67d6e4086191f580df1bb04",
-                                "value": "div"
+                                "value": "a"
                             }
                         },
                         "b5020b140afb2df0eab7f11b": {
@@ -1061,7 +1061,7 @@
                             "value": {
                                 "id": "b5020b140afb2df0eab7f11b",
                                 "name": "b5020b140afb2df0eab7f11b",
-                                "value": "textarea"
+                                "value": "button"
                             }
                         },
                         "dec2e37280f4b8bd86222bb6": {
@@ -1070,7 +1070,7 @@
                             "value": {
                                 "id": "dec2e37280f4b8bd86222bb6",
                                 "name": "dec2e37280f4b8bd86222bb6",
-                                "value": "CUSTOM"
+                                "value": "radio"
                             }
                         },
                         "6b5143a488f2078d1c183141[value]": {
@@ -1079,7 +1079,7 @@
                             "value": {
                                 "id": "6b5143a488f2078d1c183141[value]",
                                 "name": "6b5143a488f2078d1c183141[value]",
-                                "value": "a"
+                                "value": "checkbox"
                             }
                         },
                         "93563874b9183e959de58540[value]": {
@@ -1088,7 +1088,7 @@
                             "value": {
                                 "id": "93563874b9183e959de58540[value]",
                                 "name": "93563874b9183e959de58540[value]",
-                                "value": "img"
+                                "value": "div"
                             }
                         },
                         "35773c52500c91aa81d0ef4f[value]": {
@@ -1097,7 +1097,7 @@
                             "value": {
                                 "id": "35773c52500c91aa81d0ef4f[value]",
                                 "name": "35773c52500c91aa81d0ef4f[value]",
-                                "value": "audio"
+                                "value": "img"
                             }
                         },
                         "a75bd3d11a97f5a77e29a1e9[value]": {
@@ -1115,7 +1115,7 @@
                             "value": {
                                 "id": "d19c847ee92c067ee63b84e4[value]",
                                 "name": "d19c847ee92c067ee63b84e4[value]",
-                                "value": "span"
+                                "value": "audio"
                             }
                         },
                         "32d6ff636bfd6a2da455e63a[value]": {
@@ -1124,7 +1124,7 @@
                             "value": {
                                 "id": "32d6ff636bfd6a2da455e63a[value]",
                                 "name": "32d6ff636bfd6a2da455e63a[value]",
-                                "value": "iframe"
+                                "value": "table"
                             }
                         },
                         "c19e3c4a16297d9c278ec213[value]": {
@@ -1133,7 +1133,7 @@
                             "value": {
                                 "id": "c19e3c4a16297d9c278ec213[value]",
                                 "name": "c19e3c4a16297d9c278ec213[value]",
-                                "value": "radio"
+                                "value": "ul"
                             }
                         },
                         "0af873b185fd7e55d9904dcd[value]": {
@@ -1142,7 +1142,7 @@
                             "value": {
                                 "id": "0af873b185fd7e55d9904dcd[value]",
                                 "name": "0af873b185fd7e55d9904dcd[value]",
-                                "value": "checkbox"
+                                "value": "ol"
                             }
                         },
                         "dcc0f9b634805d92ea1a37e1[value]": {
@@ -1151,25 +1151,43 @@
                             "value": {
                                 "id": "dcc0f9b634805d92ea1a37e1[value]",
                                 "name": "dcc0f9b634805d92ea1a37e1[value]",
-                                "value": "ul"
+                                "value": "dl"
                             }
                         },
                         "4e2322277da7b1deaa69d5ae[value]": {
                             "id": "4e2322277da7b1deaa69d5ae[value]",
-                            "name": "Attribute",
+                            "name": "4e2322277da7b1deaa69d5ae[value]",
                             "value": {
                                 "id": "4e2322277da7b1deaa69d5ae[value]",
-                                "name": "Attribute",
-                                "value": "ol"
+                                "name": "4e2322277da7b1deaa69d5ae[value]",
+                                "value": "canvas"
                             }
                         },
                         "607b0b8e92ece01634530d53[value]": {
                             "id": "607b0b8e92ece01634530d53[value]",
-                            "name": "Attribute",
+                            "name": "607b0b8e92ece01634530d53[value]",
                             "value": {
                                 "id": "607b0b8e92ece01634530d53[value]",
-                                "name": "Attribute",
-                                "value": "dl"
+                                "name": "607b0b8e92ece01634530d53[value]",
+                                "value": "svg"
+                            }
+                        },
+                        "58cb3a748c04ecef8dc828a4[value]": {
+                            "id": "58cb3a748c04ecef8dc828a4[value]",
+                            "name": "58cb3a748c04ecef8dc828a4[value]",
+                            "value": {
+                                "id": "58cb3a748c04ecef8dc828a4[value]",
+                                "name": "58cb3a748c04ecef8dc828a4[value]",
+                                "value": "iframe"
+                            }
+                        },
+                        "5d6b28d41903df69d7aa71b7[value]": {
+                            "id": "5d6b28d41903df69d7aa71b7[value]",
+                            "name": "5d6b28d41903df69d7aa71b7[value]",
+                            "value": {
+                                "id": "5d6b28d41903df69d7aa71b7[value]",
+                                "name": "5d6b28d41903df69d7aa71b7[value]",
+                                "value": "CUSTOM"
                             }
                         }
                     }
