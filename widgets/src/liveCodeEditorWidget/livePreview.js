@@ -47,13 +47,31 @@ function getCSS(href) {
 
 };
 
+function getPolmerElement(href){
+  let link = $("<link>");
+  //let embbed = $("<html>");
+  //embbed.load(href);
+  //link.append(embbed);
+  $("head").append(link); //IE hack: append before setting href
+  link.attr({
+    rel:  "import",
+    href: href
+  });
+  Polymer.import( [href], function() {
+    // called when our import is fully loaded
+    // including any assets like CSS.
+    
+  });
+  
+}
+
 function loadStylesheets(styles){
   styles.each( function(){
     let style = $(this);
     if( style && style.attr("href") && style.attr("href").length > 0 ){
      let href = style.attr("href");
-      if( typeof _loadedCss[href] == "undefined" ){
-        _loadedCss[href] = 1;
+     if( typeof _loadedCss[href] == "undefined" ){
+      _loadedCss[href] = 1;
         getCSS(href);
       }
     }
@@ -116,10 +134,13 @@ function loadScripts(scripts){
     }
     //collect other scripts and dependencies
     else if( typeof _loadedScripts[src] === "undefined" ){
-      dependencies.push(src);
+      //ignore webcomponents-lite conflicts with polymer.js
+      if(src.indexOf('webcomponents-lite.min.js') == -1)
+        dependencies.push(src);
       _loadedScripts[src] = 1;
     }
-  })
+  });
+  
   //first load collected scripts/dependencies before appending the inline script, e.g. applicationScript
   return getMultiScripts(dependencies).then( () =>{
     try{
@@ -162,12 +183,25 @@ function processFiles(files){
       if( window.yTextarea ){
         window.yTextarea.destroy();
       }
+      let polymerElements = htmlDoc.filter('link[href*=".html"]');
+      if(polymerElements.length > 0){        
+        polymerElements.each(function(){
+          let link = $(this);
+          let href = link.attr('href');
+          if(link && link.attr('href') && link.attr('href').length > 0){
+            getPolmerElement(href);
+          }
+        });
+      }
 
-      $("div#main-content").html( mainContent );
-
-      $("div#main-content").height(height);
+      $("div#main-content").html(mainContent);
+      //$("div#main-content").height(height);
+      
+      $(frameElement.offsetParent).height(height);
+      $(frameElement.offsetParent).width(width);
+      
       gadgets.window.adjustHeight();
-
+    
       if( typeof init === "function"){
         try{
           init();

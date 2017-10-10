@@ -67,7 +67,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
   <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
   <![endif]-->
-
+  
   <!-- OpenApp import -->
   <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
   <!-- Inter Widget Communication library import-->
@@ -78,10 +78,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
-
+  
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/yjs/y.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/polymer/0.5.6/polymer.min.js"></script>
 </head>
 <body>
       <script type="text/javascript">
