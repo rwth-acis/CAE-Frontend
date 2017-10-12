@@ -52,41 +52,35 @@ export default class RoleSpace extends EventEmitter{
             select: 'Map',
             views: 'Map',
             data: 'Map',
-            text: "Text"
+            text: "Text",
+            activity: "Map"
         },
         sourceDir: config.CodeEditorWidget.bower_components
     }).then(function(y) {
         console.info('LIVEEDIT: Yjs successfully initialized');
 
         self.y = y
-
+        //make it global for now, otherwise i don't know how to get it right now
         self.yInitCallback()
     });
   }
 
-  iwcSendActivity(entityId,changedComponent){
+  sendActivity(entityId,changedComponent, userName){
     let time = new Date().getTime();
-    let data = JSON.stringify({
-      type:"ValueChangeActivity",entityId:entityId,"text":".. changed source code of "+ changedComponent,
+    let data = {
+      type:"ValueChangeActivity",
+      entityId:entityId,
+      text:"<strong>LiveCodeEditor</strong> ..changed source code of "+ changedComponent,
       data:{
-        value:"",subjectEntityName:"source code",rootSubjectEntityType: changedComponent, rootSubjectEntityId : entityId
+        value:"",
+        subjectEntityName:"source code",
+        rootSubjectEntityType: changedComponent,
+        rootSubjectEntityId : entityId,
+        userName : userName
       },
-      sender : this.getUserId()
-    });
-
-    let intent = {
-      "component": "ACTIVITY",
-      "data": "",
-      "dataType": "",
-      "action": "ACTION_DATA",
-      "flags": ["PUBLISH_LOCAL"],
-      "extras": {"payload":{"data":{"data":data,"type":"ActivityOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
-      "sender": "CODE_EDITOR"
-    };try{
-      this.iwcClient.publish(intent);
-    }catch(e){
-      console.error(e);
-    }
+      sender : this.user2.id
+    };
+    this.y.share.activity.set('ActivityOperation', data)
   }
 
   iwcHandler(indent){
@@ -188,7 +182,8 @@ export default class RoleSpace extends EventEmitter{
   init(){
     return $.when(this.getSpaceObj.bind(this)(),this.getUserObj.bind(this)())
     .then(this.initSpaceUserObject.bind(this))
-    .then(this.loadComponentName.bind(this));
+    .then(this.loadComponentName.bind(this))
+    .then(this.initUserNew.bind(this));
   }
 
   loadComponentName(){
@@ -235,6 +230,20 @@ export default class RoleSpace extends EventEmitter{
     return deferred.promise();
   }
 
+  initUserNew(){
+    let deferred = $.Deferred();
+    let url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
+    let self = this;
+    $.get(url, function(data){
+      self.user2 = {
+        id: data.sub,
+        name: data.name,
+      };
+      deferred.resolve();
+      
+    });
+    return deferred.promise();
+  }
   // listener handler
 
   addModelUpdatedListener(listener){

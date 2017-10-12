@@ -644,7 +644,7 @@ class Workspace extends EventEmitter{
     }
 
     if(modelId){
-      this.roleSpace.iwcSendActivity(modelId,changedSegment);
+      this.roleSpace.sendActivity(modelId,changedSegment, userName);
     }
 
     this.contentProvider.saveFile(path, this.roleSpace.getComponentName() ,data)
