@@ -1,0 +1,232 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+
+    <!--<link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
+    -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.16/js/dataTables.bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+
+
+    <script src="node_modules/yjs/dist/y.js"></script>
+    <script src="node_modules/y-map/dist/y-map.js"></script>
+    <script src="node_modules/y-websockets-client/dist/y-websockets-client.js"></script>
+    <script src="node_modules/y-memory/dist/y-memory.js"></script>
+
+</head>
+
+<body>
+    <div id="timeLine"></div>
+    <table id="activityTable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Editor</th>
+                <th>Type</th>
+                <th>EntityId</th>
+                <th>User</th>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Editor</th>
+                <th>Type</th>
+                <th>EntityId</th>
+                <th>User</th>
+                <th>Time</th>
+            </tr>
+        </tfoot>
+        <tbody>
+
+        </tbody>
+    </table>
+
+    <script type="text/javascript">
+        Y({
+            db: {
+                name: "memory"
+            },
+            connector: {
+                name: "websockets-client",
+                room: 'syncmetatesting',
+                url: "http://127.0.0.1:1234"
+            },
+            share: {
+                activity: 'Map'
+            }
+        }).then(function (y) {
+            window.y = y;
+            var userColors = {};
+            var timeLineGroupMap = {};
+            var items = new vis.DataSet();
+            var groups = new vis.DataSet();
+            $(document).ready(function () {
+                function generateDOM(data) {
+                    var $tr = $('<tr>');
+                    for (var i = 0; data && i < data.length; i++) {
+                        var $td = $('<td>');
+                        $td.text(data[i]);
+                        $tr.append($td);
+                    }
+                    return $tr;
+                }
+                var generateEntriesFromJson = function (json) {
+                    var rows = [];
+                    var type = json.type;
+                    if (type && type.indexOf("Wireframe") != -1) {
+                        var data = json.data;
+                        if (data && data.ids && data.ids.length > 0) {
+                            for (var i = 0; i < data.ids.length; i++) {
+                                var rowData = [];
+                                rowData.push("CAE-WireframeEditor");
+                                rowData.push(json.type);
+                                rowData.push(data.ids[i]);
+                                rowData.push(json.user ? json.user.title : "");
+                                rowData.push(json.timestamp);
+                                rows.push(rowData);
+                            }
+                        }
+                        items.add({
+                            content: json.type + '<br>' + json.entityId,
+                            start: json.timestamp,
+                            group: timeLineGroupMap[json.user.title]
+                        });
+                    }
+                    else if (type && type === 'WidgetTrackingActivity') {
+                        var rowData = [];
+                        rowData.push("CAE");
+                        rowData.push(json.type);
+                        rowData.push(json.entityId);
+                        rowData.push(json.user ? json.user.title : "");
+                        rowData.push(json.timestamp);
+                        rows.push(rowData);
+                        items.add({
+                            content: json.entityId,
+                            start: json.data.start,
+                            end: json.data.end,
+                            type: 'background',
+                            group: timeLineGroupMap[json.user.title]
+
+                        });
+                    }
+                    else if (json.subjectEntityName && json.subjectEntityName === "source code") {
+                        var rowData = [];
+                        rowData.push("LiveCodeEditor");
+                        rowData.push(json.type);
+                        rowData.push(json.entityId);
+                        rowData.push(json.user ? json.user.title : "");
+                        rowData.push(json.timestamp);
+                        rows.push(rowData);
+                        items.add({
+                            content: json.type,
+                            title: "LiveCodeEditor<br>" + json.entityId,
+                            start: json.timestamp,
+                            group: timeLineGroupMap[json.user.title]
+                        });
+                    }
+                    else {
+                        var rowData = [];
+                        rowData.push("SyncMeta");
+                        rowData.push(json.type);
+                        rowData.push(json.entityId);
+                        rowData.push(json.user ? json.user.title : "");
+                        rowData.push(json.timestamp);
+                        rows.push(rowData);
+                        items.add({
+                            content: json.type,
+                            title: "SyncMeta<br>" + json.entityId,
+                            start: json.timestamp,
+                            group: timeLineGroupMap[json.user.title]
+                        });
+                    }
+                    return rows;
+                };
+                var getDateTimeAsString = function (timestamp) {
+                    var d = new Date(timestamp);
+                    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    var year = d.getFullYear();
+                    var month = months[d.getMonth()];
+                    var date = d.getDate();
+                    var hour = d.getHours();
+                    var min = d.getMinutes();
+                    var sec = d.getSeconds();
+                    var dateTime = date + '.' + month + '.' + year + '/' + hour + ':' + min + ':' + sec;
+                    return dateTime;
+                };
+                var initTable = function ($table, $rows, prepend) {
+                    for (var i = 0; $rows && i < $rows.length; i++) {
+                        if (prepend)
+                            $table.prepend($rows[i]);
+                        else $table.append($rows[i]);
+                    }
+                };
+                var addUser = function (json) {
+                    var userName = undefined;
+                    if (json && json.user) {
+                        var color = json.user.hasOwnProperty("color") ? json.user.color : undefined;
+                        userName = json.user.hasOwnProperty("title") ? json.user.title : undefined;
+                        if (color && userName && !userColors.hasOwnProperty(userName)) {
+                            userColors[userName] = color;
+                            var id = Object.keys(userColors).length;
+                            timeLineGroupMap[userName] = id;
+                            groups.add({ id: id, content: userName });
+                        }
+                    }
+                    return userName;
+                }
+                y.share.activity.observe(function (event) {
+                    switch (event.name) {
+                        case 'log': {
+                            if(event && event.value && event.value.length > 0){
+                                addUser(event.value[0]);
+                                dataTable.rows.add(generateEntriesFromJson(event.value[0])).draw();
+                            }
+                            break;
+                        }
+                    }
+                });
+                var $table = $('#activityTable');
+                var log = y.share.activity.get('log');
+                for (var i = 0; log && i < log.length; i++) {
+                    var json = log[i];
+                    var userName = addUser(json);
+                    var rows = generateEntriesFromJson(log[i]);
+                    for (var j = 0; rows && j < rows.length; j++) {
+                        initTable($table, generateDOM(rows[j]));
+                    }
+                }
+                var dataTable = $table.DataTable({
+                    order: [4, 'desc'],
+                    rowCallback: function (node, data) {
+                        if (userColors.hasOwnProperty(data[3]))
+                            $(node).css('background', userColors[data[3]]);
+                    }
+                });
+
+                //Here comes the vis.js timeline
+                var container = document.getElementById('timeLine');
+                var timeline = new vis.Timeline(container,
+                    items,
+                    groups,
+                    {
+                        start: log ? log[log.length - 1].timestamp : $.now(),
+                        editable: false,
+                        /*rollingMode: {
+                            follow: true,
+                            offset: 0.5
+                        }*/
+                    }
+                );
+
+            });
+        });
+    </script>
+</body>
+
+</html>
