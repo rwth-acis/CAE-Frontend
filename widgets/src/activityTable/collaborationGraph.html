@@ -1,0 +1,143 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+
+    <script src="node_modules/yjs/dist/y.js"></script>
+    <script src="node_modules/y-map/dist/y-map.js"></script>
+    <script src="node_modules/y-websockets-client/dist/y-websockets-client.js"></script>
+    <script src="node_modules/y-memory/dist/y-memory.js"></script>
+
+</head>
+
+<body>
+    <div id="graph"></div>
+
+    <script type="text/javascript">
+        Y({
+            db: {
+                name: "memory"
+            },
+            connector: {
+                name: "websockets-client",
+                room: 'caemodel',
+                url: "http://127.0.0.1:1234"
+            },
+            share: {
+                activity: 'Map'
+            }
+        }).then(function (y) {
+            window.y = y;
+
+            function addActivity(json) {
+                var type = json.type;
+                //wireframing activity
+                if (type && type.indexOf("Wireframe") != -1) {
+                    var data = json.data;
+                    if (json.user) {
+                        try {
+                            nodes.add({ id: json.user.mail, label: json.user.title, shape: 'star', color: 'rgb(255,168,7)' });
+                        }
+                        catch (e) {
+                            //if it fails we just assume the node already exists
+                        }
+                        var id = nodes.add({ label: type, shape: 'diamond', color:  'red'});
+                        edges.add({ from: json.user.mail, to: id[0] });
+
+                    }
+                    if (data && data.ids && data.ids.length > 0) {
+                        for (var i = 0; i < data.ids.length; i++) {
+                            try {
+                                nodes.add({ id: data.ids[i], label: data.ids[i], shape: 'square', color: 'rgba(97,195,238,0.5)' });
+                            }
+                            catch (e) {
+                                //if it fails we just assume the node already exists
+                            }
+                            edges.add({ from: data.ids[i], to: id[0] });
+                            edges.add({ from: data.ids[i], to: json.user.mail });
+
+                        }
+                    }
+
+                }
+                else if (type && (type === 'WidgetTrackingActivity'
+                    || type === 'UserLeftActivity'
+                    || type === 'ReloadWidgetOperation'
+                    || type === 'ApplyLayoutActivity')) {
+                    //ignore them
+                }
+                //Live Code Editor activity
+                else if (json.subjectEntityName && json.subjectEntityName === "source code") {
+                    try {
+                        nodes.add({ id: json.entityId, label: json.entityId, shape: 'square', color: 'rgba(97,195,238,0.5)' });
+                    }
+                    catch (e) {
+                        //if it fails we just assume the node already exists
+                    }
+                    var id = nodes.add({ label: type, shape: 'diamond' });
+                    edges.add({ from: json.entityId, to: id[0] });
+                    if (json.user) {
+                        try {
+                            nodes.add({ id: json.user.mail, label: json.user.title, shape: 'star', color: 'rgb(255,168,7)' });
+                        }
+                        catch (e) {
+                            //if it fails we just assume the node already exists
+                        }
+                        edges.add({ from: json.entityId, to: json.user.mail });
+                        edges.add({ from: json.user.mail, to: id[0] });
+
+                    }
+                }
+                //Syncmeta activity
+                else {
+                    try {
+                        nodes.add({ id: json.entityId, label: json.entityId, shape: 'square', color: 'rgba(97,195,238,0.5)'});
+                    }
+                    catch (e) {
+                        //if it fails we just assume the node already exists
+                    }
+                    var id = nodes.add({ label: type, shape: 'diamond', color: '#7BE141'});
+                    edges.add({ from: json.entityId, to: id[0] });
+                    if (json.user) {
+                        try {
+                            nodes.add({ id: json.user.mail, label: json.user.title, shape: 'star', color: 'rgb(255,168,7)' });
+                        }
+                        catch (e) {
+                            //if it fails we just assume the node already exists
+                        }
+                        edges.add({ from: json.entityId, to: json.user.mail });
+                        edges.add({ from: json.user.mail, to: id[0] });
+
+                    }
+
+                }
+            }
+
+            var nodes = new vis.DataSet();
+            var edges = new vis.DataSet();
+
+            var log = y.share.activity.get('log');
+            for (var i = 0; log && i < log.length; i++) {
+                addActivity(log[i]);
+            }
+
+            var container = document.getElementById('graph');
+            var network = new vis.Network(container, { nodes: nodes, edges: edges }, {});
+            y.share.activity.observe(function (event) {
+                switch (event.name) {
+                    case 'log': {
+                        if (event && event.value && event.value.length > 0) {
+                            addActivity(event.value[0]);
+                        }
+                        break;
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+
+</html>
