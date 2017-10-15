@@ -38,7 +38,9 @@ var client,
     loadedSwaggerDoc = null,
     iwcClient = null,
     selectedNodeId = null,
-    nodeMetadataList = new Map();
+    nodeMetadataList = new Map(),
+    nodeMetadataSchemas = new Map(),
+    schemaList = new Map();
 
 var iwcHandler = function(y, intent) {
     let data = intent.extras.payload.data.data;
@@ -59,9 +61,30 @@ var iwcHandler = function(y, intent) {
           console.log(model);
 
           if (model.nodes.hasOwnProperty(nodeId)) {
+              console.log("=====NODE DETAILS");
+              console.log(model.nodes[nodeId]);
               componentName = model.nodes[nodeId].label.value.value;
               console.log("=====COMPONENT NAME");
               console.log(componentName);
+
+              $('#node-schema').html('<option value="">None</option>');
+
+              // get type and only enable properties when type is JSON
+              var attributes = model.nodes[nodeId].attributes;
+              for (var property in attributes) {
+                var currentAttribute = attributes[property];
+                if (currentAttribute.name === "payloadType" || currentAttribute.name === "resultType") {
+                  if(currentAttribute.value.value === "JSON") {
+                    $("#node-schema").prop('disabled', false);
+                    // generate select
+                    schemaList.forEach((value, key) => {
+                      $('#node-schema').append(`<option value="${key}">${key}</option>`);
+                    });
+                  } else {
+                    $("#node-schema").prop('disabled', true);
+                  }
+                }
+              }
 
               if (componentName) {
                   $("#node-name").html(componentName);
@@ -72,21 +95,83 @@ var iwcHandler = function(y, intent) {
                     $("#node-description").val(savedDescription);
                   else
                     $("#node-description").val("");
+
+                  // search for properties in map
+                  var savedSchema = nodeMetadataSchemas.get(nodeId);
+                  console.log("Current saved schema " + savedSchema);
+                  if (savedSchema)
+                    $("#node-schema").val(savedSchema);
               }
           }
 
           $("#node-form").show();
   
+        } else {
+          // hide node form
+          $("#node-form").hide();
         }
     }
 };
 
-var init = function() {
-  // hide node form
-  $("#node-description").blur(function() {
-    nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+var clickSchema = function(keyValue) {
+  console.log("Schema clicked " + keyValue);
+  var jsonProperties = JSON.stringify(schemaList.get(keyValue));
+  $("#schema-name").val(keyValue);
+  $("#schema-properties").val(jsonProperties);
+}
+
+var generateSchemaList = function() {
+  // generate select
+  $('#schema-list').html("");
+  schemaList.forEach((value, key) => {
+    $('#schema-list').append(`<li id="${key}" class="list-group-item">${key}</li>`);
   });
 
+  $('#schema-list li').click(function() {
+    console.log("li clicked with id " + this.id);
+    clickSchema(this.id);
+  })
+}
+
+var saveMapNode = function() {
+  nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+  nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
+
+  console.log(nodeMetadataList);
+  console.log(nodeMetadataSchemas);
+}
+
+var saveSchema = function() {
+  var schemaName = $("#schema-name").val();
+  var schemaProperties = $("#schema-properties").val();
+  schemaList.set(schemaName, JSON.parse(schemaProperties));
+  console.log("Schema added");
+  console.log(schemaList);
+  feedback("Schema added");
+  generateSchemaList();
+}
+
+var deleteSchema = function() {
+  var schemaName = $("#schema-name").val();
+  schemaList.delete(schemaName);
+  console.log("Schema deleted");
+  console.log(schemaList);
+  feedback("Schema deleted");
+  generateSchemaList();
+}
+
+var init = function() {
+  $("#node-description").blur(function() {
+    console.log("NodeDescription - Saving node properties and description");
+    saveMapNode();
+  });
+
+  $("#node-schema").blur(function() {
+    console.log("NodeSchema - Saving node properties and description");
+    saveMapNode();
+  });
+  
+  // hide node form
   $("#node-form").hide();
 
   console.log("[Swagger Widget] INIT SWAGGER WIDGET");
@@ -184,6 +269,15 @@ var init = function() {
           console.log("Load metadata doc from database");
           loadModel(y, true);
         })
+
+        $('#schema-add').on('click', function() {
+          saveSchema();
+        })
+
+        $('#schema-delete').on('click', function() {
+          deleteSchema();
+        })
+
     });
 };
 
@@ -198,11 +292,20 @@ var storeDoc = function(y) {
     var version = $("#version").val();
     var termsOfService = $("#termsOfService").val();
 
+    // process schemas
+    var schemasJson = {};
+    schemaList.forEach((value, key) => {
+      schemasJson[key] = value;
+    });
+
     var nodeMetadataJson = {};
     // process leftover in node form
     if (selectedNodeId && $("#node-description").val())
       nodeMetadataList.set(selectedNodeId, $("#node-description").val());
 
+    if (selectedNodeId && $("#node-properties").val())
+      nodeMetadataProperties.set(selectedNodeId, $("#node-properties").val());
+      
     // generate string for method nodes
     nodeMetadataList.forEach((value, key) => {
       console.log("PROCESS NODE " + key);
@@ -212,14 +315,30 @@ var storeDoc = function(y) {
       nodeMetadataJson[nodeId]["description"] = nodeDescription;
     });
 
+    nodeMetadataSchemas.forEach((value, key) => {
+      console.log("PROCESS PROPERTIES NODE " + key);
+      var nodeId = key;
+      var nodeProperties = value;
+      if (!nodeMetadataJson[nodeId])
+        nodeMetadataJson[nodeId] = {};
+      nodeMetadataJson[nodeId]["schema"] = nodeProperties;
+    });
+
+    console.log("SCHEMAS JSON");
+    console.log(schemasJson);
+
     var infoNode = `{
         "info": {
           "description": "${description}",
           "version": "${version}",
           "termsOfService": "${termsOfService}"
         },
+        "definitions": ${JSON.stringify(schemasJson)}, 
         "nodes": ${JSON.stringify(nodeMetadataJson)}
     }`;
+
+    console.log("==INFO NODE===");
+    console.log(infoNode);
     
     var data = {
       "componentId": componentId,
@@ -272,18 +391,28 @@ var loadDivs = function(data) {
         $("#termsOfService").val((terms) ? terms : "");
       }
 
-      // set map for nodes
+      // set description and schema map for nodes
       if (jsonSwaggerInputDoc.nodes) {
         Object.keys(jsonSwaggerInputDoc.nodes).forEach((key) => {
           nodeMetadataList.set(key, jsonSwaggerInputDoc.nodes[key].description);
+          nodeMetadataSchemas.set(key, jsonSwaggerInputDoc.nodes[key].schema);
         });
       }
+
+      // set all schemas list
+      if (jsonSwaggerInputDoc.definitions) {
+        Object.keys(jsonSwaggerInputDoc.definitions).forEach((key) => {
+          schemaList.set(key, jsonSwaggerInputDoc.definitions[key]);
+          console.log("Set all schemas list");
+          console.log(schemaList);
+        });
+        generateSchemaList();
+      }
+
     } catch(e) {
       console.log(e);
     }
   }
-
-  $("#swaggerScript").val(data.docString);
 }
 
 // loads the metadata doc from API or yjs

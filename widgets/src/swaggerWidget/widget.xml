@@ -3,7 +3,7 @@
   <ModulePrefs title="Metadata Widget"
     description="This widget is to manage open API based metadata in microservice components"
     author="Melisa Cecilia" author_email="cecilia@dbis.rwth-aachen.de"
-    width="600" height="500">
+    width="600" height="800">
 
     <Require feature="opensocial-0.8"></Require>
     <Require feature="openapp"></Require>
@@ -102,6 +102,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <label for="type">Description</label>
       <input type="text" class="form-control" value="" id="node-description" disable placeholder="Description...">
       
+      <label for="type">Node Schema</label>
+      <select id="node-schema" class="form-control">
+        <option value="">None</option>
+      </select>
+    
     </div>
     <div class="form-group">
       <label for="type">Component Name</label>
@@ -116,9 +121,28 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <label for="type">Terms of Service</label>
       <input type="text" class="form-control" value="" id="termsOfService" placeholder="Terms of Service file...">
       
-      <label for="script">Swagger Script</label>
-      <textarea class="form-control" id="swaggerScript" disabled placeholder="Generated Swagger script" />
     </div>
+
+    <div class="form-group">
+      <label for="type">Current Schemes</label>
+      <ul class="list-group" id="schema-list">
+      </ul>
+
+      <label for="type">Schema Name</label>
+      <input type="text" class="form-control" value="" id="schema-name" placeholder="Schema Name...">
+
+      <label for="script">Properties JSON</label>
+      <textarea class="form-control" id="schema-properties" placeholder=""></textarea>
+
+      <div class="btn-group btn-group-justified">
+        <div class="btn-group">
+          <button id="schema-add" class="btn btn-default">Add Schema</button>
+          <button id="schema-delete" class="btn btn-default">Delete Schema</button>
+        </div>
+      </div>
+
+    </div>
+
     <div class="btn-group btn-group-justified">
       <div class="btn-group">
         <button id="load-doc" class="btn btn-default">Load</button>
