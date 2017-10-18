@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Frontend Component Persistence Widget"
+  <ModulePrefs title="Persistence Widget"
     description="This widget is responsible for persisting frontend component."
     author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
     width="400" height="250">
@@ -99,7 +99,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </div>
 
   <div class="form-group">
-    <label for="model-list">Persisted models</label>
+    <label id="modelType" for="model-list">Persisted models</label>
     <select id="model-list" class="form-control"></select>
   </div>
   <h4 id="loaded-model-info">No model loaded from the database</h4>

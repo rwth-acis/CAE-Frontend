@@ -32,7 +32,8 @@
 
 // global variables
 var client,
-    feedbackTimeout;
+    feedbackTimeout,
+    modelType;
 
 var init = function () {
     var iwcCallback = function (intent) {
@@ -75,22 +76,33 @@ var init = function () {
         sourceDir: '@@host/frontendComponentPersistenceWidget/js'
     }).then(function (y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
-
+        var data = y.share.data.get('model');
+        if (data) {
+            try {
+                modelType = data.attributes.attributes['modelAttributes[type]'].value.value;
+                var $modelTypeLabel = $('#modelType');
+                $modelTypeLabel.empty();
+                $modelTypeLabel.text('Persisted ' + modelType + ' models');
+            }
+            catch (e) {
+                feedback('No model type defined in the model attributes');
+            }
+        }
         //check if the model is loaded from the database
         //we just check if the model attribute label is equal to the model attributes name
-        getStoredModels().done(function(storedModels){
-            feedback("Updated list of available models!");            
+        getStoredModels(modelType).done(function (storedModels) {
+            feedback("Updated list of available models!");
             var data = y.share.data.get('model');
             if (data) {
-                var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
-                if (storedModels.indexOf(modelName) != -1) 
-                    setLoadedModel(modelName, 'success');
-                else if (modelName.length == 0) 
+                try {
+                    var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
+                    if (storedModels.indexOf(modelName) != -1)
+                        setLoadedModel(modelName, 'success');
+                } catch (e) {
                     feedback('Found model in the space with no name.');
+                }
             }
         });
-       
-      
 
         $('#reset-model').on('click', function () {
             resetCurrentModel(y);
@@ -101,7 +113,7 @@ var init = function () {
         $('#load-model').on('click', function () {
             loadModel(y);
         });
-        $('#delete-model').click(function(){
+        $('#delete-model').click(function () {
             deleteModel();
         });
     });
@@ -113,9 +125,9 @@ var resetCurrentModel = function (y) {
     if (y.share.data.get('model')) {
         y.share.data.set('model', null);
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
-        
+
         //reset wireframing editor as well
-        y.share.data.set('wireframe', null);        
+        y.share.data.set('wireframe', null);
         y.share.action.set('reload', true);
         feedback("Done!");
     } else {
@@ -130,7 +142,7 @@ var storeModel = function (y) {
         return;
     }
     addSpinner();
-    getStoredModels().done(function (storedModels) {
+    getStoredModels(modelType).done(function (storedModels) {
         var data = y.share.data.get('model');
         // add name, version and type to model
 
@@ -153,7 +165,7 @@ var storeModel = function (y) {
                     setLoadedModel(modelName, 'success');
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
-                    getStoredModels();
+                    getStoredModels(modelType);
                     removeSpinner();
                 },
                 function (error) {
@@ -214,21 +226,21 @@ var loadModel = function (y) {
         });
 };
 
-function deleteModel(){
+function deleteModel() {
     addSpinner();
     var modelName = $('#model-list option:selected').text();
-    client.sendRequest("DELETE", modelName, "", "", {}, 
-        function(data, type){
+    client.sendRequest("DELETE", modelName, "", "", {},
+        function (data, type) {
             setLoadedModel("", "default");
-            getStoredModels().done(function(storedModels){
-                if(storedModels.indexOf(modelName) != -1)
+            getStoredModels(modelType).done(function (storedModels) {
+                if (storedModels.indexOf(modelName) != -1)
                     feedback("Model is still in there! Someting went wrong");
                 else feedback("Successfully deleted model!");
                 removeSpinner();
             });
-            
-        }, 
-        function(error){
+
+        },
+        function (error) {
             console.log(error);
             feedback(error);
             removeSpinner();
@@ -280,23 +292,27 @@ feedback = function (msg) {
     }, 10000);
 };
 
-var getStoredModels = function () {
+var getStoredModels = function (modelType) {
     var deferred = $.Deferred();
-    client.sendRequest("GET", "", "", "application/json", {},
-        function (data, type) {
-            var $list = $('#model-list');
-            $list.empty();
+    var successFnc = function (data, type) {
+        var $list = $('#model-list');
+        $list.empty();
 
-            for (var i = 0; i < data.length; i++) {
-                var $entry = $.parseHTML('<option>' + data[i] + '</option>');
-                $list.append($entry);
-            }
-            deferred.resolve(data);
-        },
-        function (error) {
-            console.error("Not able to get list of stored models from the backend! Check if services are started.");
-            feedback("Not able to get list of models from backend! Check if services are started.");
-        });
+        for (var i = 0; i < data.length; i++) {
+            var $entry = $.parseHTML('<option>' + data[i] + '</option>');
+            $list.append($entry);
+        }
+        deferred.resolve(data);
+    };
+    var errorFnc = function (error) {
+        console.error("Not able to get list of stored models from the backend! Check if services are started.");
+        feedback("Not able to get list of models from backend! Check if services are started.");
+    };
+
+    if (modelType && modelType.length > 0)
+        client.sendRequest("GET", "type/" + modelType, "", "application/json", {}, successFnc, errorFnc);
+    else
+        client.sendRequest("GET", "", "", "application/json", {}, successFnc, errorFnc);
     return deferred.promise();
 }
 

@@ -1834,7 +1834,7 @@
                     "list": {
                         "d91e46f14b9751a02e516e3b": {
                             "id": "d91e46f14b9751a02e516e3b",
-                            "name": "Attribute",
+                            "name": "d91e46f14b9751a02e516e3b",
                             "key": {
                                 "id": "d91e46f14b9751a02e516e3b[key]",
                                 "name": "",
@@ -1844,6 +1844,95 @@
                                 "id": "d91e46f14b9751a02e516e3b[value]",
                                 "name": "",
                                 "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "e7943081fcc630ee1b75961e": {
+            "label": {
+                "id": "e7943081fcc630ee1b75961e[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e7943081fcc630ee1b75961e[label]",
+                    "name": "Label",
+                    "value": "Model Attributes"
+                }
+            },
+            "left": 2644.8568725585933,
+            "top": 4474.852600097655,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16043,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "0ca725dd7855fe7ca035cc71": {
+                            "id": "0ca725dd7855fe7ca035cc71",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "0ca725dd7855fe7ca035cc71[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "0ca725dd7855fe7ca035cc71[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "839ee4cd8ddc300c8409e629": {
+                            "id": "839ee4cd8ddc300c8409e629",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "839ee4cd8ddc300c8409e629[key]",
+                                "name": "",
+                                "value": "version"
+                            },
+                            "value": {
+                                "id": "839ee4cd8ddc300c8409e629[value]",
+                                "name": "",
+                                "value": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "2e6024a88f6eb0a0279d19bd": {
+            "label": {
+                "id": "2e6024a88f6eb0a0279d19bd[label]",
+                "name": "Label",
+                "value": {
+                    "id": "2e6024a88f6eb0a0279d19bd[label]",
+                    "name": "Label",
+                    "value": "Type"
+                }
+            },
+            "left": 2913.6068725585933,
+            "top": 4493.602600097655,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16044,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "7f38e55d9072a704ae5baaf5[value]": {
+                            "id": "7f38e55d9072a704ae5baaf5[value]",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "7f38e55d9072a704ae5baaf5[value]",
+                                "name": "Attribute",
+                                "value": "microservice"
                             }
                         }
                     }
@@ -2404,6 +2493,21 @@
             },
             "source": "c54850b3aac05c3e65df4a23",
             "target": "15c7a7ce511c5d197c998976",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "2719f9e6516a6543d915de7d": {
+            "label": {
+                "id": "2719f9e6516a6543d915de7d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "2719f9e6516a6543d915de7d[label]",
+                    "name": "Label",
+                    "value": "type"
+                }
+            },
+            "source": "e7943081fcc630ee1b75961e",
+            "target": "2e6024a88f6eb0a0279d19bd",
             "attributes": {},
             "type": "Bi-Dir-Association"
         }
