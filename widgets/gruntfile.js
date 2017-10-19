@@ -177,7 +177,8 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/frontendComponentSelectWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/frontendComponentSelectWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/frontendComponentSelectWidget/js/"}
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/frontendComponentSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "syncmeta-plugin/syncmetaPlugin.js", dest: "dist/frontendComponentSelectWidget/js/"}
 				]
 			},
 			microserviceSelectWidget: {
@@ -194,7 +195,8 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/microserviceSelectWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/microserviceSelectWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/microserviceSelectWidget/js/"}
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/microserviceSelectWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "syncmeta-plugin/syncmetaPlugin.js", dest: "dist/microserviceSelectWidget/js/"}					
 				]
 			},
 			liveCodeEditorWidget: {
