@@ -76,18 +76,20 @@ var init = function () {
         sourceDir: '@@host/frontendComponentPersistenceWidget/js'
     }).then(function (y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
-        var data = y.share.data.get('model');
-        if (data) {
-            try {
-                modelType = data.attributes.attributes['modelAttributes[type]'].value.value;
-                var $modelTypeLabel = $('#modelType');
-                $modelTypeLabel.empty();
-                $modelTypeLabel.text('Persisted ' + modelType + ' models');
+        y.share.data.observe(function(event){
+            switch(event.name){
+                case 'metamodel':{
+                    var model = event.object.get('model');
+                    if(model)
+                        resetCurrentModel(y);
+                    modelType = checkMetaModel(event.value);
+                    getStoredModels(modelType);                    
+                    break;
+                }
             }
-            catch (e) {
-                feedback('No model type defined in the model attributes');
-            }
-        }
+        });
+        var metamodel = y.share.data.get('metamodel');
+        modelType = checkMetaModel(metamodel);
         //check if the model is loaded from the database
         //we just check if the model attribute label is equal to the model attributes name
         getStoredModels(modelType).done(function (storedModels) {
@@ -124,6 +126,9 @@ var init = function () {
 var resetCurrentModel = function (y) {
     if (y.share.data.get('model')) {
         y.share.data.set('model', null);
+        var $info = $('#loaded-model-info');
+        $info.empty();
+        $info.text("No model loaded from the database");
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
 
         //reset wireframing editor as well
@@ -331,4 +336,35 @@ var addSpinner = function () {
 
 var removeSpinner = function () {
     $('.loader').remove();
+}
+
+var checkMetaModel = function(metamodel){
+    var type;
+    if(metamodel){
+        var attrs = metamodel.attributes;
+        for(var key in attrs){
+            var attr = attrs[key];
+            if(attr.key === 'type'){
+                try{
+                    options = Object.keys(attr.options);
+                    if(options.length == 1)
+                        type = options[0];
+                    break;
+                }catch(e){
+                    feedback('No value found in the type-attribute in the ModelAttributes of the metamodel');
+                }
+            }
+        }
+    }
+    if(!type){
+        feedback('No model type defined in the model attributes');    
+        $('.widget-title-bar', frameElement.offsetParent).find('span').text('Persistence Widget');        
+    } 
+    else{
+        var $modelTypeLabel = $('#modelType');
+        $modelTypeLabel.empty();
+        $modelTypeLabel.text('Persisted ' + type + ' models');
+        $('.widget-title-bar', frameElement.offsetParent).find('span').text(type + ' Persistence Widget');        
+    }
+    return type;
 }

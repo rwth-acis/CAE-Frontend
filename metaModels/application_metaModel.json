@@ -916,7 +916,8 @@
                         "id": "8cc0233bdb2b60f531baaeaa[arrow]",
                         "name": "Arrow",
                         "value": "unidirassociation"
-                    }
+                    },
+                    "option": "-->"
                 },
                 "8cc0233bdb2b60f531baaeaa[shape]": {
                     "id": "8cc0233bdb2b60f531baaeaa[shape]",
@@ -925,7 +926,8 @@
                         "id": "8cc0233bdb2b60f531baaeaa[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "8cc0233bdb2b60f531baaeaa[color]": {
                     "id": "8cc0233bdb2b60f531baaeaa[color]",
@@ -952,7 +954,8 @@
                         "id": "8cc0233bdb2b60f531baaeaa[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "8cc0233bdb2b60f531baaeaa[overlayRotate]": {
                     "id": "8cc0233bdb2b60f531baaeaa[overlayRotate]",
@@ -989,7 +992,8 @@
                         "id": "cde0064d918c4912afce18de[arrow]",
                         "name": "Arrow",
                         "value": "bidirassociation"
-                    }
+                    },
+                    "option": "---"
                 },
                 "cde0064d918c4912afce18de[shape]": {
                     "id": "cde0064d918c4912afce18de[shape]",
@@ -998,7 +1002,8 @@
                         "id": "cde0064d918c4912afce18de[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "cde0064d918c4912afce18de[color]": {
                     "id": "cde0064d918c4912afce18de[color]",
@@ -1025,7 +1030,8 @@
                         "id": "cde0064d918c4912afce18de[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "cde0064d918c4912afce18de[overlayRotate]": {
                     "id": "cde0064d918c4912afce18de[overlayRotate]",
@@ -1062,7 +1068,8 @@
                         "id": "fe61e1cbbf7e404bbef421bb[arrow]",
                         "name": "Arrow",
                         "value": "generalisation"
-                    }
+                    },
+                    "option": "--▷"
                 },
                 "fe61e1cbbf7e404bbef421bb[shape]": {
                     "id": "fe61e1cbbf7e404bbef421bb[shape]",
@@ -1071,7 +1078,8 @@
                         "id": "fe61e1cbbf7e404bbef421bb[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "fe61e1cbbf7e404bbef421bb[color]": {
                     "id": "fe61e1cbbf7e404bbef421bb[color]",
@@ -1098,7 +1106,8 @@
                         "id": "fe61e1cbbf7e404bbef421bb[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "fe61e1cbbf7e404bbef421bb[overlayRotate]": {
                     "id": "fe61e1cbbf7e404bbef421bb[overlayRotate]",
@@ -1135,7 +1144,8 @@
                         "id": "57159c2d1d7273d7d3b517a2[arrow]",
                         "name": "Arrow",
                         "value": "unidirassociation"
-                    }
+                    },
+                    "option": "-->"
                 },
                 "57159c2d1d7273d7d3b517a2[shape]": {
                     "id": "57159c2d1d7273d7d3b517a2[shape]",
@@ -1144,7 +1154,8 @@
                         "id": "57159c2d1d7273d7d3b517a2[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "57159c2d1d7273d7d3b517a2[color]": {
                     "id": "57159c2d1d7273d7d3b517a2[color]",
@@ -1171,7 +1182,8 @@
                         "id": "57159c2d1d7273d7d3b517a2[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "57159c2d1d7273d7d3b517a2[overlayRotate]": {
                     "id": "57159c2d1d7273d7d3b517a2[overlayRotate]",
@@ -1208,7 +1220,8 @@
                         "id": "d7b4c400f7dab81e64cdbe9e[arrow]",
                         "name": "Arrow",
                         "value": "bidirassociation"
-                    }
+                    },
+                    "option": "---"
                 },
                 "d7b4c400f7dab81e64cdbe9e[shape]": {
                     "id": "d7b4c400f7dab81e64cdbe9e[shape]",
@@ -1217,7 +1230,8 @@
                         "id": "d7b4c400f7dab81e64cdbe9e[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "d7b4c400f7dab81e64cdbe9e[color]": {
                     "id": "d7b4c400f7dab81e64cdbe9e[color]",
@@ -1244,7 +1258,8 @@
                         "id": "d7b4c400f7dab81e64cdbe9e[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "d7b4c400f7dab81e64cdbe9e[overlayRotate]": {
                     "id": "d7b4c400f7dab81e64cdbe9e[overlayRotate]",
@@ -1281,7 +1296,8 @@
                         "id": "100c2be536cb8d985ca4c65a[arrow]",
                         "name": "Arrow",
                         "value": "diamond"
-                    }
+                    },
+                    "option": "-◁▷"
                 },
                 "100c2be536cb8d985ca4c65a[shape]": {
                     "id": "100c2be536cb8d985ca4c65a[shape]",
@@ -1290,7 +1306,8 @@
                         "id": "100c2be536cb8d985ca4c65a[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "100c2be536cb8d985ca4c65a[color]": {
                     "id": "100c2be536cb8d985ca4c65a[color]",
@@ -1317,7 +1334,8 @@
                         "id": "100c2be536cb8d985ca4c65a[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "100c2be536cb8d985ca4c65a[overlayRotate]": {
                     "id": "100c2be536cb8d985ca4c65a[overlayRotate]",
@@ -1354,7 +1372,8 @@
                         "id": "2832619362fe354e968e6897[arrow]",
                         "name": "Arrow",
                         "value": "bidirassociation"
-                    }
+                    },
+                    "option": "---"
                 },
                 "2832619362fe354e968e6897[shape]": {
                     "id": "2832619362fe354e968e6897[shape]",
@@ -1363,7 +1382,8 @@
                         "id": "2832619362fe354e968e6897[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "2832619362fe354e968e6897[color]": {
                     "id": "2832619362fe354e968e6897[color]",
@@ -1390,7 +1410,8 @@
                         "id": "2832619362fe354e968e6897[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "2832619362fe354e968e6897[overlayRotate]": {
                     "id": "2832619362fe354e968e6897[overlayRotate]",
@@ -1427,7 +1448,8 @@
                         "id": "54ca7506898db183a55fd67c[arrow]",
                         "name": "Arrow",
                         "value": "bidirassociation"
-                    }
+                    },
+                    "option": "---"
                 },
                 "54ca7506898db183a55fd67c[shape]": {
                     "id": "54ca7506898db183a55fd67c[shape]",
@@ -1436,7 +1458,8 @@
                         "id": "54ca7506898db183a55fd67c[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "54ca7506898db183a55fd67c[color]": {
                     "id": "54ca7506898db183a55fd67c[color]",
@@ -1463,7 +1486,8 @@
                         "id": "54ca7506898db183a55fd67c[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "54ca7506898db183a55fd67c[overlayRotate]": {
                     "id": "54ca7506898db183a55fd67c[overlayRotate]",
@@ -1500,7 +1524,8 @@
                         "id": "29c507136bb3f74180df89e8[arrow]",
                         "name": "Arrow",
                         "value": "bidirassociation"
-                    }
+                    },
+                    "option": "---"
                 },
                 "29c507136bb3f74180df89e8[shape]": {
                     "id": "29c507136bb3f74180df89e8[shape]",
@@ -1509,7 +1534,8 @@
                         "id": "29c507136bb3f74180df89e8[shape]",
                         "name": "Shape",
                         "value": "straight"
-                    }
+                    },
+                    "option": "Straight"
                 },
                 "29c507136bb3f74180df89e8[color]": {
                     "id": "29c507136bb3f74180df89e8[color]",
@@ -1536,7 +1562,8 @@
                         "id": "29c507136bb3f74180df89e8[overlayPosition]",
                         "name": "Overlay Position",
                         "value": "hidden"
-                    }
+                    },
+                    "option": "Hide"
                 },
                 "29c507136bb3f74180df89e8[overlayRotate]": {
                     "id": "29c507136bb3f74180df89e8[overlayRotate]",
@@ -1573,7 +1600,8 @@
                         "id": "bd60d527a73de6f5764653bd[shape]",
                         "name": "Shape",
                         "value": "circle"
-                    }
+                    },
+                    "option": "Circle"
                 },
                 "bd60d527a73de6f5764653bd[color]": {
                     "id": "bd60d527a73de6f5764653bd[color]",
@@ -1646,7 +1674,8 @@
                         "id": "f976d94638c0935c047157b4[shape]",
                         "name": "Shape",
                         "value": "circle"
-                    }
+                    },
+                    "option": "Circle"
                 },
                 "f976d94638c0935c047157b4[color]": {
                     "id": "f976d94638c0935c047157b4[color]",
@@ -1719,7 +1748,8 @@
                         "id": "d9481706d640491f7c8601c4[shape]",
                         "name": "Shape",
                         "value": "circle"
-                    }
+                    },
+                    "option": "Circle"
                 },
                 "d9481706d640491f7c8601c4[color]": {
                     "id": "d9481706d640491f7c8601c4[color]",
@@ -1792,7 +1822,8 @@
                         "id": "561d1d38ac6075b33c3ba7c7[shape]",
                         "name": "Shape",
                         "value": "diamond"
-                    }
+                    },
+                    "option": "Diamond"
                 },
                 "561d1d38ac6075b33c3ba7c7[color]": {
                     "id": "561d1d38ac6075b33c3ba7c7[color]",
@@ -1865,7 +1896,8 @@
                         "id": "07f1672470871404c786ece9[shape]",
                         "name": "Shape",
                         "value": "rectangle"
-                    }
+                    },
+                    "option": "Rectangle"
                 },
                 "07f1672470871404c786ece9[color]": {
                     "id": "07f1672470871404c786ece9[color]",
@@ -1938,7 +1970,8 @@
                         "id": "6418a1bd9efd9c4ab20964c4[shape]",
                         "name": "Shape",
                         "value": "rectangle"
-                    }
+                    },
+                    "option": "Rectangle"
                 },
                 "6418a1bd9efd9c4ab20964c4[color]": {
                     "id": "6418a1bd9efd9c4ab20964c4[color]",
@@ -2011,7 +2044,8 @@
                         "id": "c584fbdc1e4750c8cb4bd83f[shape]",
                         "name": "Shape",
                         "value": "rounded_rectangle"
-                    }
+                    },
+                    "option": "Rounded Rectangle"
                 },
                 "c584fbdc1e4750c8cb4bd83f[color]": {
                     "id": "c584fbdc1e4750c8cb4bd83f[color]",
@@ -2084,7 +2118,8 @@
                         "id": "576e0ec513619d1395588328[shape]",
                         "name": "Shape",
                         "value": "rounded_rectangle"
-                    }
+                    },
+                    "option": "Rounded Rectangle"
                 },
                 "576e0ec513619d1395588328[color]": {
                     "id": "576e0ec513619d1395588328[color]",
@@ -2129,6 +2164,95 @@
                         "id": "576e0ec513619d1395588328[customAnchors]",
                         "name": "Custom Anchors",
                         "value": ""
+                    }
+                }
+            }
+        },
+        "18dcd6b99b7affba220160ee": {
+            "label": {
+                "id": "18dcd6b99b7affba220160ee[label]",
+                "name": "Label",
+                "value": {
+                    "id": "18dcd6b99b7affba220160ee[label]",
+                    "name": "Label",
+                    "value": "Model Attributes"
+                }
+            },
+            "left": 3409,
+            "top": 3916,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16079,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "080adfc436ef6df8c145e412": {
+                            "id": "080adfc436ef6df8c145e412",
+                            "name": "080adfc436ef6df8c145e412",
+                            "key": {
+                                "id": "080adfc436ef6df8c145e412[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "080adfc436ef6df8c145e412[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "e0a2b529543fc278dbde5925": {
+                            "id": "e0a2b529543fc278dbde5925",
+                            "name": "e0a2b529543fc278dbde5925",
+                            "key": {
+                                "id": "e0a2b529543fc278dbde5925[key]",
+                                "name": "",
+                                "value": "version"
+                            },
+                            "value": {
+                                "id": "e0a2b529543fc278dbde5925[value]",
+                                "name": "",
+                                "value": "integer"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "5a0acce81012d1681349ce96": {
+            "label": {
+                "id": "5a0acce81012d1681349ce96[label]",
+                "name": "Label",
+                "value": {
+                    "id": "5a0acce81012d1681349ce96[label]",
+                    "name": "Label",
+                    "value": "modelType"
+                }
+            },
+            "left": 3183.3333333333335,
+            "top": 3890,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16081,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "1ab2b7f5e0246c34ac8f73af[value]": {
+                            "id": "1ab2b7f5e0246c34ac8f73af[value]",
+                            "name": "Attribute",
+                            "value": {
+                                "id": "1ab2b7f5e0246c34ac8f73af[value]",
+                                "name": "Attribute",
+                                "value": "application"
+                            }
+                        }
                     }
                 }
             }
@@ -2884,6 +3008,21 @@
             "target": "afa56e89fd8a8659529caa5b",
             "attributes": {},
             "type": "Bi-Dir-Association"
+        },
+        "640c78c3ee7b0e5c870581d6": {
+            "label": {
+                "id": "640c78c3ee7b0e5c870581d6[label]",
+                "name": "Label",
+                "value": {
+                    "id": "640c78c3ee7b0e5c870581d6[label]",
+                    "name": "Label",
+                    "value": "type"
+                }
+            },
+            "source": "18dcd6b99b7affba220160ee",
+            "target": "5a0acce81012d1681349ce96",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
         }
     }
 }

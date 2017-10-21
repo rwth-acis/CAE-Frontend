@@ -292,48 +292,6 @@ $(document).ready(function() {
 
 /******************* Helper Functions ********************/
 
-// function that retrieves the model of the current space
-var getData = function(type){
-  var spaceUri = openapp.param.space(),
-      listOfDataUris = [],
-      promises = [],
-      mainDeferred = $.Deferred(),
-      deferred = $.Deferred();
-
-  openapp.resource.get(spaceUri,(function(deferred){
-
-    return function(space){
-      var resourceUri, resourceObj, values;
-      for(resourceUri in space.data){
-        if(space.data.hasOwnProperty(resourceUri)){
-          resourceObj = space.data[resourceUri];
-          if(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'] &&
-              _.isArray(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'])){
-
-            values = _.map(resourceObj['http://www.w3.org/1999/02/22-rdf-syntax-ns#type'],function(e){
-              return e.value;
-            });
-
-            if(_.contains(values,"http://purl.org/role/terms/Data") && _.contains(values,type)){
-              listOfDataUris.push(resourceUri);
-            }
-
-          }
-        }
-      }
-      deferred.resolve();
-    };
-
-  })(deferred));
-  promises.push(deferred.promise());
-
-  $.when.apply($,promises).then(function(){
-    mainDeferred.resolve(listOfDataUris);
-  });
-
-  return mainDeferred.promise();
-};
-
 // needed to add attributes to the model
 var generateRandomId = function(){
   var chars = "1234567890abcdef";
