@@ -53,14 +53,21 @@ export default class RoleSpace extends EventEmitter{
             views: 'Map',
             data: 'Map',
             text: "Text",
-            activity: "Map"
+            activity: "Map",
+            liveCodeAction:'Map'
         },
         sourceDir: config.CodeEditorWidget.bower_components
     }).then(function(y) {
         console.info('LIVEEDIT: Yjs successfully initialized');
 
         self.y = y
-        //make it global for now, otherwise i don't know how to get it right now
+        y.share.liveCodeAction.observe(function(event){
+          switch (event.name) {
+            case 'reload':
+              window.location.reload();            
+            break;
+          }
+        });
         self.yInitCallback()
     });
   }
@@ -139,13 +146,8 @@ export default class RoleSpace extends EventEmitter{
     function getFromYjs(y, deferred) {
       if (y.share.data.get('model')) {
           var data = y.share.data.get('model');
-          var loadedModel = data.attributes.label.value.value;
-          // special case if model was only saved in the space (not loaded from db)
-          if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-              deferred.resolve({})
-          } else {
-              deferred.resolve(data)
-          }
+          var loadedModel = data.attributes.attributes['modelAttributes[name]'].value.value;
+          deferred.resolve(data)
       } else {
         //if no representation is found, return an empty object
         deferred.resolve({});
@@ -190,7 +192,7 @@ export default class RoleSpace extends EventEmitter{
     let deferred = $.Deferred();
     this.getModelResource().then( (representation) => {
       if(representation && representation.attributes){
-        let name =representation.attributes.label.value.value;
+        let name = representation.attributes.attributes['modelAttributes[name]'].value.value;
         this.componentName = `${this.getComponentType()}-${name}`;
         deferred.resolve();
       }else{

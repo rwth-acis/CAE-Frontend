@@ -45,8 +45,6 @@ var init = function () {
         spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
     }
 
-
-
     Y({
         db: {
             name: 'memory' // store the shared data in memory
@@ -71,7 +69,10 @@ var init = function () {
             data: 'Map',
             text: "Text",
             //Wireframe editor 
-            action: 'Map'
+            action: 'Map',
+            //Live Code editor
+            liveCodeAction: 'Map'
+
         },
         sourceDir: '@@host/frontendComponentPersistenceWidget/js'
     }).then(function (y) {
@@ -134,6 +135,7 @@ var resetCurrentModel = function (y) {
         //reset wireframing editor as well
         y.share.data.set('wireframe', null);
         y.share.action.set('reload', true);
+        y.share.liveCodeAction.set('reload', true);                            
         feedback("Done!");
     } else {
         feedback("No model!");
@@ -151,7 +153,6 @@ var storeModel = function (y) {
         var data = y.share.data.get('model');
         // add name, version and type to model
 
-        //TODO ugly workaround for now
         var modelName = data.attributes.attributes['modelAttributes[name]'].value.value;
         //Check if the model has a name
         if (modelName.length < 1) {
@@ -171,6 +172,7 @@ var storeModel = function (y) {
                     console.log("Model stored!");
                     feedback("Model with name " + modelName + " stored!");
                     getStoredModels(modelType);
+                    y.share.liveCodeAction.set('reload', true);                    
                     removeSpinner();
                 },
                 function (error) {
@@ -209,17 +211,19 @@ var loadModel = function (y) {
         function (data, type) {
             console.log("Model loaded!");
             y.share.data.set('model', data);
+            y.share.canvas.set('ReloadWidgetOperation', 'import');            
             if (data.hasOwnProperty("wireframe")) {
                 y.share.data.set('wireframe', data.wireframe);
                 y.share.action.set('reload', true);
                 /*
-                $('.widget-title-bar', parent.document).map(function(){
-                    var widgetTitle = $(this).find('span').text();
-                    if(widgetTitle === 'CAE-WireframingEditor')
-                        $('iframe', this.offsetParent)[0].contentWindow.location.reload();
-                });*/
+                    $('.widget-title-bar', parent.document).map(function(){
+                        var widgetTitle = $(this).find('span').text();
+                        if(widgetTitle === 'CAE-WireframingEditor')
+                            $('iframe', this.offsetParent)[0].contentWindow.location.reload();
+                    });
+                */
             }
-            y.share.canvas.set('ReloadWidgetOperation', 'import');
+            y.share.liveCodeAction.set('reload', true);
             setLoadedModel(modelName);
             feedback("Model loaded!");
             removeSpinner();
