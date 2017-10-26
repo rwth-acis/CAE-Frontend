@@ -119,6 +119,13 @@ var init = function () {
         $('#delete-model').click(function () {
             deleteModel();
         });
+        getUser().done(function(userData){
+            var owner = getOwner();
+            if(owner.indexOf(userData.name) != -1){
+                $('#delete-model').prop('disabled', false);
+                $('#reset-model').prop('disabled', false);
+            }
+        });
     });
 
 };
@@ -371,4 +378,27 @@ var checkMetaModel = function(metamodel){
         $('.widget-title-bar', frameElement.offsetParent).find('span').text(type + ' Persistence Widget');        
     }
     return type;
+}
+
+var getUser = function(){
+    var deferred = $.Deferred();
+    var url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
+    $.get(url, function(data){
+      var user = {
+        id: data.sub,
+        name: data.name,
+      };
+      deferred.resolve(user);
+      
+    });
+    return deferred.promise();
+}
+
+var getOwner = function(){
+    return $(frameElement.offsetParent)
+        .parents('#pageContent')
+        .find('#memberEntries')
+        .find('.sideEntry-member.isOwner')
+        .text()
+        .replace(/^[^a-zA-Z0-9.]+|[^a-zA-Z0-9 .]+/g, '');
 }
