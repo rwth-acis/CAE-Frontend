@@ -33,7 +33,8 @@
 // global variables
 var client,
     feedbackTimeout,
-    modelType;
+    modelType,
+    user;
 
 var init = function () {
     var iwcCallback = function (intent) {
@@ -67,6 +68,7 @@ var init = function () {
             select: 'Map',
             views: 'Map',
             data: 'Map',
+            activity: 'Map',
             text: "Text",
             //Wireframe editor 
             action: 'Map',
@@ -120,6 +122,7 @@ var init = function () {
             deleteModel();
         });
         getUser().done(function(userData){
+            user = userData;
             var owner = getOwner();
             if(owner.indexOf(userData.name) != -1){
                 $('#delete-model').prop('disabled', false);
@@ -181,11 +184,32 @@ var storeModel = function (y) {
                     getStoredModels(modelType);
                     y.share.liveCodeAction.set('reload', true);                    
                     removeSpinner();
+                    if(user){
+                        var activity = {
+                            type:"PersistenceActivity",
+                            entityId:'',
+                            text:"<strong>Persistence</strong> .. stored model successfully!",
+                            data:{},
+                            sender : user.id
+                        };
+                        y.share.activity.set('ActivityOperation', activity);
+                    }
                 },
                 function (error) {
                     console.log(error);
                     feedback(error);
                     removeSpinner();
+
+                    if(user){
+                        var activity = {
+                            type:"PersistenceActivity",
+                            entityId:'',
+                            text:"<strong>Persistence</strong> ..storing model failed!",
+                            data:{},
+                            sender : user.id
+                        };
+                        y.share.activity.set('ActivityOperation', activity);
+                    }
 
                 });
         }
@@ -195,11 +219,32 @@ var storeModel = function (y) {
                     console.log("Model updated!");
                     feedback("Model updated!");
                     removeSpinner();
+                    if(user){
+                        var activity = {
+                            type:"PersistenceActivity",
+                            entityId:'',
+                            text:"<strong>Persistence</strong> .. updated model successfully!",
+                            data:{},
+                            sender : user.id
+                        };
+                        y.share.activity.set('ActivityOperation', activity);
+                    }
                 },
                 function (error) {
                     console.log(error);
                     feedback(error);
                     removeSpinner();
+
+                    if(user){
+                        var activity = {
+                            type:"PersistenceActivity",
+                            entityId:'',
+                            text:"<strong>Persistence</strong> ..updating model failed!",
+                            data:{},
+                            sender : user.id
+                        };
+                        y.share.activity.set('ActivityOperation', activity);
+                    }
                 });
 
         }
@@ -234,11 +279,33 @@ var loadModel = function (y) {
             setLoadedModel(modelName);
             feedback("Model loaded!");
             removeSpinner();
+
+            if(user){
+                var activity = {
+                    type:"PersistenceActivity",
+                    entityId:'',
+                    text:"<strong>Persistence</strong> ..loaded model succeessfully!",
+                    data:{},
+                    sender : user.id
+                };
+                y.share.activity.set('ActivityOperation', activity);
+            }
         },
         function (error) {
             console.log(error);
             feedback(error);
             removeSpinner();
+
+            if(user){
+                var activity = {
+                    type:"PersistenceActivity",
+                    entityId:'',
+                    text:"<strong>Persistence</strong> ..loading model failed!",
+                    data:{},
+                    sender : user.id
+                };
+                y.share.activity.set('ActivityOperation', activity);
+            }
         });
 };
 
@@ -253,6 +320,17 @@ function deleteModel() {
                     feedback("Model is still in there! Someting went wrong");
                 else feedback("Successfully deleted model!");
                 removeSpinner();
+
+                if(user){
+                    var activity = {
+                        type:"PersistenceActivity",
+                        entityId:'',
+                        text:"<strong>Persistence</strong> .. deleted model successfully!",
+                        data:{},
+                        sender : user.id
+                    };
+                    y.share.activity.set('ActivityOperation', activity);
+                }
             });
 
         },
@@ -260,6 +338,17 @@ function deleteModel() {
             console.log(error);
             feedback(error);
             removeSpinner();
+
+            if(user){
+                var activity = {
+                    type:"PersistenceActivity",
+                    entityId:'',
+                    text:"<strong>Persistence</strong> ..deleting model failed!",
+                    data:{},
+                    sender : user.id
+                };
+                y.share.activity.set('ActivityOperation', activity);
+            }
         });
 }
 

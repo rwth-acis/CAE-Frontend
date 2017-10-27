@@ -99,6 +99,7 @@ class CodeEditor{
   */
 
   bindGui(){
+    var that = this;
     //hide sidebar
     this.hideSideBar();
 
@@ -110,7 +111,7 @@ class CodeEditor{
 
     //bind publish button
     $("#publishButton").click( (e) => {
-
+      var self = that;
       //hide publish button and show spinner loading animation
       $("#publishButton").hide();
       $("#publishSpinner").show();
@@ -119,6 +120,17 @@ class CodeEditor{
       this.workspace.push().always( () =>{
         $("#publishButton").show();
         $("#publishSpinner").hide();
+
+        if(that.workspace.roleSpace.user2){
+          var activity = {
+              type:"LiveCodeEditorActivity",
+              entityId:'',
+              text:"<strong>Live Code Editor</strong> .. pushed to repository!",
+              data:{},
+              sender : that.workspace.roleSpace.user2.id
+          };
+          that.workspace.roleSpace.y.share.activity.set('ActivityOperation', activity);
+      }
       });
 
       e.preventDefault();
