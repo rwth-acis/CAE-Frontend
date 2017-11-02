@@ -139,6 +139,13 @@ var storeModel = function(y) {
         y.share.data.set('model',data)
         y.share.canvas.set('ReloadWidgetOperation', 'import');
 
+        // get shared custom metadata stringify
+        var metadataDocString = y.share.data.get('metadataDocString');
+        data['metadataDoc'] = metadataDocString;
+
+        console.log("CURRENT DATA");
+        console.log(data); 
+
         if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {

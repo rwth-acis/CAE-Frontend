@@ -36,7 +36,35 @@ var client,
     feedbackTimeout,
     loadedModel = null,
     iwcClient = null,
+    currentComponentName = null,
     editor;
+
+var iwcHandler = function(y, intent) {
+
+    //if (!iwcHandled) {
+        iwcHandled = true;
+        console.log("=======[SWAGGER] IWC HANDLER MAIN WIDGET");
+        console.log(intent);
+
+        let sender = intent.sender;
+        
+        if (sender === "MICROSERVICE_SELECT_WIDGET" || sender === "FRONTEND_COMPONENT_SELECT_WIDGET") {
+            console.log("SELECT WIDGET");
+            let data = intent.extras.payload.data.data;
+            let jsonData = JSON.parse(data);
+            
+            console.log(jsonData);
+            if (jsonData) {
+                console.log("JSON DATA NON NULL");
+                let componentName = jsonData.name;
+                console.log("=====COMPONENT NAME");
+                console.log(componentName);
+                currentComponentName = componentName;
+                loadMetadata(y);
+            }
+        }
+    //}
+};
 
 var init = function() {
   console.log("[Swagger Editor Widget] INIT SWAGGER UI EDITOR VIEW");
@@ -90,6 +118,16 @@ var init = function() {
     }).then(function(y) {
         console.info('[Swagger Editor Widget] Yjs successfully initialized');
 
+        try {
+            console.log("[Swagger] BIND IWC CLIENT");
+            //iwcClient = new iwc.Client("METADATA");
+            iwcClient = new iwc.Client("MAIN");
+            iwcClient.connect( iwcHandler.bind(this, y) );
+        } catch(e){
+            console.log("ERROR METADATA WIDGET");
+            console.log(e);
+        }
+
         editor.specActions.updateSpec('{}');
         $('.ace_text-input').prop('disabled', true);
 
@@ -122,8 +160,10 @@ var init = function() {
 var loadMetadata = function(y) {
   console.log("[Swagger Editor] Load metadata");
 
-  // retrieve current model from the space and store it
-  if (y.share.data.get('model')) {
+  // use current component name if available
+  if (currentComponentName) {
+    loadedModel = currentComponentName;
+  } else if (y.share.data.get('model')) {
       console.log('[Swagger Widget] Saved model exists');
       var data = y.share.data.get('model');
       loadedModel = data.attributes.label.value.value;
@@ -147,8 +187,40 @@ var loadMetadata = function(y) {
         function(data, type) {
             console.log("[Swagger UI Editor Widget] Metadata doc loaded!");
             console.log(data);
-            editor.specActions.updateSpec(JSON.stringify(JSON.parse(data.docString)));
-            y.share.data.set('metadataDoc', data);
+            var jsonDocString = JSON.parse(data.docString);
+            var timeDeployed = null;
+            if (data.timeDeployed) 
+                timeDeployed = new Date(data.timeDeployed);
+            var timeEdited = null;
+            if (data.timeEdited)
+                timeEdited = new Date(data.timeEdited);
+
+            // check if deployed url exist and newer than edit time
+            if (data.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
+                var urlDeployed = data.urlDeployed;
+                var basePath = jsonDocString.basePath;
+                var urlString = `${urlDeployed}${basePath}swagger.json`;
+                urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
+                console.log("LOAD SWAGGER JSON FROM URL " + urlString);
+
+                // get swagger json from path instead
+                $.getJSON(urlString, function(data) {
+                    console.log("DATA FETCHED");
+                    console.log(data);
+                    //var yamlObject = json2yaml(jsonDocString);
+                    //editor.specActions.updateSpec(yamlObject);
+                    editor.specActions.updateSpec(JSON.stringify(data));
+                    y.share.data.set('metadataDoc', data);
+                    $("#status").html("Deployed");
+                });
+                
+            } else {
+                //var yamlObject = json2yaml(jsonDocString);
+                //editor.specActions.updateSpec(yamlObject);
+                editor.specActions.updateSpec(JSON.stringify(jsonDocString));
+                y.share.data.set('metadataDoc', data);
+                $("#status").html("Not deployed");
+            }
         },
         function(error) {
             console.log(error);

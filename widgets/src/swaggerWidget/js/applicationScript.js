@@ -120,7 +120,7 @@ var clickSchema = function(keyValue) {
   $("#schema-properties").val(jsonProperties);
 }
 
-var generateSchemaList = function() {
+var generateSchemaList = function(y) {
   // generate select
   $('#schema-list').html("");
   schemaList.forEach((value, key) => {
@@ -131,46 +131,41 @@ var generateSchemaList = function() {
     console.log("li clicked with id " + this.id);
     clickSchema(this.id);
   })
+
+  saveMapNode(y);
 }
 
-var saveMapNode = function() {
+var saveMapNode = function(y) {
   nodeMetadataList.set(selectedNodeId, $("#node-description").val());
   nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
 
   console.log(nodeMetadataList);
   console.log(nodeMetadataSchemas);
+
+  // store data
+  storeDoc(y);
 }
 
-var saveSchema = function() {
+var saveSchema = function(y) {
   var schemaName = $("#schema-name").val();
   var schemaProperties = $("#schema-properties").val();
   schemaList.set(schemaName, JSON.parse(schemaProperties));
   console.log("Schema added");
   console.log(schemaList);
   feedback("Schema added");
-  generateSchemaList();
+  generateSchemaList(y);
 }
 
-var deleteSchema = function() {
+var deleteSchema = function(y) {
   var schemaName = $("#schema-name").val();
   schemaList.delete(schemaName);
   console.log("Schema deleted");
   console.log(schemaList);
   feedback("Schema deleted");
-  generateSchemaList();
+  generateSchemaList(y);
 }
 
 var init = function() {
-  $("#node-description").blur(function() {
-    console.log("NodeDescription - Saving node properties and description");
-    saveMapNode();
-  });
-
-  $("#node-schema").blur(function() {
-    console.log("NodeSchema - Saving node properties and description");
-    saveMapNode();
-  });
-  
   // hide node form
   $("#node-form").hide();
 
@@ -212,6 +207,32 @@ var init = function() {
         sourceDir: '@@host/swaggerWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
     }).then(function(y) {
+
+        $("#node-description").blur(function() {
+          console.log("NodeDescription - Saving node properties and description");
+          saveMapNode(y);
+        });
+
+        $("#node-schema").blur(function() {
+          console.log("NodeSchema - Saving node properties and description");
+          saveMapNode(y);
+        });
+
+        $("#description").blur(function() {
+          console.log("Description - Saving node properties and description");
+          saveMapNode(y);
+        });
+
+        $("#version").blur(function() {
+          console.log("Version - Saving node properties and description");
+          saveMapNode(y);
+        });
+
+        $("#termsOfService").blur(function() {
+          console.log("Version - Saving node properties and description");
+          saveMapNode(y);
+        });
+        
         console.info('[Swagger Widget] Yjs successfully initialized');
 
         try {
@@ -271,11 +292,11 @@ var init = function() {
         })
 
         $('#schema-add').on('click', function() {
-          saveSchema();
+          saveSchema(y);
         })
 
         $('#schema-delete').on('click', function() {
-          deleteSchema();
+          deleteSchema(y);
         })
 
     });
@@ -336,6 +357,7 @@ var storeDoc = function(y) {
         "definitions": ${JSON.stringify(schemasJson)}, 
         "nodes": ${JSON.stringify(nodeMetadataJson)}
     }`;
+    y.share.data.set('metadataDocString', JSON.parse(infoNode));
 
     console.log("==INFO NODE===");
     console.log(infoNode);
@@ -351,7 +373,6 @@ var storeDoc = function(y) {
     console.log(JSON.stringify(data));
 
     y.share.data.set('metadataDoc',data);
-    y.share.canvas.set('ReloadWidgetOperation', 'import');
 
     console.log("[Swagger Widget] Checking loaded swagger doc");
     console.log(loadedSwaggerDoc);
@@ -363,7 +384,7 @@ var storeDoc = function(y) {
       loadedSwaggerDoc = $("#name").val();
       console.log("[Swagger Widget] Swagger doc stored, retrieving communication view..");
       feedback("Swagger doc stored!");
-      loadModel(y, false);
+      //loadModel(y, false);
     },
     function(error) {
       console.log("[Swagger Widget] Error occured while storing swagger doc");

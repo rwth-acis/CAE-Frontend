@@ -22,7 +22,7 @@ $(function() {
 
 function createNode(name) {
   lastMicroserviceName = name;
-  client.sendMicroserviceSelected()
+  client.sendMicroserviceSelected(name);
 }
 
 

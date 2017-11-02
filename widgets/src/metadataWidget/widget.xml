@@ -85,9 +85,36 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="@@host/metadataWidget/js/applicationScript.js"></script>
   <script type="text/javascript" src="@@host/metadataWidget/js/iwc.js"></script>
 
+  <!-- JSON REF -->
+  <script src="@@host/metadataWidget/lib/json-refs-standalone.js"> </script>
+  
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+
+  <style>
+    .compare-box {
+      width: 50px;
+      height: 50px;
+    }
+
+    .compare-red {
+      background-color: maroon; 
+    }
+
+    .compare-orange {
+      background-color: orange;
+    }
+
+    .compare-yellow {
+      background-color: yellow;
+    }
+
+    .compare-green {
+      background-color: green;
+    }
+
+  </style>
 
 </head>
 <body>
@@ -117,7 +144,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
                 <th>Operation</th>
                 <th>Parameters</th>
                 <th>Produces</th>
-                <th>Connect</th>
+                <th>Level</th>
             </tr>
         </thead>
         <tbody id="componentMetadataMatchTable">

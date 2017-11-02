@@ -93,6 +93,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- Swagger Editor Import -->
   <script src="@@host/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js"> </script>
   <script src="@@host/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js"> </script>
+  <script src="@@host/swaggerWidget/lib/yaml.js"> </script>
+  <script src="@@host/swaggerWidget/lib/json2yaml.js"> </script>
 
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="@@host/swaggerWidget/lib/swagger-editor/swagger-editor.css" >
@@ -128,6 +130,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     .Pane2 {
       overflow-y: scroll;
+      width: 100% !important;
+    }
+
+    #swagger-editor #ace-editor {
+      display: none;
     }
   </style>
 
@@ -140,6 +147,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <div class="container" id="swagger-editor-content">
   <div class="form-group" id="swagger-editor-form">
     <label>Component: </label><label id="name"></label>
+    <br />
+    <label>Status: </label><label id="status"></label>
     <br />
     <div class="btn-group btn-group-justified">
       <div class="btn-group">

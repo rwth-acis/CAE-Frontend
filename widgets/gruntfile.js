@@ -231,6 +231,11 @@ module.exports = function(grunt) {
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/las2peerWidgetLibrary.js", dest: "dist/metadataWidget/js/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/iwc.js", dest: "dist/metadataWidget/js/"},
+					
+					// JSON REF
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/lib/json-ref-lite.min.js", dest: "dist/metadataWidget/lib/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/lib/json-refs-standalone.js", dest: "dist/metadataWidget/lib/"},
+					
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/metadataWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/metadataWidget/js/"},
@@ -285,6 +290,10 @@ module.exports = function(grunt) {
 
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/validation.worker.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/validation.worker.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					// JSON to YAML
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/yaml.js", dest: "dist/swaggerWidget/lib/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/json2yaml.js", dest: "dist/swaggerWidget/lib/"},
 
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},

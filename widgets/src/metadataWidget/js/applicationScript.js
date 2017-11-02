@@ -39,31 +39,24 @@ var client,
     iwcClient = null;
 
 var iwcHandler = function(y, intent) {
-
     $("#metadataMatchTable").hide();
-    console.log("=======IWC HANDLER METADATA WIDGET");
+    console.log("=======IWC HANDLER MAIN WIDGET");
     console.log(intent);
-    console.log(y);
 
-    let data = intent.extras.payload.data.data;
-    let jsonData = JSON.parse(data);
+    let sender = intent.sender;
     
-    if (jsonData) {
-        //load metadata details based on widget name
-        let componentName = null;
-        let componentId = jsonData.selectedEntityId;
-        var model = y.share.data.get('model');
-        console.log("====TRY FETCH MODEL=====");
-        console.log(model);
-
-        if (model.nodes.hasOwnProperty(componentId)) {
-            componentName = model.nodes[componentId].label.value.value;
+    if (sender === "MICROSERVICE_SELECT_WIDGET" || sender === "FRONTEND_COMPONENT_SELECT_WIDGET") {
+        console.log("SELECT WIDGET");
+        let data = intent.extras.payload.data.data;
+        let jsonData = JSON.parse(data);
+        
+        console.log(jsonData);
+        if (jsonData) {
+            console.log("JSON DATA NON NULL");
+            let componentName = jsonData.name;
             console.log("=====COMPONENT NAME");
             console.log(componentName);
-
-            if (componentName) {
-                loadComponentMetadataList(y, componentName);
-            }
+            loadComponentMetadataList(y, componentName);
         }
     }
 };
@@ -72,7 +65,7 @@ var createEdge = function(source, target) {
   client.sendConnectionSelected()
 }
 
-var isSame = function(arr1, arr2) {
+var isSameArray = function(arr1, arr2) {
     if (arr1.length !== arr2.length) return false;
     for (var i = 0, len = arr1.length; i < len; i++){
         if (arr1[i] !== arr2[i]){
@@ -89,15 +82,169 @@ var sorter = function(x, y) {
     else return (x > y)?1:-1;
 }
 
+var removeDuplicateRows = function($table){
+    function getVisibleRowText($row){
+        return $row.find('td:visible').text().toLowerCase();
+    }
+
+    $table.find('tr').each(function(index, row){
+        var $row = $(row);
+        $row.nextAll('tr').each(function(index, next){
+            var $next = $(next);
+            if(getVisibleRowText($next) == getVisibleRowText($row))
+                $next.remove();
+        })
+    });
+}
+
+var isSameMap = function(map1, map2) {
+    if (!map1 || !map2) {
+        return false;
+    }
+    var testVal;
+    // compare size, if different, not same
+    if (map1.size !== map2.size) {
+        return false;
+    }
+    for (var [key, val] of map1) {
+        testVal = map2.get(key);
+        if (testVal !== val || (testVal === undefined && !map2.has(key))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+var processSchema = function(schemaName, schemas) {
+    console.log("===PROCESS SCHEMA for " + schemaName);
+    console.log("===AVAILABLE SCHEMAS DEFINITIONS");
+    console.log(schemas);
+
+    // extract keys, types, maps and sort
+    var schemasKeys = [];
+    var schemasTypes = [];
+    var schemasMap = new Map();
+
+    // get schema object
+    if (schemas.hasOwnProperty(schemaName)) {
+        var schemaObject = schemas[schemaName].properties;
+        for (var property in schemaObject) {
+            if (schemaObject.hasOwnProperty(property)) {
+                schemasKeys.push(property);
+                schemasTypes.push(schemaObject[property].type);
+                schemasMap.set(property, schemaObject[property].type);
+            }
+        }
+        // sort
+        schemasKeys = schemasKeys.sort(sorter);
+        schemasTypes = schemasTypes.sort(sorter);
+    }
+
+    console.log("KEYS, TYPES, MAPS");
+    console.log(schemasKeys);
+    console.log(schemasTypes);
+    console.log(schemasMap);
+
+    return [schemasKeys, schemasTypes, schemasMap];
+    
+};
+
+var processOperationConsumes = function(parameters, schemas) {
+    var consumes = [];
+    var consumesString = [];
+    var schemasKeys = null;
+    var schemasTypes = null;
+    var schemasMap = null;
+    var isSchema = false;
+    
+    for (var index in parameters) {
+        if (parameters.hasOwnProperty(index)) {
+            var parameter = parameters[index];
+            console.log("[Metadata] Processing parameter");
+            console.log(parameter);
+            // get name and type
+            var parameterName =  parameter.name;
+            var schemaName = "";
+
+            if(parameter.type) {
+                schemaName = parameter.type;
+            } else if(parameter.schema) {
+                isSchema = true;
+                console.log("[Metadata Widget] Schema detected");
+                console.log(parameter.schema);
+                console.log(parameter.schema["$ref"]);
+                schemaName = parameter.schema["$ref"].replace(/^.*[\\\/]/, '');
+
+                if (schemas) {
+                    var processedSchema = processSchema(schemaName, schemas);
+                    schemasKeys = processedSchema[0];
+                    schemasTypes = processedSchema[1];
+                    schemasMap = processedSchema[2];
+                }
+            }
+            consumes.push(schemaName);
+
+            var parameterString = `${parameterName} - (${schemaName})`;
+            consumesString.push(parameterString);
+        }
+    };
+
+    return [consumes, consumesString, isSchema, schemasKeys, schemasTypes, schemasMap];
+}
+
+var processOperationProduces = function(responses, schemas) {
+    var produces = [];
+    var producesString = [];
+    var schemasKeys = null;
+    var schemasTypes = null;
+    var schemasMap = null;
+    var isSchema = false;
+
+    for (var responseProperty in responses) {
+        // look for schema
+        if (responses[responseProperty].schema) {
+            isSchema = true;
+            console.log("[Metadata Widget] Schema detected");
+            console.log(responses[responseProperty].schema);
+            console.log(responses[responseProperty].schema["$ref"]);
+            schemaName = responses[responseProperty].schema["$ref"].replace(/^.*[\\\/]/, '');
+            produces.push(schemaName);
+            producesString.push(`${responseProperty} - (${schemaName})`);
+
+            // only process response 200 for schemas matching
+            if (responseProperty === "200" && schemas) {
+                var processedSchema = processSchema(schemaName, schemas);
+                schemasKeys = processedSchema[0];
+                schemasTypes = processedSchema[1];
+                schemasMap = processedSchema[2];
+            }
+        } else {
+            producesString.push(`${responseProperty}`);
+        }
+    }
+
+    return [produces, producesString, isSchema, schemasKeys, schemasTypes, schemasMap];
+}
+
+var compareLevelEnum = {
+    RED: "compare-red",
+    ORANGE: "compare-orange",
+    YELLOW: "compare-yellow",
+    GREEN: "compare-green"
+}
+
 var addTableRowHandler = function(y) {
     $("#metadataTable").delegate('tr', 'click', function() {
-        console.log("ROW CLICK");
+        $("#componentMetadataMatchTable").html("");
+        console.log("ROW CLICK FIND MATCHES");
+        console.log($(this));
+
         // get component name, endpoint name, operation name
         var componentName = $(this).find(".doc_id").html();
         var endpointName = $(this).find(".doc_property").html();
         var operationType = $(this).find(".doc_operation").html();
 
-        console.log("[Metadata Widget] Load all metadata docs for metadata widget");
+        console.log("[Metadata Widget] Load all metadata docs for selected widget");
         client.sendRequest("GET", "docs/component/" + componentName , "", "application/json", {},
             function(value, type) {
 
@@ -105,12 +252,34 @@ var addTableRowHandler = function(y) {
                 console.log(value);
                 var docObject = null;
 
-                if (value.docType === "json") {
-                    // parse json string to object
-                    docObject = JSON.parse(value.docString);
-                    console.log("[Metadata Widget] Parse docString to object");
-                    console.log(docObject);
+                var timeDeployed = null;
+                if (value.timeDeployed) 
+                    timeDeployed = new Date(value.timeDeployed);
+                var timeEdited = null;
+                if (value.timeEdited)
+                    timeEdited = new Date(value.timeEdited);
+
+                // parse json string to object
+                docObject = JSON.parse(value.docString);
+                
+                // check if deployed url exist and newer than edit time
+                if (value.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
+                    var urlDeployed = value.urlDeployed;
+                    var basePath = docObject.basePath;
+                    var urlString = `${urlDeployed}${basePath}swagger.json`;
+                    urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
+                    console.log("LOAD SWAGGER JSON FROM URL " + urlString);
+
+                    // get swagger json from path instead
+                    $.getJSON(urlString, function(data) {
+                        console.log("DATA FETCHED");
+                        console.log(data);
+                        docObject = data;
+                    });
                 }
+
+                console.log("[Metadata Widget] Parse docString to object");
+                console.log(docObject);
 
                 var docPaths = docObject.paths;
 
@@ -122,11 +291,31 @@ var addTableRowHandler = function(y) {
                     if (pathNode.hasOwnProperty(operationType)) {
                         console.log("[Metadata] Find object for operation " + operationType);
                         var operationNode = pathNode[operationType];
-                        var operationConsumes = operationNode.consumes;
-                        var operationProduces = operationNode.produces;
+                        console.log(operationNode);
 
+                        // process parameters
+                        var definitions = docObject.definitions;
+                        var processedConsumes = processOperationConsumes(operationNode.parameters, definitions);
+                        var operationConsumes = processedConsumes[0];
+
+                        // process responses
+                        var processedResponses = processOperationProduces(operationNode.responses, definitions);
+                        var operationProduces = processedResponses[0];
+
+                        // compare parameters for comparing data name only
                         var sortedOperationConsumes = operationConsumes.sort(sorter);
                         var sortedOperationProduces = operationProduces.sort(sorter);
+
+                        // generate other parameters for deeper compare
+                        var isSchemaProduce = processedResponses[2];
+                        var schemasKeysProduce = processedResponses[3];
+                        var schemasTypesProduce = processedResponses[4];
+                        var schemasMapProduce = processedResponses[5];
+
+                        var isSchemaConsume = processedConsumes[2];
+                        var schemasKeysConsume = processedConsumes[3];
+                        var schemasTypesConsume = processedConsumes[4];
+                        var schemasMapConsume = processedConsumes[5];
 
                         // get all metadata from api and find matching endpoint
                         client.sendRequest("GET", "docs/", "", "application/json", {}, function(data, type) {
@@ -144,13 +333,35 @@ var addTableRowHandler = function(y) {
                                     //console.log(componentValue);
                                     var componentDocObject = null;
 
-                                    if (componentValue.docType === "json") {
-                                        // parse json string to object
-                                        componentDocObject = JSON.parse(componentValue.docString);
-                                        console.log("[Metadata Widget] Parse other component docString to object");
-                                        console.log(componentDocObject);
+                                    // parse json string to object
+                                    componentDocObject = JSON.parse(componentValue.docString);
+
+                                    var timeDeployed = null;
+                                    if (componentValue.timeDeployed) 
+                                        timeDeployed = new Date(componentValue.timeDeployed);
+                                    var timeEdited = null;
+                                    if (componentValue.timeEdited)
+                                        timeEdited = new Date(componentValue.timeEdited);
+                                    
+                                    // check if deployed url exist and newer than edit time
+                                    if (componentValue.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
+                                        var urlDeployed = componentValue.urlDeployed;
+                                        var basePath = componentDocObject.basePath;
+                                        var urlString = `${urlDeployed}${basePath}swagger.json`;
+                                        urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
+                                        console.log("LOAD SWAGGER JSON FROM URL " + urlString);
+
+                                        // get swagger json from path instead
+                                        $.getJSON(urlString, function(data) {
+                                            console.log("DATA FETCHED");
+                                            console.log(data);
+                                            componentDocObject = data;
+                                        });
                                     }
 
+                                    console.log("[Metadata Widget] Parse other component docString to object");
+                                    console.log(componentDocObject);
+                    
                                     var componentDocPaths = componentDocObject.paths;
 
                                     // go through each paths and look for matching produces and consumes
@@ -164,12 +375,30 @@ var addTableRowHandler = function(y) {
                                                 console.log("[Metadata Widget] Get matching component operation detail, append row");
                                                 var componentDocOperationDetail = componentDocPath[componentDocOperation];
 
-                                                console.log("CHECK PRODUCES AND CONSUMES LIST");
-                                                var componentOperationConsumes = componentDocOperationDetail.consumes;
-                                                var componentOperationProduces = componentDocOperationDetail.produces;
+                                                // process parameters
+                                                var componentDefinitions = componentDocObject.definitions;
+                                                var processedOperationConsumes = processOperationConsumes(componentDocOperationDetail.parameters, componentDefinitions);
+                                                var componentOperationConsumes = processedOperationConsumes[0];
+                                                var componentOperationConsumesString = processedOperationConsumes[1];
+
+                                                // process responses
+                                                var processedOperationProduces = processOperationProduces(componentDocOperationDetail.responses, componentDefinitions);
+                                                var componentOperationProduces = processedOperationProduces[0];
+                                                var componentOperationProducesString = processedOperationProduces[1];
                                                 
                                                 var sortedComponentOperationConsumes = componentOperationConsumes.sort(sorter);
                                                 var sortedComponentOperationProduces = componentOperationProduces.sort(sorter);
+                                                
+                                                // generate other parameters for deeper compare
+                                                var componentIsSchemaProduce = processedOperationProduces[2];
+                                                var componentSchemasKeysProduce = processedOperationProduces[3];
+                                                var componentSchemasTypesProduce = processedOperationProduces[4];
+                                                var componentSchemasMapProduce = processedOperationProduces[5];
+
+                                                var componentIsSchemaConsume = processedOperationConsumes[2];
+                                                var componentSchemasKeysConsume = processedOperationConsumes[3];
+                                                var componentSchemasTypesConsume = processedOperationConsumes[4];
+                                                var componentSchemasMapConsume = processedOperationConsumes[5];
                                                 
                                                 console.log("SORTED COMPONENT OPERATIONS");
                                                 console.log(sortedComponentOperationConsumes);
@@ -179,40 +408,44 @@ var addTableRowHandler = function(y) {
                                                 console.log(sortedOperationConsumes);
                                                 console.log(sortedOperationProduces);
 
-                                                // compare with operation consumes produces
-                                                if (isSame(sortedOperationConsumes, sortedComponentOperationProduces) && isSame(sortedComponentOperationConsumes, sortedOperationProduces)) {
-                                                    console.log("Found matching components")
-                                                    var parametersList = [];
+                                                var compareLevel = compareLevelEnum.RED;
 
-                                                    // process parameters
-                                                    var parameters = componentDocOperationDetail.parameters;
-                                                    console.log("[Metadata Widget] Processing matching component parameters list");
-                                                    console.log(parameters);
-                                                    
-                                                    for (var index in parameters) {
-                                                        if (parameters.hasOwnProperty(index)) {
-                                                            var parameter = parameters[index];
-                                                            console.log("[Metadata Widget] Processing parameter");
-                                                            console.log(parameter);
-                                                            // get name and type
-                                                            var parameterName =  parameter.name;
-                                                            var parameterFormat = "";
+                                                // compare with operation consumes produces - lowest level compare
+                                                if (isSameArray(sortedOperationConsumes, sortedComponentOperationProduces) || isSameArray(sortedComponentOperationConsumes, sortedOperationProduces)) {
+                                                    console.log("Found matching components on red level");
 
-                                                            if(parameter.type) {
-                                                                parameterFormat = parameter.type;
-                                                            } else if(parameter.schema) {
-                                                                console.log("[Metadata Widget] Schema detected");
-                                                                parameterFormat = parameter.schema["$ref"].replace(/^.*[\\\/]/, '');
+                                                    // check other compare level if there's schema
+                                                    if (isSchemaProduce || isSchemaConsume || componentIsSchemaConsume || componentIsSchemaProduce) {
+                                                        // match schema on produce and consume
+                                                        if ((isSchemaProduce && componentIsSchemaConsume) || (isSchemaConsume && componentIsSchemaProduce)) {
+                                                            
+                                                            // match same keys name
+                                                            if (isSameArray(schemasKeysConsume, componentSchemasKeysProduce) || isSameArray(schemasKeysProduce, componentSchemasKeysConsume)) {
+                                                                compareLevel = compareLevelEnum.YELLOW;
+
+                                                                // check map for perfectly same
+                                                                if (isSameMap(schemasMapConsume, componentSchemasMapProduce) || isSameMap(schemasMapProduce, componentSchemasMapConsume)) {
+                                                                    compareLevel = compareLevelEnum.GREEN;
+                                                                }
                                                             }
 
-                                                            var parameterString = parameterName + " - (" + parameterFormat + ")"
-                                                            parametersList.push(parameterString);
+                                                            // match same keys name
+                                                            if (isSameArray(schemasTypesConsume, componentSchemasTypesProduce) || isSameArray(schemasTypesProduce, componentSchemasTypesConsume)) {
+                                                                compareLevel = compareLevelEnum.ORANGE;
+                                                                
+                                                                // check map for perfectly same
+                                                                if (isSameMap(schemasMapConsume, componentSchemasMapProduce) || isSameMap(schemasMapProduce, componentSchemasMapConsume)) {
+                                                                    compareLevel = compareLevelEnum.GREEN;
+                                                                }
+                                                            }
                                                         }
-                                                    };
+                                                    } else {
+                                                        // no schema so just green pass
+                                                        compareLevel = compareLevelEnum.GREEN;
+                                                    }
 
-                                                    // process produces
-                                                    var producesString = componentDocOperationDetail.produces.join(' , ');
-                                                    var parametersString = parametersList.join(' , ');
+                                                    var producesString = componentOperationProducesString.join(' , ');
+                                                    var parametersString = componentOperationConsumesString.join(' , ');
 
                                                     $("#componentMetadataMatchTable").append("<tr>" +
                                                         "<td class='doc_id'>" + componentValue.componentId + "</td>" + 
@@ -220,6 +453,7 @@ var addTableRowHandler = function(y) {
                                                         "<td class='doc_operation'>" + componentDocOperation + "</td>" +
                                                         "<td class='doc_parameters'>" + parametersString  + "</td>" +
                                                         "<td class='doc_produces'>" + producesString  + "</td>" +
+                                                        "<td class='doc_level'>" + "<div class='compare-box " + compareLevel + "'></div>"  + "</td>" +
                                                     "</tr>");
                                                 }
 
@@ -229,9 +463,9 @@ var addTableRowHandler = function(y) {
                                 }
                             });
 
-                            $("#metadataTable").delegate('tr', 'click', function() {
+                            /*$("#metadataTable").delegate('tr', 'click', function() {
                                 createEdge(componentName, $(this).find(".doc_id").html());
-                            });
+                            });*/
                         });
                     }
                 };
@@ -284,7 +518,8 @@ var init = function() {
 
         try {
             console.log("BIND IWC CLIENT");
-            iwcClient = new iwc.Client("METADATA");
+            //iwcClient = new iwc.Client("METADATA");
+            iwcClient = new iwc.Client("MAIN");
             iwcClient.connect( iwcHandler.bind(this, y) );
         } catch(e){
             console.log("ERROR METADATA WIDGET");
@@ -308,6 +543,62 @@ var init = function() {
     });
 };
 
+var processData = function(value) {
+    console.log("[Metadata Widget] Going through list of available metadata doc")
+    //console.log(value);
+    var docObject = null;
+
+    if (value.docType === "json") {
+        // parse json string to object
+        var docObject = JSON.parse(value.docString);
+        console.log("[Metadata Widget] Parse docString to object");
+        console.log(docObject);
+    }
+
+    var docPaths = docObject.paths;
+
+    // iterate through the paths
+    for (var docProperty in docPaths) {
+        // make sure it actually has the property
+        if (docPaths.hasOwnProperty(docProperty)) {
+
+            var docPath = docPaths[docProperty];
+            for (var docOperation in docPath) {
+                if (docPath.hasOwnProperty(docOperation)) {
+                    // iterate per operations available
+                    console.log("[Metadata Widget] Get operation detail, append row");
+                    var docOperationDetail = docPath[docOperation];
+
+                    // process parameters
+                    console.log("[Metadata Widget] Processing parameters list");
+
+                    var processedParameters = processOperationConsumes(docOperationDetail.parameters, null);
+                    var parametersList = processedParameters[1];
+
+                    // process produces
+                    var processedProduces = processOperationProduces(docOperationDetail.responses, null);
+                    var producesList = processedProduces[1];
+
+                    var producesString = producesList.join(' , ');
+                    var parametersString = parametersList.join(' , ');
+
+                    $("#componentMetadataTable").append("<tr>" +
+                        "<td class='doc_id'>" + value.componentId + "</td>" + 
+                        "<td class='doc_property'>" + docProperty + "</td>" +
+                        "<td class='doc_operation'>" + docOperation + "</td>" +
+                        "<td class='doc_parameters'>" + parametersString  + "</td>" +
+                        "<td class='doc_produces'>" + producesString  + "</td>" +
+                    "</tr>");
+                }
+
+                // remove duplicates from table
+                removeDuplicateRows($('#componentMetadataTable'));
+            }
+            
+        }
+    };
+}
+
 // loads the metadata doc list from API or yjs
 var loadMetadataList = function(y) {
 
@@ -316,83 +607,13 @@ var loadMetadataList = function(y) {
   y.share.data.set('metadataDocList', null);
   $("#metadataComponent").html("None");
   $("#componentMetadataTable").html("");
+  $("#componentMetadataMatchTable").html("");
 
   client.sendRequest("GET", "docs/" , "", "application/json", {},
     function(data, type) {
         data.forEach(function(value) {
-            console.log("[Metadata Widget] Going through list of available metadata doc")
-            //console.log(value);
-            var docObject = null;
-
-            if (value.docType === "json") {
-                // parse json string to object
-                docObject = JSON.parse(value.docString);
-                console.log("[Metadata Widget] Parse docString to object");
-                console.log(docObject);
-            }
-
-            var docPaths = docObject.paths;
-
-            // iterate through the paths
-            for (var docProperty in docPaths) {
-                // make sure it actually has the property
-                if (docPaths.hasOwnProperty(docProperty)) {
-
-                    var docPath = docPaths[docProperty];
-                    for (var docOperation in docPath) {
-                        if (docPath.hasOwnProperty(docOperation)) {
-                            // iterate per operations available
-                            console.log("[Metadata Widget] Get operation detail, append row");
-                            var docOperationDetail = docPath[docOperation];
-                            var parametersList = [];
-
-                            // process parameters
-                            var parameters = docOperationDetail.parameters;
-                            console.log("[Metadata Widget] Processing parameters list");
-                            console.log(parameters);
-                            
-                            for (var index in parameters) {
-                                if (parameters.hasOwnProperty(index)) {
-                                    var parameter = parameters[index];
-                                    console.log("[Metadata Widget] Processing parameter");
-                                    console.log(parameter);
-                                    // get name and type
-                                    var parameterName =  parameter.name;
-                                    var parameterFormat = "";
-
-                                    if(parameter.type) {
-                                        parameterFormat = parameter.type;
-                                    } else if(parameter.schema) {
-                                        console.log("[Metadata Widget] Schema detected");
-                                        parameterFormat = parameter.schema["$ref"].replace(/^.*[\\\/]/, '');
-                                    }
-
-                                    var parameterString = parameterName + " - (" + parameterFormat + ")"
-                                    parametersList.push(parameterString);
-                                }
-                            };
-
-                            // process produces
-                            var producesString = docOperationDetail.produces.join(' , ');
-                            var parametersString = parametersList.join(' , ');
-
-                            $("#componentMetadataTable").append("<tr>" +
-                                "<td class='doc_id'>" + value.componentId + "</td>" + 
-                                "<td class='doc_property'>" + docProperty + "</td>" +
-                                "<td class='doc_operation'>" + docOperation + "</td>" +
-                                "<td class='doc_parameters'>" + parametersString  + "</td>" +
-                                "<td class='doc_produces'>" + producesString  + "</td>" +
-                            "</tr>");
-                        }
-                    }
-                    
-                }
-            };
+            processData(value);
         });
-
-        y.share.data.set('metadataDoc', data);
-        //y.share.canvas.set('ReloadWidgetOperation', 'import');
-        feedback("Metadata doc loaded, please refresh browser!");
     },
     function(error) {
         console.log(error);
@@ -408,85 +629,11 @@ var loadComponentMetadataList = function(y, componentName) {
   y.share.data.set('metadataDocList', null);
   $("#metadataComponent").html(componentName);
   $("#componentMetadataTable").html("");
+  $("#componentMetadataMatchTable").html("");
 
   client.sendRequest("GET", "docs/component/" + componentName , "", "application/json", {},
     function(value, type) {
-
-        console.log("[Metadata Widget] Going through list of available metadata doc")
-        //console.log(value);
-        var docObject = null;
-
-        if (value.docType === "json") {
-            // parse json string to object
-            var docObject = JSON.parse(value.docString);
-            console.log("[Metadata Widget] Parse docString to object");
-            console.log(docObject);
-        }
-
-        var docPaths = docObject.paths;
-
-        // iterate through the paths
-        for (var docProperty in docPaths) {
-            // make sure it actually has the property
-            if (docPaths.hasOwnProperty(docProperty)) {
-
-                var docPath = docPaths[docProperty];
-                for (var docOperation in docPath) {
-                    if (docPath.hasOwnProperty(docOperation)) {
-                        // iterate per operations available
-                        console.log("[Metadata Widget] Get operation detail, append row");
-                        var docOperationDetail = docPath[docOperation];
-                        var parametersList = [];
-
-                        // process parameters
-                        var parameters = docOperationDetail.parameters;
-                        console.log("[Metadata Widget] Processing parameters list");
-                        console.log(parameters);
-                        
-                        for (var index in parameters) {
-                            if (parameters.hasOwnProperty(index)) {
-                                var parameter = parameters[index];
-                                console.log("[Metadata Widget] Processing parameter");
-                                console.log(parameter);
-                                // get name and type
-                                var parameterName =  parameter.name;
-                                var parameterFormat = "";
-
-                                if(parameter.type) {
-                                    parameterFormat = parameter.type;
-                                } else if(parameter.schema) {
-                                    console.log("[Metadata Widget] Schema detected");
-                                    console.log(parameter.schema);
-                                    console.log(parameter.schema["$ref"]);
-                                    parameterFormat = parameter.schema["$ref"].replace(/^.*[\\\/]/, '');
-                                }
-
-                                var parameterString = parameterName + " - (" + parameterFormat + ")"
-                                parametersList.push(parameterString);
-                            }
-                        };
-
-                        // process produces
-                        var producesString = docOperationDetail.produces.join(' , ');
-                        var parametersString = parametersList.join(' , ');
-
-                        $("#componentMetadataTable").append("<tr>" +
-                            "<td>" + value.componentId + "</td>" + 
-                            "<td>" + docProperty + "</td>" +
-                            "<td>" + docOperation + "</td>" +
-                            "<td>" + parametersString  + "</td>" +
-                            "<td>" + producesString  + "</td>" +
-                            "<td>" + "<input id='" + value.id + value.componentId + "checkBox' type='checkbox'>" + "</td>" + 
-                        "</tr>");
-                    }
-                }
-                
-            }
-        };
-
-        y.share.data.set('metadataDoc', value);
-        //y.share.canvas.set('ReloadWidgetOperation', 'import');
-        feedback("Metadata doc loaded, please refresh browser!");
+        processData(value);
     },
     function(error) {
         console.log(error);

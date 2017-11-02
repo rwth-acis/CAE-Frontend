@@ -191,6 +191,8 @@ var deployRequest = function(jobAlias){
 // start the deployment process
 var deployModel = function(y){
   var data = y.share.data.get('model');
+  console.log("DEPLOY MODEL APPLICATION");
+  console.log(data);
   if (data && loadedModel) {
     $("#deploy-model").prop('disabled',true);
     data.attributes.label.value.value = $("#name").val();
