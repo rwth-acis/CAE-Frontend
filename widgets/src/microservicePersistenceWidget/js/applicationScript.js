@@ -68,7 +68,8 @@ var init = function() {
             select: 'Map',
             views: 'Map',
             data: 'Map',
-            text: "Text"
+            text: "Text",
+            swagger: 'Map',
         },
         sourceDir: '@@host/microservicePersistenceWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
@@ -109,7 +110,11 @@ var init = function() {
 var resetCurrentModel = function(y) {
     if (y.share.data.get('model')) {
         y.share.data.set('model', null);
+        y.share.data.set('metadataDocList', null);
+        y.share.data.set('metadataDoc', null);
+        y.share.data.set('metadataDocString', null);
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
+        y.share.swagger.set('ReloadWidgetOperation', 'delete');
         feedback("Done!");
     } else {
         feedback("No model!")
@@ -141,7 +146,14 @@ var storeModel = function(y) {
 
         // get shared custom metadata stringify
         var metadataDocString = y.share.data.get('metadataDocString');
+        if (!metadataDocString)
+            metadataDocString = "";
+
         data['metadataDoc'] = metadataDocString;
+
+        // save metadatadoc string to database
+        console.log("CURRENT METADATADOC STRING");
+        console.log(metadataDocString);
 
         console.log("CURRENT DATA");
         console.log(data); 
@@ -169,6 +181,29 @@ var storeModel = function(y) {
                     feedback(error);
                 });
         }
+
+        if (metadataDocString) {
+
+            var version = $("#version").val();
+            var postUrl = "docs/" + version;
+            console.log("POST URL METADATADOC STRING ===== " + postUrl);
+            
+            console.log("[Swagger Widget] POST DATA");
+            client.sendRequest("POST", postUrl, JSON.stringify(metadataDocString), "application/json", {},
+            function(data, type) {
+                // save currently loaded model
+                console.log("Metadata doc updated!");
+                feedback("Metadata doc stored!");
+                //loadModel(y, false);
+            },
+            function(error) {
+                console.log(error);
+                feedback(error);
+            });
+        }
+
+        y.share.swagger.set('ReloadWidgetOperation', 'import');
+
     } else {
         feedback("No model!");
     }
@@ -182,6 +217,8 @@ var loadModel = function(y) {
     }
     // first, clean the current model
     y.share.data.set('model', null);
+    y.share.data.set('metadataDoc', null);
+    y.share.data.set('metadataDocString', null);
 
     // now read in the file content
     modelName = $("#name").val();
@@ -190,6 +227,7 @@ var loadModel = function(y) {
             console.log("Model loaded!");
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');
+            y.share.swagger.set('ReloadWidgetOperation', 'import');
             feedback("Model loaded, please refresh browser!");
         },
         function(error) {

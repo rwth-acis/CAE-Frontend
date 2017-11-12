@@ -38,9 +38,10 @@ var client,
     loadedSwaggerDoc = null,
     iwcClient = null,
     selectedNodeId = null,
-    nodeMetadataList = new Map(),
-    nodeMetadataSchemas = new Map(),
-    schemaList = new Map();
+    nodeMetadataList = null,
+    nodeMetadataSchemas = null,
+    schemaList = null,
+    swaggerStatus = null;
 
 var iwcHandler = function(y, intent) {
     let data = intent.extras.payload.data.data;
@@ -77,9 +78,12 @@ var iwcHandler = function(y, intent) {
                   if(currentAttribute.value.value === "JSON") {
                     $("#node-schema").prop('disabled', false);
                     // generate select
-                    schemaList.forEach((value, key) => {
-                      $('#node-schema').append(`<option value="${key}">${key}</option>`);
-                    });
+                    console.log("GENERATE SELECT");
+                    console.log(schemaList.map);
+                    for(var key in schemaList.map) {
+                      if (key && schemaList.get(key))
+                        $('#node-schema').append(`<option value="${key}">${key}</option>`);
+                    };
                   } else {
                     $("#node-schema").prop('disabled', true);
                   }
@@ -123,9 +127,10 @@ var clickSchema = function(keyValue) {
 var generateSchemaList = function(y) {
   // generate select
   $('#schema-list').html("");
-  schemaList.forEach((value, key) => {
+  console.log("GENERATE SCHEMA LIST");
+  for(var key in schemaList.map) {
     $('#schema-list').append(`<li id="${key}" class="list-group-item">${key}</li>`);
-  });
+  };
 
   $('#schema-list li').click(function() {
     console.log("li clicked with id " + this.id);
@@ -136,9 +141,12 @@ var generateSchemaList = function(y) {
 }
 
 var saveMapNode = function(y) {
-  nodeMetadataList.set(selectedNodeId, $("#node-description").val());
-  nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
 
+  if(selectedNodeId) {
+    nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+    nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
+  }
+  
   console.log(nodeMetadataList);
   console.log(nodeMetadataSchemas);
 
@@ -171,6 +179,7 @@ var init = function() {
 
   console.log("[Swagger Widget] INIT SWAGGER WIDGET");
   var iwcCallback = function(intent) {
+    console.log("****INCOMING INTENT****");
     console.log(intent);
   };
   console.log("CAE HOST " + "@@caehost/CAE");
@@ -202,33 +211,72 @@ var init = function() {
             select: 'Map',
             views: 'Map',
             data: 'Map',
-            text: "Text"
+            text: "Text",
+            swaggerDescription: "Text",
+            swaggerVersion: "Text",
+            swaggerTermsOfService: "Text",
+            swaggerMapNodes: 'Map',
+            swaggerMapSchema: 'Map',
+            swaggerMapNodeSchema: 'Map',
+            swagger: 'Map',
         },
         sourceDir: '@@host/swaggerWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
     }).then(function(y) {
 
-        $("#node-description").blur(function() {
+        //yjs text binding
+        y.share.swaggerDescription.bind(document.querySelector('#description'));
+        y.share.swaggerVersion.bind(document.querySelector('#version'));
+        y.share.swaggerTermsOfService.bind(document.querySelector('#termsOfService'));
+
+        console.log("[swaggerWidget] Get shared y");
+        nodeMetadataList = y.share.swaggerMapNodes;
+        nodeMetadataSchemas = y.share.swaggerMapNodeSchema;
+        schemaList = y.share.swaggerMapSchema;
+        swaggerStatus = y.share.swagger;
+
+        nodeMetadataList.observe(function() {
+          console.log("***SWAGGER MAP NODES CHANGES****");
+          console.log(nodeMetadataList);
+        });
+
+        nodeMetadataSchemas.observe(function() {
+          console.log("***SWAGGER MAP NODE SCHEMA CHANGES****");
+          console.log(nodeMetadataSchemas);
+        });
+
+        schemaList.observe(function() {
+          console.log("***SWAGGER MAP SCHEMA LIST CHANGES****");
+          console.log(schemaList);
+        });
+
+        swaggerStatus.observe(function() {
+          console.log("***SWAGGER STATUS CHANGES****");
+          clearDivs(y);
+          loadModel(y);
+        });
+
+        $("#node-description").change(function() {
           console.log("NodeDescription - Saving node properties and description");
           saveMapNode(y);
         });
 
-        $("#node-schema").blur(function() {
+        $("#node-schema").change(function() {
           console.log("NodeSchema - Saving node properties and description");
           saveMapNode(y);
         });
 
-        $("#description").blur(function() {
+        $("#description").change(function() {
           console.log("Description - Saving node properties and description");
           saveMapNode(y);
         });
 
-        $("#version").blur(function() {
+        $("#version").change(function() {
           console.log("Version - Saving node properties and description");
           saveMapNode(y);
         });
 
-        $("#termsOfService").blur(function() {
+        $("#termsOfService").change(function() {
           console.log("Version - Saving node properties and description");
           saveMapNode(y);
         });
@@ -244,52 +292,7 @@ var init = function() {
             console.log(e);
         }
 
-        // retrieve current model from the space and store it
-        if (y.share.data.get('model')) {
-            console.log('[Swagger Widget] Saved model exists');
-            var data = y.share.data.get('model');
-            loadedModel = data.attributes.label.value.value;
-            // special case if model was only saved in the space (not loaded from db)
-            if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-                loadedModel = null;
-                feedback("Model was not loaded from database until now..");
-            } else {
-                $("#name").val(loadedModel);
-            }
-        } else {
-            loadedModel = null;
-        }
-
-        // retrieve current model from the space and store it
-        if (y.share.data.get('metadataDoc')) {
-          console.log("[Swagger Widget] Shared metadata doc found");
-          // load model
-          var data = y.share.data.get('metadataDoc');
-          console.log(data);
-          loadedSwaggerDoc = data;
-          if(loadedSwaggerDoc.componentId === loadedModel) {
-            console.log("[Swagger Widget] Shared metadata have some component id");
-            loadDivs(loadedSwaggerDoc);
-          } else {
-            console.log("[Swagger Widget] Shared metadata doesnt have some component id, load metadata");
-            loadedSwaggerDoc = null;
-            loadModel(y, false);
-          }
-        } else {
-            console.log("[Swagger Widget] No shared metadata, load metadata");
-            loadedSwaggerDoc = null;
-            loadModel(y, false);
-        }
-
-        $('#store-doc').on('click', function() {
-          console.log("Store user input metadata doc");
-          storeDoc(y);
-        })
-
-        $('#load-doc').on('click', function() {
-          console.log("Load metadata doc from database");
-          loadModel(y, true);
-        })
+        loadModel(y);
 
         $('#schema-add').on('click', function() {
           saveSchema(y);
@@ -315,10 +318,10 @@ var storeDoc = function(y) {
 
     // process schemas
     var schemasJson = {};
-    schemaList.forEach((value, key) => {
-      schemasJson[key] = value;
-    });
-
+    for (var key in schemaList.map) {
+      schemasJson[key] = schemaList.get(key);
+    }
+    
     var nodeMetadataJson = {};
     // process leftover in node form
     if (selectedNodeId && $("#node-description").val())
@@ -328,22 +331,24 @@ var storeDoc = function(y) {
       nodeMetadataProperties.set(selectedNodeId, $("#node-properties").val());
       
     // generate string for method nodes
-    nodeMetadataList.forEach((value, key) => {
+    for (var key in nodeMetadataList.map) {
       console.log("PROCESS NODE " + key);
       var nodeId = key;
-      var nodeDescription = value;
+      var nodeDescription = nodeMetadataList.get(key);
       nodeMetadataJson[nodeId] = {};
-      nodeMetadataJson[nodeId]["description"] = nodeDescription;
-    });
+      if (nodeDescription)
+        nodeMetadataJson[nodeId]["description"] = nodeDescription;
+    };
 
-    nodeMetadataSchemas.forEach((value, key) => {
+    for (var key in nodeMetadataSchemas.map) {
       console.log("PROCESS PROPERTIES NODE " + key);
       var nodeId = key;
-      var nodeProperties = value;
+      var nodeProperties = nodeMetadataSchemas.get(key);
       if (!nodeMetadataJson[nodeId])
         nodeMetadataJson[nodeId] = {};
-      nodeMetadataJson[nodeId]["schema"] = nodeProperties;
-    });
+      if (nodeProperties)
+        nodeMetadataJson[nodeId]["schema"] = nodeProperties;
+    };
 
     console.log("SCHEMAS JSON");
     console.log(schemasJson);
@@ -373,24 +378,6 @@ var storeDoc = function(y) {
     console.log(JSON.stringify(data));
 
     y.share.data.set('metadataDoc',data);
-
-    console.log("[Swagger Widget] Checking loaded swagger doc");
-    console.log(loadedSwaggerDoc);
-
-    console.log("[Swagger Widget] POST DATA");
-    client.sendRequest("POST", "docs/", JSON.stringify(data), "application/json", {},
-    function(data, type) {
-      // save currently loaded model
-      loadedSwaggerDoc = $("#name").val();
-      console.log("[Swagger Widget] Swagger doc stored, retrieving communication view..");
-      feedback("Swagger doc stored!");
-      //loadModel(y, false);
-    },
-    function(error) {
-      console.log("[Swagger Widget] Error occured while storing swagger doc");
-      console.log(error);
-      feedback(error);
-    });
   }
   else {
     console.log("[Swagger Widget] No model loaded");
@@ -436,10 +423,64 @@ var loadDivs = function(data) {
   }
 }
 
+var clearDivs = function(y) {
+  console.log("[SWAGGER WIDGET] Clear divs");
+  $("#name").val("");
+  $("#description").val("");
+  $("#version").val("");
+  $("#termsOfService").val("");
+
+  nodeMetadataList.map = {};
+  nodeMetadataSchemas.map = {};
+  schemaList.map = {};
+  swaggerStatus.map = {};
+
+  console.log("CLEAR FINISHED");
+  console.log(y.share);
+
+  $('#node-schema').html('<option value="">None</option>');
+  $('#schema-list').html('');
+}
+
 // loads the metadata doc from API or yjs
-var loadModel = function(y, fromDatabase) {
+var loadModel = function(y) {
+  // retrieve current model from the space and store it
+  if (y.share.data.get('model')) {
+      console.log('[Swagger Widget] Saved model exists');
+      var data = y.share.data.get('model');
+      loadedModel = data.attributes.label.value.value;
+      // special case if model was only saved in the space (not loaded from db)
+      if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+          loadedModel = null;
+          feedback("Model was not loaded from database until now..");
+      } else {
+          $("#name").val(loadedModel);
+      }
+  } else {
+      loadedModel = null;
+  }
+
+  // retrieve current model from the space and store it
+  if (y.share.data.get('metadataDoc')) {
+    console.log("[Swagger Widget] Shared metadata doc found");
+    // load model
+    var data = y.share.data.get('metadataDoc');
+    console.log(data);
+    loadedSwaggerDoc = data;
+    if(loadedSwaggerDoc.componentId === loadedModel) {
+      console.log("[Swagger Widget] Shared metadata have some component id");
+      loadDivs(loadedSwaggerDoc);
+    } else {
+      console.log("[Swagger Widget] Shared metadata doesnt have some component id, load metadata");
+      loadedSwaggerDoc = null;
+    }
+  } else {
+      console.log("[Swagger Widget] No shared metadata, load metadata");
+      loadedSwaggerDoc = null;
+  }
+
   console.log("[Swagger Widget] Load model");
-  if (loadedModel) {
+  if (loadedModel && !loadedSwaggerDoc) {
     console.log("[Swagger Widget] Load metadata for model " + loadedModel);
     // first, clean the current model
     y.share.data.set('metadataDoc', null);
@@ -448,9 +489,7 @@ var loadModel = function(y, fromDatabase) {
             console.log("[Swagger Widget] Metadata doc loaded!");
             console.log(data);
             loadDivs(data);
-
-            y.share.data.set('metadataDoc', data);
-            y.share.canvas.set('ReloadWidgetOperation', 'import');
+            storeDoc(y);
             feedback("Metadata doc loaded, please refresh browser!");
         },
         function(error) {

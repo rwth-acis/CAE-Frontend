@@ -142,13 +142,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </div>
 
     </div>
-
-    <div class="btn-group btn-group-justified">
-      <div class="btn-group">
-        <button id="load-doc" class="btn btn-default">Load</button>
-        <button id="store-doc" class="btn btn-default">Store</button>
-      </div>
-    </div>
     <br>
     <div class="form-group">
       <input type="text" class="form-control" disable id="status" placeholder="Status..">

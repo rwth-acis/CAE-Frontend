@@ -143,18 +143,18 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
  * next click there will add a microservice to the canvas.
  *
  */
-Las2peerWidgetLibrary.prototype.sendConnectionSelected = function() {
+Las2peerWidgetLibrary.prototype.sendUpdateSwagger = function(data) {
   console.log("[sendConnectionSelected] Connection selected");
   // element creation
   var time = new Date().getTime();
   var data = JSON.stringify({selectedToolName: "HTTP Call"});
   var intent = {
-    "component": "MAIN",
+    "component": "OPENAPI",
     "data": "",
-    "dataType": "",
+    "dataType": data,
     "action": "ACTION_DATA",
-    "flags": ["PUBLISH_LOCAL"],
-    "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
+    "flags": ["PUBLISH_GLOBAL"],
+    "extras": {"payload": {"data": data, "sender":null, "type":"OTOperation"}, "time":time},
     "sender": "METADATA_WIDGET"
   };
   this.iwcClient.publish(intent);

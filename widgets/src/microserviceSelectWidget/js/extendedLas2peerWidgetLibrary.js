@@ -142,11 +142,11 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
  * next click there will add a microservice to the canvas.
  *
  */
-Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(name) {
+Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(name, version) {
   console.log("[sendMicroserviceSelected] Microservice selected");
   // element creation
   var time = new Date().getTime();
-  var data = JSON.stringify({selectedToolName: "Microservice", name: name});
+  var data = JSON.stringify({selectedToolName: "Microservice", name: name, version: version});
   var intent = {
     "component": "MAIN",
     "data": "",

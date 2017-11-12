@@ -45,7 +45,7 @@ var iwcHandler = function(y, intent) {
 
     let sender = intent.sender;
     
-    if (sender === "MICROSERVICE_SELECT_WIDGET" || sender === "FRONTEND_COMPONENT_SELECT_WIDGET") {
+    if (sender === "MICROSERVICE_SELECT_WIDGET") {
         console.log("SELECT WIDGET");
         let data = intent.extras.payload.data.data;
         let jsonData = JSON.parse(data);
@@ -54,9 +54,10 @@ var iwcHandler = function(y, intent) {
         if (jsonData) {
             console.log("JSON DATA NON NULL");
             let componentName = jsonData.name;
+            let version = jsonData.version;
             console.log("=====COMPONENT NAME");
             console.log(componentName);
-            loadComponentMetadataList(y, componentName);
+            loadComponentMetadataList(y, componentName, version);
         }
     }
 };
@@ -66,6 +67,9 @@ var createEdge = function(source, target) {
 }
 
 var isSameArray = function(arr1, arr2) {
+    if (!arr1 || !arr2)
+        return false;
+        
     if (arr1.length !== arr2.length) return false;
     for (var i = 0, len = arr1.length; i < len; i++){
         if (arr1[i] !== arr2[i]){
@@ -474,6 +478,7 @@ var addTableRowHandler = function(y) {
 }
 
 var init = function() {
+
   $("#metadataMatchTable").hide();
   console.log("[Metadata Widget] INIT METADATA WIDGET");
   
@@ -622,7 +627,11 @@ var loadMetadataList = function(y) {
 };
 
 // loads the metadata doc list from API or yjs
-var loadComponentMetadataList = function(y, componentName) {
+var loadComponentMetadataList = function(y, componentName, version) {
+
+  var restGet = "docs/component/" + componentName;
+  if (version)
+    restGet = "docs/component/" + componentName + "/" + version;
 
   console.log("[Metadata Widget] Load all metadata docs for metadata widget");
   // first, clean the current metadata doc list
@@ -631,7 +640,7 @@ var loadComponentMetadataList = function(y, componentName) {
   $("#componentMetadataTable").html("");
   $("#componentMetadataMatchTable").html("");
 
-  client.sendRequest("GET", "docs/component/" + componentName , "", "application/json", {},
+  client.sendRequest("GET", restGet, "", "application/json", {},
     function(value, type) {
         processData(value);
     },

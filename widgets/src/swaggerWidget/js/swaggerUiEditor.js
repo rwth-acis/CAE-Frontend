@@ -37,7 +37,8 @@ var client,
     loadedModel = null,
     iwcClient = null,
     currentComponentName = null,
-    editor;
+    editor,
+    swaggerStatus = null;
 
 var iwcHandler = function(y, intent) {
 
@@ -111,7 +112,8 @@ var init = function() {
             select: 'Map',
             views: 'Map',
             data: 'Map',
-            text: "Text"
+            text: "Text",
+            swagger: 'Map',
         },
         sourceDir: '@@host/swaggerWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
@@ -132,104 +134,110 @@ var init = function() {
         $('.ace_text-input').prop('disabled', true);
 
         console.log("Load swagger UI Editor js");
-
-        // retrieve current model from the space and store it
-        if (y.share.data.get('metadataDoc')) {
-          console.log("[Swagger Editor Widget] Shared metadata doc found");
-          // load model
-          var data = y.share.data.get('metadataDoc');
-          console.log(data);
-          loadedSwaggerDoc = data;
-        } else {
-            console.log("[Swagger Editor Widget] No shared metadata, load metadata");
-            loadedSwaggerDoc = null;
-        }
-
-        console.log("Load swagger ui");
-        console.log(loadedSwaggerDoc.docString);
         loadMetadata(y);
 
         $('#load-doc').on('click', function() {
           console.log("UPDATE SPEC");
           loadMetadata(y);
         })
-        
+
+        swaggerStatus = y.share.swagger;
+        swaggerStatus.observe(function() {
+          console.log("***SWAGGER STATUS CHANGES****");
+          loadMetadata(y);
+        });
     });
 };
 
 var loadMetadata = function(y) {
-  console.log("[Swagger Editor] Load metadata");
 
-  // use current component name if available
-  if (currentComponentName) {
-    loadedModel = currentComponentName;
-  } else if (y.share.data.get('model')) {
-      console.log('[Swagger Widget] Saved model exists');
-      var data = y.share.data.get('model');
-      loadedModel = data.attributes.label.value.value;
-      // special case if model was only saved in the space (not loaded from db)
-      if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-          loadedModel = null;
-          feedback("Model was not loaded from database until now..");
-      } else {
-          console.log("[Swagger Editor] Model Exists " + loadedModel);
-          $("#name").html(loadedModel);
-      }
-  } else {
-      loadedModel = null;
-  }
-  
-  if (loadedModel) {
-    console.log("[Swagger Widget] Load metadata for model " + loadedModel);
-    // first, clean the current model
-    y.share.data.set('metadataDoc', null);
-    client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {},
-        function(data, type) {
-            console.log("[Swagger UI Editor Widget] Metadata doc loaded!");
-            console.log(data);
-            var jsonDocString = JSON.parse(data.docString);
-            var timeDeployed = null;
-            if (data.timeDeployed) 
-                timeDeployed = new Date(data.timeDeployed);
-            var timeEdited = null;
-            if (data.timeEdited)
-                timeEdited = new Date(data.timeEdited);
+    $("#name").html("");
+    $("#status").html("");
 
-            // check if deployed url exist and newer than edit time
-            if (data.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
-                var urlDeployed = data.urlDeployed;
-                var basePath = jsonDocString.basePath;
-                var urlString = `${urlDeployed}${basePath}swagger.json`;
-                urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
-                console.log("LOAD SWAGGER JSON FROM URL " + urlString);
+    // retrieve current model from the space and store it
+    if (y.share.data.get('metadataDoc')) {
+        console.log("[Swagger Editor Widget] Shared metadata doc found");
+        // load model
+        var data = y.share.data.get('metadataDoc');
+        console.log(data);
+        loadedSwaggerDoc = data;
+    } else {
+        console.log("[Swagger Editor Widget] No shared metadata, load metadata");
+        loadedSwaggerDoc = null;
+    }
 
-                // get swagger json from path instead
-                $.getJSON(urlString, function(data) {
-                    console.log("DATA FETCHED");
-                    console.log(data);
+    console.log("[Swagger Editor] Load metadata");
+
+    // use current component name if available
+    if (currentComponentName) {
+        loadedModel = currentComponentName;
+    } else if (y.share.data.get('model')) {
+        console.log('[Swagger Widget] Saved model exists');
+        var data = y.share.data.get('model');
+        loadedModel = data.attributes.label.value.value;
+        // special case if model was only saved in the space (not loaded from db)
+        if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
+            loadedModel = null;
+            feedback("Model was not loaded from database until now..");
+        } else {
+            console.log("[Swagger Editor] Model Exists " + loadedModel);
+            $("#name").html(loadedModel);
+        }
+    } else {
+        loadedModel = null;
+    }
+
+    if (loadedModel) {
+        console.log("[Swagger Widget] Load metadata for model " + loadedModel);
+        // first, clean the current model
+        y.share.data.set('metadataDoc', null);
+        client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {},
+            function(data, type) {
+                console.log("[Swagger UI Editor Widget] Metadata doc loaded!");
+                console.log(data);
+                var jsonDocString = JSON.parse(data.docString);
+                var timeDeployed = null;
+                if (data.timeDeployed) 
+                    timeDeployed = new Date(data.timeDeployed);
+                var timeEdited = null;
+                if (data.timeEdited)
+                    timeEdited = new Date(data.timeEdited);
+
+                // check if deployed url exist and newer than edit time
+                if (data.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
+                    var urlDeployed = data.urlDeployed;
+                    var basePath = jsonDocString.basePath;
+                    var urlString = `${urlDeployed}${basePath}swagger.json`;
+                    urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
+                    console.log("LOAD SWAGGER JSON FROM URL " + urlString);
+
+                    // get swagger json from path instead
+                    $.getJSON(urlString, function(data) {
+                        console.log("DATA FETCHED");
+                        console.log(data);
+                        //var yamlObject = json2yaml(jsonDocString);
+                        //editor.specActions.updateSpec(yamlObject);
+                        editor.specActions.updateSpec(JSON.stringify(data));
+                        y.share.data.set('metadataDoc', data);
+                        $("#status").html("Deployed");
+                    });
+                    
+                } else {
                     //var yamlObject = json2yaml(jsonDocString);
                     //editor.specActions.updateSpec(yamlObject);
-                    editor.specActions.updateSpec(JSON.stringify(data));
+                    editor.specActions.updateSpec(JSON.stringify(jsonDocString));
                     y.share.data.set('metadataDoc', data);
-                    $("#status").html("Deployed");
-                });
-                
-            } else {
-                //var yamlObject = json2yaml(jsonDocString);
-                //editor.specActions.updateSpec(yamlObject);
-                editor.specActions.updateSpec(JSON.stringify(jsonDocString));
-                y.share.data.set('metadataDoc', data);
-                $("#status").html("Not deployed");
-            }
-        },
-        function(error) {
-            console.log(error);
-        });  
-  } else {
-      console.log('[Swagger UI Editor Widget] No shared model');
-      editor.specActions.updateSpec('{}');
-      return;
-  }
+                    $("#status").html("Not deployed");
+                }
+            },
+            function(error) {
+                console.log(error);
+            });  
+    } else {
+        console.log('[Swagger UI Editor Widget] No shared model');
+        editor.specActions.updateSpec('{}');
+        return;
+    }
 
 };
 
