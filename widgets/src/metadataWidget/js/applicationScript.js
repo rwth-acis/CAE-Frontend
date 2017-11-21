@@ -446,6 +446,8 @@ var addTableRowHandler = function(y) {
                                                     } else {
                                                         // no schema so just green pass
                                                         compareLevel = compareLevelEnum.GREEN;
+                                                        compareText = "No schema";
+                                                        compareLabel = "label-success";
                                                     }
 
                                                     var producesString = componentOperationProducesString.join(' , ');
@@ -457,7 +459,7 @@ var addTableRowHandler = function(y) {
                                                         "<td class='doc_operation'>" + componentDocOperation + "</td>" +
                                                         "<td class='doc_parameters'>" + parametersString  + "</td>" +
                                                         "<td class='doc_produces'>" + producesString  + "</td>" +
-                                                        "<td class='doc_level'>" + "<div class='compare-box " + compareLevel + "'></div>"  + "</td>" +
+                                                        "<td class='doc_level col-md-2'>" + "<div class='compare-box " + compareLevel + "'></div></td>" +
                                                     "</tr>");
                                                 }
 
@@ -481,6 +483,14 @@ var init = function() {
 
   $("#metadataMatchTable").hide();
   console.log("[Metadata Widget] INIT METADATA WIDGET");
+
+  $('#metadataTable').on('click', '.clickable-row', function(event) {
+    if($(this).hasClass('clicked')){
+        $(this).removeClass('clicked'); 
+    } else {
+        $(this).addClass('clicked').siblings().removeClass('clicked');
+    }
+  });
   
   var iwcCallback = function(intent) {
     console.log("IWC CALLBACK METADATA WIDGET");
@@ -587,7 +597,7 @@ var processData = function(value) {
                     var producesString = producesList.join(' , ');
                     var parametersString = parametersList.join(' , ');
 
-                    $("#componentMetadataTable").append("<tr>" +
+                    $("#componentMetadataTable").append("<tr class='clickable-row'>" +
                         "<td class='doc_id'>" + value.componentId + "</td>" + 
                         "<td class='doc_property'>" + docProperty + "</td>" +
                         "<td class='doc_operation'>" + docOperation + "</td>" +

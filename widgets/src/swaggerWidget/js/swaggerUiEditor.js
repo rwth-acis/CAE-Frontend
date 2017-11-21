@@ -188,6 +188,7 @@ var loadMetadata = function(y) {
     }
 
     if (loadedModel) {
+        $("#status").html('<span class="label label-info">Loading information</span>');
         console.log("[Swagger Widget] Load metadata for model " + loadedModel);
         // first, clean the current model
         y.share.data.set('metadataDoc', null);
@@ -197,37 +198,91 @@ var loadMetadata = function(y) {
                 console.log(data);
                 var jsonDocString = JSON.parse(data.docString);
                 var timeDeployed = null;
-                if (data.timeDeployed) 
-                    timeDeployed = new Date(data.timeDeployed);
+                if (data.timeDeployed) {
+                    // parse
+                    timeDeployed = new Date(data.timeDeployed * 1000);
+                }
                 var timeEdited = null;
-                if (data.timeEdited)
-                    timeEdited = new Date(data.timeEdited);
+                if (data.timeEdited) {
+                    timeEdited = new Date(data.timeEdited * 1000);
+                }
 
                 // check if deployed url exist and newer than edit time
                 if (data.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
+                    console.log("SWAGGER URL: Deploying swagger JSON from deployed URL");
                     var urlDeployed = data.urlDeployed;
-                    var basePath = jsonDocString.basePath;
-                    var urlString = `${urlDeployed}${basePath}swagger.json`;
+                    var basePath = jsonDocString.basePath + "/";
+                    basePath.replace("//", "/");
+                    var urlString = `${urlDeployed}${basePath}v1.0/swagger.json`;
                     urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
                     console.log("LOAD SWAGGER JSON FROM URL " + urlString);
 
                     // get swagger json from path instead
-                    $.getJSON(urlString, function(data) {
+                    $.getJSON(urlString)
+                    .success(function(data) {
                         console.log("DATA FETCHED");
                         console.log(data);
                         //var yamlObject = json2yaml(jsonDocString);
                         //editor.specActions.updateSpec(yamlObject);
                         editor.specActions.updateSpec(JSON.stringify(data));
                         y.share.data.set('metadataDoc', data);
-                        $("#status").html("Deployed");
-                    });
+                        $("#status").html('<span class="label label-success">Deployed</span>');
+
+                        // add deployment time and duration since
+                        var diff = new Date(timeDeployed - timeEdited);
+                        var delta = Math.abs(diff) / 1000;
+                        console.log(delta);
+
+                        // calculate (and subtract) whole days
+                        var days = Math.floor(delta / 86400);
+                        delta -= days * 86400;
+
+                        // calculate (and subtract) whole hours
+                        var hours = Math.floor(delta / 3600) % 24;
+                        delta -= hours * 3600;
+
+                        // calculate (and subtract) whole minutes
+                        var minutes = Math.floor(delta / 60) % 60;
+                        delta -= minutes * 60;
+
+                        var timeText = "";
+                        if (days != 0) {
+                            timeText += days;
+                            if (days > 1)
+                                timeText += " days ";
+                            else
+                                timeText += " day ";
+                        }
+
+                        if (hours != 0) {
+                            timeText += hours;
+                            if (hours > 1)
+                                timeText += " hours ";
+                            else
+                                timeText += " hour ";
+                        }
+
+                        if (minutes != 0) {
+                            timeText += minutes;
+                            if (minutes > 1)
+                                timeText += " minutes ";
+                            else
+                                timeText += " minute ";
+                        }
+
+                        timeText += delta + " seconds";
+
+                        $("#extra-information").html(`<h4>Deployed since: <span class='extra-time'>${timeText}</span></h4>`)
+                    })
+                    .fail($("#status").html('<span class="label label-danger">Deployed service is not found</span>'));
                     
                 } else {
                     //var yamlObject = json2yaml(jsonDocString);
                     //editor.specActions.updateSpec(yamlObject);
+                    console.log("SWAGGER DB: Deploying swagger JSON from deployed database");
                     editor.specActions.updateSpec(JSON.stringify(jsonDocString));
                     y.share.data.set('metadataDoc', data);
-                    $("#status").html("Not deployed");
+                    $("#status").html('<span class="label label-warning">Not Deployed</span>');
                 }
             },
             function(error) {

@@ -41,7 +41,8 @@ var client,
     nodeMetadataList = null,
     nodeMetadataSchemas = null,
     schemaList = null,
-    swaggerStatus = null;
+    swaggerStatus = null,
+    propertyMap = {};
 
 var iwcHandler = function(y, intent) {
     let data = intent.extras.payload.data.data;
@@ -79,8 +80,8 @@ var iwcHandler = function(y, intent) {
                     $("#node-schema").prop('disabled', false);
                     // generate select
                     console.log("GENERATE SELECT");
-                    console.log(schemaList.map);
-                    for(var key in schemaList.map) {
+                    console.log(schemaList.contents);
+                    for(var key in schemaList.contents) {
                       if (key && schemaList.get(key))
                         $('#node-schema').append(`<option value="${key}">${key}</option>`);
                     };
@@ -119,16 +120,26 @@ var iwcHandler = function(y, intent) {
 
 var clickSchema = function(keyValue) {
   console.log("Schema clicked " + keyValue);
-  var jsonProperties = JSON.stringify(schemaList.get(keyValue));
+  var jsonProperties = schemaList.get(keyValue);
   $("#schema-name").val(keyValue);
-  $("#schema-properties").val(jsonProperties);
+  $("#schema-name-label").html(keyValue);
+  
+  clearProperty();
+
+  // generate schema properties
+  propertyMap = {};
+  for (var property in jsonProperties) {
+    propertyMap[property] = jsonProperties[property].type;
+  }
+
+  generatePropertyTable();
 }
 
 var generateSchemaList = function(y) {
   // generate select
   $('#schema-list').html("");
   console.log("GENERATE SCHEMA LIST");
-  for(var key in schemaList.map) {
+  for(var key in schemaList.contents) {
     $('#schema-list').append(`<li id="${key}" class="list-group-item">${key}</li>`);
   };
 
@@ -141,41 +152,93 @@ var generateSchemaList = function(y) {
 }
 
 var saveMapNode = function(y) {
-
-  if(selectedNodeId) {
-    nodeMetadataList.set(selectedNodeId, $("#node-description").val());
-    nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
-  }
-  
-  console.log(nodeMetadataList);
-  console.log(nodeMetadataSchemas);
-
   // store data
   storeDoc(y);
 }
 
+/******Schema button handling */
+
 var saveSchema = function(y) {
   var schemaName = $("#schema-name").val();
-  var schemaProperties = $("#schema-properties").val();
-  schemaList.set(schemaName, JSON.parse(schemaProperties));
-  console.log("Schema added");
-  console.log(schemaList);
-  feedback("Schema added");
-  generateSchemaList(y);
+  var schemaProperties = {};
+  for (var key in propertyMap) {
+    var type = propertyMap[key];
+    schemaProperties[key] = {};
+    schemaProperties[key]["type"] = type;
+    if (type === "integer") {
+      schemaProperties[key]["format"] = "int32";  
+    }
+  }
+  schemaList.set(schemaName, schemaProperties);
+  clearProperty();
 }
 
 var deleteSchema = function(y) {
+  console.log("******Schema delete trigger");
   var schemaName = $("#schema-name").val();
   schemaList.delete(schemaName);
-  console.log("Schema deleted");
-  console.log(schemaList);
-  feedback("Schema deleted");
-  generateSchemaList(y);
+  clearProperty();
+}
+
+/****Events for properties */
+
+var addTableRowHandler = function() {
+  $('#propertiesTable').delegate('tr', 'click', function() {
+    var propertyName = $(this).find(".property_name").html();
+    var propertyType = $(this).find(".property_type").html();
+
+    // set to text fields
+    $('#property-name').val(propertyName);
+    $('#property-type').val(propertyType);
+  });
+}
+
+var saveProperty = function() {
+  var propertyName = $("#property-name").val();
+  var propertyType = $("#property-type").val();
+  propertyMap[propertyName] = propertyType;
+  generatePropertyTable();
+}
+
+var deleteProperty = function() {
+  var propertyName = $("#property-name").val();
+  delete propertyMap[propertyName];
+  generatePropertyTable();
+}
+
+var clearProperty = function() {
+  $("#property-name").html("");
+  $("#property-type").val("string");
+  propertyMap = {};
+  $("#schema-name-label").html("");
+  generatePropertyTable();
+}
+
+var generatePropertyTable = function() {
+  console.log("GENERATE PROPERTY TABLE");
+  console.log(propertyMap);;
+  $('#schemaPropertiesTable').html("");
+  for (var key in propertyMap) {
+    console.log("process key " + key + " " + propertyMap[key]);
+    $('#schemaPropertiesTable').append("<tr class='clickable-row'>" +
+          "<td class='property_name'>" + key + "</td>" + 
+          "<td class='property_type'>" + propertyMap[key] + "</td>" +
+      "</tr>")
+  }
+  addTableRowHandler();
 }
 
 var init = function() {
   // hide node form
   $("#node-form").hide();
+
+  $('#propertiesTable').on('click', '.clickable-row', function(event) {
+    if($(this).hasClass('clicked')){
+        $(this).removeClass('clicked'); 
+    } else {
+        $(this).addClass('clicked').siblings().removeClass('clicked');
+    }
+  });
 
   console.log("[Swagger Widget] INIT SWAGGER WIDGET");
   var iwcCallback = function(intent) {
@@ -238,16 +301,19 @@ var init = function() {
         nodeMetadataList.observe(function() {
           console.log("***SWAGGER MAP NODES CHANGES****");
           console.log(nodeMetadataList);
+          saveMapNode(y);
         });
 
         nodeMetadataSchemas.observe(function() {
           console.log("***SWAGGER MAP NODE SCHEMA CHANGES****");
           console.log(nodeMetadataSchemas);
+          saveMapNode(y);
         });
 
         schemaList.observe(function() {
           console.log("***SWAGGER MAP SCHEMA LIST CHANGES****");
           console.log(schemaList);
+          generateSchemaList(y);
         });
 
         swaggerStatus.observe(function() {
@@ -256,27 +322,39 @@ var init = function() {
           loadModel(y);
         });
 
-        $("#node-description").change(function() {
+        $("#node-description").on('input', function() {
           console.log("NodeDescription - Saving node properties and description");
+          // process leftover in node form
+          if (selectedNodeId && $("#node-description").val())
+            nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+
+          if (selectedNodeId && $("#node-schema").val())
+            nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
           saveMapNode(y);
         });
 
-        $("#node-schema").change(function() {
+        $("#node-schema").on('input', function() {
           console.log("NodeSchema - Saving node properties and description");
           saveMapNode(y);
+          // process leftover in node form
+          if (selectedNodeId && $("#node-description").val())
+            nodeMetadataList.set(selectedNodeId, $("#node-description").val());
+
+          if (selectedNodeId && $("#node-schema").val())
+            nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
         });
 
-        $("#description").change(function() {
+        $("#description").on('input', function() {
           console.log("Description - Saving node properties and description");
           saveMapNode(y);
         });
 
-        $("#version").change(function() {
+        $("#version").on('input', function() {
           console.log("Version - Saving node properties and description");
           saveMapNode(y);
         });
 
-        $("#termsOfService").change(function() {
+        $("#termsOfService").on('input', function() {
           console.log("Version - Saving node properties and description");
           saveMapNode(y);
         });
@@ -302,6 +380,14 @@ var init = function() {
           deleteSchema(y);
         })
 
+        $('#property-add').on('click', function() {
+          saveProperty();
+        })
+
+        $('#property-delete').on('click', function() {
+          deleteProperty();
+        })
+
     });
 };
 
@@ -318,20 +404,14 @@ var storeDoc = function(y) {
 
     // process schemas
     var schemasJson = {};
-    for (var key in schemaList.map) {
+    for (var key in schemaList.contents) {
       schemasJson[key] = schemaList.get(key);
     }
     
     var nodeMetadataJson = {};
-    // process leftover in node form
-    if (selectedNodeId && $("#node-description").val())
-      nodeMetadataList.set(selectedNodeId, $("#node-description").val());
-
-    if (selectedNodeId && $("#node-properties").val())
-      nodeMetadataProperties.set(selectedNodeId, $("#node-properties").val());
       
     // generate string for method nodes
-    for (var key in nodeMetadataList.map) {
+    for (var key in nodeMetadataList.contents) {
       console.log("PROCESS NODE " + key);
       var nodeId = key;
       var nodeDescription = nodeMetadataList.get(key);
@@ -340,7 +420,7 @@ var storeDoc = function(y) {
         nodeMetadataJson[nodeId]["description"] = nodeDescription;
     };
 
-    for (var key in nodeMetadataSchemas.map) {
+    for (var key in nodeMetadataSchemas.contents) {
       console.log("PROCESS PROPERTIES NODE " + key);
       var nodeId = key;
       var nodeProperties = nodeMetadataSchemas.get(key);
@@ -385,7 +465,7 @@ var storeDoc = function(y) {
   }
 };
 
-var loadDivs = function(data) {
+var loadDivs = function(data, y) {
     if (data.docInput) {
     try {
       var jsonSwaggerInputDoc = JSON.parse(data.docInput);
@@ -414,8 +494,12 @@ var loadDivs = function(data) {
           console.log("Set all schemas list");
           console.log(schemaList);
         });
-        generateSchemaList();
+        generateSchemaList(y);
       }
+
+      // set property map
+      clearProperty();
+        
 
     } catch(e) {
       console.log(e);
@@ -435,11 +519,18 @@ var clearDivs = function(y) {
   schemaList.map = {};
   swaggerStatus.map = {};
 
+  nodeMetadataList.contents = {};
+  nodeMetadataSchemas.contents = {};
+  schemaList.contents = {};
+  swaggerStatus.contents = {};
+
   console.log("CLEAR FINISHED");
   console.log(y.share);
 
   $('#node-schema').html('<option value="">None</option>');
   $('#schema-list').html('');
+  // set property map
+  clearProperty();
 }
 
 // loads the metadata doc from API or yjs
@@ -469,7 +560,7 @@ var loadModel = function(y) {
     loadedSwaggerDoc = data;
     if(loadedSwaggerDoc.componentId === loadedModel) {
       console.log("[Swagger Widget] Shared metadata have some component id");
-      loadDivs(loadedSwaggerDoc);
+      loadDivs(loadedSwaggerDoc, y);
     } else {
       console.log("[Swagger Widget] Shared metadata doesnt have some component id, load metadata");
       loadedSwaggerDoc = null;
@@ -488,7 +579,7 @@ var loadModel = function(y) {
         function(data, type) {
             console.log("[Swagger Widget] Metadata doc loaded!");
             console.log(data);
-            loadDivs(data);
+            loadDivs(data, y);
             storeDoc(y);
             feedback("Metadata doc loaded, please refresh browser!");
         },
@@ -497,6 +588,7 @@ var loadModel = function(y) {
             feedback(error);
         });  
   } else {
+      storeDoc(y);
       console.log('[Swagger Widget] No shared model');
       return
     }    

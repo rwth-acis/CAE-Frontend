@@ -32,6 +32,7 @@
 
  // global variables
 var client,
+    metadataClient,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null;
@@ -40,7 +41,12 @@ var init = function() {
     var iwcCallback = function(intent) {
         console.log(intent);
     };
+
+    var metadataIwcCallback = function(intent) {
+        console.log(intent);
+    };
     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
+    metadataClient = new Las2peerWidgetLibrary("@@caehost/CAE/docs", metadataIwcCallback);
 
     spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
@@ -185,11 +191,10 @@ var storeModel = function(y) {
         if (metadataDocString) {
 
             var version = $("#version").val();
-            var postUrl = "docs/" + version;
-            console.log("POST URL METADATADOC STRING ===== " + postUrl);
+            var name = $("#name").val();
             
             console.log("[Swagger Widget] POST DATA");
-            client.sendRequest("POST", postUrl, JSON.stringify(metadataDocString), "application/json", {},
+            metadataClient.sendRequest("POST", name + "/" + version, JSON.stringify(metadataDocString), "application/json", {},
             function(data, type) {
                 // save currently loaded model
                 console.log("Metadata doc updated!");

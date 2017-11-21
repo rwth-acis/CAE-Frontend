@@ -120,6 +120,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       max-width: 880px;
       margin-left: auto;
       margin-right: auto;
+      margin-top: 20px;
     }
 
     #editor-wrapper {
@@ -136,6 +137,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     #swagger-editor #ace-editor {
       display: none;
     }
+
+    .extra-duration {
+      font-weight: bold;
+      color: blue;
+    }
+
+    .extra-time {
+      font-weight: bold;
+      color: teal;
+    }
   </style>
 
 
@@ -145,15 +156,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <body>
 
 <div class="container" id="swagger-editor-content">
-  <div class="form-group" id="swagger-editor-form">
-    <label>Component: </label><label id="name"></label>
-    <br />
-    <label>Status: </label><label id="status"></label>
-    <br />
-    <div class="btn-group btn-group-justified">
-      <div class="btn-group">
-        <button id="load-doc" class="btn btn-default">Load</button>
-      </div>
+  <div class="panel panel-success" id="swagger-editor-form">
+    <div class="panel-heading"><h3 class="panel-title">Microservice Information</h3></div>
+    <div class="panel-body">
+      <h4>Component: <span id="name"></span></h4>
+      <h4>Status: <span id="status"></span></h4>
+      <div id="extra-information"></div>
     </div>
   </div>
   <div id="swagger-editor"></div>

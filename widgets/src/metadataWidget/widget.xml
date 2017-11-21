@@ -93,9 +93,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
 
   <style>
+    .container {
+      margin-top: 20px;
+    }
+
     .compare-box {
-      width: 50px;
-      height: 50px;
+      width: 40px;
+      height: 40px;
     }
 
     .compare-red {
@@ -114,6 +118,24 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       background-color: green;
     }
 
+    .header-node {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
+    .label-yellow {
+      background-color: yellow;
+    }
+
+    .clicked {
+      background-color: #d9edf7 !important;
+    }
+
+    .label-legend {
+      color: black;
+      font-weight: normal;
+    }
+
   </style>
 
 </head>
@@ -121,34 +143,54 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- container for actual page content -->
   <div class="container" id="mainContent">
-    <label for="type">Selected Component: </label><label for="type" id="metadataComponent"></label>
-    <table class="scrolltable table table-striped" id="metadataTable">
-        <thead>
-            <tr>
-                <th>Component Name</th>
-                <th>Endpoint Name</th>
-                <th>Operation</th>
-                <th>Parameters</th>
-                <th>Produces</th>
-            </tr>
-        </thead>
-        <tbody id="componentMetadataTable">
-    </table>
 
-    <label for="type">Matching endpoints</label>
-    <table class="scrolltable table table-striped" id="metadataMatchTable">
-        <thead>
-            <tr>
-                <th>Component Name</th>
-                <th>Endpoint Name</th>
-                <th>Operation</th>
-                <th>Parameters</th>
-                <th>Produces</th>
-                <th>Level</th>
-            </tr>
-        </thead>
-        <tbody id="componentMetadataMatchTable">
-    </table>
+    <div class="panel panel-primary form-group">
+      <div class="panel-heading"><h3 class="panel-title">Selected component endpoints</h3></div>
+      <div class="panel-body">
+        <h4>Selected Node: <span class="label label-primary" id="metadataComponent">None</span></h4>
+        <table class="scrolltable table table-striped" id="metadataTable">
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Endpoint Name</th>
+                    <th>Operation</th>
+                    <th>Parameters</th>
+                    <th>Produces</th>
+                </tr>
+            </thead>
+            <tbody id="componentMetadataTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel panel-success form-group">
+      <div class="panel-heading"><h5 class="panel-title">Legend</h5></div>
+      <div class="panel-body">
+        <h3><span class="label label-legend label-danger">Schema name matches</span></h3>
+        <h3><span class="label label-legend label-yellow">Schema name & properties name matches</span></h3>
+        <h3><span class="label label-legend label-warning">Schema name & properties type matches</span></h3>
+        <h3><span class="label label-legend label-success">Schema name, properties name, type matches</span></h3>
+      </div>
+    </div>
+
+    <div class="panel panel-primary form-group">
+      <div class="panel-heading"><h3 class="panel-title">Other component matching endpoints</h3></div>
+      <div class="panel-body">
+          <table class="scrolltable table table-striped" id="metadataMatchTable">
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Endpoint Name</th>
+                    <th>Operation</th>
+                    <th>Parameters</th>
+                    <th>Produces</th>
+                    <th>Level</th>
+                </tr>
+            </thead>
+            <tbody id="componentMetadataMatchTable"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
 </body>
