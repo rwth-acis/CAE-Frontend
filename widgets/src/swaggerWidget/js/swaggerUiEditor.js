@@ -44,7 +44,7 @@ var iwcHandler = function(y, intent) {
 
     //if (!iwcHandled) {
         iwcHandled = true;
-        console.log("=======[SWAGGER] IWC HANDLER MAIN WIDGET");
+        console.log("=======[SWAGGER] IWC HANDLER Canvas WIDGET");
         console.log(intent);
 
         let sender = intent.sender;
@@ -123,7 +123,7 @@ var init = function() {
         try {
             console.log("[Swagger] BIND IWC CLIENT");
             //iwcClient = new iwc.Client("METADATA");
-            iwcClient = new iwc.Client("MAIN");
+            iwcClient = new iwc.Client("Canvas");
             iwcClient.connect( iwcHandler.bind(this, y) );
         } catch(e){
             console.log("ERROR METADATA WIDGET");

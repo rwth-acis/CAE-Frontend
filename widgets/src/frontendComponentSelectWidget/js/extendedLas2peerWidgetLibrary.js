@@ -150,7 +150,7 @@ Las2peerWidgetLibrary.prototype.sendFrontendComponentSelected = function(fronten
   var time = new Date().getTime();
   var data = JSON.stringify({selectedToolName: "Frontend Component", name: frontendComponentName});
   var intent = {
-    "component": "MAIN",
+    "component": "Canvas",
     "data": "",
     "dataType": "",
     "action": "ACTION_DATA",

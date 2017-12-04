@@ -74,7 +74,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- import jQuery for AJAX calls -->
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Inter Widget Communication library import-->
-  <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
+  <!-- <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script> -->
   <!-- style information -->
   <link rel="stylesheet" href="@@host/swaggerWidget/css/style.css">
   <!-- import the client library -->
@@ -177,7 +177,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
           <button type="button" id="schema-delete" class="btn btn-danger">Delete Schema</button>
         </div>
 
-        < hr/>
+        <hr />
 
         <label for="type">Schema Name</label>
         <input type="text" class="form-control" value="" id="schema-name" placeholder="Schema Name...">

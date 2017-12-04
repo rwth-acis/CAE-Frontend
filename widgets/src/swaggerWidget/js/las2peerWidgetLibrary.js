@@ -46,7 +46,7 @@ function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
   } else {
     this._serviceEndpoint = endpointUrl;
   }
-  this.iwcClient = new iwc.Client();
+  this.iwcClient = new IWC.Client();
   this.callback = iwcCallback;
   this.iwcClient.connect(this.callback);
 }
@@ -135,29 +135,6 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
   } else {
     return true;
   }
-};
-
-/**
- *
- * Sends a signal to the canvas that a connection was selected, such that the
- * next click there will add a microservice to the canvas.
- *
- */
-Las2peerWidgetLibrary.prototype.sendUpdateSwagger = function(data) {
-  console.log("[sendConnectionSelected] Connection selected");
-  // element creation
-  var time = new Date().getTime();
-  var data = JSON.stringify({selectedToolName: "HTTP Call"});
-  var intent = {
-    "component": "OPENAPI",
-    "data": "",
-    "dataType": data,
-    "action": "ACTION_DATA",
-    "flags": ["PUBLISH_GLOBAL"],
-    "extras": {"payload": {"data": data, "sender":null, "type":"OTOperation"}, "time":time},
-    "sender": "METADATA_WIDGET"
-  };
-  this.iwcClient.publish(intent);
 };
 
 Las2peerWidgetLibrary.prototype.sendIntent = function(action, data, global) {

@@ -44,7 +44,15 @@ var client,
     swaggerStatus = null,
     propertyMap = {};
 
+var testIntent = function(intent) {
+  console.log("test");
+  console.log(intent);
+}
+
 var iwcHandler = function(y, intent) {
+    console.log("INTENT RECEIVED");
+    console.log(intent);
+
     let data = intent.extras.payload.data.data;
     let jsonData = JSON.parse(data);
     
@@ -363,8 +371,9 @@ var init = function() {
 
         try {
             console.log("[Swagger Widget] BIND IWC CLIENT");
-            iwcClient = new iwc.Client("OPENAPI");
-            iwcClient.connect( iwcHandler.bind(this, y) );
+            iwcClient = new IWC.Client("OPENAPI", "*");
+            iwcClient.connect(iwcHandler.bind(this, y));
+            //iwcClient.connect(testIntent);
         } catch(e){
             console.log("[Swagger Widget] ERROR METADATA WIDGET");
             console.log(e);
@@ -412,7 +421,6 @@ var storeDoc = function(y) {
       
     // generate string for method nodes
     for (var key in nodeMetadataList.contents) {
-      console.log("PROCESS NODE " + key);
       var nodeId = key;
       var nodeDescription = nodeMetadataList.get(key);
       nodeMetadataJson[nodeId] = {};
@@ -421,7 +429,6 @@ var storeDoc = function(y) {
     };
 
     for (var key in nodeMetadataSchemas.contents) {
-      console.log("PROCESS PROPERTIES NODE " + key);
       var nodeId = key;
       var nodeProperties = nodeMetadataSchemas.get(key);
       if (!nodeMetadataJson[nodeId])
@@ -430,8 +437,8 @@ var storeDoc = function(y) {
         nodeMetadataJson[nodeId]["schema"] = nodeProperties;
     };
 
-    console.log("SCHEMAS JSON");
-    console.log(schemasJson);
+    //console.log("SCHEMAS JSON");
+    //console.log(schemasJson);
 
     var infoNode = `{
         "info": {
@@ -444,8 +451,8 @@ var storeDoc = function(y) {
     }`;
     y.share.data.set('metadataDocString', JSON.parse(infoNode));
 
-    console.log("==INFO NODE===");
-    console.log(infoNode);
+    //console.log("==INFO NODE===");
+    //console.log(infoNode);
     
     var data = {
       "componentId": componentId,
@@ -454,13 +461,13 @@ var storeDoc = function(y) {
       "docInput": infoNode,
     }
 
-    console.log("[Swagger Widget] ========DATA DOC=========");
-    console.log(JSON.stringify(data));
+    //console.log("[Swagger Widget] ========DATA DOC=========");
+    //console.log(JSON.stringify(data));
 
     y.share.data.set('metadataDoc',data);
   }
   else {
-    console.log("[Swagger Widget] No model loaded");
+    //console.log("[Swagger Widget] No model loaded");
     feedback("No model!");
   }
 };

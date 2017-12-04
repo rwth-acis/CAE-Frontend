@@ -132,6 +132,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     .Pane2 {
       overflow-y: scroll;
       width: 100% !important;
+      height: 520px;
     }
 
     #swagger-editor #ace-editor {

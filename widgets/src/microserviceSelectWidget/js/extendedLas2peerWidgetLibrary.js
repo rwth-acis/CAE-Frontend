@@ -148,7 +148,7 @@ Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(name, versio
   var time = new Date().getTime();
   var data = JSON.stringify({selectedToolName: "Microservice", name: name, version: version});
   var intent = {
-    "component": "MAIN",
+    "component": "Canvas",
     "data": "",
     "dataType": "",
     "action": "ACTION_DATA",
