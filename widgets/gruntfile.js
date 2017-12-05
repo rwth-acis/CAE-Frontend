@@ -298,6 +298,7 @@ module.exports = function(grunt) {
 					//Static JS
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwc.js", dest: "dist/swaggerWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwcOld.js", dest: "dist/swaggerWidget/js/"},
 					//Yjs
 					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/swaggerWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/swaggerWidget/js/"},

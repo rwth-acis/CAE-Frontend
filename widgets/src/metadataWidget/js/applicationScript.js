@@ -476,24 +476,24 @@ var addTableRowHandler = function(y) {
                                                     // check produce first
                                                     if (isSchemaProduce && componentIsSchemaProduce) {
                                                         // match same keys name
-                                                        if (compareArray(schemasKeysProduce, componentSchemasKeysProduce)) {
+                                                        if (compareArray(schemasKeysProduce, componentSchemasKeysProduce) || compareArray(componentSchemasKeysProduce, schemasKeysProduce)) {
                                                             produceMatch = true;
                                                             compareLevel = compareLevelEnum.RED;
 
                                                             // check map for perfectly same
-                                                            if (isSameMap(schemasMapProduce, componentSchemasMapProduce)) {
+                                                            if (isSameMap(schemasMapProduce, componentSchemasMapProduce) || isSameMap(componentSchemasMapProduce, schemasMapProduce)) {
                                                                 console.log("[PRODUCE MAP GREEN]");
                                                                 produceGreen = true;
                                                             }
                                                         }
 
                                                         // match same keys types
-                                                        if (compareArray(schemasTypesProduce, componentSchemasTypesProduce)) {
+                                                        if (compareArray(schemasTypesProduce, componentSchemasTypesProduce) || compareArray(componentSchemasTypesProduce, schemasTypesProduce)) {
                                                             produceMatch = true;
                                                             compareLevel = compareLevelEnum.ORANGE;
                                                             
                                                             // check map for perfectly same
-                                                            if (isSameMap(schemasMapProduce, componentSchemasMapProduce)) {
+                                                            if (isSameMap(schemasMapProduce, componentSchemasMapProduce) || isSameMap(componentSchemasMapProduce, schemasMapProduce)) {
                                                                 produceGreen = true;
                                                                 console.log("[PRODUCE MAP GREEN]");
                                                             }
@@ -508,24 +508,24 @@ var addTableRowHandler = function(y) {
                                                     if (isSchemaConsume && componentIsSchemaConsume) {
                                                             
                                                         // match same keys name
-                                                        if (compareArray(schemasKeysConsume, componentSchemasKeysConsume)) {
+                                                        if (compareArray(schemasKeysConsume, componentSchemasKeysConsume) || compareArray(componentSchemasKeysConsume, schemasKeysConsume)) {
                                                             consumeMatch = true;
                                                             compareLevel = compareLevelEnum.RED;
 
                                                             // check map for perfectly same
-                                                            if (isSameMap(schemasMapConsume, componentSchemasMapConsume)) {
+                                                            if (isSameMap(schemasMapConsume, componentSchemasMapConsume) || isSameMap(componentSchemasMapConsume, schemasMapConsume)) {
                                                                 console.log("[CONSUME MAP GREEN]");
                                                                 consumeGreen = true;
                                                             }
                                                         }
 
                                                         // match same keys name
-                                                        if (compareArray(schemasTypesConsume, componentSchemasTypesConsume)) {
+                                                        if (compareArray(schemasTypesConsume, componentSchemasTypesConsume) || compareArray(componentSchemasTypesConsume, schemasTypesConsume)) {
                                                             consumeMatch = true;
                                                             compareLevel = compareLevelEnum.ORANGE;
                                                             
                                                             // check map for perfectly same
-                                                            if (isSameMap(schemasMapConsume, componentSchemasMapConsume)) {
+                                                            if (isSameMap(schemasMapConsume, componentSchemasMapConsume) || isSameMap(componentSchemasMapConsume, schemasMapConsume)) {
                                                                 console.log("[CONSUME MAP GREEN]");
                                                                 consumeGreen = true;
                                                             }
@@ -541,7 +541,7 @@ var addTableRowHandler = function(y) {
                                                         compareLevel = compareLevelEnum.GREEN;
 
                                                     if (produceNonSchema && consumeNonSchema)
-                                                        compareLevel = compareLevelEnum.GRAY;
+                                                        compareLevel = compareLevelEnum.GREEN;
 
                                                     if (produceMatch || consumeMatch) {
                                                         var producesString = componentOperationProducesString.join(' , ');
