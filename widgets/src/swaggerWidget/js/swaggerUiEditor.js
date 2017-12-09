@@ -153,6 +153,7 @@ var loadMetadata = function(y) {
 
     $("#name").html("");
     $("#status").html("");
+    $("#extra-information").html("");
 
     // retrieve current model from the space and store it
     if (y.share.data.get('metadataDoc')) {
@@ -188,6 +189,7 @@ var loadMetadata = function(y) {
     }
 
     if (loadedModel) {
+        $("#name").html(loadedModel);
         $("#status").html('<span class="label label-info">Loading information</span>');
         console.log("[Swagger Widget] Load metadata for model " + loadedModel);
         // first, clean the current model

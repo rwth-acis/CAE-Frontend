@@ -171,10 +171,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <div class="panel-heading"><h5 class="panel-title">Legend</h5></div>
       <div class="panel-body">
         <h3><span class="label label-legend label-default">Non schema</span></h3>
-        <h3><span class="label label-legend label-danger">Schema name matches</span></h3>
-        <h3><span class="label label-legend label-yellow">Schema name & properties name matches</span></h3>
-        <h3><span class="label label-legend label-warning">Schema name & properties type matches</span></h3>
-        <h3><span class="label label-legend label-success">Schema name, properties name, type matches</span></h3>
+        <h3><span class="label label-legend label-danger">Schemas properties name matches</span></h3>
+        <h3><span class="label label-legend label-warning">Schemas properties type matches</span></h3>
+        <h3><span class="label label-legend label-success">Schemas properties name & type matches</span></h3>
       </div>
     </div>
 

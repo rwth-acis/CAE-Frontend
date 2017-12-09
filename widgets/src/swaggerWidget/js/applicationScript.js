@@ -336,20 +336,25 @@ var init = function() {
           if (selectedNodeId && $("#node-description").val())
             nodeMetadataList.set(selectedNodeId, $("#node-description").val());
 
-          if (selectedNodeId && $("#node-schema").val())
+          if (selectedNodeId)
             nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
+
           saveMapNode(y);
         });
 
         $("#node-schema").on('input', function() {
           console.log("NodeSchema - Saving node properties and description");
-          saveMapNode(y);
+          console.log(selectedNodeId);
+          console.log($("#node-schema").val());
+
           // process leftover in node form
           if (selectedNodeId && $("#node-description").val())
             nodeMetadataList.set(selectedNodeId, $("#node-description").val());
 
-          if (selectedNodeId && $("#node-schema").val())
+          if (selectedNodeId)
             nodeMetadataSchemas.set(selectedNodeId, $("#node-schema").val());
+
+          saveMapNode(y);
         });
 
         $("#description").on('input', function() {
@@ -431,14 +436,12 @@ var storeDoc = function(y) {
     for (var key in nodeMetadataSchemas.contents) {
       var nodeId = key;
       var nodeProperties = nodeMetadataSchemas.get(key);
+
       if (!nodeMetadataJson[nodeId])
         nodeMetadataJson[nodeId] = {};
       if (nodeProperties)
         nodeMetadataJson[nodeId]["schema"] = nodeProperties;
     };
-
-    //console.log("SCHEMAS JSON");
-    //console.log(schemasJson);
 
     var infoNode = `{
         "info": {
@@ -450,9 +453,6 @@ var storeDoc = function(y) {
         "nodes": ${JSON.stringify(nodeMetadataJson)}
     }`;
     y.share.data.set('metadataDocString', JSON.parse(infoNode));
-
-    //console.log("==INFO NODE===");
-    //console.log(infoNode);
     
     var data = {
       "componentId": componentId,
@@ -460,9 +460,6 @@ var storeDoc = function(y) {
       "docString": "",
       "docInput": infoNode,
     }
-
-    //console.log("[Swagger Widget] ========DATA DOC=========");
-    //console.log(JSON.stringify(data));
 
     y.share.data.set('metadataDoc',data);
   }
