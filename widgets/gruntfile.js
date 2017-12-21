@@ -1,12 +1,12 @@
 module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
-		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
-		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
-		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
-		//host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://cloud10.dbis.rwth-aachen.de:8085/cae',
-		//yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://cloud10.dbis.rwth-aachen.de:8083',
-		//caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://cloud10.dbis.rwth-aachen.de:8082',
+		//host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
+		//yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
+		//caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
+		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://cloud10.dbis.rwth-aachen.de:8085/cae',
+		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://cloud10.dbis.rwth-aachen.de:8083',
+		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://cloud10.dbis.rwth-aachen.de:8082',
 		
 		browserify:{
 			options:{

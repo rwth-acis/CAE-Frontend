@@ -178,7 +178,6 @@ var saveSchema = function(y) {
     }
   }
   schemaList.set(schemaName, schemaProperties);
-  clearProperty();
 }
 
 var deleteSchema = function(y) {
@@ -396,6 +395,7 @@ var init = function() {
 
         $('#property-add').on('click', function() {
           saveProperty();
+          saveSchema(y);
         })
 
         $('#property-delete').on('click', function() {

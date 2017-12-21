@@ -211,19 +211,22 @@ var loadMetadata = function(y) {
 
                 // check if deployed url exist and newer than edit time
                 if (data.urlDeployed && timeDeployed && timeEdited && timeDeployed > timeEdited) {
-                    console.log("SWAGGER URL: Deploying swagger JSON from deployed URL");
+                    //console.log("SWAGGER URL: Deploying swagger JSON from deployed URL");
                     var urlDeployed = data.urlDeployed;
                     var basePath = jsonDocString.basePath + "/";
                     basePath.replace("//", "/");
                     var urlString = `${urlDeployed}${basePath}v1.0/swagger.json`;
                     urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
-                    console.log("LOAD SWAGGER JSON FROM URL " + urlString);
+                    //console.log("LOAD SWAGGER JSON FROM URL " + urlString);
 
                     // get swagger json from path instead
                     $.getJSON(urlString)
                     .success(function(data) {
-                        console.log("DATA FETCHED");
-                        console.log(data);
+                        // inject host element
+                        var urlHost = new URL(urlDeployed);
+                        data["host"] = urlHost.host;
+                        //console.log("DATA FETCHED");
+                        //console.log(data);
                         //var yamlObject = json2yaml(jsonDocString);
                         //editor.specActions.updateSpec(yamlObject);
                         editor.specActions.updateSpec(JSON.stringify(data));
@@ -231,7 +234,9 @@ var loadMetadata = function(y) {
                         $("#status").html('<span class="label label-success">Deployed</span>');
 
                         // add deployment time and duration since
-                        var diff = new Date(timeDeployed - timeEdited);
+                        console.log("TIME LOGGING");
+                        console.log((new Date).getTime());
+                        var diff = new Date(timeDeployed - (new Date).getTime());
                         var delta = Math.abs(diff) / 1000;
                         console.log(delta);
 
@@ -272,7 +277,7 @@ var loadMetadata = function(y) {
                                 timeText += " minute ";
                         }
 
-                        timeText += delta + " seconds";
+                        timeText += Math.floor(delta) + " seconds";
 
                         $("#extra-information").html(`<h4>Deployed since: <span class='extra-time'>${timeText}</span></h4>`)
                     })
@@ -289,10 +294,25 @@ var loadMetadata = function(y) {
             },
             function(error) {
                 console.log(error);
+                editor.specActions.updateSpec(`{
+                    "swagger": "2.0",
+                    "info": {
+                        "version": "0.0.0",
+                        "title": "Swagger Petstore",
+                    },
+                    "paths": {}
+                }`);
             });  
     } else {
         console.log('[Swagger UI Editor Widget] No shared model');
-        editor.specActions.updateSpec('{}');
+        editor.specActions.updateSpec(`{
+            "swagger": "2.0",
+            "info": {
+                "version": "0.0.0",
+                "title": "Swagger Petstore",
+            },
+            "paths": {}
+        }`);
         return;
     }
 
