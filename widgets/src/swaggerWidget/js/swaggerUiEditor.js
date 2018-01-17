@@ -215,7 +215,7 @@ var loadMetadata = function(y) {
                     var urlDeployed = data.urlDeployed;
                     var basePath = jsonDocString.basePath + "/";
                     basePath.replace("//", "/");
-                    var urlString = `${urlDeployed}${basePath}v1.0/swagger.json`;
+                    var urlString = `${urlDeployed}${basePath}v${data.version}.0/swagger.json`;
                     urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
                     //console.log("LOAD SWAGGER JSON FROM URL " + urlString);
 
@@ -287,7 +287,17 @@ var loadMetadata = function(y) {
                     //var yamlObject = json2yaml(jsonDocString);
                     //editor.specActions.updateSpec(yamlObject);
                     console.log("SWAGGER DB: Deploying swagger JSON from deployed database");
-                    editor.specActions.updateSpec(JSON.stringify(jsonDocString));
+                    if (jsonDocString)
+                        editor.specActions.updateSpec(JSON.stringify(jsonDocString));
+                    else
+                        editor.specActions.updateSpec(`{
+                            "swagger": "2.0",
+                            "info": {
+                                "version": "0.0.0",
+                                "title": "No Swagger",
+                            },
+                            "paths": {}
+                        }`);
                     y.share.data.set('metadataDoc', data);
                     $("#status").html('<span class="label label-warning">Not Deployed</span>');
                 }
@@ -298,7 +308,7 @@ var loadMetadata = function(y) {
                     "swagger": "2.0",
                     "info": {
                         "version": "0.0.0",
-                        "title": "Swagger Petstore",
+                        "title": "No Swagger",
                     },
                     "paths": {}
                 }`);
@@ -309,7 +319,7 @@ var loadMetadata = function(y) {
             "swagger": "2.0",
             "info": {
                 "version": "0.0.0",
-                "title": "Swagger Petstore",
+                "title": "No Swagger",
             },
             "paths": {}
         }`);
