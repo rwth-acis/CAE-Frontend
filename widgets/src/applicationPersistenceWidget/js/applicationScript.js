@@ -209,9 +209,19 @@ var storeModel = function(y) {
     feedback("Please choose application name & version!");
     return;
   }
-  if(isNaN($("#version").val())){
-    feedback("Version has to be a number!");
-    return;
+  //if (isNaN($("#version").val())) {
+  var isMinorDraftVersion = /^\d+\.\d+\.\d+$/.test($("#version").val());
+  var isMinorVersion = /^\d+\.\d+$/.test($("#version").val());
+  var isMain = /^\d+$/.test($("#version").val());
+  if(!isMinorDraftVersion) {
+  		if(isMinorVersion && !isMinorDraftVersion){
+  			$("#version").val($("#version").val() + ".0");
+  		} else if(isMain && !isMinorVersion && !isMinorDraftVersion){
+  			$("#version").val($("#version").val() + ".0.0");
+  		} else {
+  			feedback("Version has to be a number!");
+  			return;
+  		}
   }
 
   if(y.share.data.get('model')){
