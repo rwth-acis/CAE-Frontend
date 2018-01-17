@@ -59,13 +59,12 @@ var createEdge = function(source, target) {
   client.sendConnectionSelected()
 }
 
+// generic same arrays checker
 var isSameArray = function(arr1, arr2) {
     var counter = 0;
 
     if (!arr1 || !arr2)
         return false;
-        
-    //if (arr1.length !== arr2.length) return false;
     
     for (var i = 0, len = arr1.length; i < len; i++){
         if (counter === (arr2.length - 1))
@@ -79,6 +78,7 @@ var isSameArray = function(arr1, arr2) {
     return true;
 }
 
+// check if arr1 included in arr2
 var compareArray = function(arr1, arr2) {
     var counter = 0;
 
@@ -96,6 +96,7 @@ var compareArray = function(arr1, arr2) {
     return false;
 }
 
+// sort data types
 var sorter = function(x, y) {
     var pre = ['string' , 'number' , 'bool']
     if(typeof x!== typeof y )return pre.indexOf(typeof y) - pre.indexOf(typeof x);
@@ -103,6 +104,7 @@ var sorter = function(x, y) {
     else return (x > y)?1:-1;
 }
 
+// remove duplicate rows in compare table since sometimes the signal comes more than once
 var removeDuplicateRows = function($table){
     function getVisibleRowText($row){
         return $row.find('td:visible').text().toLowerCase();
@@ -118,34 +120,8 @@ var removeDuplicateRows = function($table){
     });
 }
 
-/*var isSameMap = function(map1, map2) {
-    var counter = 0;
-    if (!map1 || !map2) {
-        return false;
-    }
-    var testVal;
-    // compare size, if different, not same
-    //if (map1.size !== map2.size) return false;
-    
-    for (var [key, val] of map1) {
-        // -1 for id for now
-        if (counter === (map2.size - 1))
-            return true;
-        
-        testVal = map2.get(key);
-        if (testVal !== val || (testVal === undefined && !map2.has(key)))
-            return false;
-        else
-            counter ++;
-    }
-    return true;
-}*/
-
 // check if all map2 contains in map1
 var isSameMap = function(map1, map2) {
-    console.log("[COMPARE MAP]");
-    console.log(map1);
-    console.log(map2);
 
     var counter = 0;
     if (!map1 || !map2) {
@@ -276,20 +252,14 @@ var compareLevelEnum = {
 var addTableRowHandler = function(y) {
     $("#metadataTable").delegate('tr', 'click', function() {
         $("#componentMetadataMatchTable").html("");
-        console.log("ROW CLICK FIND MATCHES");
-        console.log($(this));
 
         // get component name, endpoint name, operation name
         var componentName = $(this).find(".doc_id").html();
         var endpointName = $(this).find(".doc_property").html();
         var operationType = $(this).find(".doc_operation").html();
 
-        console.log("[Metadata Widget] Load all metadata docs for selected widget");
         client.sendRequest("GET", "docs/component/" + componentName , "", "application/json", {},
             function(value, type) {
-
-                console.log("[Metadata Widget] Get path consumes and produces")
-                console.log(value);
                 var docObject = null;
 
                 var timeDeployed = null;
@@ -311,26 +281,16 @@ var addTableRowHandler = function(y) {
 
                     // get swagger json from path instead
                     $.getJSON(urlString, function(data) {
-                        //console.log("DATA FETCHED");
-                        //console.log(data);
                         docObject = data;
                     });
                 }
 
-                //console.log("[Metadata Widget] Parse docString to object");
-                //console.log(docObject);
-
                 var docPaths = docObject.paths;
 
                 if (docPaths.hasOwnProperty(endpointName)) {
-                    //console.log("[Metadata] Find object for endpoint " + endpointName);
                     var pathNode = docPaths[endpointName];
-                    //console.log(pathNode);
-                    //console.log("[Metadata] Find operation " + operationType);
                     if (pathNode.hasOwnProperty(operationType)) {
-                        //console.log("[Metadata] Find object for operation " + operationType);
                         var operationNode = pathNode[operationType];
-                        //console.log(operationNode);
 
                         // process parameters
                         var definitions = docObject.definitions;
@@ -356,16 +316,6 @@ var addTableRowHandler = function(y) {
                         var schemasTypesConsume = processedConsumes[4];
                         var schemasMapConsume = processedConsumes[5];
 
-                        //console.log("[COMPONENT PRODUCE]");
-                        //console.log(schemasMapProduce);
-                        //console.log(schemasKeysProduce);
-                        //console.log(schemasTypesProduce);
-
-                        //console.log("[COMPONENT CONSUME]");
-                        //console.log(schemasMapConsume);
-                        //console.log(schemasKeysConsume);
-                        //console.log(schemasTypesConsume);
-
                         // get all metadata from api and find matching endpoint
                         client.sendRequest("GET", "docs/", "", "application/json", {}, function(data, type) {
                             
@@ -374,8 +324,6 @@ var addTableRowHandler = function(y) {
                             // iterate through each component available except self
                             data.forEach(function(componentValue) {
                                 if (componentValue.componentId !== componentName) {
-                                    //console.log("[Metadata Widget] Going through list of other components metadata doc")
-                                    //console.log(componentValue);
                                     var componentDocObject = null;
 
                                     // parse json string to object
@@ -394,16 +342,12 @@ var addTableRowHandler = function(y) {
                                         var basePath = componentDocObject.basePath;
                                         var urlString = `${urlDeployed}${basePath}swagger.json`;
                                         urlString = urlString.replace(/([^:]\/)\/+/g, "$1");
-                                        //console.log("LOAD SWAGGER JSON FROM URL " + urlString);
 
                                         // get swagger json from path instead
                                         $.getJSON(urlString, function(data) {
                                             componentDocObject = data;
                                         });
                                     }
-
-                                    //console.log("[Metadata Widget] Parse other component docString to object");
-                                    //console.log(componentDocObject);
 
                                     if (componentDocObject) {
                                         var componentDocPaths = componentDocObject.paths;
@@ -443,14 +387,6 @@ var addTableRowHandler = function(y) {
                                                     var componentSchemasKeysConsume = processedOperationConsumes[3];
                                                     var componentSchemasTypesConsume = processedOperationConsumes[4];
                                                     var componentSchemasMapConsume = processedOperationConsumes[5];
-                                                    
-                                                    //console.log("SORTED COMPONENT OPERATIONS");
-                                                    //console.log(sortedComponentOperationConsumes);
-                                                    //console.log(sortedComponentOperationProduces);
-
-                                                    //console.log("SORTED OPERATIONS");
-                                                    //console.log(sortedOperationConsumes);
-                                                    //console.log(sortedOperationProduces);
 
                                                     var compareLevel = compareLevelEnum.RED;
                                                     var produceMatch = false;
@@ -462,95 +398,86 @@ var addTableRowHandler = function(y) {
                                                     var produceNonSchema = false;
                                                     var consumeNonSchema = false;
 
-                                                    // compare with operation consumes produces - lowest level compare
-                                                    //if (isSameArray(sortedOperationConsumes, sortedComponentOperationConsumes) || isSameArray(sortedComponentOperationProduces, sortedOperationProduces)) {
-                                                        //console.log("Found matching components on red level");
 
-                                                        // check produce first
-                                                        if (isSchemaProduce && componentIsSchemaProduce) {
-                                                            // match same keys name
-                                                            if (compareArray(schemasKeysProduce, componentSchemasKeysProduce) || compareArray(componentSchemasKeysProduce, schemasKeysProduce)) {
-                                                                produceMatch = true;
-                                                                compareLevel = compareLevelEnum.RED;
-
-                                                                // check map for perfectly same
-                                                                if (isSameMap(schemasMapProduce, componentSchemasMapProduce) || isSameMap(componentSchemasMapProduce, schemasMapProduce)) {
-                                                                    //console.log("[PRODUCE MAP GREEN]");
-                                                                    produceGreen = true;
-                                                                }
-                                                            }
-
-                                                            // match same keys types
-                                                            if (compareArray(schemasTypesProduce, componentSchemasTypesProduce) || compareArray(componentSchemasTypesProduce, schemasTypesProduce)) {
-                                                                produceMatch = true;
-                                                                compareLevel = compareLevelEnum.ORANGE;
-                                                                
-                                                                // check map for perfectly same
-                                                                if (isSameMap(schemasMapProduce, componentSchemasMapProduce) || isSameMap(componentSchemasMapProduce, schemasMapProduce)) {
-                                                                    produceGreen = true;
-                                                                    //console.log("[PRODUCE MAP GREEN]");
-                                                                }
-                                                            }
-                                                        } else {
-                                                            // non schema, auto pass
+                                                    // check produce first
+                                                    if (isSchemaProduce && componentIsSchemaProduce) {
+                                                        // match same keys name
+                                                        if (compareArray(schemasKeysProduce, componentSchemasKeysProduce) || compareArray(componentSchemasKeysProduce, schemasKeysProduce)) {
                                                             produceMatch = true;
-                                                            produceNonSchema = true;
+                                                            compareLevel = compareLevelEnum.RED;
+
+                                                            // check map for perfectly same
+                                                            if (isSameMap(schemasMapProduce, componentSchemasMapProduce) || isSameMap(componentSchemasMapProduce, schemasMapProduce)) {
+                                                                produceGreen = true;
+                                                            }
+                                                        }
+
+                                                        // match same keys types
+                                                        if (compareArray(schemasTypesProduce, componentSchemasTypesProduce) || compareArray(componentSchemasTypesProduce, schemasTypesProduce)) {
+                                                            produceMatch = true;
+                                                            compareLevel = compareLevelEnum.ORANGE;
+                                                            
+                                                            // check map for perfectly same
+                                                            if (isSameMap(schemasMapProduce, componentSchemasMapProduce) || isSameMap(componentSchemasMapProduce, schemasMapProduce)) {
+                                                                produceGreen = true;
+                                                            }
+                                                        }
+                                                    } else {
+                                                        // non schema, auto pass
+                                                        produceMatch = true;
+                                                        produceNonSchema = true;
+                                                    }
+                                                        
+                                                    // now check consume
+                                                    if (isSchemaConsume && componentIsSchemaConsume) {
+                                                            
+                                                        // match same keys name
+                                                        if (compareArray(schemasKeysConsume, componentSchemasKeysConsume) || compareArray(componentSchemasKeysConsume, schemasKeysConsume)) {
+                                                            consumeMatch = true;
+                                                            compareLevel = compareLevelEnum.RED;
+
+                                                            // check map for perfectly same
+                                                            if (isSameMap(schemasMapConsume, componentSchemasMapConsume) || isSameMap(componentSchemasMapConsume, schemasMapConsume)) {
+                                                                consumeGreen = true;
+                                                            }
+                                                        }
+
+                                                        // match same keys name
+                                                        if (compareArray(schemasTypesConsume, componentSchemasTypesConsume) || compareArray(componentSchemasTypesConsume, schemasTypesConsume)) {
+                                                            consumeMatch = true;
+                                                            compareLevel = compareLevelEnum.ORANGE;
+                                                            
+                                                            // check map for perfectly same
+                                                            if (isSameMap(schemasMapConsume, componentSchemasMapConsume) || isSameMap(componentSchemasMapConsume, schemasMapConsume)) {
+                                                                consumeGreen = true;
+                                                            }
                                                         }
                                                         
-                                                        // now check consume
-                                                        if (isSchemaConsume && componentIsSchemaConsume) {
-                                                                
-                                                            // match same keys name
-                                                            if (compareArray(schemasKeysConsume, componentSchemasKeysConsume) || compareArray(componentSchemasKeysConsume, schemasKeysConsume)) {
-                                                                consumeMatch = true;
-                                                                compareLevel = compareLevelEnum.RED;
+                                                    } else {
+                                                        // no schema so just green pass
+                                                        consumeMatch = true;
+                                                        consumeNonSchema = true;
+                                                    }
 
-                                                                // check map for perfectly same
-                                                                if (isSameMap(schemasMapConsume, componentSchemasMapConsume) || isSameMap(componentSchemasMapConsume, schemasMapConsume)) {
-                                                                    //console.log("[CONSUME MAP GREEN]");
-                                                                    consumeGreen = true;
-                                                                }
-                                                            }
+                                                    if ((produceGreen && consumeGreen) || (produceGreen && consumeNonSchema) || (produceNonSchema && consumeGreen))
+                                                        compareLevel = compareLevelEnum.GREEN;
 
-                                                            // match same keys name
-                                                            if (compareArray(schemasTypesConsume, componentSchemasTypesConsume) || compareArray(componentSchemasTypesConsume, schemasTypesConsume)) {
-                                                                consumeMatch = true;
-                                                                compareLevel = compareLevelEnum.ORANGE;
-                                                                
-                                                                // check map for perfectly same
-                                                                if (isSameMap(schemasMapConsume, componentSchemasMapConsume) || isSameMap(componentSchemasMapConsume, schemasMapConsume)) {
-                                                                    //console.log("[CONSUME MAP GREEN]");
-                                                                    consumeGreen = true;
-                                                                }
-                                                            }
-                                                            
-                                                        } else {
-                                                            // no schema so just green pass
-                                                            consumeMatch = true;
-                                                            consumeNonSchema = true;
-                                                        }
+                                                    if (produceNonSchema && consumeNonSchema)
+                                                        compareLevel = compareLevelEnum.GREEN;
 
-                                                        if ((produceGreen && consumeGreen) || (produceGreen && consumeNonSchema) || (produceNonSchema && consumeGreen))
-                                                            compareLevel = compareLevelEnum.GREEN;
+                                                    if (produceMatch || consumeMatch) {
+                                                        var producesString = componentOperationProducesString.join(' , ');
+                                                        var parametersString = componentOperationConsumesString.join(' , ');
 
-                                                        if (produceNonSchema && consumeNonSchema)
-                                                            compareLevel = compareLevelEnum.GREEN;
-
-                                                        if (produceMatch || consumeMatch) {
-                                                            var producesString = componentOperationProducesString.join(' , ');
-                                                            var parametersString = componentOperationConsumesString.join(' , ');
-
-                                                            $("#componentMetadataMatchTable").append("<tr>" +
-                                                                "<td class='doc_id'>" + componentValue.componentId + "</td>" + 
-                                                                "<td class='doc_property'>" + componentDocProperty + "</td>" +
-                                                                "<td class='doc_operation'>" + componentDocOperation + "</td>" +
-                                                                "<td class='doc_parameters'>" + parametersString  + "</td>" +
-                                                                "<td class='doc_produces'>" + producesString  + "</td>" +
-                                                                "<td class='doc_level col-md-2'>" + "<div class='compare-box " + compareLevel + "'></div></td>" +
-                                                            "</tr>");
-                                                        }
-
-                                                //}
+                                                        $("#componentMetadataMatchTable").append("<tr>" +
+                                                            "<td class='doc_id'>" + componentValue.componentId + "</td>" + 
+                                                            "<td class='doc_property'>" + componentDocProperty + "</td>" +
+                                                            "<td class='doc_operation'>" + componentDocOperation + "</td>" +
+                                                            "<td class='doc_parameters'>" + parametersString  + "</td>" +
+                                                            "<td class='doc_produces'>" + producesString  + "</td>" +
+                                                            "<td class='doc_level col-md-2'>" + "<div class='compare-box " + compareLevel + "'></div></td>" +
+                                                        "</tr>");
+                                                    }
                                             }
                                         }
                                     }
@@ -559,9 +486,6 @@ var addTableRowHandler = function(y) {
                             }
                         });
 
-                            /*$("#metadataTable").delegate('tr', 'click', function() {
-                                createEdge(componentName, $(this).find(".doc_id").html());
-                            });*/
                         });
                     }
                 };
@@ -572,7 +496,6 @@ var addTableRowHandler = function(y) {
 var init = function() {
 
   $("#metadataMatchTable").hide();
-  //console.log("[Metadata Widget] INIT METADATA WIDGET");
 
   $('#metadataTable').on('click', '.clickable-row', function(event) {
     if($(this).hasClass('clicked')){
@@ -620,24 +543,18 @@ var init = function() {
     }).then(function(y) {
 
         try {
-            //console.log("BIND IWC CLIENT");
-            //iwcClient = new iwc.Client("METADATA");
             iwcClient = new iwc.Client("Canvas");
             iwcClient.connect( iwcHandler.bind(this, y) );
         } catch(e){
-            //console.log("ERROR METADATA WIDGET");
             console.error(e);
         }
 
         // get loaded metadata doc list
         if (y.share.data.get('metadataDocList')) {
-          //console.log("[Metadata Widget] Shared metadata doc list found");
           // load model
           var data = y.share.data.get('metadataDocList');
-          //console.log(data);
           loadedSwaggerDoc = data;
         } else {
-            //console.log("[Metadata Widget] No shared metadata doc list, load metadata doc list");
             loadedSwaggerDoc = null;
             loadMetadataList(y);
         }
@@ -647,15 +564,11 @@ var init = function() {
 };
 
 var processData = function(value) {
-    //console.log("[Metadata Widget] Going through list of available metadata doc")
-    //console.log(value);
     var docObject = null;
 
     if (value.docType === "json") {
         // parse json string to object
         var docObject = JSON.parse(value.docString);
-        //console.log("[Metadata Widget] Parse docString to object");
-        //console.log(docObject);
     }
 
     var docPaths = docObject.paths;
@@ -669,12 +582,9 @@ var processData = function(value) {
             for (var docOperation in docPath) {
                 if (docPath.hasOwnProperty(docOperation)) {
                     // iterate per operations available
-                    //console.log("[Metadata Widget] Get operation detail, append row");
                     var docOperationDetail = docPath[docOperation];
 
                     // process parameters
-                    //console.log("[Metadata Widget] Processing parameters list");
-
                     var processedParameters = processOperationConsumes(docOperationDetail.parameters, null);
                     var parametersList = processedParameters[1];
 
@@ -705,7 +615,6 @@ var processData = function(value) {
 // loads the metadata doc list from API or yjs
 var loadMetadataList = function(y) {
 
-  //console.log("[Metadata Widget] Load all metadata docs for metadata widget");
   // first, clean the current metadata doc list
   y.share.data.set('metadataDocList', null);
   $("#metadataComponent").html("None");
@@ -719,7 +628,6 @@ var loadMetadataList = function(y) {
         });
     },
     function(error) {
-        //console.log(error);
         feedback(error);
     });
 };
@@ -731,7 +639,6 @@ var loadComponentMetadataList = function(y, componentName, version) {
   if (version)
     restGet = "docs/component/" + componentName + "/" + version;
 
-  //console.log("[Metadata Widget] Load all metadata docs for metadata widget");
   // first, clean the current metadata doc list
   y.share.data.set('metadataDocList', null);
   $("#metadataComponent").html(componentName);
@@ -743,7 +650,6 @@ var loadComponentMetadataList = function(y, componentName, version) {
         processData(value);
     },
     function(error) {
-        //console.log(error);
         feedback(error);
     });
 };

@@ -78,7 +78,6 @@ var init = function() {
             swagger: 'Map',
         },
         sourceDir: '@@host/microservicePersistenceWidget/js'
-        //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
@@ -138,10 +137,7 @@ var storeModel = function(y) {
         return;
     }
 
-    console.log("TRYING TO GET DATA FROM Y SHARE");
-
     if (y.share.data.get('model')) {
-        console.log("MODEL DATA GET, STORE MODEL");
         var data = y.share.data.get('model');
         // add name, version and type to model
         data.attributes.label.value.value = $("#name").val();
@@ -158,18 +154,11 @@ var storeModel = function(y) {
         data['metadataDoc'] = metadataDocString;
 
         // save metadatadoc string to database
-        console.log("CURRENT METADATADOC STRING");
-        console.log(metadataDocString);
-
-        console.log("CURRENT DATA");
-        console.log(data); 
-
         if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     // save currently loaded model
                     loadedModel = $("#name").val();
-                    console.log("Model stored!");
                     feedback("Model stored!");
                 },
                 function(error) {
@@ -179,7 +168,6 @@ var storeModel = function(y) {
         } else {
             client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
                 function(data, type) {
-                    console.log("Model updated!");
                     feedback("Model updated!");
                 },
                 function(error) {
@@ -193,13 +181,10 @@ var storeModel = function(y) {
             var version = $("#version").val();
             var name = $("#name").val();
             
-            console.log("[Swagger Widget] POST DATA");
             metadataClient.sendRequest("POST", name + "/" + version, JSON.stringify(metadataDocString), "application/json", {},
             function(data, type) {
                 // save currently loaded model
-                console.log("Metadata doc updated!");
                 feedback("Metadata doc stored!");
-                //loadModel(y, false);
             },
             function(error) {
                 console.log(error);
@@ -229,7 +214,6 @@ var loadModel = function(y) {
     modelName = $("#name").val();
     client.sendRequest("GET", modelName, "", "", {},
         function(data, type) {
-            console.log("Model loaded!");
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');
             y.share.swagger.set('ReloadWidgetOperation', 'import');
