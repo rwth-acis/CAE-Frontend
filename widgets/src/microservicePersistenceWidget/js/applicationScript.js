@@ -32,6 +32,7 @@
 
  // global variables
 var client,
+    metadataClient,
     resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null;
@@ -40,7 +41,12 @@ var init = function() {
     var iwcCallback = function(intent) {
         console.log(intent);
     };
+
+    var metadataIwcCallback = function(intent) {
+        console.log(intent);
+    };
     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
+    metadataClient = new Las2peerWidgetLibrary("@@caehost/CAE/docs", metadataIwcCallback);
 
     spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
     if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
@@ -68,10 +74,10 @@ var init = function() {
             select: 'Map',
             views: 'Map',
             data: 'Map',
-            text: "Text"
+            text: "Text",
+            swagger: 'Map',
         },
         sourceDir: '@@host/microservicePersistenceWidget/js'
-        //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
     }).then(function(y) {
         console.info('PERSISTENCE: Yjs successfully initialized');
 
@@ -109,7 +115,11 @@ var init = function() {
 var resetCurrentModel = function(y) {
     if (y.share.data.get('model')) {
         y.share.data.set('model', null);
+        y.share.data.set('metadataDocList', null);
+        y.share.data.set('metadataDoc', null);
+        y.share.data.set('metadataDocString', null);
         y.share.canvas.set('ReloadWidgetOperation', 'delete');
+        y.share.swagger.set('ReloadWidgetOperation', 'delete');
         feedback("Done!");
     } else {
         feedback("No model!")
@@ -146,12 +156,19 @@ var storeModel = function(y) {
         y.share.data.set('model',data)
         y.share.canvas.set('ReloadWidgetOperation', 'import');
 
+        // get shared custom metadata stringify
+        var metadataDocString = y.share.data.get('metadataDocString');
+        if (!metadataDocString)
+            metadataDocString = "";
+
+        data['metadataDoc'] = metadataDocString;
+
+        // save metadatadoc string to database
         if (loadedModel === null) {
             client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
                 function(data, type) {
                     // save currently loaded model
                     loadedModel = $("#name").val();
-                    console.log("Model stored!");
                     feedback("Model stored!");
                 },
                 function(error) {
@@ -161,7 +178,6 @@ var storeModel = function(y) {
         } else {
             client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
                 function(data, type) {
-                    console.log("Model updated!");
                     feedback("Model updated!");
                 },
                 function(error) {
@@ -169,6 +185,25 @@ var storeModel = function(y) {
                     feedback(error);
                 });
         }
+
+        if (metadataDocString) {
+
+            var version = $("#version").val();
+            var name = $("#name").val();
+            
+            metadataClient.sendRequest("POST", name + "/" + version, JSON.stringify(metadataDocString), "application/json", {},
+            function(data, type) {
+                // save currently loaded model
+                feedback("Metadata doc stored!");
+            },
+            function(error) {
+                console.log(error);
+                feedback(error);
+            });
+        }
+
+        y.share.swagger.set('ReloadWidgetOperation', 'import');
+
     } else {
         feedback("No model!");
     }
@@ -182,14 +217,16 @@ var loadModel = function(y) {
     }
     // first, clean the current model
     y.share.data.set('model', null);
+    y.share.data.set('metadataDoc', null);
+    y.share.data.set('metadataDocString', null);
 
     // now read in the file content
     modelName = $("#name").val();
     client.sendRequest("GET", modelName, "", "", {},
         function(data, type) {
-            console.log("Model loaded!");
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');
+            y.share.swagger.set('ReloadWidgetOperation', 'import');
             feedback("Model loaded, please refresh browser!");
         },
         function(error) {

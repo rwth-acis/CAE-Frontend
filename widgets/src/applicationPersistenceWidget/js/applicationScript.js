@@ -125,7 +125,6 @@ var pendingDots = 0;
 var getJobConsoleText = function(queueItem,jobAlias){
   client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "text/plain", {},
   function(data,type){
-    console.log(data, type)
     if(data.indexOf("Pending") > -1){
       data = jobAlias + " job pending" + Array(pendingDots+1).join(".");
     }
@@ -258,7 +257,6 @@ var storeModel = function(y) {
       } else{
         client.sendRequest("PUT", "models/" + loadedModel, JSON.stringify(data), "application/json", {},
         function(data, type) {
-          console.log("Model updated!");
           $("#deploy-model").prop('disabled',false);
           feedback("Model updated!");
         },
@@ -278,14 +276,13 @@ var loadModel = function(y) {
         feedback("Please choose model name!");
         return;
     }
-    // first, clean the current model
+    // first, clean the current swagger doc
     y.share.data.set('model', null);
 
     // now read in the file content
     modelName = $("#name").val();
     client.sendRequest("GET", "models/" + modelName, "", "", {},
         function(data, type) {
-            console.log("Model loaded!");
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');
             feedback("Model loaded, please refresh browser!");

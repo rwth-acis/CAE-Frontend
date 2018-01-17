@@ -95,10 +95,13 @@ var storeModel = function() {
             data.attributes.attributes[generateRandomId()] = generateAttribute($("#additional3-name").val(), $("#additional3-value").val());
           }
 
+          console.log("[MODEL PERSISTANCE WIDGET] Data send to be stored");
+          console.log(JSON.stringify(data));
+
           client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
           function(data, type) {
-          console.log("Model stored!");
-          feedback("Model stored!");
+            console.log("Model stored!");
+            feedback("Model stored!");
           },
           function(error) {
             console.log(error);

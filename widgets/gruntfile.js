@@ -2,8 +2,9 @@ module.exports = function(grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON('package.json'),
 		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
-		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'wss://yjs.dbis.rwth-aachen.de:5082',
+		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
 		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
+		
 		browserify:{
 			options:{
 				transform: [
@@ -97,6 +98,13 @@ module.exports = function(grunt) {
 					{src: "src/frontendComponentSelectWidget/widget.xml", dest: "dist/frontendComponentSelectWidget/widget.xml"},
 					{src: "src/microserviceSelectWidget/widget.xml", dest: "dist/microserviceSelectWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
+
+					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
+					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
+
+					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
+					{src: "src/swaggerWidget/swaggerUiEditor.xml", dest: "dist/swaggerWidget/swaggerUiEditor.xml"},
+
 					//CAE widgets JS
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
 					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
@@ -106,11 +114,18 @@ module.exports = function(grunt) {
 					{src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest:"dist/frontendComponentSelectWidget/js/applicationScript.js"},
 					{src: "src/microserviceSelectWidget/js/syncmeta-plugin.js", dest:"dist/microserviceSelectWidget/js/syncmeta-plugin.js"},
 					{src: "src/microserviceSelectWidget/js/applicationScript.js", dest:"dist/microserviceSelectWidget/js/applicationScript.js"},
+
+					{src: "src/metadataWidget/js/applicationScript.js", dest: "dist/metadataWidget/js/applicationScript.js"},
+					{src: "src/swaggerWidget/js/applicationScript.js", dest: "dist/swaggerWidget/js/applicationScript.js"},
+					
+					{src: "src/swaggerWidget/js/swaggerUi.js", dest: "dist/swaggerWidget/js/swaggerUi.js"},
+					{src: "src/swaggerWidget/js/swaggerUiEditor.js", dest: "dist/swaggerWidget/js/swaggerUiEditor.js"},
+
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
 					{src: "src/liveCodeEditorWidget/LivePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/LivePreviewWidget.xml"},
-					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"}
+					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"},
 				]
 			}
 		},
@@ -209,7 +224,91 @@ module.exports = function(grunt) {
 					{expand: true, flatten: true, filter: 'isFile', src: "src/liveCodeEditorWidget/mode-xml.js", dest: "dist/liveCodeEditorWidget/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/liveCodeEditorWidget/iwc.js", dest: "dist/liveCodeEditorWidget/"}
 				]
-			}
+			},
+			metadataWidget: {
+				files: [
+					//CSS
+					{expand: true, cwd: "src/metadataWidget", src:"css/*", dest: "dist/metadataWidget/"},
+					//Static JS
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/las2peerWidgetLibrary.js", dest: "dist/metadataWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/iwc.js", dest: "dist/metadataWidget/js/"},
+					
+					// JSON REF
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/lib/json-ref-lite.min.js", dest: "dist/metadataWidget/lib/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/lib/json-refs-standalone.js", dest: "dist/metadataWidget/lib/"},
+					
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/metadataWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/metadataWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/metadataWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/metadataWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/metadataWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/metadataWidget/js/"}
+				]
+			},
+			swaggerWidget: {
+				files: [
+					//CSS
+					{expand: true, cwd: "src/swaggerWidget", src:"css/*", dest: "dist/swaggerWidget/"},
+					
+					//Swagger
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/favicon-16x16.png", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/favicon-32x32.png", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/index.html", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/oauth2-redirect.html", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.css", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.css.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui.js.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-bundle.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-bundle.js.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-standalone-preset.js", dest: "dist/swaggerWidget/lib/swagger/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger/swagger-ui-standalone-preset.js.map", dest: "dist/swaggerWidget/lib/swagger/"},
+
+					//Swagger Editor
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/favicon-16x16.png", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/favicon-32x32.png", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/index.html", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.css", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.css.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/validation.worker.js", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/swagger-editor/validation.worker.js.map", dest: "dist/swaggerWidget/lib/swagger-editor/"},
+
+					// JSON to YAML
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/yaml.js", dest: "dist/swaggerWidget/lib/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/lib/json2yaml.js", dest: "dist/swaggerWidget/lib/"},
+
+					//Static JS
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/las2peerWidgetLibrary.js", dest: "dist/swaggerWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwc.js", dest: "dist/swaggerWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwcOld.js", dest: "dist/swaggerWidget/js/"},
+					//Yjs
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/swaggerWidget/js/"}
+				]
+			},
 		}
 });
 
