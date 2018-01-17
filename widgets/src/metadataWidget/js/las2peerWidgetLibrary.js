@@ -2,21 +2,21 @@
  * Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group, Chair
  * of Computer Science 5 (Databases & Information Systems), RWTH Aachen
  * University, Germany All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- *
+ * 
  * Redistributions of source code must retain the above copyright notice, this
  * list of conditions and the following disclaimer.
- *
+ * 
  * Redistributions in binary form must reproduce the above copyright notice,
  * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- *
+ * 
  * Neither the name of the ACIS Group nor the names of its contributors may be
  * used to endorse or promote products derived from this software without
  * specific prior written permission.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -32,9 +32,9 @@
 
 /**
  * Instantiates a new Las2peerWidgetLibrary, given its endpoint URL and the
- * IWC-callback function.
+ * IWC-callback function
  */
-function Las2peerWidgetLibrary(endpointUrl) {
+function Las2peerWidgetLibrary(endpointUrl, iwcCallback) {
   // care for widget frontends without a microservice backend
   if (endpointUrl === null) {
     endpointUrl = "not specified";
@@ -46,11 +46,13 @@ function Las2peerWidgetLibrary(endpointUrl) {
     this._serviceEndpoint = endpointUrl;
   }
   this.iwcClient = new iwc.Client();
+  this.callback = iwcCallback;
+  this.iwcClient.connect(this.callback);
 }
 
 /**
  * Sends an AJAX request to a resource.
- *
+ * 
  * @override
  * @this {Las2peerWidgetLibrary}
  * @param {string}
@@ -123,9 +125,8 @@ Las2peerWidgetLibrary.prototype.sendRequest = function(method, relativePath,
   $.ajax(ajaxObj);
 };
 
-
 /**
- * Determines if user is authenticated via OpenID Connect or not.
+ * determines if user is authenticated via OpenID Connect or not.
  */
 Las2peerWidgetLibrary.prototype.isAnonymous = function() {
   if (typeof oidc_userinfo !== 'undefined') {
@@ -135,30 +136,22 @@ Las2peerWidgetLibrary.prototype.isAnonymous = function() {
   }
 };
 
-
-/**
- *
- * Sends a signal to the canvas that a microservice was selected, such that the
- * next click there will add a microservice to the canvas.
- *
- */
-Las2peerWidgetLibrary.prototype.sendMicroserviceSelected = function(name, version) {
-  console.log("[sendMicroserviceSelected] Microservice selected");
-  // element creation
-  var time = new Date().getTime();
-  var data = JSON.stringify({selectedToolName: "Microservice", name: name, version: version});
+Las2peerWidgetLibrary.prototype.sendIntent = function(action, data, global) {
+  if (global == null) {
+    global = true;
+  }
   var intent = {
-    "component": "Canvas",
-    "data": "",
-    "dataType": "",
-    "action": "ACTION_DATA",
-    "flags": ["PUBLISH_LOCAL"],
-    "extras": {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
-    "sender": "MICROSERVICE_SELECT_WIDGET"
+    "component": "",
+    "data": data,
+    "dataType": "text/xml",
+    "action": action,
+    "categories": ["", ""],
+    "flags": [global ? "PUBLISH_GLOBAL" : void 0],
+    "extras": {}
   };
+  console.log(intent);
   this.iwcClient.publish(intent);
 };
-
 
 /**
  * Convenience function to check if a String ends with a given suffix.

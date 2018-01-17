@@ -3,9 +3,9 @@ export default{
     endPointBase : "http://localhost:8080/CAE/CodeGen" // location of the code generation service
   },
   CodeEditorWidget:{
-    bower_components: "http://localhost/liveCodeEditorWidget/bower_components/" // location of bower components
+    bower_components: "http://localhost:8001/liveCodeEditorWidget/bower_components/" // location of bower components
   },
   Yjs: {
-    websockets_server: "http://yjs.dbis.rwth-aachen.de:5079"
+    websockets_server: "http://localhost:1234"
   }
 }

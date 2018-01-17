@@ -20,9 +20,9 @@ $(function() {
     getServices()
 });
 
-function createNode(name) {
+function createNode(name, version) {
   lastMicroserviceName = name;
-  client.sendMicroserviceSelected()
+  client.sendMicroserviceSelected(name, version);
 }
 
 
@@ -59,7 +59,8 @@ var getServices = function() {
           $("#microserviceTable").find("tr").click(function() {
             // get the name
             var name = $(this).find("td").get(0).innerHTML;
-            createNode(name);
+            var version = $(this).find("td").get(1).innerHTML;
+            createNode(name, version);
           });
           }
         }, function(error) {
