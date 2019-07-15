@@ -491,8 +491,8 @@
                     "value": "HTTP Method"
                 }
             },
-            "left": 3997,
-            "top": 4735,
+            "left": 3949,
+            "top": 4678,
             "width": 203.53571428571422,
             "height": 125.35714285714283,
             "zIndex": 16013,
@@ -1082,8 +1082,8 @@
                     "value": "HTTP Payload"
                 }
             },
-            "left": 4402,
-            "top": 4904,
+            "left": 4445,
+            "top": 4902,
             "width": 150,
             "height": 100,
             "zIndex": 16026,
@@ -1434,8 +1434,8 @@
                     "value": "HTTP Response Shape"
                 }
             },
-            "left": 3850,
-            "top": 5214,
+            "left": 3834,
+            "top": 5266,
             "width": 224,
             "height": 150,
             "zIndex": 16034,
@@ -1834,7 +1834,7 @@
                     "list": {
                         "d91e46f14b9751a02e516e3b": {
                             "id": "d91e46f14b9751a02e516e3b",
-                            "name": "Attribute",
+                            "name": "d91e46f14b9751a02e516e3b",
                             "key": {
                                 "id": "d91e46f14b9751a02e516e3b[key]",
                                 "name": "",
@@ -1847,6 +1847,277 @@
                             }
                         }
                     }
+                }
+            }
+        },
+        "368a25a4fbb943df6307cb14": {
+            "label": {
+                "id": "368a25a4fbb943df6307cb14[label]",
+                "name": "Label",
+                "value": {
+                    "id": "368a25a4fbb943df6307cb14[label]",
+                    "name": "Label",
+                    "value": "logs reponse content to"
+                }
+            },
+            "left": 3668,
+            "top": 5480,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16043,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "02466be33c9211525e8978d2": {
+            "label": {
+                "id": "02466be33c9211525e8978d2[label]",
+                "name": "Label",
+                "value": {
+                    "id": "02466be33c9211525e8978d2[label]",
+                    "name": "Label",
+                    "value": "HTTP Response to MobSOS Log"
+                }
+            },
+            "left": 3342,
+            "top": 5511,
+            "width": 235,
+            "height": 66,
+            "zIndex": 16045,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "30b7b1adb502ebb250b2f302": {
+            "label": {
+                "id": "30b7b1adb502ebb250b2f302[label]",
+                "name": "Label",
+                "value": {
+                    "id": "30b7b1adb502ebb250b2f302[label]",
+                    "name": "Label",
+                    "value": "MobSOS Log"
+                }
+            },
+            "left": 3682.428571428571,
+            "top": 5651.571428571428,
+            "width": 237,
+            "height": 128.57142857142858,
+            "zIndex": 16046,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "3d3c5cc7df4a3508d1943b26": {
+                            "id": "3d3c5cc7df4a3508d1943b26",
+                            "name": "3d3c5cc7df4a3508d1943b26",
+                            "key": {
+                                "id": "3d3c5cc7df4a3508d1943b26[key]",
+                                "name": "",
+                                "value": "customMessageID"
+                            },
+                            "value": {
+                                "id": "3d3c5cc7df4a3508d1943b26[value]",
+                                "name": "",
+                                "value": "integer"
+                            }
+                        },
+                        "4bcec5c89709d96f1811d49f": {
+                            "id": "4bcec5c89709d96f1811d49f",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "4bcec5c89709d96f1811d49f[key]",
+                                "name": "",
+                                "value": "includeActingAgent"
+                            },
+                            "value": {
+                                "id": "4bcec5c89709d96f1811d49f[value]",
+                                "name": "",
+                                "value": "boolean"
+                            }
+                        },
+                        "53977bc816f17a235eeecbdc": {
+                            "id": "53977bc816f17a235eeecbdc",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "53977bc816f17a235eeecbdc[key]",
+                                "name": "",
+                                "value": "descriptionMarkdown"
+                            },
+                            "value": {
+                                "id": "53977bc816f17a235eeecbdc[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "a78c360fea04c3650c1727e2": {
+            "label": {
+                "id": "a78c360fea04c3650c1727e2[label]",
+                "name": "Label",
+                "value": {
+                    "id": "a78c360fea04c3650c1727e2[label]",
+                    "name": "Label",
+                    "value": "MobSOS Log Shape"
+                }
+            },
+            "left": 3719.2857142857138,
+            "top": 5851.571428571428,
+            "width": 150,
+            "height": 150,
+            "zIndex": 16048,
+            "type": "Node Shape",
+            "attributes": {
+                "a78c360fea04c3650c1727e2[shape]": {
+                    "id": "a78c360fea04c3650c1727e2[shape]",
+                    "name": "Shape",
+                    "value": {
+                        "id": "a78c360fea04c3650c1727e2[shape]",
+                        "name": "Shape",
+                        "value": "circle"
+                    },
+                    "option": "Circle"
+                },
+                "a78c360fea04c3650c1727e2[color]": {
+                    "id": "a78c360fea04c3650c1727e2[color]",
+                    "name": "Color",
+                    "value": {
+                        "id": "a78c360fea04c3650c1727e2[color]",
+                        "name": "Color",
+                        "value": "#009688"
+                    }
+                },
+                "a78c360fea04c3650c1727e2[defaultWidth]": {
+                    "id": "a78c360fea04c3650c1727e2[defaultWidth]",
+                    "name": "Default Width",
+                    "value": {
+                        "id": "a78c360fea04c3650c1727e2[defaultWidth]",
+                        "name": "Default Width",
+                        "value": 50
+                    }
+                },
+                "a78c360fea04c3650c1727e2[defaultHeight]": {
+                    "id": "a78c360fea04c3650c1727e2[defaultHeight]",
+                    "name": "Default Height",
+                    "value": {
+                        "id": "a78c360fea04c3650c1727e2[defaultHeight]",
+                        "name": "Default Height",
+                        "value": 50
+                    }
+                },
+                "a78c360fea04c3650c1727e2[customShape]": {
+                    "id": "a78c360fea04c3650c1727e2[customShape]",
+                    "name": "Custom Shape",
+                    "value": {
+                        "id": "a78c360fea04c3650c1727e2[customShape]",
+                        "name": "Custom Shape",
+                        "value": ""
+                    }
+                },
+                "a78c360fea04c3650c1727e2[customAnchors]": {
+                    "id": "a78c360fea04c3650c1727e2[customAnchors]",
+                    "name": "Custom Anchors",
+                    "value": {
+                        "id": "a78c360fea04c3650c1727e2[customAnchors]",
+                        "name": "Custom Anchors",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "3d5ead4cd76ada0a201154f3": {
+            "label": {
+                "id": "3d5ead4cd76ada0a201154f3[label]",
+                "name": "Label",
+                "value": {
+                    "id": "3d5ead4cd76ada0a201154f3[label]",
+                    "name": "Label",
+                    "value": "logs payload to"
+                }
+            },
+            "left": 4597.666666666666,
+            "top": 5637.666666666666,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16049,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "f4db873ffdb7df5175b53fa9": {
+            "label": {
+                "id": "f4db873ffdb7df5175b53fa9[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f4db873ffdb7df5175b53fa9[label]",
+                    "name": "Label",
+                    "value": "HTTP Payload to MobSOS Log"
+                }
+            },
+            "left": 4907.333333333333,
+            "top": 5614.999999999999,
+            "width": 325,
+            "height": 100,
+            "zIndex": 16050,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "f08aab1bc07fbd37113aef8f": {
+            "label": {
+                "id": "f08aab1bc07fbd37113aef8f[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f08aab1bc07fbd37113aef8f[label]",
+                    "name": "Label",
+                    "value": "logs time benchmark to"
+                }
+            },
+            "left": 4011.9999999999995,
+            "top": 5499.666666666666,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16051,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "e5d3d581b9aac22d1e1f9860": {
+            "label": {
+                "id": "e5d3d581b9aac22d1e1f9860[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e5d3d581b9aac22d1e1f9860[label]",
+                    "name": "Label",
+                    "value": "HTTP Method to MobSOS Log"
+                }
+            },
+            "left": 4283.999999999999,
+            "top": 5499.333333333332,
+            "width": 254,
+            "height": 64,
+            "zIndex": 16052,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
                 }
             }
         }
@@ -2406,6 +2677,156 @@
             "target": "15c7a7ce511c5d197c998976",
             "attributes": {},
             "type": "Bi-Dir-Association"
+        },
+        "b89a444d623329cf5588940e": {
+            "label": {
+                "id": "b89a444d623329cf5588940e[label]",
+                "name": "Label",
+                "value": {
+                    "id": "b89a444d623329cf5588940e[label]",
+                    "name": "Label",
+                    "value": "is a"
+                }
+            },
+            "source": "368a25a4fbb943df6307cb14",
+            "target": "02466be33c9211525e8978d2",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "8dcb86b8801343d0fbab0823": {
+            "label": {
+                "id": "8dcb86b8801343d0fbab0823[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8dcb86b8801343d0fbab0823[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "30b7b1adb502ebb250b2f302",
+            "target": "a78c360fea04c3650c1727e2",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "8a24ceb186015c40d5389398": {
+            "label": {
+                "id": "8a24ceb186015c40d5389398[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8a24ceb186015c40d5389398[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "368a25a4fbb943df6307cb14",
+            "target": "30b7b1adb502ebb250b2f302",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "cf1eba988ee26f39f52daff1": {
+            "label": {
+                "id": "cf1eba988ee26f39f52daff1[label]",
+                "name": "Label",
+                "value": {
+                    "id": "cf1eba988ee26f39f52daff1[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "e3f3a6a3d58f3e30464793fb",
+            "target": "368a25a4fbb943df6307cb14",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "783ed40721d35e0a43deb679": {
+            "label": {
+                "id": "783ed40721d35e0a43deb679[label]",
+                "name": "Label",
+                "value": {
+                    "id": "783ed40721d35e0a43deb679[label]",
+                    "name": "Label",
+                    "value": "is a"
+                }
+            },
+            "source": "3d5ead4cd76ada0a201154f3",
+            "target": "f4db873ffdb7df5175b53fa9",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "6d98db8153ff17eb3a82f307": {
+            "label": {
+                "id": "6d98db8153ff17eb3a82f307[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6d98db8153ff17eb3a82f307[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "66437c8047dfb4620adc5823",
+            "target": "3d5ead4cd76ada0a201154f3",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "b0a38b04e4c95dee9ef47b60": {
+            "label": {
+                "id": "b0a38b04e4c95dee9ef47b60[label]",
+                "name": "Label",
+                "value": {
+                    "id": "b0a38b04e4c95dee9ef47b60[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "3d5ead4cd76ada0a201154f3",
+            "target": "30b7b1adb502ebb250b2f302",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "6742e98b0e8dd0df744323d7": {
+            "label": {
+                "id": "6742e98b0e8dd0df744323d7[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6742e98b0e8dd0df744323d7[label]",
+                    "name": "Label",
+                    "value": "is a"
+                }
+            },
+            "source": "f08aab1bc07fbd37113aef8f",
+            "target": "e5d3d581b9aac22d1e1f9860",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "e5679966bc1cabee3cc8dc17": {
+            "label": {
+                "id": "e5679966bc1cabee3cc8dc17[label]",
+                "name": "Label",
+                "value": {
+                    "id": "e5679966bc1cabee3cc8dc17[label]",
+                    "name": "Label",
+                    "value": "from"
+                }
+            },
+            "source": "bbf7e9764dceb20ccbf26a22",
+            "target": "f08aab1bc07fbd37113aef8f",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "c1c049ab165c24224533832d": {
+            "label": {
+                "id": "c1c049ab165c24224533832d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "c1c049ab165c24224533832d[label]",
+                    "name": "Label",
+                    "value": "to"
+                }
+            },
+            "source": "f08aab1bc07fbd37113aef8f",
+            "target": "30b7b1adb502ebb250b2f302",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
         }
     }
 }
