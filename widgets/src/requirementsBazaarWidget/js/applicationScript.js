@@ -202,14 +202,12 @@ function renderRequirements(requirements) {
   $('.collapsible').collapsible({
     onOpenStart: function (data) {
       currentlyOpenedRequirementId = $(data).data('requirement-id');
-      console.error(currentlyOpenedRequirementId);
     },
     onCloseStart: function (data) {
       var requirementId = $(data).data('requirement-id');
       if (currentlyOpenedRequirementId === requirementId) {
         currentlyOpenedRequirementId = null;
       }
-      console.error(currentlyOpenedRequirementId);
     },
   });
   $('.done').click(function () {
