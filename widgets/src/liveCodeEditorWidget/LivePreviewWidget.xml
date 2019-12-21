@@ -82,6 +82,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/yjs/y.js"></script>
+  <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
+
 </head>
 <body>
       <script type="text/javascript">

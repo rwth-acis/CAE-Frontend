@@ -87,6 +87,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
   <!-- JSON REF -->
   <script src="@@host/metadataWidget/lib/json-refs-standalone.js"> </script>
+  <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
+
   
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
