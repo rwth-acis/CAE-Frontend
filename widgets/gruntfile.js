@@ -4,6 +4,8 @@ module.exports = function(grunt) {
 		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
 		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
 		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
+		reqbazbackend: typeof grunt.option('reqbazbackend') === 'string' ? grunt.option('reqbazbackend') : 'http://localhost:8080',
+		reqbazfrontend: typeof grunt.option('reqbazfrontend') === 'string' ? grunt.option('reqbazfrontend') : 'http://localhost:8082',
 		
 		browserify:{
 			options:{
@@ -86,6 +88,14 @@ module.exports = function(grunt) {
 						{
 							match: 'caehost',
 							replace: '<%= caehost %>'
+						},
+						{
+							match: 'reqbazbackend',
+							replace: '<%= reqbazbackend %>'
+						},
+						{
+							match: 'reqbazfrontend',
+							replace: '<%= reqbazfrontend %>'
 						}
 					]
 				},
@@ -100,6 +110,7 @@ module.exports = function(grunt) {
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
+					{src: "src/requirementsBazaarWidget/widget.xml", dest: "dist/requirementsBazaarWidget/widget.xml"},
 					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
 
 					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
@@ -116,6 +127,7 @@ module.exports = function(grunt) {
 					{src: "src/microserviceSelectWidget/js/applicationScript.js", dest:"dist/microserviceSelectWidget/js/applicationScript.js"},
 
 					{src: "src/metadataWidget/js/applicationScript.js", dest: "dist/metadataWidget/js/applicationScript.js"},
+					{src: "src/requirementsBazaarWidget/js/applicationScript.js", dest: "dist/requirementsBazaarWidget/js/applicationScript.js"},
 					{src: "src/swaggerWidget/js/applicationScript.js", dest: "dist/swaggerWidget/js/applicationScript.js"},
 					
 					{src: "src/swaggerWidget/js/swaggerUi.js", dest: "dist/swaggerWidget/js/swaggerUi.js"},
@@ -245,6 +257,14 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/metadataWidget/js/"},
 					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/metadataWidget/js/"}
 				]
+			},
+			requirementsBazaarWidget: {
+				files: [
+					//CSS
+					{expand: true, cwd: "src/requirementsBazaarWidget", src:"css/*", dest: "dist/requirementsBazaarWidget/"},
+					//Static JS
+					{expand: true, flatten: true, filter: 'isFile', src: "src/requirementsBazaarWidget/js/las2peerWidgetLibrary.js", dest: "dist/requirementsBazaarWidget/js/"},
+				],
 			},
 			swaggerWidget: {
 				files: [

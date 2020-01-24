@@ -87,6 +87,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/mode-xml.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/material-design-lite/material.min.js"></script>
   <script src="@@host/liveCodeEditorWidget/bower_components/jstree/dist/jstree.min.js"></script>
+  <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
 
   <link rel="stylesheet" href="@@host/liveCodeEditorWidget/bower_components/material-design-lite/material.min.css">
   <link rel="stylesheet" href="@@host/liveCodeEditorWidget/bower_components/jstree/dist/themes/default/style.min.css" />
