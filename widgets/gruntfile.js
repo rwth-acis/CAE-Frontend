@@ -100,6 +100,9 @@ module.exports = function(grunt) {
 					]
 				},
 				files: [
+					{src: "src/frontendComponentPersistenceWidget/index.html", dest: "dist/frontendComponentPersistenceWidget/index.html"},
+
+
 					//CAE widgets XML
 					{src: "src/applicationPersistenceWidget/widget.xml", dest: "dist/applicationPersistenceWidget/widget.xml"},
 					{src: "src/frontendComponentPersistenceWidget/widget.xml", dest: "dist/frontendComponentPersistenceWidget/widget.xml"},
