@@ -29,7 +29,7 @@ export default class FileList{
     return $(`<a>${fileName}</a>`).click( () => {
       if (file.type == "folder") {
         this.codeEditor.loadFiles(file.path);
-      }else if(true || fileName == "widget.xml" || fileName=="applicationScript.js"){
+      }else if(true || fileName == "index.html" || fileName=="applicationScript.js"){
         this.codeEditor.open(file.path);
       }else{
         alert("Cannot open files without traces");
