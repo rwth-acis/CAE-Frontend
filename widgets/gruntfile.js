@@ -114,6 +114,7 @@ module.exports = function(grunt) {
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
 					{src: "src/requirementsBazaarWidget/widget.xml", dest: "dist/requirementsBazaarWidget/widget.xml"},
+					{src: "src/requirementsBazaarWidget/index.html", dest: "dist/requirementsBazaarWidget/index.html"},
 					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
 
 					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
