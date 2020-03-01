@@ -1,28 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Module>
-  <ModulePrefs title="Application Persistence Widget"
-    description="This widget is responsible for persisting applications."
-    author="Peter de Lange" author_email="lange@dbis.rwth-aachen.de"
-    width="600" height="300">
-
-    <Require feature="opensocial-0.8"></Require>
-    <Require feature="openapp"></Require>
-    <Require feature="dynamic-height"></Require>
-
-    <OAuth>
-      <Service name="openapp"
-        xmlns:openapp="http://www.role-project.eu/xml/openapp/opensocialext/"
-        openapp:service="http://purl.org/role/terms/spaceService"
-        openapp:permitReadAppend="http://purl.org/role/terms/data">
-        <Request method="" url=""></Request>
-        <Authorization url=""></Authorization>
-        <Access method="" url=""></Access>
-      </Service>
-    </OAuth>
-
-  </ModulePrefs>
-  <Content type="html">
-  <![CDATA[
 <!--
 Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
@@ -124,8 +99,3 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 </body>
 </html>
-
-  ]]>
-  </Content>
-
-</Module>
