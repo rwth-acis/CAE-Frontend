@@ -1,28 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Module>
-  <ModulePrefs title="Open API viewer"
-    description="This widget provides readable preview of the component open API based metadata"
-    author="Melisa Cecilia" author_email="cecilia@dbis.rwth-aachen.de"
-    width="800" height="800">
-
-    <Require feature="opensocial-0.8"></Require>
-    <Require feature="openapp"></Require>
-    <Require feature="dynamic-height"></Require>
-
-    <OAuth>
-      <Service name="openapp"
-        xmlns:openapp="http://www.role-project.eu/xml/openapp/opensocialext/"
-        openapp:service="http://purl.org/role/terms/spaceService"
-        openapp:permitReadAppend="http://purl.org/role/terms/data">
-        <Request method="" url=""></Request>
-        <Authorization url=""></Authorization>
-        <Access method="" url=""></Access>
-      </Service>
-    </OAuth>
-
-  </ModulePrefs>
-  <Content type="html">
-  <![CDATA[
 <!--
 Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
 Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
@@ -59,7 +34,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Swagger UI</title>
+  <title>Metadata Widget</title>
 
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -76,100 +51,127 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- Inter Widget Communication library import-->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/iwc.js"></script>
   <!-- style information -->
-  <link rel="stylesheet" href="@@host/swaggerWidget/css/style.css">
+  <link rel="stylesheet" href="@@host/metadataWidget/css/style.css">
   <!-- import the client library -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/las2peerWidgetLibrary.js"></script>
   <!-- import yjs -->
-  <script type="text/javascript" src="@@host/swaggerWidget/js/yjs/y.js"></script>
-  
+  <script type="text/javascript" src="@@host/metadataWidget/js/yjs/y.js"></script>
   <!-- import application script -->
-  <script type="text/javascript" src="@@host/swaggerWidget/js/swaggerUiEditor.js"></script>
+  <script type="text/javascript" src="@@host/metadataWidget/js/applicationScript.js"></script>
 
+  <!-- JSON REF -->
+  <script src="@@host/metadataWidget/lib/json-refs-standalone.js"> </script>
+  <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
+
+  
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
 
-  <!-- Swagger Editor Import -->
-  <script src="@@host/swaggerWidget/lib/swagger-editor/swagger-editor-bundle.js"> </script>
-  <script src="@@host/swaggerWidget/lib/swagger-editor/swagger-editor-standalone-preset.js"> </script>
-  <script src="@@host/swaggerWidget/lib/yaml.js"> </script>
-  <script src="@@host/swaggerWidget/lib/json2yaml.js"> </script>
-  <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
-
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="@@host/swaggerWidget/lib/swagger-editor/swagger-editor.css" >
-
   <style>
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Roboto,sans-serif;
-      font-size: 9px;
-      line-height: 1.42857143;
-      color: #444;
-      margin: 0px;
-    }
-
-    #swagger-editor {
-      font-size: 1.3em;
-    }
-
     .container {
-      height: 100%;
-      max-width: 880px;
-      margin-left: auto;
-      margin-right: auto;
       margin-top: 20px;
     }
 
-    #editor-wrapper {
-      height: 100%;
-      border:1em solid #000;
-      border:none;
+    .compare-box {
+      width: 40px;
+      height: 40px;
     }
 
-    .Pane2 {
-      overflow-y: scroll;
-      width: 100% !important;
-      height: 520px;
+    .compare-red {
+      background-color: maroon; 
     }
 
-    #swagger-editor #ace-editor {
-      display: none;
+    .compare-orange {
+      background-color: orange;
     }
 
-    .extra-duration {
-      font-weight: bold;
-      color: blue;
+    .compare-yellow {
+      background-color: yellow;
     }
 
-    .extra-time {
-      font-weight: bold;
-      color: teal;
+    .compare-green {
+      background-color: green;
     }
+
+    .compare-gray {
+      background-color: gray;
+    }
+
+    .header-node {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
+    .label-yellow {
+      background-color: yellow;
+    }
+
+    .clicked {
+      background-color: #d9edf7 !important;
+    }
+
+    .label-legend {
+      color: black;
+      font-weight: normal;
+    }
+
   </style>
-
-
-  <!-- End Swagger Import -->
 
 </head>
 <body>
 
-<div class="container" id="swagger-editor-content">
-  <div class="panel panel-success" id="swagger-editor-form">
-    <div class="panel-heading"><h3 class="panel-title">Microservice Information</h3></div>
-    <div class="panel-body">
-      <h4>Component: <span id="name"></span></h4>
-      <h4>Status: <span id="status"></span></h4>
-      <div id="extra-information"></div>
+  <!-- container for actual page content -->
+  <div class="container" id="mainContent">
+
+    <div class="panel panel-primary form-group">
+      <div class="panel-heading"><h3 class="panel-title">Selected component endpoints</h3></div>
+      <div class="panel-body">
+        <h4>Selected Node: <span class="label label-primary" id="metadataComponent">None</span></h4>
+        <table class="scrolltable table table-striped" id="metadataTable">
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Endpoint Name</th>
+                    <th>Operation</th>
+                    <th>Parameters</th>
+                    <th>Produces</th>
+                </tr>
+            </thead>
+            <tbody id="componentMetadataTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel panel-success form-group">
+      <div class="panel-heading"><h5 class="panel-title">Legend</h5></div>
+      <div class="panel-body">
+        <h3><span class="label label-legend label-default">Non schema</span></h3>
+        <h3><span class="label label-legend label-danger">Schemas properties name matches</span></h3>
+        <h3><span class="label label-legend label-warning">Schemas properties type matches</span></h3>
+        <h3><span class="label label-legend label-success">Schemas properties name & type matches</span></h3>
+      </div>
+    </div>
+
+    <div class="panel panel-primary form-group">
+      <div class="panel-heading"><h3 class="panel-title">Other component matching endpoints</h3></div>
+      <div class="panel-body">
+          <table class="scrolltable table table-striped" id="metadataMatchTable">
+            <thead>
+                <tr>
+                    <th>Component Name</th>
+                    <th>Endpoint Name</th>
+                    <th>Operation</th>
+                    <th>Parameters</th>
+                    <th>Produces</th>
+                    <th>Level</th>
+                </tr>
+            </thead>
+            <tbody id="componentMetadataMatchTable"></tbody>
+        </table>
+      </div>
     </div>
   </div>
-  <div id="swagger-editor"></div>
-</div>
 
 </body>
 </html>
-  ]]>
-  </Content>
-</Module>

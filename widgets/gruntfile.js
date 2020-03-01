@@ -114,12 +114,18 @@ module.exports = function(grunt) {
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
+					{src: "src/metadataWidget/widget.html", dest: "dist/metadataWidget/widget.html"},
 					{src: "src/requirementsBazaarWidget/widget.xml", dest: "dist/requirementsBazaarWidget/widget.xml"},
 					{src: "src/requirementsBazaarWidget/index.html", dest: "dist/requirementsBazaarWidget/index.html"},
 					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
 
 					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
 					{src: "src/swaggerWidget/swaggerUiEditor.xml", dest: "dist/swaggerWidget/swaggerUiEditor.xml"},
+
+					{src: "src/swaggerWidget/widget.html", dest: "dist/swaggerWidget/widget.html"},
+
+					{src: "src/swaggerWidget/swaggerUi.html", dest: "dist/swaggerWidget/swaggerUi.html"},
+					{src: "src/swaggerWidget/swaggerUiEditor.html", dest: "dist/swaggerWidget/swaggerUiEditor.html"},
 
 					//CAE widgets JS
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},

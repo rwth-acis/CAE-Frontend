@@ -32,7 +32,6 @@
 
  // global variables
 var client,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null,
     iwcClient = null,
@@ -71,10 +70,7 @@ var init = function() {
   };
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    }
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('spaces/')).replace(/spaces|#\S*|\?\S*|\//g, '');
   
   Y({
         db: {
@@ -163,7 +159,7 @@ var loadMetadata = function(y) {
         $("#status").html('<span class="label label-info">Loading information</span>');
         // first, clean the current model
         y.share.data.set('metadataDoc', null);
-        client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {},
+        client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {}, false,
             function(data, type) {
                 var jsonDocString = JSON.parse(data.docString);
                 var timeDeployed = null;

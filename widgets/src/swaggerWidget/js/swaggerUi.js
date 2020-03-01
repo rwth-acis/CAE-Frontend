@@ -32,7 +32,6 @@
 
  // global variables
 var client,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedSwaggerDoc = null,
     iwcClient = null,
@@ -46,10 +45,7 @@ var init = function() {
   console.log("CAE HOST " + "@@caehost/CAE");
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    }
+  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('spaces/')).replace(/spaces|#\S*|\?\S*|\//g, '');
   
   Y({
         db: {
