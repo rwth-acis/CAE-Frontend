@@ -110,7 +110,9 @@ module.exports = function(grunt) {
 					{src: "src/microservicePersistenceWidget/widget.xml", dest: "dist/microservicePersistenceWidget/widget.xml"},
 					
 					{src: "src/frontendComponentSelectWidget/widget.xml", dest: "dist/frontendComponentSelectWidget/widget.xml"},
+					{src: "src/frontendComponentSelectWidget/widget.html", dest: "dist/frontendComponentSelectWidget/widget.html"},
 					{src: "src/microserviceSelectWidget/widget.xml", dest: "dist/microserviceSelectWidget/widget.xml"},
+					{src: "src/microserviceSelectWidget/widget.html", dest: "dist/microserviceSelectWidget/widget.html"},
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},

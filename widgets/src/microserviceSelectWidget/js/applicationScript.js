@@ -22,7 +22,11 @@ $(function() {
 
 function createNode(name, version) {
   lastMicroserviceName = name;
-  client.sendMicroserviceSelected(name, version);
+  var time = new Date().getTime();
+  var data = JSON.stringify({selectedToolName: "Microservice", name: name, version: version});
+  var intent = new IWC.Intent("MICROSERVICE_SELECT_WIDGET", "Canvas", "ACTION_DATA", data, false);
+  intent.extras = {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time}
+  client.iwcClient.publish(intent);
 }
 
 
@@ -35,10 +39,10 @@ function createNode(name, version) {
  *
  */
 var getServices = function() {
-  client.sendRequest("GET", "", "", "application/json", {},
+  client.sendRequest("GET", "", "", "application/json", {}, false,
   function(data, type) {
       $.each(data, function(index, value) {
-        client.sendRequest("GET", value, "", "application/json", {},
+        client.sendRequest("GET", value, "", "application/json", {}, false,
         function(data, type) {
           // add table rows
           var name = data.attributes.label.value.value;

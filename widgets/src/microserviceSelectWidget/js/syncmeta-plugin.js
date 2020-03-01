@@ -362,10 +362,7 @@ syncmeta_api.define('lib/yjs-sync',['jquery', 'yjs'], function($) {
         var deferred = $.Deferred();
         if (!spaceTitle) {
             //try to get space title from url if space promise fails
-            spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-            if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-                spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-            }
+            spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('spaces/')).replace(/spaces|#\S*|\?\S*|\//g, '');
         }
         Y({
             db: {
