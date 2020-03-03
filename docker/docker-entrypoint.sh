@@ -46,9 +46,10 @@ cd ..
 
 #### Wireframe ####
 cd CAE-WireframingEditor
-sed -i "s=https://rwth-acis.github.io/CAE-WireframingEditor/role/=$WEBHOST/wireframe/=g" role/app.js
-sed -i "s=https://rwth-acis.github.io/CAE-WireframingEditor/role/=$WEBHOST/wireframe/=g" role/yireframe.xml
-sed -i "s=room: space || 'yireframe',=room: space || 'yireframe', url: '$YJS'=g" role/app.js
+cp task/config.json.sample task/config.json
+sed -i "s=https://rwth-acis.github.io/CAE-WireframingEditor/role/=$WEBHOST/wireframe/=g" task/config.json
+npm run build:widget
+sed -i "s=http://127.0.0.1:1234=$YJS=g" widget/app.js
 cd ..
 
 ##### Nginx ####

@@ -27,10 +27,9 @@ RUN npm install && bower install --allow-root
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/CAE-WireframingEditor.git
 
-# It is not working when it is built again 
-# therefore built version is used 
+# TODO: Use master branch
 WORKDIR /usr/src/app/CAE-WireframingEditor
-RUN git checkout gh-pages
+RUN git checkout develop && npm install
 
 WORKDIR /usr/src/app
 COPY docker/docker-entrypoint.sh docker-entrypoint.sh
