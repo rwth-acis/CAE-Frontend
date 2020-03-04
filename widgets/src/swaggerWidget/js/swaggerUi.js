@@ -45,7 +45,7 @@ var init = function() {
   console.log("CAE HOST " + "@@caehost/CAE");
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('spaces/')).replace(/spaces|#\S*|\?\S*|\//g, '');
+  spaceTitle = parent.caeRoom;
   
   Y({
         db: {

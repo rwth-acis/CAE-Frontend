@@ -20,7 +20,7 @@ export default class RoleSpace extends EventEmitter{
     }
 
     // init Yjs
-    var spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('spaces/')).replace(/spaces|#\S*|\?\S*|\//g, '');
+    var spaceTitle = parent.caeRoom;
 
     var self = this
 

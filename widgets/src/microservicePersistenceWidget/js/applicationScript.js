@@ -47,7 +47,7 @@ var init = function() {
     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
     metadataClient = new Las2peerWidgetLibrary("@@caehost/CAE/docs", metadataIwcCallback);
 
-    spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('spaces/')).replace(/spaces|#\S*|\?\S*|\//g, '');
+    spaceTitle = parent.caeRoom;
 
     Y({
         db: {
