@@ -1,0 +1,7 @@
+{
+  "name": "Community Application Editor",
+  "short_name": "CAE",
+  "description": "Unified CAE frontend",
+  "start_url": "/",
+  "display": "standalone"
+}

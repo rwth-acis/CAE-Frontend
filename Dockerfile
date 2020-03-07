@@ -11,9 +11,12 @@ COPY . .
 RUN apt-get update
 
 RUN apt-get install -y --no-install-recommends supervisor git nginx
-RUN npm_config_user=root npm install -g bower grunt-cli grunt
+RUN npm_config_user=root npm install -g bower grunt-cli grunt polymer-cli
 
 COPY docker/supervisorConfigs /etc/supervisor/conf.d
+
+WORKDIR /usr/src/app/cae-app
+RUN npm install && bower install --allow-root
 
 WORKDIR /usr/src/app/widgets
 RUN npm install && bower install --allow-root
@@ -21,8 +24,9 @@ RUN npm install && bower install --allow-root
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/syncmeta.git
 
+# TODO: Use master branch
 WORKDIR /usr/src/app/syncmeta
-RUN npm install && bower install --allow-root
+RUN git checkout develop && npm install && bower install --allow-root
 
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/CAE-WireframingEditor.git

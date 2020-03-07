@@ -18,6 +18,7 @@ check_if_exists "$CODE_EDITOR_BOWER" "CODE_EDITOR_BOWER"
 check_if_exists "$ROLEHOST" "ROLEHOST"
 check_if_exists "$REQBAZ_BACKEND" "REQBAZ_BACKEND"
 check_if_exists "$REQBAZ_FRONTEND" "REQBAZ_FRONTEND"
+check_if_exists "$OIDC_CLIENT_ID" "OIDC_CLIENT_ID"
 
 if [ "$ENV_VARIABLE_NOT_SET" = true ] ; then
     echo "Missing environment variables, exiting..."
@@ -56,6 +57,11 @@ cd ..
 cp docker/nginx.conf /etc/nginx/conf.d/default.conf
 sed -i "s=<port>=$PORT=g" /etc/nginx/conf.d/default.conf
 /etc/init.d/nginx start
+
+##### CAE App ####
+cd cae-app
+./config.sh
+cd ..
 
 #### Supervisor ####
 /usr/bin/supervisord -n
