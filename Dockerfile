@@ -26,14 +26,13 @@ RUN git clone https://github.com/rwth-acis/syncmeta.git
 
 # TODO: Use master branch
 WORKDIR /usr/src/app/syncmeta
-RUN git checkout develop && npm install && bower install --allow-root
+RUN git checkout master && npm install && bower install --allow-root
 
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/CAE-WireframingEditor.git
 
-# TODO: Use master branch
 WORKDIR /usr/src/app/CAE-WireframingEditor
-RUN git checkout develop && npm install
+RUN git checkout master && npm install
 
 WORKDIR /usr/src/app
 COPY docker/docker-entrypoint.sh docker-entrypoint.sh
