@@ -263,6 +263,7 @@ var init = function() {
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
+            options: { resource: "@@yjsresourcepath"},
             url: '@@yjsserver'
         },
         share: { // specify the shared content

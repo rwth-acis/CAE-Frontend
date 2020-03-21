@@ -19,6 +19,7 @@ check_if_exists "$ROLEHOST" "ROLEHOST"
 check_if_exists "$REQBAZ_BACKEND" "REQBAZ_BACKEND"
 check_if_exists "$REQBAZ_FRONTEND" "REQBAZ_FRONTEND"
 check_if_exists "$OIDC_CLIENT_ID" "OIDC_CLIENT_ID"
+check_if_exists "$YJS_RESOURCE_PATH" "YJS_RESOURCE_PATH"
 
 if [ "$ENV_VARIABLE_NOT_SET" = true ] ; then
     echo "Missing environment variables, exiting..."
@@ -32,7 +33,7 @@ cp src/liveCodeEditorWidget/lib/config.js.sample $CONFIG_JS_PATH
 sed -i "s=<placeholder_codegen>=$CODEGEN=g" $CONFIG_JS_PATH
 sed -i "s=<placeholder_bower_components>=$CODE_EDITOR_BOWER=g" $CONFIG_JS_PATH
 sed -i "s=<placeholder_yjs_websocket_server>=$YJS=g" $CONFIG_JS_PATH
-grunt --host="$WEBHOST/cae-frontend" --yjsserver=$YJS --caehost=$CAE_BACKEND_URL --reqbazbackend=$REQBAZ_BACKEND --reqbazfrontend=$REQBAZ_FRONTEND
+grunt --host="$WEBHOST/cae-frontend" --yjsserver=$YJS --yjsresourcepath=$YJS_RESOURCE_PATH --caehost=$CAE_BACKEND_URL --reqbazbackend=$REQBAZ_BACKEND --reqbazfrontend=$REQBAZ_FRONTEND
 cd ..
 
 #### Syncmeta ####
@@ -42,6 +43,7 @@ cp .localGruntConfig.json.sample $SYNCMETA_CONF
 sed -i "s=http://localhost:8081=$WEBHOST/syncmeta=g" .localGruntConfig.json
 sed -i "s=http://127.0.0.1:8073=$ROLEHOST=g" .localGruntConfig.json
 sed -i "s=http://localhost:1234=$YJS=g" .localGruntConfig.json
+sed -i "s=/socket.io=$YJS_RESOURCE_PATH=g" .localGruntConfig.json
 grunt build
 cd ..
 
@@ -51,6 +53,7 @@ cp task/config.json.sample task/config.json
 sed -i "s=https://rwth-acis.github.io/CAE-WireframingEditor/role/=$WEBHOST/wireframe/=g" task/config.json
 npm run build:widget
 sed -i "s=http://127.0.0.1:1234=$YJS=g" widget/app.js
+sed -i "s=/socket.io=$YJS_RESOURCE_PATH=g" widget/app.js
 cd ..
 
 ##### Nginx ####

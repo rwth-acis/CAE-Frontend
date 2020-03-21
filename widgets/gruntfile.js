@@ -3,6 +3,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
 		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
+		yjsresourcepath: grunt.option('yjsresourcepath'),
 		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
 		reqbazbackend: typeof grunt.option('reqbazbackend') === 'string' ? grunt.option('reqbazbackend') : 'http://localhost:8080',
 		reqbazfrontend: typeof grunt.option('reqbazfrontend') === 'string' ? grunt.option('reqbazfrontend') : 'http://localhost:8082',
@@ -84,6 +85,10 @@ module.exports = function(grunt) {
 						{
 							match: 'yjsserver',
 							replace: '<%= yjsserver %>'
+						},
+						{
+							match: 'yjsresourcepath',
+							replace: '<%= yjsresourcepath %>'
 						},
 						{
 							match: 'caehost',

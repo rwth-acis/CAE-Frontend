@@ -17,7 +17,7 @@ export default class MetamodelUploader {
     }
 
     static uploadSingle(caeRoom, vls) {
-        new Promise((resolve, reject) => {
+        return new Promise((resolve, reject) => {
             Y({
                 db: {
                     name: "memory" // store the shared data in memory
@@ -25,6 +25,7 @@ export default class MetamodelUploader {
                 connector: {
                     name: "websockets-client", // use the websockets connector
                     room: caeRoom,
+                    options: { resource: "{YJS_RESOURCE_PATH}"},
                     url:"{YJS_ADDRESS}"
                 },
                 share: { // specify the shared content

@@ -4,6 +4,7 @@ USER root
 ENV PORT 8070
 ENV REQBAZ_BACKEND https://requirements-bazaar.org/bazaar
 ENV REQBAZ_FRONTEND https://requirements-bazaar.org
+ENV YJS_RESOURCE_PATH /socket.io
 
 WORKDIR /usr/src/app
 COPY . .
