@@ -69,7 +69,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <![endif]-->
 
   <!-- OpenApp import -->
-  <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+  <script type="text/javascript" src="https://open-app.googlecode.com/files/openapp.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
   <!-- Inter Widget Communication library import-->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/iwc.js"></script>
