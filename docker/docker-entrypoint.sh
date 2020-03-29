@@ -15,7 +15,6 @@ check_if_exists "$YJS" "YJS"
 check_if_exists "$CODEGEN" "CODEGEN"
 check_if_exists "$CAE_BACKEND_URL" "CAE_BACKEND_URL"
 check_if_exists "$CODE_EDITOR_BOWER" "CODE_EDITOR_BOWER"
-check_if_exists "$ROLEHOST" "ROLEHOST"
 check_if_exists "$REQBAZ_BACKEND" "REQBAZ_BACKEND"
 check_if_exists "$REQBAZ_FRONTEND" "REQBAZ_FRONTEND"
 check_if_exists "$OIDC_CLIENT_ID" "OIDC_CLIENT_ID"
@@ -41,7 +40,6 @@ cd syncmeta
 SYNCMETA_CONF=.localGruntConfig.json
 cp .localGruntConfig.json.sample $SYNCMETA_CONF
 sed -i "s=http://localhost:8081=$WEBHOST/syncmeta=g" .localGruntConfig.json
-sed -i "s=http://127.0.0.1:8073=$ROLEHOST=g" .localGruntConfig.json
 sed -i "s=http://localhost:1234=$YJS=g" .localGruntConfig.json
 sed -i "s=/socket.io=$YJS_RESOURCE_PATH=g" .localGruntConfig.json
 grunt build
