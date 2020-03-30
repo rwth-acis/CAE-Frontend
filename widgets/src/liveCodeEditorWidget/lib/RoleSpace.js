@@ -4,9 +4,6 @@ import CONFIG from "./roleSpaceConfig";
 import config from "./config.js";
 import openapp from "openapp";
 
-let resourceSpace = new openapp.oo.Resource(openapp.param.space());
-let resourceGetPromise = toPromise(openapp.resource.get);
-
 /**
  * A class providing the utilities to interact with the role space
  */
@@ -16,16 +13,14 @@ export default class RoleSpace extends EventEmitter{
   constructor(){
     super();
     try{
-      this.iwcClient = new iwc.Client("ACTIVITY");
+      this.iwcClient = new IWC.Client("ACTIVITY", "*", null);
       this.iwcClient.connect( this.iwcHandler.bind(this) );
-    }catch(e){
+    } catch(err) {
+     console.log(err);
     }
 
     // init Yjs
-    var spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    }
+    var spaceTitle = parent.caeRoom;
 
     var self = this
 
@@ -81,7 +76,8 @@ export default class RoleSpace extends EventEmitter{
       "action": "ACTION_DATA",
       "flags": ["PUBLISH_LOCAL"],
       "extras": {"payload":{"data":{"data":data,"type":"ActivityOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time},
-      "sender": "CODE_EDITOR"
+      "sender": "CODE_EDITOR",
+      "receiver": "User Activity"
     };try{
       this.iwcClient.publish(intent);
     }catch(e){
@@ -122,18 +118,6 @@ export default class RoleSpace extends EventEmitter{
     }
     this.lastClick=now;
     this.lastEntityId=entityId;
-  }
-
-  getObj(getObj){
-    return resourceGetPromise(getObj()).then(function(obj){
-      let deferred = $.Deferred();
-      if (typeof obj.data === "undefined") {
-        return waitPromise(500).then(()=>this.getObj(getObj)).then( (s) => {deferred.resolve(s);} );
-      }else{
-        deferred.resolve(obj);
-        return deferred.promise();
-      }
-    }.bind(this));
   }
 
   getComponentType(){
@@ -177,16 +161,8 @@ export default class RoleSpace extends EventEmitter{
     return this.componentName;
   }
 
-  getSpaceObj(){
-    return this.getObj(openapp.param.space);
-  }
-
-  getUserObj(){
-    return this.getObj(openapp.param.user);
-  }
-
   init(){
-    return $.when(this.getSpaceObj.bind(this)(),this.getUserObj.bind(this)())
+    return $.when()
     .then(this.initSpaceUserObject.bind(this))
     .then(this.loadComponentName.bind(this));
   }
@@ -217,19 +193,23 @@ export default class RoleSpace extends EventEmitter{
     return this.user.title;
   }
 
-  initSpaceUserObject(spaceObj,userObj){
-    this._spaceObj = spaceObj;
-    this._userObj = userObj;
-
+  initSpaceUserObject(){
     let deferred = $.Deferred();
-    let person = userObj.data[userObj.uri];
 
-    this.user = {
-      title : person[CONFIG.NS.PERSON.TITLE][0].value,
-      jabberid : person[CONFIG.NS.PERSON.JABBERID][0].value.replace("xmpp:","")
-    };
+    var self = this;
+    self.user = {};
+    var url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
 
-    this.title = spaceObj.subject[CONFIG.NS.PERSON.TITLE][0].value;
+    $.get(url, function(data){
+      self.user["title"] = data.name;
+      self.user["jabberid"] = data.sub;
+      deferred.resolve();
+    }).fail(function(error){
+        var id = self.generateRandomId();
+        self.user["title"] = 'Anonymous';
+        self.user["jabberid"] = id;
+        deferred.resolve();
+    });
 
     deferred.resolve();
     return deferred.promise();
@@ -253,4 +233,18 @@ export default class RoleSpace extends EventEmitter{
     this.removeListener("doubleClickEvent", listener);
   }
 
+  generateRandomId(length){
+    var chars = "1234567890abcdef";
+    var numOfChars = chars.length;
+    var i, rand;
+    var res = "";
+
+    if(typeof length === 'undefined') length = 24;
+
+    for(i = 0; i < length; i++){
+        rand = Math.floor(Math.random() * numOfChars);
+        res += chars[rand];
+    }
+    return res;
+  }
 }

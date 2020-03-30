@@ -32,7 +32,7 @@
 
 // global variables
 var client,
-  resourceSpace = new openapp.oo.Resource(openapp.param.space()), availableProjects = {}, availableCategories = {},
+  availableProjects = {}, availableCategories = {},
   selectedProjectId, selectedProjectName, selectedCategoryId, selectedCategoryName, projectConnected = false,
   localStorageKey = 'requirements-bazaar-widget', refreshRequirementsIntervalHandle, currentlyOpenedRequirementId;
 
@@ -101,7 +101,7 @@ var init = function () {
 
 function searchAndUpdateProjects(projectAutocomplete) {
   var value = projectAutocomplete.val();
-  client.sendRequest("GET", "projects?search=" + encodeURIComponent(value), "", "application/json", {},
+  client.sendRequest("GET", addAccessToken("projects?search=" + encodeURIComponent(value)), "", "application/json", {}, false,
     function (data, type) {
       updateProjectAutocomplete(projectAutocomplete, data)
     },
@@ -120,7 +120,7 @@ function updateProjectAutocomplete(projectAutocomplete, projects) {
 function searchAndUpdateCategories(categoryAutocomplete) {
   if (selectedProjectId) {
     var value = categoryAutocomplete.val();
-    client.sendRequest("GET", "projects/" + encodeURIComponent(selectedProjectId) + "/categories?search=" + encodeURIComponent(value), "", "application/json", {},
+    client.sendRequest("GET", addAccessToken("projects/" + encodeURIComponent(selectedProjectId) + "/categories?search=" + encodeURIComponent(value)), "", "application/json", {}, false,
       function (data, type) {
         updateCategoryAutocomplete(categoryAutocomplete, data)
       },
@@ -182,8 +182,8 @@ function onProjectDisconnected() {
 
 function refreshRequirements() {
   if (selectedProjectId && selectedCategoryId) {
-    client.sendRequest("GET", "categories/" + encodeURIComponent(selectedCategoryId) + "/requirements",
-      "", "application/json", {},
+    client.sendRequest("GET", addAccessToken("categories/" + encodeURIComponent(selectedCategoryId) + "/requirements"),
+      "", "application/json", {}, false,
       function (data, type) {
         renderRequirements(data)
       },
@@ -212,8 +212,8 @@ function renderRequirements(requirements) {
   });
   $('.done').click(function () {
     var requirementId = $(this).data('requirement-id');
-    client.sendRequest("POST", "requirements/" + encodeURIComponent(requirementId) + "/realized",
-      "", "application/json", {},
+    client.sendRequest("POST", addAccessToken("requirements/" + encodeURIComponent(requirementId) + "/realized"),
+      "", "application/json", {}, false,
       function (data, type) {
         refreshRequirements();
       },
@@ -221,8 +221,8 @@ function renderRequirements(requirements) {
   });
   $('.reopen').click(function () {
     var requirementId = $(this).data('requirement-id');
-    client.sendRequest("DELETE", "requirements/" + encodeURIComponent(requirementId) + "/realized",
-      "", "application/json", {},
+    client.sendRequest("DELETE", addAccessToken("requirements/" + encodeURIComponent(requirementId) + "/realized"),
+      "", "application/json", {}, false,
       function (data, type) {
         refreshRequirements();
       },
@@ -233,9 +233,9 @@ function renderRequirements(requirements) {
 function renderRequirement(requirement) {
   var actionButton;
   if (Object.keys(requirement).includes('realized')) {
-    actionButton = `<a class="waves-effect waves-teal btn-flat teal-text reopen" ${client.isAnonymous() ? 'disabled="true"' : ''} data-requirement-id="${requirement.id}" >Reopen</a>`;
+    actionButton = `<a class="waves-effect waves-teal btn-flat teal-text reopen" ${isAnonymous() ? 'disabled="true"' : ''} data-requirement-id="${requirement.id}" >Reopen</a>`;
   } else {
-    actionButton = `<a class="waves-effect waves-teal btn-flat teal-text done" ${client.isAnonymous() ? 'disabled="true"' : ''} data-requirement-id="${requirement.id}" >Done</a>`
+    actionButton = `<a class="waves-effect waves-teal btn-flat teal-text done" ${isAnonymous() ? 'disabled="true"' : ''} data-requirement-id="${requirement.id}" >Done</a>`
   }
   return `<li data-requirement-id="${requirement.id}" ${currentlyOpenedRequirementId == requirement.id ? 'class="active"' : ''}>
       <div class="collapsible-header" style="font-weight: bold">${requirement.name}</div>
@@ -248,6 +248,23 @@ function renderRequirement(requirement) {
     </div>
     </div>
     </li>`;
+}
+
+function isAnonymous() {
+  return localStorage.getItem('access_token') === null;
+}
+
+function addAccessToken(url) {
+  if (isAnonymous()) {
+    return url;
+  }
+
+  if (url.indexOf("\?") > 0) {
+    url += "&access_token=" + localStorage["access_token"];
+  } else {
+    url += "?access_token=" + localStorage["access_token"];
+  }
+  return url;
 }
 
 $(document).ready(function () {

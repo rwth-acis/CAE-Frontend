@@ -32,7 +32,6 @@
 
  // global variables
 var client,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null,
     loadedMetadataDocList = null,
@@ -258,7 +257,7 @@ var addTableRowHandler = function(y) {
         var endpointName = $(this).find(".doc_property").html();
         var operationType = $(this).find(".doc_operation").html();
 
-        client.sendRequest("GET", "docs/component/" + componentName , "", "application/json", {},
+        client.sendRequest("GET", "docs/component/" + componentName , "", "application/json", {}, false,
             function(value, type) {
                 var docObject = null;
 
@@ -317,7 +316,7 @@ var addTableRowHandler = function(y) {
                         var schemasMapConsume = processedConsumes[5];
 
                         // get all metadata from api and find matching endpoint
-                        client.sendRequest("GET", "docs/", "", "application/json", {}, function(data, type) {
+                        client.sendRequest("GET", "docs/", "", "application/json", {}, false, function(data, type) {
                             
                             $("#metadataMatchTable").show();
 
@@ -511,10 +510,7 @@ var init = function() {
 
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    };
+    spaceTitle = parent.caeRoom;
 
     Y({
         db: {
@@ -523,6 +519,7 @@ var init = function() {
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
+            options: { resource: "@@yjsresourcepath"},
             url: '@@yjsserver'
         },
         share: { // specify the shared content
@@ -621,7 +618,7 @@ var loadMetadataList = function(y) {
   $("#componentMetadataTable").html("");
   $("#componentMetadataMatchTable").html("");
 
-  client.sendRequest("GET", "docs/" , "", "application/json", {},
+  client.sendRequest("GET", "docs/" , "", "application/json", {}, false,
     function(data, type) {
         data.forEach(function(value) {
             processData(value);
@@ -645,7 +642,7 @@ var loadComponentMetadataList = function(y, componentName, version) {
   $("#componentMetadataTable").html("");
   $("#componentMetadataMatchTable").html("");
 
-  client.sendRequest("GET", restGet, "", "application/json", {},
+  client.sendRequest("GET", restGet, "", "application/json", {}, false,
     function(value, type) {
         processData(value);
     },

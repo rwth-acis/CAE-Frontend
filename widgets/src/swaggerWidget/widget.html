@@ -1,0 +1,195 @@
+<!--
+Copyright (c) 2015 Advanced Community Information Systems (ACIS) Group,
+Chair of Computer Science 5 (Databases & Information Systems), RWTH Aachen University, Germany
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of the ACIS Group nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Metadata Widget</title>
+
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Bootstrap stylesheet import -->
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+
+  <!-- import jQuery for AJAX calls -->
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <!-- Inter Widget Communication library import-->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/iwc.js"></script>
+  <!-- style information -->
+  <link rel="stylesheet" href="@@host/swaggerWidget/css/style.css">
+  <!-- import the client library -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/las2peerWidgetLibrary.js"></script>
+  <!-- import yjs -->
+  <script type="text/javascript" src="@@host/swaggerWidget/js/yjs/y.js"></script>
+  
+  <!-- import application script -->
+  <script type="text/javascript" src="@@host/swaggerWidget/js/applicationScript.js"></script>
+  <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
+
+  <!-- Additional widget specific imports -->
+  <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
+
+  <style>
+    .list-group-hover .list-group-item:hover {
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      margin-top: 20px;
+      overflow-y: scroll;
+      max-height: 770px;
+    }
+
+    .btn-group-center {
+      margin: 20px auto;
+    }
+
+    .header-node {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
+    .clicked {
+      background-color: #d9edf7 !important;
+    }
+
+    #schema-name {
+      margin-bottom: 10px;
+    }
+
+    .btn-group-schema {
+      margin-top: 20px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- container for actual page content -->
+  <div class="container" id="swagger-content">
+    <div class="panel panel-primary form-group" id="node-form">
+      <div class="panel-heading"><h3 class="panel-title">Node Information</h3></div>
+      <div class="panel-body">
+        <h4 class="header-node">Selected Node: <span class="label label-primary" id="node-name"></span></h4>
+        <br />
+        <label for="type">Description</label>
+        <input type="text" class="form-control" value="" id="node-description" disable placeholder="Description...">
+        
+        <label for="type">Node Schema</label>
+        <select id="node-schema" class="form-control">
+          <option value="">None</option>
+        </select>
+      </div>
+    </div>
+    <div class="panel panel-primary form-group">
+      <div class="panel-heading"><h3 class="panel-title">Basic Information</h3></div>
+      <div class="panel-body">
+        <label for="type">Component Name</label>
+        <input type="text" class="form-control" value="" id="name" disabled placeholder="Name...">
+        
+        <label for="type">Description</label>
+        <input type="text" class="form-control" value="" id="description" placeholder="Description...">
+        
+        <label for="type">Version</label>
+        <input type="text" class="form-control" value="" id="version" placeholder="Version...">
+
+        <label for="type">Terms of Service</label>
+        <input type="text" class="form-control" value="" id="termsOfService" placeholder="Terms of Service file...">
+      </div>
+    </div>
+
+    <div class="form-group panel panel-primary">
+      <div class="panel-heading"><h3 class="panel-title">Schemas Information</h3></div>
+      <div class="panel-body">
+        
+        <div class="panel panel-default">
+          <div class="panel-heading">Current Schemas</div>
+          <div class="panel-body">
+            <ul class="list-group list-group-hover" id="schema-list">
+            </ul>
+          </div>
+        </div>
+
+
+        <div class="btn-group btn-group-center">
+          <button type="button" id="schema-add" class="btn btn-success">Save Schema</button>
+          <button type="button" id="schema-delete" class="btn btn-danger">Delete Schema</button>
+        </div>
+
+        <hr />
+
+        <label for="type">Schema Name</label>
+        <input type="text" class="form-control" value="" id="schema-name" placeholder="Schema Name...">
+
+        <div class="panel panel-default form-group">
+          <div class="panel-heading"><h3 class="panel-title">Schema Properties</h3></div>
+          <div class="panel-body">
+            <h4>Selected Schema: <span class="label label-primary" id="schema-name-label">None</span></h4>
+            <table class="scrolltable table table-striped" id="propertiesTable">
+                <thead>
+                    <tr>
+                        <th>Property Name</th>
+                        <th>Property Type</th>
+                    </tr>
+                </thead>
+                <tbody id="schemaPropertiesTable"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <label for="type">Property Name</label>
+        <input type="text" class="form-control" value="" id="property-name" placeholder="Property Name...">
+        <select id="property-type" class="form-control">
+          <option value="string">string</option>
+          <option value="integer">integer</option>
+          <option value="boolean">boolean</option>
+        </select>
+
+        <div class="btn-group btn-group-center">
+          <button type="button" id="property-add" class="btn btn-success">Save Property</button>
+          <button type="button" id="property-delete" class="btn btn-danger">Delete Property</button>
+        </div>
+        
+        <input type="text" class="form-control" disable id="status" placeholder="Status..">
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

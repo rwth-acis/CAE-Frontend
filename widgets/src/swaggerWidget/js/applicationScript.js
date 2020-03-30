@@ -32,7 +32,6 @@
 
  // global variables
 var client,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null,
     loadedSwaggerDoc = null,
@@ -255,10 +254,7 @@ var init = function() {
   console.log("CAE HOST " + "@@caehost/CAE");
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    }
+  spaceTitle = parent.caeRoom;
   
   Y({
         db: {
@@ -267,6 +263,7 @@ var init = function() {
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
+            options: { resource: "@@yjsresourcepath"},
             url: '@@yjsserver'
         },
         share: { // specify the shared content
@@ -579,7 +576,7 @@ var loadModel = function(y) {
     console.log("[Swagger Widget] Load metadata for model " + loadedModel);
     // first, clean the current model
     y.share.data.set('metadataDoc', null);
-    client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {},
+    client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {}, false,
         function(data, type) {
             console.log("[Swagger Widget] Metadata doc loaded!");
             console.log(data);

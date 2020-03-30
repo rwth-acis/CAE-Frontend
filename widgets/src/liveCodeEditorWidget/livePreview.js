@@ -141,16 +141,10 @@ function processFiles(files){
       _fileDictionary[file.fileName] = file.content;
     }
 
-    let widgetFile = _fileDictionary["widget.xml"];
-    let widgetFileXml = $.parseXML( widgetFile );
-    let widgetFileDoc = $( widgetFileXml );
-    let height = widgetFileDoc.find("ModulePrefs:first").attr("height");
-    let width = widgetFileDoc.find("ModulePrefs:first").attr("width");
-    let contentText = widgetFileDoc.find("Content:first").text();
-
+    let contentText = _fileDictionary["index.html"]; 
     htmlDoc = $(contentText);
-    if( _hashes["widget.xml"] != getHash(widgetFile) ){
-      _hashes["widget.xml"] = getHash(widgetFile);
+    if( _hashes["index.html"] != getHash(contentText) ){
+      _hashes["index.html"] = getHash(contentText);
 
       let inlineStyles = htmlDoc.filter("style[type='text/css']");
       $("head style[type='text/css']").remove();

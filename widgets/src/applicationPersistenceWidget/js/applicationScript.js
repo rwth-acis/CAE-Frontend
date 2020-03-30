@@ -32,7 +32,6 @@
 
  // global variables
 var client,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null;
 
@@ -42,10 +41,7 @@ var init = function() {
   };
   client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
 
-  spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    };
+    spaceTitle = parent.caeRoom;
 
     Y({
         db: {
@@ -54,6 +50,7 @@ var init = function() {
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
+            options: { resource: "@@yjsresourcepath"},
             url: '@@yjsserver'
         },
         share: { // specify the shared content
@@ -123,7 +120,7 @@ var resetCurrentModel = function(y) {
 
 var pendingDots = 0;
 var getJobConsoleText = function(queueItem,jobAlias){
-  client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "text/plain", {},
+  client.sendRequest("GET", "deployStatus/", {queueItem:queueItem,jobAlias:jobAlias}, "text/plain", {}, false,
   function(data,type){
     if(data.indexOf("Pending") > -1){
       data = jobAlias + " job pending" + Array(pendingDots+1).join(".");
@@ -143,7 +140,6 @@ var getJobConsoleText = function(queueItem,jobAlias){
           $("#deploy-model").prop('disabled',true);
           feedback("Application is now ready!");
           $("#deploy-status").hide();
-          gadgets.window.adjustHeight();
         break;
       }
     }else if(data.indexOf("Finished: FAILURE") > - 1){
@@ -162,7 +158,6 @@ var getJobConsoleText = function(queueItem,jobAlias){
 
 var pollJobConsoleText = function(location,jobAlias){
   $("#deploy-status").show();
-  gadgets.window.adjustHeight();
   setTimeout(function(){
     var feedbackString = "Deployment in progess" + Array(pendingDots+1).join(".");
     feedback(feedbackString);
@@ -171,7 +166,7 @@ var pollJobConsoleText = function(location,jobAlias){
 }
 
 var deployRequest = function(jobAlias){
-  client.sendRequest("GET", "deploy/"+loadedModel+"/"+jobAlias, "", "text/plain", {},
+  client.sendRequest("GET", "deploy/"+loadedModel+"/"+jobAlias, "", "text/plain", {}, false,
     function(data, type) {
       if(data.indexOf("Error") > -1){
         feedback(data);
@@ -234,13 +229,13 @@ var storeModel = function(y) {
     y.share.canvas.set('ReloadWidgetOperation', 'import');
 
     if(loadedModel === null){
-      client.sendRequest("POST", "models", JSON.stringify(data), "application/json", {},
+      client.sendRequest("POST", "models", JSON.stringify(data), "application/json", {}, false,
       function(data, type) {
         // save currently loaded model
         loadedModel = $("#name").val();
         console.log("Model stored, retrieving communication view..");
         // send request for communication model
-        client.sendRequest("GET", "models/commView/" + loadedModel, "", "", {},
+        client.sendRequest("GET", "models/commView/" + loadedModel, "", "", {}, false,
         function(data, type) {
           console.log("retrieved communication model: " + data);
         },
@@ -255,7 +250,7 @@ var storeModel = function(y) {
         feedback(error);
       });
       } else{
-        client.sendRequest("PUT", "models/" + loadedModel, JSON.stringify(data), "application/json", {},
+        client.sendRequest("PUT", "models/" + loadedModel, JSON.stringify(data), "application/json", {}, false,
         function(data, type) {
           $("#deploy-model").prop('disabled',false);
           feedback("Model updated!");
@@ -281,7 +276,7 @@ var loadModel = function(y) {
 
     // now read in the file content
     modelName = $("#name").val();
-    client.sendRequest("GET", "models/" + modelName, "", "", {},
+    client.sendRequest("GET", "models/" + modelName, "", "", {}, false,
         function(data, type) {
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');

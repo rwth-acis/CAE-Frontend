@@ -53,7 +53,11 @@
 
  function createNode(name) {
    lastName = name;
-   client.sendFrontendComponentSelected()
+   var time = new Date().getTime();
+   var data = JSON.stringify({selectedToolName: "Frontend Component", name: name});
+   var intent = new IWC.Intent("FRONTEND_COMPONENT_SELECT_WIDGET", "Canvas", "ACTION_DATA", data, false);
+   intent.extras = {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time}
+   client.iwcClient.publish(intent);
  }
 
 
@@ -65,10 +69,10 @@
  *
  */
 var getServices = function() {
-  client.sendRequest("GET", "", "", "application/json", {},
+  client.sendRequest("GET", "", "", "application/json", {}, false,
   function(data, type) {
       $.each(data, function(index, value) {
-        client.sendRequest("GET", value, "", "application/json", {},
+        client.sendRequest("GET", value, "", "application/json", {}, false,
         function(data, type) {
           // add table rows
           var name = data.attributes.label.value.value;

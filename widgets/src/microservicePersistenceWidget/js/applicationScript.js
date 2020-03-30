@@ -33,7 +33,6 @@
  // global variables
 var client,
     metadataClient,
-    resourceSpace = new openapp.oo.Resource(openapp.param.space()),
     feedbackTimeout,
     loadedModel = null;
 
@@ -48,10 +47,7 @@ var init = function() {
     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
     metadataClient = new Las2peerWidgetLibrary("@@caehost/CAE/docs", metadataIwcCallback);
 
-    spaceTitle = frameElement.baseURI.substring(frameElement.baseURI.lastIndexOf('/') + 1);
-    if (spaceTitle.indexOf('#') != -1 || spaceTitle.indexOf('?') != -1) {
-        spaceTitle = spaceTitle.replace(/[#|\\?]\S*/g, '');
-    }
+    spaceTitle = parent.caeRoom;
 
     Y({
         db: {
@@ -60,6 +56,7 @@ var init = function() {
         connector: {
             name: 'websockets-client', // use the websockets connector
             room: spaceTitle,
+            options: { resource: "@@yjsresourcepath"},
             url: '@@yjsserver'
         },
         share: { // specify the shared content
@@ -165,7 +162,7 @@ var storeModel = function(y) {
 
         // save metadatadoc string to database
         if (loadedModel === null) {
-            client.sendRequest("POST", "", JSON.stringify(data), "application/json", {},
+            client.sendRequest("POST", "", JSON.stringify(data), "application/json", {}, false,
                 function(data, type) {
                     // save currently loaded model
                     loadedModel = $("#name").val();
@@ -176,7 +173,7 @@ var storeModel = function(y) {
                     feedback(error);
                 });
         } else {
-            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {},
+            client.sendRequest("PUT", loadedModel, JSON.stringify(data), "application/json", {}, false,
                 function(data, type) {
                     feedback("Model updated!");
                 },
@@ -191,7 +188,7 @@ var storeModel = function(y) {
             var version = $("#version").val();
             var name = $("#name").val();
             
-            metadataClient.sendRequest("POST", name + "/" + version, JSON.stringify(metadataDocString), "application/json", {},
+            metadataClient.sendRequest("POST", name + "/" + version, JSON.stringify(metadataDocString), "application/json", {}, false,
             function(data, type) {
                 // save currently loaded model
                 feedback("Metadata doc stored!");
@@ -222,7 +219,7 @@ var loadModel = function(y) {
 
     // now read in the file content
     modelName = $("#name").val();
-    client.sendRequest("GET", modelName, "", "", {},
+    client.sendRequest("GET", modelName, "", "", {}, false,
         function(data, type) {
             y.share.data.set('model', data);
             y.share.canvas.set('ReloadWidgetOperation', 'import');

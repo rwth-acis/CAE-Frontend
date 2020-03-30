@@ -3,6 +3,7 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON('package.json'),
 		host: typeof grunt.option('host') === 'string' ? grunt.option('host') : 'http://localhost:8001',
 		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
+		yjsresourcepath: grunt.option('yjsresourcepath'),
 		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
 		reqbazbackend: typeof grunt.option('reqbazbackend') === 'string' ? grunt.option('reqbazbackend') : 'http://localhost:8080',
 		reqbazfrontend: typeof grunt.option('reqbazfrontend') === 'string' ? grunt.option('reqbazfrontend') : 'http://localhost:8082',
@@ -86,6 +87,10 @@ module.exports = function(grunt) {
 							replace: '<%= yjsserver %>'
 						},
 						{
+							match: 'yjsresourcepath',
+							replace: '<%= yjsresourcepath %>'
+						},
+						{
 							match: 'caehost',
 							replace: '<%= caehost %>'
 						},
@@ -100,21 +105,35 @@ module.exports = function(grunt) {
 					]
 				},
 				files: [
+					{src: "src/frontendComponentPersistenceWidget/index.html", dest: "dist/frontendComponentPersistenceWidget/index.html"},
+					{src: "src/microservicePersistenceWidget/index.html", dest: "dist/microservicePersistenceWidget/index.html"},
+					{src: "src/applicationPersistenceWidget/widget.html", dest: "dist/applicationPersistenceWidget/widget.html"},
+
+
 					//CAE widgets XML
 					{src: "src/applicationPersistenceWidget/widget.xml", dest: "dist/applicationPersistenceWidget/widget.xml"},
 					{src: "src/frontendComponentPersistenceWidget/widget.xml", dest: "dist/frontendComponentPersistenceWidget/widget.xml"},
 					{src: "src/microservicePersistenceWidget/widget.xml", dest: "dist/microservicePersistenceWidget/widget.xml"},
 					
 					{src: "src/frontendComponentSelectWidget/widget.xml", dest: "dist/frontendComponentSelectWidget/widget.xml"},
+					{src: "src/frontendComponentSelectWidget/widget.html", dest: "dist/frontendComponentSelectWidget/widget.html"},
 					{src: "src/microserviceSelectWidget/widget.xml", dest: "dist/microserviceSelectWidget/widget.xml"},
+					{src: "src/microserviceSelectWidget/widget.html", dest: "dist/microserviceSelectWidget/widget.html"},
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 
 					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
+					{src: "src/metadataWidget/widget.html", dest: "dist/metadataWidget/widget.html"},
 					{src: "src/requirementsBazaarWidget/widget.xml", dest: "dist/requirementsBazaarWidget/widget.xml"},
+					{src: "src/requirementsBazaarWidget/index.html", dest: "dist/requirementsBazaarWidget/index.html"},
 					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
 
 					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
 					{src: "src/swaggerWidget/swaggerUiEditor.xml", dest: "dist/swaggerWidget/swaggerUiEditor.xml"},
+
+					{src: "src/swaggerWidget/widget.html", dest: "dist/swaggerWidget/widget.html"},
+
+					{src: "src/swaggerWidget/swaggerUi.html", dest: "dist/swaggerWidget/swaggerUi.html"},
+					{src: "src/swaggerWidget/swaggerUiEditor.html", dest: "dist/swaggerWidget/swaggerUiEditor.html"},
 
 					//CAE widgets JS
 					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
@@ -136,8 +155,11 @@ module.exports = function(grunt) {
 					// Code Editor
 					{src: "src/liveCodeEditorWidget/widget.xml", dest: "dist/liveCodeEditorWidget/widget.xml"},
 					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.xml", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.xml"},
+					{src: "src/liveCodeEditorWidget/MicroserviceEditorWidget.html", dest: "dist/liveCodeEditorWidget/MicroserviceEditorWidget.html"},
 					{src: "src/liveCodeEditorWidget/LivePreviewWidget.xml", dest: "dist/liveCodeEditorWidget/LivePreviewWidget.xml"},
+					{src: "src/liveCodeEditorWidget/LivePreviewWidget.html", dest: "dist/liveCodeEditorWidget/LivePreviewWidget.html"},
 					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.xml", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.xml"},
+					{src: "src/liveCodeEditorWidget/FrontendEditorWidget.html", dest: "dist/liveCodeEditorWidget/FrontendEditorWidget.html"},
 				]
 			}
 		},

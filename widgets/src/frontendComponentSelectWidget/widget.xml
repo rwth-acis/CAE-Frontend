@@ -71,13 +71,13 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 
   <!-- import jQuery for AJAX calls -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Inter Widget Communication library import-->
-  <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication@master/iwc.js"></script>
   <!-- style information -->
   <link rel="stylesheet" href="@@host/frontendComponentSelectWidget/css/style.css">
   <!-- import the client library -->
-  <script type="text/javascript" src="@@host/frontendComponentSelectWidget/js/extendedLas2peerWidgetLibrary.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication@master/las2peerWidgetLibrary.js"></script>
   <!-- import application script -->
   <script type="text/javascript" src="@@host/frontendComponentSelectWidget/js/applicationScript.js"></script>
   <script type="text/javascript" src="@@host/frontendComponentSelectWidget/js/syncmeta-plugin.js"></script>

@@ -72,20 +72,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
 
   <!-- import jQuery for AJAX calls -->
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Inter Widget Communication library import-->
-  <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/iwc.js"></script>
   <!-- style information -->
   <link rel="stylesheet" href="@@host/swaggerWidget/css/style.css">
   <!-- import the client library -->
-  <script type="text/javascript" src="@@host/swaggerWidget/js/las2peerWidgetLibrary.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/las2peerWidgetLibrary.js"></script>
   <!-- import yjs -->
   <script type="text/javascript" src="@@host/swaggerWidget/js/yjs/y.js"></script>
   
   <!-- import application script -->
   <script type="text/javascript" src="@@host/swaggerWidget/js/swaggerUiEditor.js"></script>
-  <script type="text/javascript" src="@@host/swaggerWidget/js/iwc.js"></script>
-  <script type="text/javascript" src="@@host/swaggerWidget/js/iwcOld.js"></script>
 
   <!-- Additional widget specific imports -->
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->

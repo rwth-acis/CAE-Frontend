@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Module>
-  <ModulePrefs title="Live Code Editor"
+  <ModulePrefs title="Live Preview"
     description="This widget provides the actual live code editing facilities for model-based community web applications."
     author="Thomas Winkler" author_email="winkler@dbis.rwth-aachen.de"
     width="800" height="500">
@@ -69,10 +69,10 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <![endif]-->
 
   <!-- OpenApp import -->
-  <script type="text/javascript" src="http://open-app.googlecode.com/files/openapp.js"></script>
+  <script type="text/javascript" src="https://open-app.googlecode.com/files/openapp.js"></script>
+  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
   <!-- Inter Widget Communication library import-->
-
-  <script type="text/javascript" src="@@host/liveCodeEditorWidget/iwc.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/iwc.js"></script>
   <!-- <script type="text/javascript" src="http://dbis.rwth-aachen.de/gadgets/iwc/lib/iwc.js"></script> -->
   <!-- import the client library -->
 
@@ -80,7 +80,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- lodash is needed for the syncmeta-specific model import / export functionality -->
 
   <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.9.3/lodash.min.js"></script>
-  <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/jquery/dist/jquery.min.js"></script>
   <script type="text/javascript" src="@@host/liveCodeEditorWidget/bower_components/yjs/y.js"></script>
   <script type="text/javascript" src="127.0.0.1:33333/dummy"></script>
 
