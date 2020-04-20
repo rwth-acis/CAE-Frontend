@@ -33,18 +33,6 @@
  var lastName = null;
 
  $(function() {
-     syncmeta.connect().done(function() {
-         syncmeta.onNodeAdd(function(event) {
-
-             if (lastName != null) {
-               window.setTimeout(function() {
-                 console.log(event)
-                 syncmeta.setAttributeValue(event.id, event.id+'[label]', lastName);
-                 lastName = null;
-               }, 100)
-             }
-         });
-     });
      var iwcCallback = function(intent) {
        console.log(intent);
      };
