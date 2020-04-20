@@ -33,20 +33,11 @@
  var lastName = null;
 
  $(function() {
-     syncmeta.connect().done(function() {
-         syncmeta.onNodeAdd(function(event) {
+     var iwcCallback = function(intent) {
+       console.log(intent);
+     };
 
-             if (lastName != null) {
-               window.setTimeout(function() {
-                 console.log(event)
-                 syncmeta.setAttributeValue(event.id, event.id+'[label]', lastName);
-                 lastName = null;
-               }, 100)
-             }
-         });
-     });
-
-     client = new Las2peerWidgetLibrary("@@caehost/CAE/models");
+     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback, '*');
 
      getServices()
  });

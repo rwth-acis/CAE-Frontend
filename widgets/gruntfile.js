@@ -140,9 +140,7 @@ module.exports = function(grunt) {
 					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
 					{src: "src/applicationPersistenceWidget/js/applicationScript.js", dest: "dist/applicationPersistenceWidget/js/applicationScript.js"},
 					
-					{src: "src/frontendComponentSelectWidget/js/syncmeta-plugin.js", dest:"dist/frontendComponentSelectWidget/js/syncmeta-plugin.js"},
 					{src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest:"dist/frontendComponentSelectWidget/js/applicationScript.js"},
-					{src: "src/microserviceSelectWidget/js/syncmeta-plugin.js", dest:"dist/microserviceSelectWidget/js/syncmeta-plugin.js"},
 					{src: "src/microserviceSelectWidget/js/applicationScript.js", dest:"dist/microserviceSelectWidget/js/applicationScript.js"},
 
 					{src: "src/metadataWidget/js/applicationScript.js", dest: "dist/metadataWidget/js/applicationScript.js"},

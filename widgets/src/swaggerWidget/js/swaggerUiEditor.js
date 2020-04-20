@@ -68,7 +68,7 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback, '*');
 
   spaceTitle = parent.caeRoom;
   

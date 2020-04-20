@@ -40,7 +40,7 @@ var init = function () {
   var iwcCallback = function (intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("@@reqbazbackend", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@reqbazbackend", iwcCallback, '*');
 
   loadConnectedProject();
   if (selectedProjectId && selectedCategoryId) {

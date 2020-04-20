@@ -2,20 +2,10 @@ var client;
 var lastMicroserviceName = null;
 
 $(function() {
-    syncmeta.connect().done(function() {
-        syncmeta.onNodeAdd(function(event) {
-
-            if (lastMicroserviceName != null) {
-              window.setTimeout(function() {
-                console.log(event)
-                syncmeta.setAttributeValue(event.id, event.id+'[label]', lastMicroserviceName);
-                lastMicroserviceName = null;
-              }, 100)
-            }
-        });
-    });
-
-    client = new Las2peerWidgetLibrary("@@caehost/CAE/models");
+    var iwcCallback = function(intent) {
+      console.log(intent);
+    };
+    client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback, '*');
 
     getServices()
 });
