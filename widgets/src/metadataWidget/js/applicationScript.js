@@ -508,7 +508,7 @@ var init = function() {
     this.loadedMetadataDocList();
   };
 
-  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback, '*');
 
     spaceTitle = parent.caeRoom;
 

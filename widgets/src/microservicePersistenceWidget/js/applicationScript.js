@@ -44,8 +44,8 @@ var init = function() {
     var metadataIwcCallback = function(intent) {
         console.log(intent);
     };
-    client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
-    metadataClient = new Las2peerWidgetLibrary("@@caehost/CAE/docs", metadataIwcCallback);
+    client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback, '*');
+    metadataClient = new Las2peerWidgetLibrary("@@caehost/CAE/docs", metadataIwcCallback, '*');
 
     spaceTitle = parent.caeRoom;
 

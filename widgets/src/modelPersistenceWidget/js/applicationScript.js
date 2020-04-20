@@ -39,7 +39,7 @@ var init = function() {
   var iwcCallback = function(intent) {
     console.log(intent);
   };
-  client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback, '*');
 
   $('#delete-model').on('click', function() {
     resetCurrentModel();

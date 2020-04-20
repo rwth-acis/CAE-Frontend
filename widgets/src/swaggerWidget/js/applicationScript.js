@@ -252,7 +252,7 @@ var init = function() {
     console.log(intent);
   };
   console.log("CAE HOST " + "@@caehost/CAE");
-  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback);
+  client = new Las2peerWidgetLibrary("@@caehost/CAE", iwcCallback, '*');
 
   spaceTitle = parent.caeRoom;
   

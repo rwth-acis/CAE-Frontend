@@ -45,8 +45,11 @@
              }
          });
      });
+     var iwcCallback = function(intent) {
+       console.log(intent);
+     };
 
-     client = new Las2peerWidgetLibrary("@@caehost/CAE/models");
+     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback, '*');
 
      getServices()
  });
