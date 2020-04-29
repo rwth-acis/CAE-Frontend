@@ -36,14 +36,13 @@ grunt --host="$WEBHOST/cae-frontend" --yjsserver=$YJS --yjsresourcepath=$YJS_RES
 cd ..
 
 #### Syncmeta ####
-cd syncmeta
-SYNCMETA_CONF=.localGruntConfig.json
-cp .localGruntConfig.json.sample $SYNCMETA_CONF
+cd syncmeta/widgets
+cp .localGruntConfig.json.sample .localGruntConfig.json
 sed -i "s=http://localhost:8081=$WEBHOST/syncmeta=g" .localGruntConfig.json
 sed -i "s=http://localhost:1234=$YJS=g" .localGruntConfig.json
 sed -i "s=/socket.io=$YJS_RESOURCE_PATH=g" .localGruntConfig.json
 grunt build
-cd ..
+cd ../..
 
 #### Wireframe ####
 cd CAE-WireframingEditor
