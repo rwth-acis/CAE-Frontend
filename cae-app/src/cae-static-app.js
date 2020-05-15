@@ -58,7 +58,7 @@ class CaeStaticApp extends PolymerElement {
   _pageChanged(currentPage, oldPage) {
     switch (currentPage) {
       case 'project-management':
-        import('./project-management.js').then()
+        import('./project-management/project-management.js').then()
         break;
       case 'cae-modeling':
         import('./cae-modeling.js').then()
