@@ -12,28 +12,29 @@ import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 class ProjectManagement extends LitElement {
   render() {
     return html`
-      <p>This is the Project Management page.</p>
-      <a href="/cae-modeling">Link to Modeling</a> 
+      <!--<p>This is the Project Management page.</p>
+      <a href="/cae-modeling">Link to Modeling</a>-->
       
       <custom-style>
         <style is="custom-style">
           .flex-horizontal-with-ratios {
             @apply --layout-horizontal;
           }
-          .flexchild {
+          .flex-project-user {
             @apply --layout-flex;
           }
-          .flex2child {
+          .flex-project-explorer {
             @apply --layout-flex-2;
+            margin-right: 1em;
           }
         </style>
       </custom-style>
       
       <div class="container flex-horizontal-with-ratios">
-        <div class="flex2child">
+        <div class="flex-project-explorer">
           <project-explorer></project-explorer>
         </div>
-        <div class="flexchild">
+        <div class="flex-project-user">
           <project-user></project-user>
         </div>
       </div>
