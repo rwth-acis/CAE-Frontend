@@ -4,6 +4,7 @@ import '@polymer/paper-dropdown-menu/paper-dropdown-menu.js';
 import '@polymer/paper-item/paper-item.js';
 import '@polymer/paper-listbox/paper-listbox.js';
 import '@polymer/iron-icon/iron-icon';
+import '@polymer/paper-dialog/paper-dialog.js';
 
 /**
  * PolymerElement for management of project users.
@@ -24,7 +25,7 @@ class ProjectUser extends LitElement {
           height: 600px;
           border-left: thin solid #eeeeee;
         }
-        .dropdown-menu {
+        .dropdown-menu-project {
           width: 100%;
         }
         .separator {
@@ -47,14 +48,20 @@ class ProjectUser extends LitElement {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
         }
+        .button-danger {
+          background: rgb(255,93,84);
+        }
+        .button-danger:hover {
+          background: rgb(216,81,73);
+        }
         .edit-icon {
           color: #c6c6c6;
         }
       </style>
       <div class="main">
         <div style="margin-left: 1em; margin-right: 1em">
-        <paper-dropdown-menu class="dropdown-menu" label="Select Project">
-          <paper-listbox slot="dropdown-content" class="dropdown-content">
+        <paper-dropdown-menu class="dropdown-menu-project" label="Select Project">
+          <paper-listbox slot="dropdown-content">
             ${this.getListOfCurrentUsersProjects().map(usersProject => html`
               <paper-item @click="${() => this._onProjectSelected(usersProject.id)}">${usersProject.name}</paper-item>
             `)}
@@ -67,7 +74,7 @@ class ProjectUser extends LitElement {
               <div style="width: 100%; display: flex; align-items: center">
                 <p>${user.name}</p>
                 <p style="margin-right: 0.5em; margin-left: auto">${user.role}</p>
-                <iron-icon class="edit-icon" icon="create"></iron-icon>
+                <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
               </div>
               <div class="separator"></div>
             `)}
@@ -79,12 +86,31 @@ class ProjectUser extends LitElement {
           </div>
         ` : html``}
       </div>
+      
+      
+      <!-- Dialog for editing user in a project. -->
+      <paper-dialog id="dialog-edit-user">
+        <h2>Edit User: ${this.editingUser ? html`${this.editingUser.name}` : html``}</h2>
+        
+        <paper-dropdown-menu label="Select Role">
+          <paper-listbox slot="dropdown-content" selected="1">
+            <paper-item>Frontend Modeler</paper-item>
+            <paper-item>Application Modeler</paper-item>
+            <paper-item>Backend Modeler</paper-item>
+            <paper-item>Software Engineer</paper-item>
+          </paper-listbox>
+        </paper-dropdown-menu>
+        
+        <div style="align-items: center">
+          <paper-button class="button-danger">Remove From Project</paper-button>
+        </div>
+        
+        <div>
+          <paper-button>Cancel</paper-button>
+          <paper-button>Save</paper-button>
+        </div>
+      </paper-dialog>
     `;
-  }
-
-  widgetClicked() {
-    console.log('widget clicked');
-    this.$.modal.open();
   }
 
   static get properties() {
@@ -94,6 +120,9 @@ class ProjectUser extends LitElement {
       },
       projectSelected: {
         type: Boolean
+      },
+      editingUser: {
+        type: Object
       }
     }
   }
@@ -102,6 +131,11 @@ class ProjectUser extends LitElement {
     super();
     this.userList = [];
     this.projectSelected = false;
+  }
+
+  _userEditButtonClicked(user) {
+    this.editingUser = user;
+    this.shadowRoot.getElementById("dialog-edit-user").open()
   }
 
   _onProjectSelected(projectId) {

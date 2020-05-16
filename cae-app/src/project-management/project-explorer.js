@@ -2,6 +2,7 @@ import {html, LitElement} from 'lit-element';
 import '@polymer/paper-card/paper-card.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
+import '@polymer/paper-dialog/paper-dialog.js';
 
 /**
  * PolymerElement for management of projects.
@@ -90,6 +91,18 @@ class ProjectExplorer extends LitElement {
             </paper-card>
         `)}
       </div>
+      
+      <!-- Dialog for creating new projects. -->
+      <paper-dialog id="dialog-create-project">
+        <h2>Create a Project</h2>
+        
+        <paper-input placeholder="Project Name"></paper-input>
+        
+        <div>
+          <paper-button>Cancel</paper-button>
+          <paper-button>Create</paper-button>
+        </div>
+      </paper-dialog>
     `;
   }
 
@@ -119,8 +132,15 @@ class ProjectExplorer extends LitElement {
     ];
   }
 
+  /**
+   * Gets called by the "Create Project" button.
+   * Opens the dialog for creating a project, which then
+   * lets the user select a name for the project that should
+   * be created.
+   * @private
+   */
   _onCreateProjectButtonClicked() {
-    console.log("create project button clicked");
+    this.shadowRoot.getElementById("dialog-create-project").open();
   }
 
   _onProjectItemClicked(projectId) {
