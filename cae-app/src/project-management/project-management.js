@@ -1,6 +1,6 @@
 import {html, LitElement} from 'lit-element';
 import './project-explorer';
-import './project-user';
+import './project-info';
 import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 
 /**
@@ -20,7 +20,7 @@ class ProjectManagement extends LitElement {
           .flex-horizontal-with-ratios {
             @apply --layout-horizontal;
           }
-          .flex-project-user {
+          .flex-project-info {
             @apply --layout-flex;
           }
           .flex-project-explorer {
@@ -32,13 +32,23 @@ class ProjectManagement extends LitElement {
       
       <div class="container flex-horizontal-with-ratios">
         <div class="flex-project-explorer">
-          <project-explorer></project-explorer>
+          <project-explorer @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"></project-explorer>
         </div>
-        <div class="flex-project-user">
-          <project-user></project-user>
+        <div class="flex-project-info">
+          <project-info id="project-info"></project-info>
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Gets called when a user selects a project in the project explorer.
+   * Notifies the project user widget about this event.
+   * @param eventDetail Details of the event sent from the explorer.
+   * @private
+   */
+  _onProjectSelected(eventDetail) {
+    this.shadowRoot.getElementById("project-info")._onProjectSelected(eventDetail.project);
   }
 }
 

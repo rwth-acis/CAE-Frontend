@@ -38,7 +38,7 @@ class ProjectExplorer extends LitElement {
         }
         .input-search-project {
           border-radius: 3px;
-          border: thin solid #e6e6e6;
+          border: thin solid #e1e1e1;
           margin-top: 0.5em;
           margin-bottom: 0.5em;
           margin-left: auto;
@@ -128,8 +128,17 @@ class ProjectExplorer extends LitElement {
       {
         "id": 3,
         "name": "Project 3"
+      },
+      {
+        "id": 4,
+        "name": "Project 4"
       }
     ];
+  }
+
+  // TODO: currently only for visualization of frontend without backend connection
+  getProjectById(id) {
+    return this.listedProjects.find(x => x.id == id);
   }
 
   /**
@@ -152,8 +161,22 @@ class ProjectExplorer extends LitElement {
     this.shadowRoot.getElementById("dialog-create-project").close();
   }
 
+  /**
+   * Gets called when the user clicks on a project in the project explorer.
+   * Fires an event that notifies the parent element (ProjectManagement page)
+   * that a project got selected.
+   * From there it then gets send to the project user widget.
+   * @param projectId Id of the project that got selected in the explorer.
+   * @private
+   */
   _onProjectItemClicked(projectId) {
-    console.log("project with id " + projectId + " clicked");
+    let event = new CustomEvent("project-selected-event", {
+      detail: {
+        message: "Selected project in project explorer.",
+        project: this.getProjectById(projectId)
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   /**
