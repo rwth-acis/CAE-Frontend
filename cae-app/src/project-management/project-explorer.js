@@ -99,7 +99,7 @@ class ProjectExplorer extends LitElement {
         <paper-input placeholder="Project Name"></paper-input>
         
         <div>
-          <paper-button>Cancel</paper-button>
+          <paper-button @click="${this._closeCreateProjectDialogClicked}">Cancel</paper-button>
           <paper-button>Create</paper-button>
         </div>
       </paper-dialog>
@@ -141,6 +141,15 @@ class ProjectExplorer extends LitElement {
    */
   _onCreateProjectButtonClicked() {
     this.shadowRoot.getElementById("dialog-create-project").open();
+  }
+
+  /**
+   * Gets called when the user clicks on the
+   * "Close" button in the create project dialog.
+   * @private
+   */
+  _closeCreateProjectDialogClicked() {
+    this.shadowRoot.getElementById("dialog-create-project").close();
   }
 
   _onProjectItemClicked(projectId) {

@@ -106,7 +106,7 @@ class ProjectUser extends LitElement {
         </div>
         
         <div>
-          <paper-button>Cancel</paper-button>
+          <paper-button @click="${this._closeEditUserDialogClicked}">Cancel</paper-button>
           <paper-button>Save</paper-button>
         </div>
       </paper-dialog>
@@ -131,6 +131,15 @@ class ProjectUser extends LitElement {
     super();
     this.userList = [];
     this.projectSelected = false;
+  }
+
+  /**
+   * Gets called when the user wants to close
+   * the edit user dialog.
+   * @private
+   */
+  _closeEditUserDialogClicked() {
+    this.shadowRoot.getElementById("dialog-edit-user").close();
   }
 
   _userEditButtonClicked(user) {
