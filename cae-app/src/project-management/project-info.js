@@ -72,14 +72,13 @@ class ProjectInfo extends LitElement {
           border: 1px solid #e1e1e1;
           margin-top: auto;
           margin-bottom: auto;
-          margin-left: auto;
           padding: 0.1em 0.2em;
           border-radius: 3px;
         }
         .github-a {
-          margin-left: auto;
           margin-top: auto;
           margin-bottom: auto;
+          margin-left: 1em;
         }
         .github-img {
           width: 1.5em;
@@ -94,7 +93,7 @@ class ProjectInfo extends LitElement {
               <h3>${this.selectedProject.name}</h3>
             </div>
             
-            <!-- Components of the project -->
+            <!-- Frontend and Microservice Components of the project -->
             <div class="components">
               <paper-tabs selected="0">
                 <paper-tab @click="${() => this._onTabChanged(0)}">Frontend Components</paper-tab>
@@ -103,15 +102,31 @@ class ProjectInfo extends LitElement {
               ${this.currentlyShownComponents.map(component => html`
                 <div style="display: flex">
                   <p>${component.name}</p>
-                  ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
-                  ${component.type == "github" ? html`
+                  <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
+                    <!-- Label for dependencies -->
+                    ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
+                    <!-- Label for external dependencies -->
+                    ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
+                    <!-- Link to GitHub (or later maybe GitLab) -->
                     <a href="${component.github_url}" class="github-a">
                       <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
                     </a>
-                  ` : html``}
+                  </div>
                 </div>
                 <div class="separator"></div>
               `)}
+            </div>
+            
+            <!-- Application Component -->
+            <div class="application-component" style="margin-left: 1em; margin-right: 1em">
+              <h4>Application Component</h4>
+              <div style="display: flex">
+                <a href="/cae-modeling">Open in Modeling Space</a>
+                <a href="https://github.com" style="margin-left: auto; margin-top: auto; margin-bottom: auto">
+                  <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
+                </a>
+              </div>
+              <div class="separator"></div>
             </div>
             
             <!-- Users of the project -->
@@ -294,15 +309,17 @@ class ProjectInfo extends LitElement {
     return [
       {
         "name": "Frontend Component 1",
-        "type": "standard"
+        "type": "standard",
+        "github_url": "https://github.com"
       },
       {
         "name": "Frontend Component 2",
-        "type": "dependency"
+        "type": "dependency",
+        "github_url": "https://github.com"
       },
       {
         "name": "Frontend Component 3",
-        "type": "github",
+        "type": "external_dependency",
         "github_url": "https://github.com"
       }
     ];
@@ -313,15 +330,18 @@ class ProjectInfo extends LitElement {
     return [
       {
         "name": "Microservice 1",
-        "type": "standard"
+        "type": "standard",
+        "github_url": "https://github.com"
       },
       {
         "name": "Microservice 2",
-        "type": "standard"
+        "type": "standard",
+        "github_url": "https://github.com"
       },
       {
         "name": "Microservice 3",
-        "type": "dependency"
+        "type": "dependency",
+        "github_url": "https://github.com"
       }
     ];
   }
