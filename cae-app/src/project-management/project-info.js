@@ -34,7 +34,7 @@ class ProjectInfo extends LitElement {
         .separator {
            border-top: thin solid #e1e1e1;
         }
-        .input-username {
+        .input {
           width: 100%;
           margin-right: 0.5em;
           border-radius: 3px;
@@ -50,6 +50,9 @@ class ProjectInfo extends LitElement {
         paper-button:hover {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
+        }
+        paper-button[disabled] {
+          background: #e1e1e1;
         }
         .button-danger {
           background: rgb(255,93,84);
@@ -129,6 +132,20 @@ class ProjectInfo extends LitElement {
               <div class="separator"></div>
             </div>
             
+            <!-- Requirements Bazaar -->
+            <div class="requirements-bazaar" style="margin-left: 1em; margin-right: 1em">
+              <h4>Requirements Bazaar</h4>
+                ${this.isConnectedToReqBaz ? html`Connected.` : html`
+                  <p>This CAE project is not connected to the Requirements Bazaar yet. Select a project and category to connect:</p>
+                  <div style="display: flex">
+                    <input class="input-reqbaz-url input" @input="${(e) => this._onReqBazURLChanged(e.target.value)}" placeholder="Paste URL to Category" style="margin-left: 0"></input>
+                    <paper-button @click="${this._onConnectReqBazClicked}" ?disabled="${!this.urlMatchesReqBazFormat}" style="margin-left: auto">Add</paper-button>
+                  </div>
+                  ${this.urlMatchesReqBazFormat ? html`` : html`<p>Entered URL does not match the required format.</p>`}
+                `}
+              <div class="separator"></div>
+            </div>
+            
             <!-- Users of the project -->
             <div class="user-list" style="margin-left: 1em; margin-right: 1em; overflow: auto; max-height: 25em">
               <h4>Users</h4>
@@ -144,7 +161,7 @@ class ProjectInfo extends LitElement {
             
             <!-- Add users to the project -->
             <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-              <input class="input-username" placeholder="Enter Username" style="margin-left: 0"></input>
+              <input class="input-username input" placeholder="Enter Username" style="margin-left: 0"></input>
               <paper-button @click="${this._onAddUserToProjectClicked}" style="margin-left: auto">Add</paper-button>
             </div>
           ` :
@@ -194,6 +211,17 @@ class ProjectInfo extends LitElement {
       },
       currentlyShownComponents: {
         type: Array
+      },
+      isConnectedToReqBaz: {
+        type: Boolean
+      },
+      /**
+       * When the user enters an URL to the Requirements Bazaar,
+       * this property is used to tell whether the entered
+       * URL matches the required format.
+       */
+      urlMatchesReqBazFormat: {
+        type: Boolean
       }
     }
   }
@@ -202,6 +230,32 @@ class ProjectInfo extends LitElement {
     super();
     this.userList = [];
     this.currentlyShownComponents = [];
+    this.isConnectedToReqBaz = false;
+    this.urlMatchesReqBazFormat = false;
+  }
+
+  /**
+   * Gets called when the CAE project is not yet
+   * connected to the Requirements Bazaar and the user updates the
+   * URL to the Requiremenets Bazaar category.
+   * @param t
+   * @private
+   */
+  _onReqBazURLChanged(url) {
+    console.log(url);
+    const regexp = new RegExp("https:\/\/requirements-bazaar\.org\/projects\/(\\d+)\/categories\/(\\d+)");
+    this.urlMatchesReqBazFormat = regexp.test(url);
+  }
+
+  /**
+   * Gets called when the Connect button for the Requirements Bazaar
+   * gets clicked.
+   * The button is only clickable if the entered url matches the required
+   * format for a category on the Requirements Bazaar.
+   * @private
+   */
+  _onConnectReqBazClicked() {
+    this.isConnectedToReqBaz = true;
   }
 
   /**
