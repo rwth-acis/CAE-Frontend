@@ -92,8 +92,10 @@ class ProjectInfo extends LitElement {
         ${this.selectedProject ?
       html`
             <!-- Title of project -->
-            <div class="project-title" style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
+            <div class="project-title" style="display: flex; margin-left: 1em; margin-right: 1em;">
               <h3>${this.selectedProject.name}</h3>
+              <!-- Button for adding components to a project -->
+              <paper-button @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
             </div>
             
             <!-- Frontend and Microservice Components of the project -->
@@ -245,6 +247,66 @@ class ProjectInfo extends LitElement {
           <paper-button>Save</paper-button>
         </div>
       </paper-dialog>
+      
+      <!-- Dialog for adding components to a project. -->
+      <paper-dialog id="dialog-add-component">
+        <div>
+          <h4>Create New Component:</h4>
+          <div style="display: flex; align-items: center">
+            <!-- Select Component Type -->
+            <paper-dropdown-menu label="Select Type" style="min-width: 15em">
+              <paper-listbox slot="dropdown-content" selected="0">
+                <paper-item>Frontend Component</paper-item>
+                <paper-item>Microservice Component</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <!-- Enter Component Name -->
+            <input class="input" style="margin-left: 1em" placeholder="Enter Component Name"></input>
+            <!-- Button for creating component -->
+            <paper-button>Create</paper-button>
+          </div>
+          <div class="separator"></div>
+        </div>
+        <div>
+          <h4>Include Dependency:</h4>
+          <div style="display: flex; align-items: center">
+            <!-- Search for Component -->
+            <input class="input" placeholder="Search Component"></input>
+            <!-- Select Component version -->
+            <paper-dropdown-menu label="Select Version" style="min-width: 5em; margin-left: 0.5em">
+              <paper-listbox slot="dropdown-content" selected="0">
+                <paper-item>0.0.1</paper-item>
+                <paper-item>0.0.2</paper-item>
+                <paper-item>0.1.0</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <!-- Button for adding component -->
+            <paper-button>Add</paper-button>
+          </div>
+          <div class="separator"></div>
+        </div>
+        <div>
+          <h4>Include External Dependency:</h4>
+          <div style="display: flex; align-items: center">
+            <!-- Enter GitHub URL of external component -->
+            <input class="input" placeholder="Enter GitHub URL"></input>
+            <!-- Select Component version -->
+            <paper-dropdown-menu label="Select Version" style="min-width: 5em; margin-left: 0.5em">
+              <paper-listbox slot="dropdown-content" selected="0">
+                <paper-item>0.0.1</paper-item>
+                <paper-item>0.0.2</paper-item>
+                <paper-item>0.1.0</paper-item>
+              </paper-listbox>
+            </paper-dropdown-menu>
+            <!-- Button for adding component -->
+            <paper-button>Add</paper-button>
+          </div>
+          <div class="separator"></div>
+        </div>
+        <div>
+          <paper-button @click="${this._closeAddComponentDialogClicked}">Close</paper-button>
+        </div>
+      </paper-dialog>
     `;
   }
 
@@ -333,6 +395,15 @@ class ProjectInfo extends LitElement {
     this.shadowRoot.getElementById("dialog-edit-role").close();
   }
 
+  /**
+   * Gets called when the user want to close
+   * the add component dialog.
+   * @private
+   */
+  _closeAddComponentDialogClicked() {
+    this.shadowRoot.getElementById("dialog-add-component").close();
+  }
+
   _userEditButtonClicked(user) {
     this.editingUser = user;
     this.shadowRoot.getElementById("dialog-edit-user").open()
@@ -341,6 +412,10 @@ class ProjectInfo extends LitElement {
   _roleEditButtonClicked(role) {
     this.editingRole = role;
     this.shadowRoot.getElementById("dialog-edit-role").open();
+  }
+
+  _onAddComponentClicked() {
+    this.shadowRoot.getElementById("dialog-add-component").open();
   }
 
   /**
