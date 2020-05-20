@@ -21,10 +21,10 @@ class ProjectManagement extends LitElement {
             @apply --layout-horizontal;
           }
           .flex-project-info {
-            @apply --layout-flex-3;
+            @apply --layout-flex;
           }
           .flex-project-explorer {
-            @apply --layout-flex-5;
+            @apply --layout-flex;
             margin-right: 1em;
           }
         </style>

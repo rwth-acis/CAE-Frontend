@@ -185,8 +185,8 @@ class ProjectExplorer extends LitElement {
    */
   getListOfProjectOnlineUsers(projectId) {
     // only some test data for now
-    if(projectId == 1) return "Alice, Bob";
-    if(projectId == 2) return "Chris";
+    if(projectId == 1) return "Alice Lastname, Bob Lastname and 2 more";
+    if(projectId == 2) return "Chris Lastname";
     else return undefined;
   }
 }

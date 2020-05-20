@@ -146,34 +146,71 @@ class ProjectInfo extends LitElement {
               <div class="separator"></div>
             </div>
             
-            <!-- Users of the project -->
-            <div class="user-list" style="margin-left: 1em; margin-right: 1em; overflow: auto; max-height: 25em">
-              <h4>Users</h4>
-              ${this.userList.map(user => html`
-                <div style="width: 100%; display: flex; align-items: center">
-                  <p>${user.name}</p>
-                  <p style="margin-right: 0.5em; margin-left: auto">${user.role}</p>
-                  <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
+            <custom-style>
+        <style is="custom-style">
+          .flex-horizontal-with-ratios {
+            @apply --layout-horizontal;
+          }
+          .flex-project-users {
+            @apply --layout-flex;
+          }
+          .flex-project-roles {
+            @apply --layout-flex;
+          }
+        </style>
+      </custom-style>
+            <div class="flex-horizontal-with-ratios">
+              <div clas="flex-project-users" style="width: 100%">
+                <!-- Users of the project -->
+                <div class="user-list" style="margin-left: 1em; margin-right: 1em; overflow: auto; max-height: 25em">
+                  <h4>Users</h4>
+                  ${this.userList.map(user => html`
+                    <div style="width: 100%; display: flex; align-items: center">
+                      <p>${user.name}</p>
+                      <p style="margin-right: 0.5em; margin-left: auto">${user.role}</p>
+                      <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
+                    </div>
+                    <div class="separator"></div>
+                  `)}
                 </div>
-                <div class="separator"></div>
-              `)}
-            </div>
             
-            <!-- Add users to the project -->
-            <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-              <input class="input-username input" placeholder="Enter Username" style="margin-left: 0"></input>
-              <paper-button @click="${this._onAddUserToProjectClicked}" style="margin-left: auto">Add</paper-button>
+                <!-- Add users to the project -->
+                <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
+                  <input class="input-username input" placeholder="Enter Username" style="margin-left: 0"></input>
+                  <paper-button @click="${this._onAddUserToProjectClicked}" style="margin-left: auto">Add</paper-button>
+                </div>
+              </div>
+              <div class="project-roles" style="width: 100%; border-left: thin solid #e1e1e1;">
+                <!-- Roles of the project -->
+                <div style="margin-left: 1em; margin-right: 1em">
+                  <h4>Roles</h4>
+                  ${this.roleList.map(role => html`
+                    <div style="width: 100%; display: flex; align-items: center">
+                      <p>${role}</p>
+                      <iron-icon @click="${() => this._roleEditButtonClicked(role)}" class="edit-icon"
+                          icon="create" style="margin-left: auto"></iron-icon>
+                    </div>
+                    <div class="separator"></div>
+                  `)}
+                </div>
+                
+                <!-- Add roles to the project -->
+                <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
+                  <input class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"></input>
+                  <paper-button @click="${this._onAddRoleToProjectClicked}" style="margin-left: auto">Add</paper-button>
+                </div>
+              </div>
             </div>
           ` :
       html`
-            <div class="project-title" style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
+            <div class="flex-project-roles" style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
               <p>No project selected.</p>
             </div>
           `
     }
       </div>
       
-      <!-- Dialog for editing user in a project. -->
+      <!-- Dialog for editing a user in a project. -->
       <paper-dialog id="dialog-edit-user">
         <h2>Edit User: ${this.editingUser ? html`${this.editingUser.name}` : html``}</h2>
         
@@ -195,6 +232,19 @@ class ProjectInfo extends LitElement {
           <paper-button>Save</paper-button>
         </div>
       </paper-dialog>
+      
+      <!-- Dialog for editing a role in a project. -->
+      <paper-dialog id="dialog-edit-role">
+        <h2>Edit Role: ${this.editingRole}</h2>
+        <div style="align-items: center">
+          <paper-button class="button-danger">Remove From Project</paper-button>
+        </div>
+        
+        <div>
+          <paper-button @click="${this._closeEditRoleDialogClicked}">Cancel</paper-button>
+          <paper-button>Save</paper-button>
+        </div>
+      </paper-dialog>
     `;
   }
 
@@ -203,11 +253,17 @@ class ProjectInfo extends LitElement {
       userList: {
         type: Array
       },
+      roleList: {
+        type: Array
+      },
       selectedProject: {
         type: Object
       },
       editingUser: {
         type: Object
+      },
+      editingRole: {
+        type: String
       },
       currentlyShownComponents: {
         type: Array
@@ -229,6 +285,7 @@ class ProjectInfo extends LitElement {
   constructor() {
     super();
     this.userList = [];
+    this.roleList = [];
     this.currentlyShownComponents = [];
     this.isConnectedToReqBaz = false;
     this.urlMatchesReqBazFormat = false;
@@ -267,9 +324,23 @@ class ProjectInfo extends LitElement {
     this.shadowRoot.getElementById("dialog-edit-user").close();
   }
 
+  /**
+   * Gets called when the user wants to close
+   * the edit role dialog.
+   * @private
+   */
+  _closeEditRoleDialogClicked() {
+    this.shadowRoot.getElementById("dialog-edit-role").close();
+  }
+
   _userEditButtonClicked(user) {
     this.editingUser = user;
     this.shadowRoot.getElementById("dialog-edit-user").open()
+  }
+
+  _roleEditButtonClicked(role) {
+    this.editingRole = role;
+    this.shadowRoot.getElementById("dialog-edit-role").open();
   }
 
   /**
@@ -281,6 +352,8 @@ class ProjectInfo extends LitElement {
   _onProjectSelected(project) {
     this.selectedProject = project;
     this.userList = this.getUsersByProject(project.id);
+    // TODO: only for frontend testing
+    this.roleList = ["Frontend Modeler", "Application Modeler", "Backend Modeler", "Software Engineer"];
 
     // TODO: only for frontend testing
     this.currentlyShownComponents = this.getFrontendComponentsByProject(project.id);
@@ -288,6 +361,10 @@ class ProjectInfo extends LitElement {
 
   _onAddUserToProjectClicked() {
     console.log("add user to project clicked");
+  }
+
+  _onAddRoleToProjectClicked() {
+    console.log("add role to project clicked");
   }
 
   _onTabChanged(tabIndex) {
@@ -304,17 +381,17 @@ class ProjectInfo extends LitElement {
       return [
         {
           "id": 1,
-          "name": "Alice",
+          "name": "Alice Lastname",
           "role": "Frontend Modeler"
         },
         {
           "id": 2,
-          "name": "Bob",
+          "name": "Bob Lastname",
           "role": "Software Engineer"
         },
         {
           "id": 3,
-          "name": "Dave",
+          "name": "Dave Lastname",
           "role": "Frontend Modeler"
         }
       ];
@@ -323,12 +400,12 @@ class ProjectInfo extends LitElement {
       return [
         {
           "id": 3,
-          "name": "Dave",
+          "name": "Dave Lastname",
           "role": "Frontend Modeler"
         },
         {
           "id": 4,
-          "name": "Chris",
+          "name": "Chris Lastname",
           "role": "Software Engineer"
         }
       ];
@@ -337,7 +414,7 @@ class ProjectInfo extends LitElement {
       return [
         {
           "id": 4,
-          "name": "Chris",
+          "name": "Chris Lastname",
           "role": "Software Engineer"
         }
       ];
@@ -346,12 +423,12 @@ class ProjectInfo extends LitElement {
       return [
         {
           "id": 4,
-          "name": "Chris",
+          "name": "Chris Lastname",
           "role": "Software Engineer"
         },
         {
           "id": 2,
-          "name": "Bob",
+          "name": "Bob Lastname",
           "role": "Software Engineer"
         }
       ]
