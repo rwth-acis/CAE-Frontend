@@ -3,6 +3,7 @@ import '@polymer/paper-card/paper-card.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-dialog/paper-dialog.js';
+import Auth from "../auth";
 
 /**
  * PolymerElement for management of projects.
@@ -96,13 +97,26 @@ class ProjectExplorer extends LitElement {
       <paper-dialog id="dialog-create-project">
         <h2>Create a Project</h2>
         
-        <paper-input placeholder="Project Name"></paper-input>
+        <paper-input id="input-project-name" placeholder="Project Name"></paper-input>
         
         <div>
           <paper-button @click="${this._closeCreateProjectDialogClicked}">Cancel</paper-button>
-          <paper-button>Create</paper-button>
+          <paper-button @click="${this._createProject}">Create</paper-button>
         </div>
       </paper-dialog>
+      
+      <!-- Toasts -->
+      <!-- Toast for successful creation of project -->
+      <paper-toast id="toast-success" text="Project created!"></paper-toast>
+      
+      <!-- Toast for creation fail because of project with same name already existing -->
+      <custom-style><style is="custom-style">
+        #toast-already-existing {
+          --paper-toast-background-color: red;
+          --paper-toast-color: white;
+        }
+      </style></custom-style>
+      <paper-toast id="toast-already-existing" text="A project with the given name already exists!"></paper-toast>
     `;
   }
 
@@ -150,6 +164,35 @@ class ProjectExplorer extends LitElement {
    */
   _onCreateProjectButtonClicked() {
     this.shadowRoot.getElementById("dialog-create-project").open();
+  }
+
+  /**
+   * Get called when the user click on "create" in the
+   * create project dialog.
+   */
+  _createProject() {
+    const projectName = this.shadowRoot.getElementById("input-project-name").value;
+    if(projectName) {
+      fetch("http://localhost:8080/project-management/projects", {
+        method: "POST",
+        headers: Auth.getAuthHeader(),
+        body: JSON.stringify({
+          "name": projectName
+        })
+      }).then(response => {
+        // close dialog
+        this._closeCreateProjectDialogClicked();
+
+        if(response.status == 201) {
+          // project got created successfully
+          this.shadowRoot.getElementById("toast-success").show();
+        } else if(response.status == 409) {
+          // a project with the given name already exists
+          this.shadowRoot.getElementById("toast-already-existing").show();
+        }
+        // TODO: check what happens when access_token is missing in localStorage
+      });
+    }
   }
 
   /**

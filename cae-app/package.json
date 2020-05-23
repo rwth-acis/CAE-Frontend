@@ -19,6 +19,7 @@
     "@polymer/paper-item": "^3.0.1",
     "@polymer/paper-listbox": "^3.0.1",
     "@polymer/paper-tabs": "^3.1.0",
+    "@polymer/paper-toast": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
     "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#0.2.1",
     "las2peer-frontend-user-widget": "github:rwth-acis/las2peer-frontend-user-widget#0.2.1",

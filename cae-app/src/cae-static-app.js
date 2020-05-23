@@ -3,6 +3,7 @@ import 'las2peer-frontend-statusbar/las2peer-frontend-statusbar.js';
 import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
+import Auth from "./auth";
 
 /**
  * CaeStaticApp is the main PolymerElement of the CAE.
@@ -42,9 +43,6 @@ class CaeStaticApp extends PolymerElement {
       page:{
         type: String,
         observer: '_pageChanged'
-      },
-      authHeader: {
-        type: Object
       }
     };
   }
@@ -79,24 +77,23 @@ class CaeStaticApp extends PolymerElement {
   }
 
   handleLogin(event) {
+    localStorage.setItem("access_token", event.detail.access_token);
+    localStorage.setItem("userinfo_endpoint", "https://api.learning-layers.eu/o/oauth2/userinfo");
+
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
-    this.authHeader = {"access-token": event.detail.access_token, "Authorization": "Basic OnRlc3Q="};
     // TODO: adjust url (should be configureable in docker run command)
     fetch("http://localhost:8080/project-management/users/me", {
-      headers: this.authHeader
+      headers: Auth.getAuthHeader()
     })
       .then(response => response.json())
       .then(data => {
         console.log(data);
       });
-    localStorage.setItem("access_token", event.detail.access_token);
-    localStorage.setItem("userinfo_endpoint", "https://api.learning-layers.eu/o/oauth2/userinfo");
     location.reload();
   }
 
   handleLogout() {
-    this.authHeader = null;
     localStorage.removeItem("access_token");
     localStorage.removeItem("userinfo_endpoint");
   }
