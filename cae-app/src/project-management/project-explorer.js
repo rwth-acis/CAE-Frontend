@@ -130,24 +130,26 @@ class ProjectExplorer extends LitElement {
 
   constructor() {
     super();
-    this.listedProjects = [
-      {
-        "id": 1,
-        "name": "Project 1"
-      },
-      {
-        "id": 2,
-        "name": "Project 2"
-      },
-      {
-        "id": 3,
-        "name": "Project 3"
-      },
-      {
-        "id": 4,
-        "name": "Project 4"
-      }
-    ];
+    this.listedProjects = [];
+    this.loadUsersProjects();
+  }
+
+  /**
+   * Loads the projects that the user is part from.
+   */
+  loadUsersProjects() {
+    fetch("http://localhost:8080/project-management/projects", {
+      method: "GET",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(!response.ok) throw Error(response.status);
+      return response.json();
+    }).then(data => {
+      this.listedProjects = data;
+    }).catch(error => {
+      console.log("error:");
+      console.log(error);
+    });
   }
 
   // TODO: currently only for visualization of frontend without backend connection
@@ -186,6 +188,9 @@ class ProjectExplorer extends LitElement {
         if(response.status == 201) {
           // project got created successfully
           this.shadowRoot.getElementById("toast-success").show();
+
+          // since a new project exists, reload projects from server
+          this.loadUsersProjects();
         } else if(response.status == 409) {
           // a project with the given name already exists
           this.shadowRoot.getElementById("toast-already-existing").show();
