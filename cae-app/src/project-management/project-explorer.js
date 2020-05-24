@@ -33,6 +33,9 @@ class ProjectExplorer extends LitElement {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
         }
+        paper-button[disabled] {
+          background: #e1e1e1;
+        }
         .explorer-top-menu {
           display: flex;
           align-items: center;
@@ -97,11 +100,12 @@ class ProjectExplorer extends LitElement {
       <paper-dialog id="dialog-create-project">
         <h2>Create a Project</h2>
         
-        <paper-input id="input-project-name" placeholder="Project Name"></paper-input>
+        <paper-input id="input-project-name" @input="${(e) => this._onInputProjectNameChanged(e.target.value)}" 
+            placeholder="Project Name"></paper-input>
         
         <div>
           <paper-button @click="${this._closeCreateProjectDialogClicked}">Cancel</paper-button>
-          <paper-button @click="${this._createProject}">Create</paper-button>
+          <paper-button id="dialog-button-create" @click="${this._createProject}">Create</paper-button>
         </div>
       </paper-dialog>
       
@@ -166,6 +170,22 @@ class ProjectExplorer extends LitElement {
    */
   _onCreateProjectButtonClicked() {
     this.shadowRoot.getElementById("dialog-create-project").open();
+    // disable create button until user entered a project name
+    this.shadowRoot.getElementById("dialog-button-create").disabled = true;
+  }
+
+  /**
+   * Gets called when the user changes the input of the project name input field
+   * in the create project dialog.
+   * @param projectName Input
+   * @private
+   */
+  _onInputProjectNameChanged(projectName) {
+    if(projectName) {
+      this.shadowRoot.getElementById("dialog-button-create").disabled = false;
+    } else {
+      this.shadowRoot.getElementById("dialog-button-create").disabled = true;
+    }
   }
 
   /**
@@ -189,6 +209,9 @@ class ProjectExplorer extends LitElement {
           // project got created successfully
           this.shadowRoot.getElementById("toast-success").show();
 
+          // clear input field for project name in the dialog
+          this.shadowRoot.getElementById("input-project-name").value = "";
+
           // since a new project exists, reload projects from server
           this.loadUsersProjects();
         } else if(response.status == 409) {
@@ -207,6 +230,9 @@ class ProjectExplorer extends LitElement {
    */
   _closeCreateProjectDialogClicked() {
     this.shadowRoot.getElementById("dialog-create-project").close();
+    
+    // clear input field for project name in the dialog
+    this.shadowRoot.getElementById("input-project-name").value = "";
   }
 
   /**

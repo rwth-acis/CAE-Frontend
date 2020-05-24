@@ -94,8 +94,7 @@ class CaeStaticApp extends PolymerElement {
   }
 
   handleLogout() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("userinfo_endpoint");
+    Auth.removeAuthDataFromLocalStorage();
   }
 }
 
