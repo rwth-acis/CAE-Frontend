@@ -160,7 +160,6 @@ class ProjectExplorer extends LitElement {
     });
   }
 
-  // TODO: currently only for visualization of frontend without backend connection
   getProjectById(id) {
     return this.listedProjects.find(x => x.id == id);
   }

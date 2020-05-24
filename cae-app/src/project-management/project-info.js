@@ -7,6 +7,7 @@ import '@polymer/iron-icon/iron-icon';
 import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
+import Auth from "../auth";
 
 /**
  * PolymerElement for management of project components and users.
@@ -41,6 +42,10 @@ class ProjectInfo extends LitElement {
           border: thin solid #e1e1e1;
           height: 2.5em;
           padding-left:5px;
+        }
+        /* Set outline to none, otherwise the border color changes when clicking on input field. */
+        .input:focus {
+          outline: none;
         }
         paper-button {
           color: rgb(240,248,255);
@@ -162,13 +167,13 @@ class ProjectInfo extends LitElement {
         </style>
       </custom-style>
             <div class="flex-horizontal-with-ratios">
-              <div clas="flex-project-users" style="width: 100%">
+              <div class="flex-project-users">
                 <!-- Users of the project -->
                 <div class="user-list" style="margin-left: 1em; margin-right: 1em; overflow: auto; max-height: 25em">
                   <h4>Users</h4>
                   ${this.userList.map(user => html`
                     <div style="width: 100%; display: flex; align-items: center">
-                      <p>${user.name}</p>
+                      <p>${user.loginName}</p>
                       <p style="margin-right: 0.5em; margin-left: auto">${user.role}</p>
                       <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
                     </div>
@@ -178,11 +183,13 @@ class ProjectInfo extends LitElement {
             
                 <!-- Add users to the project -->
                 <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                  <input class="input-username input" placeholder="Enter Username" style="margin-left: 0"></input>
-                  <paper-button @click="${this._onAddUserToProjectClicked}" style="margin-left: auto">Add</paper-button>
+                  <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
+                      @input="${(e) => this._onAddUserInputChanged(e.target.value)}"></input>
+                  <paper-button id="button-add-user" @click="${this._onAddUserToProjectClicked}"
+                      style="margin-left: auto">Add</paper-button>
                 </div>
               </div>
-              <div class="project-roles" style="width: 100%; border-left: thin solid #e1e1e1;">
+              <div class="flex-project-roles" style="border-left: thin solid #e1e1e1;">
                 <!-- Roles of the project -->
                 <div style="margin-left: 1em; margin-right: 1em">
                   <h4>Roles</h4>
@@ -198,14 +205,16 @@ class ProjectInfo extends LitElement {
                 
                 <!-- Add roles to the project -->
                 <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                  <input class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"></input>
-                  <paper-button @click="${this._onAddRoleToProjectClicked}" style="margin-left: auto">Add</paper-button>
+                  <input class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
+                      @input="${(e) => this._onAddRoleInputChanged(e.target.value)}"></input>
+                  <paper-button id="button-add-role" @click="${this._onAddRoleToProjectClicked}"
+                      style="margin-left: auto">Add</paper-button>
                 </div>
               </div>
             </div>
           ` :
       html`
-            <div class="flex-project-roles" style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
+            <div style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
               <p>No project selected.</p>
             </div>
           `
@@ -307,6 +316,16 @@ class ProjectInfo extends LitElement {
           <paper-button @click="${this._closeAddComponentDialogClicked}">Close</paper-button>
         </div>
       </paper-dialog>
+      
+      <!-- Toasts -->
+      <!-- Toast for successfully adding user to project -->
+      <paper-toast id="toast-success-adding-user" text="Added user to project!"></paper-toast>
+      
+      <!-- Toast: User with given name not found. -->
+      <paper-toast id="toast-user-not-found" text="Could not find user with given name."></paper-toast>
+      
+      <!-- Toast: User is alredy member of the project. -->
+      <paper-toast id="toast-user-already-member" text="User is already member of the project."></paper-toast>
     `;
   }
 
@@ -357,11 +376,10 @@ class ProjectInfo extends LitElement {
    * Gets called when the CAE project is not yet
    * connected to the Requirements Bazaar and the user updates the
    * URL to the Requiremenets Bazaar category.
-   * @param t
+   * @param url The entered url.
    * @private
    */
   _onReqBazURLChanged(url) {
-    console.log(url);
     const regexp = new RegExp("https:\/\/requirements-bazaar\.org\/projects\/(\\d+)\/categories\/(\\d+)");
     this.urlMatchesReqBazFormat = regexp.test(url);
   }
@@ -426,16 +444,98 @@ class ProjectInfo extends LitElement {
    */
   _onProjectSelected(project) {
     this.selectedProject = project;
-    this.userList = this.getUsersByProject(project.id);
+
+    // set users of the project
+    this.userList = project.users;
+    // TODO: only for frontend testing
+    // add roles to the users for testing the frontend (later they will be loaded from the API)
+    this.userList.map(user => {
+      user.role = "Frontend Modeler";
+      return user;
+    });
+
     // TODO: only for frontend testing
     this.roleList = ["Frontend Modeler", "Application Modeler", "Backend Modeler", "Software Engineer"];
 
     // TODO: only for frontend testing
     this.currentlyShownComponents = this.getFrontendComponentsByProject(project.id);
+
+    // disable buttons for adding users and roles
+    // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
+    this.requestUpdate().then(e => {
+      this.shadowRoot.getElementById("button-add-user").disabled = true;
+      this.shadowRoot.getElementById("button-add-role").disabled = true;
+    });
+  }
+
+  /**
+   * Gets called when the input of the username field gets changed.
+   * @param username Current value of the input field.
+   * @private
+   */
+  _onAddUserInputChanged(username) {
+    if(username) {
+      this.shadowRoot.getElementById("button-add-user").disabled = false;
+    } else {
+      this.shadowRoot.getElementById("button-add-user").disabled = true;
+    }
+  }
+
+  /**
+   * Gets called when the input of the role field gets changed.
+   * @param role Current value of the input field.
+   * @private
+   */
+  _onAddRoleInputChanged(role) {
+    if(role) {
+      this.shadowRoot.getElementById("button-add-role").disabled = false;
+    } else {
+      this.shadowRoot.getElementById("button-add-role").disabled = true;
+    }
   }
 
   _onAddUserToProjectClicked() {
-    console.log("add user to project clicked");
+    // get entered username
+    const loginName = this.shadowRoot.getElementById("input-username").value;
+    const projectId = this.selectedProject.id;
+
+    fetch("http://localhost:8080/project-management/projects/" + projectId + "/users", {
+      method: "POST",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "loginName": loginName
+      })
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      } else {
+        throw Error(response.status);
+      }
+    }).then(data => {
+      // data is the user which got added to the project
+      // show toast message
+      this.shadowRoot.getElementById("toast-success-adding-user").show();
+
+      // show the new user in the users list of the project
+      this.userList.push(data);
+      this.requestUpdate();
+
+      // NOTE: this.userList references to project.users (gets set in _onProjectSelected)
+      // and project is part of the listedProjects array in the project explorer
+      // Thus: the listedProjects automatically contains the newly added user
+
+      // clear input text and deactivate button
+      this.shadowRoot.getElementById("input-username").value = "";
+      this.shadowRoot.getElementById("button-add-user").disabled = true;
+    }).catch(error => {
+      if(error.message == "404") {
+        // user with given name could not be found
+        this.shadowRoot.getElementById("toast-user-not-found").show();
+      } else if(error.message == "409") {
+        // user is already member of the project
+        this.shadowRoot.getElementById("toast-user-already-member").show();
+      }
+    });
   }
 
   _onAddRoleToProjectClicked() {
@@ -448,65 +548,6 @@ class ProjectInfo extends LitElement {
       this.currentlyShownComponents = this.getFrontendComponentsByProject(projectId);
     } else {
       this.currentlyShownComponents = this.getMicroserviceComponentsByProject(projectId);
-    }
-  }
-
-  getUsersByProject(projectId) {
-    if(projectId == 1) {
-      return [
-        {
-          "id": 1,
-          "name": "Alice Lastname",
-          "role": "Frontend Modeler"
-        },
-        {
-          "id": 2,
-          "name": "Bob Lastname",
-          "role": "Software Engineer"
-        },
-        {
-          "id": 3,
-          "name": "Dave Lastname",
-          "role": "Frontend Modeler"
-        }
-      ];
-    }
-    if(projectId == 2) {
-      return [
-        {
-          "id": 3,
-          "name": "Dave Lastname",
-          "role": "Frontend Modeler"
-        },
-        {
-          "id": 4,
-          "name": "Chris Lastname",
-          "role": "Software Engineer"
-        }
-      ];
-    }
-    if(projectId == 3) {
-      return [
-        {
-          "id": 4,
-          "name": "Chris Lastname",
-          "role": "Software Engineer"
-        }
-      ];
-    }
-    if(projectId == 4) {
-      return [
-        {
-          "id": 4,
-          "name": "Chris Lastname",
-          "role": "Software Engineer"
-        },
-        {
-          "id": 2,
-          "name": "Bob Lastname",
-          "role": "Software Engineer"
-        }
-      ]
     }
   }
 

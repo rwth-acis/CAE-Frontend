@@ -40,7 +40,8 @@ class ProjectManagement extends LitElement {
       ${Auth.isAccessTokenAvailable() ? html`
         <div class="container flex-horizontal-with-ratios">
           <div class="flex-project-explorer">
-            <project-explorer @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"></project-explorer>
+            <project-explorer id="project-explorer" 
+                @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"></project-explorer>
           </div>
           <div class="flex-project-info">
             <project-info id="project-info"></project-info>
@@ -61,7 +62,11 @@ class ProjectManagement extends LitElement {
    * @private
    */
   _onProjectSelected(eventDetail) {
-    this.shadowRoot.getElementById("project-info")._onProjectSelected(eventDetail.project);
+    this.getProjectInfo()._onProjectSelected(eventDetail.project);
+  }
+
+  getProjectInfo() {
+    return this.shadowRoot.getElementById("project-info");
   }
 }
 
