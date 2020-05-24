@@ -3,6 +3,9 @@
  */
 export default class Auth {
 
+  static KEY_ACCESS_TOKEN = "access_token";
+  static KEY_USERINFO_ENDPOINT = "userinfo_endpoint";
+
   /**
    * Helper method for creating header for HTTP requests.
    * Sets access token for las2peer OIDC auth to the access token
@@ -11,7 +14,7 @@ export default class Auth {
    */
   static getAuthHeader() {
     return {
-      "access-token": localStorage.getItem("access_token"),
+      "access-token": localStorage.getItem(this.KEY_ACCESS_TOKEN),
       "Authorization": "Basic OnRlc3Q=",
       "Content-Type": "application/json"}
   }
@@ -23,7 +26,24 @@ export default class Auth {
    * token expired.
    */
   static removeAuthDataFromLocalStorage() {
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("userinfo_endpoint");
+    localStorage.removeItem(this.KEY_ACCESS_TOKEN);
+    localStorage.removeItem(this.KEY_USERINFO_ENDPOINT);
+  }
+
+  /**
+   * Stores the given access token and the userinfo endpoint to localStorage.
+   * @param access_token Access token to store.
+   */
+  static setAuthDataToLocalStorage(access_token) {
+    localStorage.setItem("access_token", access_token);
+    localStorage.setItem("userinfo_endpoint", "https://api.learning-layers.eu/o/oauth2/userinfo");
+  }
+
+  /**
+   * Checks if access token is stored in localStorage.
+   * @returns {boolean} Whether access token is stored in localStorage.
+   */
+  static isAccessTokenAvailable() {
+    return localStorage.getItem(this.KEY_ACCESS_TOKEN) !== null;
   }
 }

@@ -77,8 +77,7 @@ class CaeStaticApp extends PolymerElement {
   }
 
   handleLogin(event) {
-    localStorage.setItem("access_token", event.detail.access_token);
-    localStorage.setItem("userinfo_endpoint", "https://api.learning-layers.eu/o/oauth2/userinfo");
+    Auth.setAuthDataToLocalStorage(event.detail.access_token);
 
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this

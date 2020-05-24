@@ -230,7 +230,7 @@ class ProjectExplorer extends LitElement {
    */
   _closeCreateProjectDialogClicked() {
     this.shadowRoot.getElementById("dialog-create-project").close();
-    
+
     // clear input field for project name in the dialog
     this.shadowRoot.getElementById("input-project-name").value = "";
   }
