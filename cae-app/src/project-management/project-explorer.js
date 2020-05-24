@@ -49,6 +49,10 @@ class ProjectExplorer extends LitElement {
           height: 2.5em;
           padding-left:5px;
         }
+        /* Set outline to none, otherwise the border color changes when clicking on input field. */
+        .input-search-project:focus {
+          outline: none;
+        }
         .project-item-card {
           display: flex;
           width: 100%;
@@ -83,7 +87,8 @@ class ProjectExplorer extends LitElement {
       <div class="main">
         <div class="explorer-top-menu">
           <paper-button class="button-create-project" @click="${this._onCreateProjectButtonClicked}">Create Project</paper-button>
-          <input class="input-search-project" placeholder="Search Projects"></input>
+          <input class="input-search-project" @input="${(e) => this._onSearchInputChanged(e.target.value)}" 
+              placeholder="Search Projects"></input>
         </div>
         ${this.listedProjects.map(project => html`
             <paper-card class="project-item-card" @click="${() => this._onProjectItemClicked(project.id)}">
@@ -151,7 +156,6 @@ class ProjectExplorer extends LitElement {
     }).then(data => {
       this.listedProjects = data;
     }).catch(error => {
-      console.log("error:");
       console.log(error);
     });
   }
@@ -185,6 +189,31 @@ class ProjectExplorer extends LitElement {
       this.shadowRoot.getElementById("dialog-button-create").disabled = false;
     } else {
       this.shadowRoot.getElementById("dialog-button-create").disabled = true;
+    }
+  }
+
+  /**
+   * Gets called when the search input gets updated by the user.
+   * @param searchInput Input from the user entered in the input field for searching projects.
+   * @private
+   */
+  _onSearchInputChanged(searchInput) {
+    if(searchInput) {
+      // clear projects that are currently shown
+      this.listedProjects = [];
+      // use API to search for projects
+      fetch("http://localhost:8080/project-management/projects/" + searchInput)
+        .then(response => {
+          if(!response.ok) throw Error(response.status);
+          return response.json();
+        }).then(data => {
+          this.listedProjects = data;
+        }).catch(error => {
+          console.log(error);
+        });
+    } else {
+      // no search input, so show projects where the user is part of again
+      this.loadUsersProjects();
     }
   }
 
