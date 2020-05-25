@@ -205,7 +205,7 @@ class ProjectInfo extends LitElement {
                 
                 <!-- Add roles to the project -->
                 <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                  <input class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
+                  <input id="input-role" class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
                       @input="${(e) => this._onAddRoleInputChanged(e.target.value)}"></input>
                   <paper-button id="button-add-role" @click="${this._onAddRoleToProjectClicked}"
                       style="margin-left: auto">Add</paper-button>
@@ -223,7 +223,7 @@ class ProjectInfo extends LitElement {
       
       <!-- Dialog for editing a user in a project. -->
       <paper-dialog id="dialog-edit-user">
-        <h2>Edit User: ${this.editingUser ? html`${this.editingUser.name}` : html``}</h2>
+        <h2>Edit User: ${this.editingUser ? html`${this.editingUser.loginName}` : html``}</h2>
         
         <paper-dropdown-menu label="Select Role">
           <paper-listbox slot="dropdown-content" selected="1">
@@ -246,9 +246,9 @@ class ProjectInfo extends LitElement {
       
       <!-- Dialog for editing a role in a project. -->
       <paper-dialog id="dialog-edit-role">
-        <h2>Edit Role: ${this.editingRole}</h2>
+        <h2>Edit Role: ${this.editingRole ? html`${this.editingRole.name}` : html``}</h2>
         <div style="align-items: center">
-          <paper-button class="button-danger">Remove From Project</paper-button>
+          <paper-button class="button-danger" @click="${this._removeRoleFromProjectClicked}">Remove From Project</paper-button>
         </div>
         
         <div>
@@ -324,11 +324,23 @@ class ProjectInfo extends LitElement {
       <!-- Toast: User with given name not found. -->
       <paper-toast id="toast-user-not-found" text="Could not find user with given name."></paper-toast>
       
-      <!-- Toast: User is alredy member of the project. -->
+      <!-- Toast: User is already member of the project. -->
       <paper-toast id="toast-user-already-member" text="User is already member of the project."></paper-toast>
       
       <!-- Toast for successfully removing user from project -->
       <paper-toast id="toast-success-removing-user" text="Removed user from project!"></paper-toast>
+      
+      <!-- Toast for successfully adding role to project -->
+      <paper-toast id="toast-success-adding-role" text="Added role to project!"></paper-toast>
+      
+      <!-- Toast: Role with same name already exists in the project. -->
+      <paper-toast id="toast-role-already-existing" text="Role with same name already exists in the project."></paper-toast>
+      
+      <!-- Toast: There exists at least one user who has assigned the role. Thus the role cannot be removed. -->
+      <paper-toast id="toast-role-still-assigned" text="Cannot remove role since it is assigned to at least one user!"></paper-toast>
+      
+      <!-- Toast for successfully removing role from project -->
+      <paper-toast id="toast-success-removing-role" text="Removed role from project!"></paper-toast>
     `;
   }
 
@@ -571,8 +583,89 @@ class ProjectInfo extends LitElement {
     });
   }
 
+  /**
+   * Gets called when the user wants to add a role to the currently shown project.
+   * Sends a request to the API and tries to add the role to the project.
+   * @private
+   */
   _onAddRoleToProjectClicked() {
-    console.log("add role to project clicked");
+    const projectId = this.selectedProject.id;
+    const roleName = this.shadowRoot.getElementById("input-role").value;
+
+    fetch("http://localhost:8080/project-management/projects/" + projectId + "/roles", {
+      method: "POST",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "name": roleName
+      })
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      } else {
+        throw Error(response.status);
+      }
+    }).then(data => {
+      // data is the role which got added to the project
+      // show toast message
+      this.shadowRoot.getElementById("toast-success-adding-role").show();
+
+      // show the new role in the roles list of the project
+      this.roleList.push(data);
+      this.requestUpdate();
+
+      // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
+      // and project is part of the listedProjects array in the project explorer
+      // Thus: the listedProjects automatically contains the newly added role
+
+      // clear input text and deactivate button
+      this.shadowRoot.getElementById("input-role").value = "";
+      this.shadowRoot.getElementById("button-add-role").disabled = true;
+    }).catch(error => {
+      if(error.message == "409") {
+        // role with same name already exists
+        this.shadowRoot.getElementById("toast-role-already-existing").show();
+      }
+    });
+  }
+
+  /**
+   * Gets called when the user wants to remove the selected role from the project.
+   * Sends a request to the API and tries to remove the role.
+   * If the role is still assigned to at least one user in the project, then removing it
+   * will not work, but a toast notifying the user about this will be shown.
+   * @private
+   */
+  _removeRoleFromProjectClicked() {
+    // close dialog
+    this._closeEditRoleDialogClicked();
+
+    const projectId = this.selectedProject.id;
+    const roleToRemove = this.editingRole;
+
+    fetch("http://localhost:8080/project-management/projects/" + projectId + "/roles", {
+      method: "DELETE",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "id": roleToRemove.id
+      })
+    }).then(response => {
+      if(response.ok) {
+        this.shadowRoot.getElementById("toast-success-removing-role").show();
+
+        // remove the role from the roles list of the project
+        this.roleList.splice(this.roleList.findIndex(role => {
+          return role.id === roleToRemove.id;
+        }),1);
+        this.requestUpdate();
+
+        // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
+        // and project is part of the listedProjects array in the project explorer
+        // Thus: the listedProjects automatically does not contain the removed role anymore
+      } else if(response.status == 409) {
+        // role is still assigned to at least one user and thus cannot be removed from project
+        this.shadowRoot.getElementById("toast-role-still-assigned").show();
+      }
+    });
   }
 
   _onTabChanged(tabIndex) {
