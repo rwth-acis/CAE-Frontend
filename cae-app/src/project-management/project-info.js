@@ -235,7 +235,7 @@ class ProjectInfo extends LitElement {
         </paper-dropdown-menu>
         
         <div style="align-items: center">
-          <paper-button class="button-danger">Remove From Project</paper-button>
+          <paper-button class="button-danger" @click="${this._removeUserFromProjectClicked}">Remove From Project</paper-button>
         </div>
         
         <div>
@@ -326,6 +326,9 @@ class ProjectInfo extends LitElement {
       
       <!-- Toast: User is alredy member of the project. -->
       <paper-toast id="toast-user-already-member" text="User is already member of the project."></paper-toast>
+      
+      <!-- Toast for successfully removing user from project -->
+      <paper-toast id="toast-success-removing-user" text="Removed user from project!"></paper-toast>
     `;
   }
 
@@ -534,6 +537,36 @@ class ProjectInfo extends LitElement {
       } else if(error.message == "409") {
         // user is already member of the project
         this.shadowRoot.getElementById("toast-user-already-member").show();
+      }
+    });
+  }
+
+  _removeUserFromProjectClicked() {
+    // close dialog
+    this._closeEditUserDialogClicked();
+
+    const projectId = this.selectedProject.id;
+    const userToRemove = this.editingUser;
+
+    fetch("http://localhost:8080/project-management/projects/" + projectId + "/users", {
+      method: "DELETE",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "id": userToRemove.id
+      })
+    }).then(response => {
+      if(response.ok) {
+        this.shadowRoot.getElementById("toast-success-removing-user").show();
+
+        // remove the user from the users list of the project
+        this.userList.splice(this.userList.findIndex(user => {
+          return user.id === userToRemove.id;
+        }),1);
+        this.requestUpdate();
+
+        // NOTE: this.userList references to project.users (gets set in _onProjectSelected)
+        // and project is part of the listedProjects array in the project explorer
+        // Thus: the listedProjects automatically does not contain the removed user anymore
       }
     });
   }
