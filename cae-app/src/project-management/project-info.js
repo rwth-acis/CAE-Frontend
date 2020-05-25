@@ -195,7 +195,7 @@ class ProjectInfo extends LitElement {
                   <h4>Roles</h4>
                   ${this.roleList.map(role => html`
                     <div style="width: 100%; display: flex; align-items: center">
-                      <p>${role}</p>
+                      <p>${role.name}</p>
                       <iron-icon @click="${() => this._roleEditButtonClicked(role)}" class="edit-icon"
                           icon="create" style="margin-left: auto"></iron-icon>
                     </div>
@@ -457,8 +457,8 @@ class ProjectInfo extends LitElement {
       return user;
     });
 
-    // TODO: only for frontend testing
-    this.roleList = ["Frontend Modeler", "Application Modeler", "Backend Modeler", "Software Engineer"];
+    // get roles from project
+    this.roleList = project.roles;
 
     // TODO: only for frontend testing
     this.currentlyShownComponents = this.getFrontendComponentsByProject(project.id);
