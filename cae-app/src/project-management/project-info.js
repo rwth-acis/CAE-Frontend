@@ -174,7 +174,7 @@ class ProjectInfo extends LitElement {
                   ${this.userList.map(user => html`
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${user.loginName}</p>
-                      <p style="margin-right: 0.5em; margin-left: auto">${user.role}</p>
+                      <p style="margin-right: 0.5em; margin-left: auto">${this.getRoleById(user.roleId).name}</p>
                       <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
                     </div>
                     <div class="separator"></div>
@@ -462,12 +462,6 @@ class ProjectInfo extends LitElement {
 
     // set users of the project
     this.userList = project.users;
-    // TODO: only for frontend testing
-    // add roles to the users for testing the frontend (later they will be loaded from the API)
-    this.userList.map(user => {
-      user.role = "Frontend Modeler";
-      return user;
-    });
 
     // get roles from project
     this.roleList = project.roles;
@@ -674,6 +668,17 @@ class ProjectInfo extends LitElement {
       this.currentlyShownComponents = this.getFrontendComponentsByProject(projectId);
     } else {
       this.currentlyShownComponents = this.getMicroserviceComponentsByProject(projectId);
+    }
+  }
+
+  /**
+   * Searches for the role with the given id.
+   * @param roleId Id of the role to search for.
+   */
+  getRoleById(roleId) {
+    for(let i in this.roleList) {
+      const role = this.roleList[i];
+      if (role.id == roleId) return role;
     }
   }
 
