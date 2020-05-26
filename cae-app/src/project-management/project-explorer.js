@@ -156,7 +156,14 @@ class ProjectExplorer extends LitElement {
     }).then(data => {
       this.listedProjects = data;
     }).catch(error => {
-      console.log(error);
+      if(error.message == "401") {
+        // user is not authorized
+        // maybe the access token has expired
+        Auth.removeAuthDataFromLocalStorage();
+        this.requestUpdate();
+      } else {
+        console.log(error);
+      }
     });
   }
 
