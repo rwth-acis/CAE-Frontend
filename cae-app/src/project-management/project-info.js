@@ -92,6 +92,11 @@ class ProjectInfo extends LitElement {
           width: 1.5em;
           height: 1.5em;
         }
+        .reqbaz-img {
+          width: 1.5em;
+          height: 1.5em;
+          background: #447500;
+        }
       </style>
       <div class="main">
         ${this.selectedProject ?
@@ -130,7 +135,7 @@ class ProjectInfo extends LitElement {
             <!-- Application Component -->
             <div class="application-component" style="margin-left: 1em; margin-right: 1em">
               <h4>Application Component</h4>
-              <div style="display: flex">
+              <div style="display: flex; padding-bottom: 0.5em">
                 <a href="/cae-modeling">Open in Modeling Space</a>
                 <a href="https://github.com" style="margin-left: auto; margin-top: auto; margin-bottom: auto">
                   <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
@@ -142,11 +147,24 @@ class ProjectInfo extends LitElement {
             <!-- Requirements Bazaar -->
             <div class="requirements-bazaar" style="margin-left: 1em; margin-right: 1em">
               <h4>Requirements Bazaar</h4>
-                ${this.isConnectedToReqBaz ? html`Connected.` : html`
-                  <p>This CAE project is not connected to the Requirements Bazaar yet. Select a project and category to connect:</p>
+                ${this.isConnectedToReqBaz ? html`
                   <div style="display: flex">
-                    <input class="input-reqbaz-url input" @input="${(e) => this._onReqBazURLChanged(e.target.value)}" placeholder="Paste URL to Category" style="margin-left: 0"></input>
-                    <paper-button @click="${this._onConnectReqBazClicked}" ?disabled="${!this.urlMatchesReqBazFormat}" style="margin-left: auto">Add</paper-button>
+                    <div>
+                      <p>Connected to a Requirements Bazaar category. <a @click="${this._onDisconnectReqBazClicked}"
+                          href="">Disconnect</a></p>
+                    </div>
+                    <a href="https://requirements-bazaar.org/projects/${this.selectedProject.reqBazProjectId}/categories/${this.selectedProject.reqBazCategoryId}"
+                          style="margin-left:auto; margin-top: auto; margin-bottom: auto">
+                      <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
+                    </a>
+                  </div>
+                ` : html`
+                  <p>This CAE project is not connected to the Requirements Bazaar yet. Enter URL to category to connect to:</p>
+                  <div style="display: flex">
+                    <input id="input-reqbaz-url" class="input-reqbaz-url input"
+                        @input="${(e) => this._onReqBazURLChanged(e.target.value)}"
+                        placeholder="Paste URL to Category" style="margin-left: 0"></input>
+                    <paper-button @click="${this._onConnectReqBazClicked}" ?disabled="${!this.urlMatchesReqBazFormat}" style="margin-left: auto">Connect</paper-button>
                   </div>
                   ${this.urlMatchesReqBazFormat ? html`` : html`<p>Entered URL does not match the required format.</p>`}
                 `}
@@ -395,7 +413,11 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onReqBazURLChanged(url) {
-    const regexp = new RegExp("https:\/\/requirements-bazaar\.org\/projects\/(\\d+)\/categories\/(\\d+)");
+    // remove / at the end of the URL if needed
+    if(url.slice(-1) == "/") {
+      url = url.substr(0, url.length-1);
+    }
+    const regexp = new RegExp("^https:\/\/requirements-bazaar\.org\/projects\/(\\d+)\/categories\/(\\d+)$");
     this.urlMatchesReqBazFormat = regexp.test(url);
   }
 
@@ -407,7 +429,58 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onConnectReqBazClicked() {
-    this.isConnectedToReqBaz = true;
+    let reqBazURL = this.shadowRoot.getElementById("input-reqbaz-url").value;
+
+    // remove / at the end of the URL if needed
+    if(reqBazURL.slice(-1) == "/") {
+      reqBazURL = reqBazURL.substr(0, reqBazURL.length-1);
+    }
+
+    const reqBazProjectId = reqBazURL.split("/projects/")[1].split("/")[0];
+    const reqBazCategoryId = reqBazURL.split("/categories/")[1];
+
+    fetch("http://localhost:8080/project-management/projects/" + this.selectedProject.id + "/reqbaz", {
+      method: "PUT",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "projectId": Number.parseInt(reqBazProjectId),
+        "categoryId": Number.parseInt(reqBazCategoryId)
+      })
+    }).then(response => {
+      if(response.ok) {
+        // successfully updated requirements bazaar category
+        // also update locally
+        this.selectedProject.reqBazProjectId = reqBazProjectId;
+        this.selectedProject.reqBazCategoryId = reqBazCategoryId;
+
+        this.isConnectedToReqBaz = true;
+      } else {
+        console.log(response);
+      }
+    });
+  }
+
+  /**
+   * Gets called when the Disconnect button for the Requirements Bazaar
+   * gets clicked.
+   * @private
+   */
+  _onDisconnectReqBazClicked() {
+    fetch("http://localhost:8080/project-management/projects/" + this.selectedProject.id + "/reqbaz", {
+      method: "DELETE",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        // successfully disconnected requirements bazaar category
+        // also update locally
+        this.selectedProject.reqBazProjectId = 0;
+        this.selectedProject.reqBazCategoryId = 0;
+
+        this.isConnectedToReqBaz = false;
+      } else {
+        console.log(response);
+      }
+    });
   }
 
   /**
@@ -465,6 +538,9 @@ class ProjectInfo extends LitElement {
 
     // get roles from project
     this.roleList = project.roles;
+
+    // check if the project is already connected to the requirements bazaar
+    this.isConnectedToReqBaz = project.reqBazProjectId != 0;
 
     // TODO: only for frontend testing
     this.currentlyShownComponents = this.getFrontendComponentsByProject(project.id);
