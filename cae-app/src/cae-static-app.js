@@ -89,7 +89,10 @@ class CaeStaticApp extends PolymerElement {
       .then(data => {
         console.log(data);
       });
-    location.reload();
+
+    // when removing this line, we get a problem because some
+    // user services used by the las2peer-frontend-statusbar cannot be accessed
+    //location.reload();
   }
 
   handleLogout() {
