@@ -4,6 +4,7 @@ import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
 import Auth from "./auth";
+import Static from "./static";
 
 /**
  * CaeStaticApp is the main PolymerElement of the CAE.
@@ -82,7 +83,7 @@ class CaeStaticApp extends PolymerElement {
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
     // TODO: adjust url (should be configureable in docker run command)
-    fetch("http://localhost:8080/project-management/users/me", {
+    fetch(Static.ProjectManagementServiceURL + "/users/me", {
       headers: Auth.getAuthHeader()
     })
       .then(response => response.json())

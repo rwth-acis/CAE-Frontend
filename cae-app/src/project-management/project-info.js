@@ -8,6 +8,7 @@ import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
 import Auth from "../auth";
+import Static from "../static";
 
 /**
  * PolymerElement for management of project components and users.
@@ -439,7 +440,7 @@ class ProjectInfo extends LitElement {
     const reqBazProjectId = reqBazURL.split("/projects/")[1].split("/")[0];
     const reqBazCategoryId = reqBazURL.split("/categories/")[1];
 
-    fetch("http://localhost:8080/project-management/projects/" + this.selectedProject.id + "/reqbaz", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id + "/reqbaz", {
       method: "PUT",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -466,7 +467,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onDisconnectReqBazClicked() {
-    fetch("http://localhost:8080/project-management/projects/" + this.selectedProject.id + "/reqbaz", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id + "/reqbaz", {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -584,7 +585,7 @@ class ProjectInfo extends LitElement {
     const loginName = this.shadowRoot.getElementById("input-username").value;
     const projectId = this.selectedProject.id;
 
-    fetch("http://localhost:8080/project-management/projects/" + projectId + "/users", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -630,7 +631,7 @@ class ProjectInfo extends LitElement {
     const projectId = this.selectedProject.id;
     const userToRemove = this.editingUser;
 
-    fetch("http://localhost:8080/project-management/projects/" + projectId + "/users", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users", {
       method: "DELETE",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -662,7 +663,7 @@ class ProjectInfo extends LitElement {
     const projectId = this.selectedProject.id;
     const roleName = this.shadowRoot.getElementById("input-role").value;
 
-    fetch("http://localhost:8080/project-management/projects/" + projectId + "/roles", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -712,7 +713,7 @@ class ProjectInfo extends LitElement {
     const projectId = this.selectedProject.id;
     const roleToRemove = this.editingRole;
 
-    fetch("http://localhost:8080/project-management/projects/" + projectId + "/roles", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles", {
       method: "DELETE",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({

@@ -4,6 +4,7 @@ import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 import Auth from "../auth";
+import Static from "../static";
 
 /**
  * PolymerElement for management of projects.
@@ -147,7 +148,7 @@ class ProjectExplorer extends LitElement {
    * Loads the projects that the user is part from.
    */
   loadUsersProjects() {
-    fetch("http://localhost:8080/project-management/projects", {
+    fetch(Static.ProjectManagementServiceURL + "/projects", {
       method: "GET",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -208,7 +209,7 @@ class ProjectExplorer extends LitElement {
       // clear projects that are currently shown
       this.listedProjects = [];
       // use API to search for projects
-      fetch("http://localhost:8080/project-management/projects/" + searchInput)
+      fetch(Static.ProjectManagementServiceURL + "/projects/" + searchInput)
         .then(response => {
           if(!response.ok) throw Error(response.status);
           return response.json();
@@ -230,7 +231,7 @@ class ProjectExplorer extends LitElement {
   _createProject() {
     const projectName = this.shadowRoot.getElementById("input-project-name").value;
     if(projectName) {
-      fetch("http://localhost:8080/project-management/projects", {
+      fetch(Static.ProjectManagementServiceURL + "/projects", {
         method: "POST",
         headers: Auth.getAuthHeader(),
         body: JSON.stringify({
