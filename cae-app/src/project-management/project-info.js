@@ -631,12 +631,9 @@ class ProjectInfo extends LitElement {
     const projectId = this.selectedProject.id;
     const userToRemove = this.editingUser;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users/" + userToRemove.id, {
       method: "DELETE",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "id": userToRemove.id
-      })
+      headers: Auth.getAuthHeader()
     }).then(response => {
       if(response.ok) {
         this.shadowRoot.getElementById("toast-success-removing-user").show();
@@ -713,12 +710,9 @@ class ProjectInfo extends LitElement {
     const projectId = this.selectedProject.id;
     const roleToRemove = this.editingRole;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles/" + roleToRemove.id, {
       method: "DELETE",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "id": roleToRemove.id
-      })
+      headers: Auth.getAuthHeader()
     }).then(response => {
       if(response.ok) {
         this.shadowRoot.getElementById("toast-success-removing-role").show();
