@@ -111,7 +111,7 @@ class ProjectInfo extends LitElement {
             
             <!-- Frontend and Microservice Components of the project -->
             <div class="components">
-              <paper-tabs selected="0">
+              <paper-tabs id="component-tabs" selected="0">
                 <paper-tab @click="${() => this._onTabChanged(0)}">Frontend Components</paper-tab>
                 <paper-tab @click="${() => this._onTabChanged(1)}">Microservice Components</paper-tab>
               </paper-tabs>
@@ -358,6 +358,15 @@ class ProjectInfo extends LitElement {
       editingRole: {
         type: String
       },
+      componentTabSelected: {
+        type: Number
+      },
+      frontendComponents: {
+        type: Array
+      },
+      microserviceComponents: {
+        type: Array
+      },
       currentlyShownComponents: {
         type: Array
       },
@@ -379,9 +388,12 @@ class ProjectInfo extends LitElement {
     super();
     this.userList = [];
     this.roleList = [];
+    this.frontendComponents = [];
+    this.microserviceComponents = [];
     this.currentlyShownComponents = [];
     this.isConnectedToReqBaz = false;
     this.urlMatchesReqBazFormat = false;
+    this.componentTabSelected = 0;
   }
 
   /**
@@ -533,14 +545,53 @@ class ProjectInfo extends LitElement {
     // check if the project is already connected to the requirements bazaar
     this.isConnectedToReqBaz = project.reqBazProjectId != 0;
 
-    // TODO: only for frontend testing
-    this.currentlyShownComponents = this.getFrontendComponentsByProject(project.id);
-
     // disable buttons for adding users and roles
     // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
     this.requestUpdate().then(e => {
       this.shadowRoot.getElementById("button-add-user").disabled = true;
       this.shadowRoot.getElementById("button-add-role").disabled = true;
+    });
+
+    // load components of the selected project
+    this.loadComponents();
+  }
+
+  /**
+   * Loads the components of the currently selected project.
+   */
+  loadComponents() {
+    this.frontendComponents = [];
+    this.microserviceComponents = [];
+
+    const projectId = this.getProjectId();
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
+      method: "GET"
+    }).then(response => {
+        if(response.ok) {
+          return response.json();
+        }
+      }
+    ).then(data => {
+      // data is a JSONArray containing both frontend and microservice components
+      for(let i in data) {
+        const component = data[i];
+        if (component.type == "frontend") {
+          this.frontendComponents.push(component);
+        } else if (component.type == "microservice") {
+          this.microserviceComponents.push(component);
+        }
+      }
+
+      // check which component tab is currently shown
+      if(this.componentTabSelected == 0) {
+        this.currentlyShownComponents = this.frontendComponents;
+        // since we show the frontend components, also the frontend tab should be shown
+        this.shadowRoot.getElementById("component-tabs").selected = 0;
+      } else {
+        this.currentlyShownComponents = this.microserviceComponents;
+        // since we show the microservice components, also the microservice tab should be shown
+        this.shadowRoot.getElementById("component-tabs").selected = 1;
+      }
     });
   }
 
@@ -724,11 +775,12 @@ class ProjectInfo extends LitElement {
   }
 
   _onTabChanged(tabIndex) {
-    const projectId = this.selectedProject.id;
+    this.componentTabSelected = tabIndex;
+    const projectId = this.getProjectId();
     if(tabIndex == 0) {
-      this.currentlyShownComponents = this.getFrontendComponentsByProject(projectId);
+      this.currentlyShownComponents = this.frontendComponents;
     } else {
-      this.currentlyShownComponents = this.getMicroserviceComponentsByProject(projectId);
+      this.currentlyShownComponents = this.microserviceComponents;
     }
   }
 
@@ -771,6 +823,9 @@ class ProjectInfo extends LitElement {
     }).then(response => {
       if(response.ok) {
         // successfully created new component
+        // reload components
+        this.loadComponents();
+
         // reset dialog input fields
         this.shadowRoot.getElementById("dialog-add-component-input-name").value = "";
         this.shadowRoot.getElementById("dialog-add-component-dropdown-type").selected = 0;
@@ -801,48 +856,6 @@ class ProjectInfo extends LitElement {
 
   getProjectId() {
     return this.selectedProject.id;
-  }
-
-  // TODO: only for testing frontend
-  getFrontendComponentsByProject(projectId) {
-    return [
-      {
-        "name": "Frontend Component 1",
-        "type": "standard",
-        "github_url": "https://github.com"
-      },
-      {
-        "name": "Frontend Component 2",
-        "type": "dependency",
-        "github_url": "https://github.com"
-      },
-      {
-        "name": "Frontend Component 3",
-        "type": "external_dependency",
-        "github_url": "https://github.com"
-      }
-    ];
-  }
-
-  // TODO: only for testing frontend
-  getMicroserviceComponentsByProject(projectId) {
-    return [
-      {
-        "name": "Microservice 1",
-        "type": "standard",
-        "github_url": "https://github.com"
-      },
-      {
-        "name": "Microservice 2",
-        "type": "standard",
-        "github_url": "https://github.com"
-      },
-      {
-        "name": "Microservice 3",
-        "type": "dependency",
-        "github_url": "https://github.com"
-      }
-    ];
   }
 }
 
