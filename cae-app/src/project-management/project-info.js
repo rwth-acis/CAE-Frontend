@@ -283,15 +283,15 @@ class ProjectInfo extends LitElement {
           <div style="display: flex; align-items: center">
             <!-- Select Component Type -->
             <paper-dropdown-menu label="Select Type" style="min-width: 15em">
-              <paper-listbox slot="dropdown-content" selected="0">
+              <paper-listbox id="dialog-add-component-dropdown-type" slot="dropdown-content" selected="0">
                 <paper-item>Frontend Component</paper-item>
                 <paper-item>Microservice Component</paper-item>
               </paper-listbox>
             </paper-dropdown-menu>
             <!-- Enter Component Name -->
-            <input class="input" style="margin-left: 1em" placeholder="Enter Component Name"></input>
+            <input id="dialog-add-component-input-name" class="input" style="margin-left: 1em" placeholder="Enter Component Name"></input>
             <!-- Button for creating component -->
-            <paper-button>Create</paper-button>
+            <paper-button @click="${this._onCreateComponentClicked}">Create</paper-button>
           </div>
           <div class="separator"></div>
         </div>
@@ -336,30 +336,8 @@ class ProjectInfo extends LitElement {
         </div>
       </paper-dialog>
       
-      <!-- Toasts -->
-      <!-- Toast for successfully adding user to project -->
-      <paper-toast id="toast-success-adding-user" text="Added user to project!"></paper-toast>
-      
-      <!-- Toast: User with given name not found. -->
-      <paper-toast id="toast-user-not-found" text="Could not find user with given name."></paper-toast>
-      
-      <!-- Toast: User is already member of the project. -->
-      <paper-toast id="toast-user-already-member" text="User is already member of the project."></paper-toast>
-      
-      <!-- Toast for successfully removing user from project -->
-      <paper-toast id="toast-success-removing-user" text="Removed user from project!"></paper-toast>
-      
-      <!-- Toast for successfully adding role to project -->
-      <paper-toast id="toast-success-adding-role" text="Added role to project!"></paper-toast>
-      
-      <!-- Toast: Role with same name already exists in the project. -->
-      <paper-toast id="toast-role-already-existing" text="Role with same name already exists in the project."></paper-toast>
-      
-      <!-- Toast: There exists at least one user who has assigned the role. Thus the role cannot be removed. -->
-      <paper-toast id="toast-role-still-assigned" text="Cannot remove role since it is assigned to at least one user!"></paper-toast>
-      
-      <!-- Toast for successfully removing role from project -->
-      <paper-toast id="toast-success-removing-role" text="Removed role from project!"></paper-toast>
+      <!-- Generic Toast (see showToast method for more information) -->
+      <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
 
@@ -440,7 +418,9 @@ class ProjectInfo extends LitElement {
     const reqBazProjectId = reqBazURL.split("/projects/")[1].split("/")[0];
     const reqBazCategoryId = reqBazURL.split("/categories/")[1];
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id + "/reqbaz", {
+    const caeProjectId = this.getProjectId();
+
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + caeProjectId + "/reqbaz", {
       method: "PUT",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -467,7 +447,9 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onDisconnectReqBazClicked() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id + "/reqbaz", {
+    const projectId = this.getProjectId();
+
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/reqbaz", {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -522,7 +504,15 @@ class ProjectInfo extends LitElement {
   }
 
   _onAddComponentClicked() {
-    this.shadowRoot.getElementById("dialog-add-component").open();
+    this.getAddComponentDialog().open();
+  }
+
+  /**
+   * Returns the dialog which gets used to add components to a project.
+   * @returns {HTMLElement} Dialog
+   */
+  getAddComponentDialog() {
+    return this.shadowRoot.getElementById("dialog-add-component");
   }
 
   /**
@@ -583,7 +573,7 @@ class ProjectInfo extends LitElement {
   _onAddUserToProjectClicked() {
     // get entered username
     const loginName = this.shadowRoot.getElementById("input-username").value;
-    const projectId = this.selectedProject.id;
+    const projectId = this.getProjectId();
 
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users", {
       method: "POST",
@@ -600,7 +590,7 @@ class ProjectInfo extends LitElement {
     }).then(data => {
       // data is the user which got added to the project
       // show toast message
-      this.shadowRoot.getElementById("toast-success-adding-user").show();
+      this.showToast("Added user to project!");
 
       // show the new user in the users list of the project
       this.userList.push(data);
@@ -616,10 +606,10 @@ class ProjectInfo extends LitElement {
     }).catch(error => {
       if(error.message == "404") {
         // user with given name could not be found
-        this.shadowRoot.getElementById("toast-user-not-found").show();
+        this.showToast("Could not find user with given name.");
       } else if(error.message == "409") {
         // user is already member of the project
-        this.shadowRoot.getElementById("toast-user-already-member").show();
+        this.showToast("User is already member of the project.");
       }
     });
   }
@@ -628,7 +618,7 @@ class ProjectInfo extends LitElement {
     // close dialog
     this._closeEditUserDialogClicked();
 
-    const projectId = this.selectedProject.id;
+    const projectId = this.getProjectId();
     const userToRemove = this.editingUser;
 
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users/" + userToRemove.id, {
@@ -636,7 +626,7 @@ class ProjectInfo extends LitElement {
       headers: Auth.getAuthHeader()
     }).then(response => {
       if(response.ok) {
-        this.shadowRoot.getElementById("toast-success-removing-user").show();
+        this.showToast("Removed user from project!");
 
         // remove the user from the users list of the project
         this.userList.splice(this.userList.findIndex(user => {
@@ -657,7 +647,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onAddRoleToProjectClicked() {
-    const projectId = this.selectedProject.id;
+    const projectId = this.getProjectId();
     const roleName = this.shadowRoot.getElementById("input-role").value;
 
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles", {
@@ -675,7 +665,7 @@ class ProjectInfo extends LitElement {
     }).then(data => {
       // data is the role which got added to the project
       // show toast message
-      this.shadowRoot.getElementById("toast-success-adding-role").show();
+      this.showToast("Added role to project!");
 
       // show the new role in the roles list of the project
       this.roleList.push(data);
@@ -691,7 +681,7 @@ class ProjectInfo extends LitElement {
     }).catch(error => {
       if(error.message == "409") {
         // role with same name already exists
-        this.shadowRoot.getElementById("toast-role-already-existing").show();
+        this.showToast("Role with same name already exists in the project.");
       }
     });
   }
@@ -707,7 +697,7 @@ class ProjectInfo extends LitElement {
     // close dialog
     this._closeEditRoleDialogClicked();
 
-    const projectId = this.selectedProject.id;
+    const projectId = this.getProjectId();
     const roleToRemove = this.editingRole;
 
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles/" + roleToRemove.id, {
@@ -715,7 +705,7 @@ class ProjectInfo extends LitElement {
       headers: Auth.getAuthHeader()
     }).then(response => {
       if(response.ok) {
-        this.shadowRoot.getElementById("toast-success-removing-role").show();
+        this.showToast("Removed role from project!");
 
         // remove the role from the roles list of the project
         this.roleList.splice(this.roleList.findIndex(role => {
@@ -728,7 +718,7 @@ class ProjectInfo extends LitElement {
         // Thus: the listedProjects automatically does not contain the removed role anymore
       } else if(response.status == 409) {
         // role is still assigned to at least one user and thus cannot be removed from project
-        this.shadowRoot.getElementById("toast-role-still-assigned").show();
+        this.showToast("Cannot remove role since it is assigned to at least one user!");
       }
     });
   }
@@ -751,6 +741,66 @@ class ProjectInfo extends LitElement {
       const role = this.roleList[i];
       if (role.id == roleId) return role;
     }
+  }
+
+  /**
+   * Gets called when the user has the "Add Component" dialog opened and
+   * want to create a new standard component (so no dependency).
+   * @private
+   */
+  _onCreateComponentClicked() {
+    const projectId = this.getProjectId();
+
+    const componentName = this.shadowRoot.getElementById("dialog-add-component-input-name").value;
+    const componentTypeSelected = this.shadowRoot.getElementById("dialog-add-component-dropdown-type").selected;
+
+    let componentType;
+    if(componentTypeSelected == 0) {
+      componentType = "frontend";
+    } else {
+      componentType = "microservice";
+    }
+
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
+      method: "POST",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "name": componentName,
+        "type": componentType
+      })
+    }).then(response => {
+      if(response.ok) {
+        // successfully created new component
+        // reset dialog input fields
+        this.shadowRoot.getElementById("dialog-add-component-input-name").value = "";
+        this.shadowRoot.getElementById("dialog-add-component-dropdown-type").selected = 0;
+
+        // close dialog
+        this.getAddComponentDialog().close();
+
+        // show toast message
+        this.showToast("Successfully created new component!");
+      } else {
+
+      }
+    });
+  }
+
+  /**
+   * Since the project-info page uses lots of toast messages,
+   * it is helpful to have this method for displaying toast messages.
+   * It allows to have one single paper-toast item in the html which
+   * gets used for different message texts.
+   * @param text Text to display in the toast.
+   */
+  showToast(text) {
+    const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
+  }
+
+  getProjectId() {
+    return this.selectedProject.id;
   }
 
   // TODO: only for testing frontend
