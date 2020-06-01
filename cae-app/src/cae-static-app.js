@@ -29,7 +29,7 @@ class CaeStaticApp extends PolymerElement {
       <app-location route="{{route}}"></app-location>
       <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
       <iron-pages selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
-        <project-management name="project-management"></project-management>
+        <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling name="cae-modeling" route="{{subroute}}"></cae-modeling>
       </iron-pages>
     `;
@@ -73,8 +73,10 @@ class CaeStaticApp extends PolymerElement {
   ready() {
     super.ready();
     const statusBar = this.shadowRoot.querySelector("#statusBar");
-    statusBar.addEventListener('signed-in', this.handleLogin);
-    statusBar.addEventListener('signed-out', this.handleLogout);
+    // in the following we use (event) => this.method(event) in order to be able to access
+    // this.shadowRoot in the handleLogin and handleLogout methods
+    statusBar.addEventListener('signed-in', (event) => this.handleLogin(event));
+    statusBar.addEventListener('signed-out', (event) => this.handleLogout(event));
   }
 
   handleLogin(event) {
@@ -94,6 +96,11 @@ class CaeStaticApp extends PolymerElement {
     // when removing this line, we get a problem because some
     // user services used by the las2peer-frontend-statusbar cannot be accessed
     //location.reload();
+
+    // since location.reload() is not called anymore, it is necessary
+    // to reload the project management manually, since otherwise the "Please login"
+    // message does not disappear.
+    this.shadowRoot.getElementById("project-management").requestUpdate();
   }
 
   handleLogout() {
