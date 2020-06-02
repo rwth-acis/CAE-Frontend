@@ -161,7 +161,7 @@ class ProjectExplorer extends LitElement {
         // user is not authorized
         // maybe the access token has expired
         Auth.removeAuthDataFromLocalStorage();
-        this.requestUpdate();
+        location.reload();
       } else {
         console.log(error);
       }
@@ -253,6 +253,9 @@ class ProjectExplorer extends LitElement {
         } else if(response.status == 409) {
           // a project with the given name already exists
           this.shadowRoot.getElementById("toast-already-existing").show();
+        } else if(response.status == 401) {
+          Auth.removeAuthDataFromLocalStorage();
+          location.reload();
         }
         // TODO: check what happens when access_token is missing in localStorage
       });
