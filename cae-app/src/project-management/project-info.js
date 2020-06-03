@@ -9,6 +9,8 @@ import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
 import Auth from "../auth";
 import Static from "../static";
+import Common from "../common";
+import MetamodelUploader from "../metamodel-uploader";
 
 /**
  * PolymerElement for management of project components and users.
@@ -117,7 +119,9 @@ class ProjectInfo extends LitElement {
               </paper-tabs>
               ${this.currentlyShownComponents.map(component => html`
                 <div style="display: flex">
-                  <p>${component.name}</p>
+                  <div @click="${() => this._onComponentClicked(component)}" style="width: 100%">
+                      <p>${component.name}</p>
+                  </div>
                   <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
                     <!-- Label for dependencies -->
                     ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
@@ -137,7 +141,7 @@ class ProjectInfo extends LitElement {
             <div class="application-component" style="margin-left: 1em; margin-right: 1em">
               <h4>Application Component</h4>
               <div style="display: flex; padding-bottom: 0.5em">
-                <a href="/cae-modeling">Open in Modeling Space</a>
+                <a @click="${this._onOpenApplicationModelingClicked}" href="">Open in Modeling Space</a>
                 <a href="https://github.com" style="margin-left: auto; margin-top: auto; margin-bottom: auto">
                   <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
                 </a>
@@ -394,6 +398,55 @@ class ProjectInfo extends LitElement {
     this.isConnectedToReqBaz = false;
     this.urlMatchesReqBazFormat = false;
     this.componentTabSelected = 0;
+  }
+
+  /**
+   * Gets called when the user clicks on a component.
+   * Opens the component in the modeling page.
+   * Therefore, the metamodels are uploaded and then the
+   * modeling page is opened.
+   * @param component
+   * @private
+   */
+  _onComponentClicked(component) {
+    console.log("component clicked");
+    console.log(component);
+    Common.setYjsRoomName("component-" + component.id);
+    if(component.type == "frontend") {
+      Common.setCaeSpace(Static.FrontendSpaceId);
+    } else {
+      Common.setCaeSpace(Static.MicroserviceSpaceId);
+    }
+    this.uploadMetamodels().then(_ => {
+      if(component.type == "frontend") {
+        window.location = "cae-modeling/frontend-modeling";
+      } else {
+        window.location = "cae-modeling/microservice-modeling";
+      }
+    });
+  }
+
+  /**
+   * Gets called when the user wants to open the
+   * application modeling page of a project.
+   * @private
+   */
+  _onOpenApplicationModelingClicked() {
+    this.uploadMetamodels().then(_ => {
+      window.location = "cae-modeling/application-modeling";
+    });
+  }
+
+  /**
+   * Uploads all metamodels for the modeling.
+   * @returns {Promise<unknown>}
+   */
+  uploadMetamodels() {
+    return MetamodelUploader.uploadAll()
+      .then(_ => new Promise((resolve, reject) => {
+        // wait for data become active
+        setTimeout(_ => resolve(), 2000);
+      }));
   }
 
   /**

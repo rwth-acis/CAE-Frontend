@@ -53,17 +53,6 @@ class CaeModeling extends PolymerElement {
       </style>
       
       <p id="currentRoom">Current Space: Test</p>
-      <div id="yjsroomcontainer">
-        <paper-input always-float-label label="Space"></paper-input>
-        <paper-button on-click="_onChangeButtonClicked">Enter</paper-button>
-        <div class="loader" id="roomEnterLoader"></div> 
-      </div>
-      
-      <ul>
-        <li> <a href="/cae-modeling/frontend-modeling">Frontend Modeling</a> </li>
-        <li> <a href="/cae-modeling/microservice-modeling">Microservice Modeling</a> </li>
-        <li> <a href="/cae-modeling/application-modeling">Application Modeling</a> </li>
-      </ul>
       
       <app-location route="{{route}}"></app-location>
       <app-route route="{{route}}" pattern="/cae-modeling/:page" data="{{routeData}}"></app-route>
@@ -113,19 +102,10 @@ class CaeModeling extends PolymerElement {
     this.displayCurrentRoomName();
   }
 
-  _onChangeButtonClicked() {
-    var caeRoomName = this.shadowRoot.querySelector('paper-input').value;
-    Common.setYjsRoomName(caeRoomName);
-    var loader = this.shadowRoot.querySelector("#roomEnterLoader");
-    this.changeVisibility(loader, true);
-    MetamodelUploader.uploadAll()
-      .then(_ => new Promise((resolve, reject) => {
-        // wait for data become active
-        setTimeout(_ => resolve(), 2000);
-      }))
-      .then(_ => location.reload());
-  }
-
+  /**
+   * Displays the currently used room name.
+   * TODO: maybe this is not really needed in the final CAE, but for development it is helpful
+   */
   displayCurrentRoomName() {
     var spaceHTML = "";
     if (Common.getYjsRoomName()) {
@@ -134,14 +114,6 @@ class CaeModeling extends PolymerElement {
       spaceHTML = "Please enter a space!";
     }
     this.shadowRoot.querySelector('#currentRoom').innerHTML = spaceHTML;
-  }
-
-  changeVisibility(item, show) {
-    if (show) {
-      item.style.display = "block";
-    } else {
-      item.style.display = "none";
-    }
   }
 }
 

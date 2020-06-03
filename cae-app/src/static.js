@@ -1,6 +1,7 @@
 
 export default class Static {
 }
+// these ids are used for yjs room names
 Static.FrontendSpaceId = 'frontend-modeling';
 Static.MicroserviceSpaceId = 'microservice-modeling';
 Static.ApplicationSpaceId = 'application-modeling';
