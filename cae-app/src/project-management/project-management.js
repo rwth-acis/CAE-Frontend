@@ -41,7 +41,8 @@ class ProjectManagement extends LitElement {
         <div class="container flex-horizontal-with-ratios">
           <div class="flex-project-explorer">
             <project-explorer id="project-explorer" 
-                @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"></project-explorer>
+                @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"
+                @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>
           </div>
           <div class="flex-project-info">
             <project-info id="project-info"></project-info>
@@ -63,6 +64,17 @@ class ProjectManagement extends LitElement {
    */
   _onProjectSelected(eventDetail) {
     this.getProjectInfo()._onProjectSelected(eventDetail.project);
+  }
+
+  /**
+   * Gets called when the list of projects by the user is loaded in the
+   * project explorer.
+   * Notifies the project user widget about this event.
+   * @param eventDetail Details of the event sent from the explorer.
+   * @private
+   */
+  _onUserProjectListLoaded(eventDetail) {
+    this.getProjectInfo()._onUserProjectListLoaded(eventDetail);
   }
 
   getProjectInfo() {

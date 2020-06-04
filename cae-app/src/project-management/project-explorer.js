@@ -156,6 +156,15 @@ class ProjectExplorer extends LitElement {
       return response.json();
     }).then(data => {
       this.listedProjects = data;
+
+      // notify project-management about users projects
+      let event = new CustomEvent("user-project-list-loaded-event", {
+        detail: {
+          message: "Finished loading users projects.",
+          usersProjects: data
+        }
+      });
+      this.dispatchEvent(event);
     }).catch(error => {
       if(error.message == "401") {
         // user is not authorized

@@ -108,7 +108,19 @@ class ProjectInfo extends LitElement {
             <div class="project-title" style="display: flex; margin-left: 1em; margin-right: 1em;">
               <h3>${this.selectedProject.name}</h3>
               <!-- Button for adding components to a project -->
-              <paper-button @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
+              ${this.editingEnabled? html`
+                <paper-button @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
+              ` : html``}
+              <!-- Show button for editing or saving -->
+              ${this.editingAllowed? html`
+                ${this.editingEnabled? html`
+                  <iron-icon @click="${this._onEditProjectClicked}" class="edit-icon"
+                      icon="done" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
+                ` : html `
+                  <iron-icon @click="${this._onEditProjectClicked}" class="edit-icon"
+                      icon="create" style="margin-left: auto; margin-top: auto; margin-bottom: auto"></iron-icon>
+                `}
+              ` : html``}
             </div>
             
             <!-- Frontend and Microservice Components of the project -->
@@ -198,19 +210,23 @@ class ProjectInfo extends LitElement {
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${user.loginName}</p>
                       <p style="margin-right: 0.5em; margin-left: auto">${this.getRoleById(user.roleId).name}</p>
-                      <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
+                      ${this.editingEnabled? html`
+                        <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
+                      ` : html``}
                     </div>
                     <div class="separator"></div>
                   `)}
                 </div>
             
                 <!-- Add users to the project -->
-                <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                  <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
-                      @input="${(e) => this._onAddUserInputChanged(e.target.value)}"></input>
-                  <paper-button id="button-add-user" @click="${this._onAddUserToProjectClicked}"
-                      style="margin-left: auto">Add</paper-button>
-                </div>
+                ${this.editingEnabled? html`
+                  <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
+                    <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
+                        @input="${(e) => this._onAddUserInputChanged(e.target.value)}"></input>
+                    <paper-button id="button-add-user" @click="${this._onAddUserToProjectClicked}"
+                        style="margin-left: auto">Add</paper-button>
+                  </div>
+                ` : html``}
               </div>
               <div class="flex-project-roles" style="border-left: thin solid #e1e1e1;">
                 <!-- Roles of the project -->
@@ -219,20 +235,24 @@ class ProjectInfo extends LitElement {
                   ${this.roleList.map(role => html`
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${role.name}</p>
-                      <iron-icon @click="${() => this._roleEditButtonClicked(role)}" class="edit-icon"
-                          icon="create" style="margin-left: auto"></iron-icon>
+                      ${this.editingEnabled? html`
+                        <iron-icon @click="${() => this._roleEditButtonClicked(role)}" class="edit-icon"
+                            icon="create" style="margin-left: auto"></iron-icon>
+                      ` : html``}
                     </div>
                     <div class="separator"></div>
                   `)}
                 </div>
                 
                 <!-- Add roles to the project -->
-                <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                  <input id="input-role" class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
-                      @input="${(e) => this._onAddRoleInputChanged(e.target.value)}"></input>
-                  <paper-button id="button-add-role" @click="${this._onAddRoleToProjectClicked}"
-                      style="margin-left: auto">Add</paper-button>
-                </div>
+                ${this.editingEnabled? html`               
+                  <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
+                    <input id="input-role" class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
+                        @input="${(e) => this._onAddRoleInputChanged(e.target.value)}"></input>
+                    <paper-button id="button-add-role" @click="${this._onAddRoleToProjectClicked}"
+                        style="margin-left: auto">Add</paper-button>
+                  </div>
+                ` : html``}
               </div>
             </div>
           ` :
@@ -384,6 +404,25 @@ class ProjectInfo extends LitElement {
        */
       urlMatchesReqBazFormat: {
         type: Boolean
+      },
+      /*
+       * Used to determine whether the edit-buttons etc. should be visible or not.
+       * Note: Editing is only possible when editingAllowed is true.
+       */
+      editingEnabled: {
+        type: Boolean
+      },
+      /**
+       * Tells if the logged in user is allowed to edit the currently selected project.
+       */
+      editingAllowed: {
+        type: Boolean
+      },
+      /*
+       * List of the projects where the current user is member of.
+       */
+      usersProjects: {
+        type: Array
       }
     }
   }
@@ -398,6 +437,9 @@ class ProjectInfo extends LitElement {
     this.isConnectedToReqBaz = false;
     this.urlMatchesReqBazFormat = false;
     this.componentTabSelected = 0;
+    this.editingEnabled = false;
+    this.editingAllowed = false;
+    this.usersProjects = [];
   }
 
   /**
@@ -447,6 +489,23 @@ class ProjectInfo extends LitElement {
         // wait for data become active
         setTimeout(_ => resolve(), 2000);
       }));
+  }
+
+  /**
+   * Gets called when the "edit" or "save" button gets called.
+   * @private
+   */
+  _onEditProjectClicked() {
+    this.editingEnabled = !this.editingEnabled;
+
+    // disable buttons for adding users and roles
+    // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
+    if(this.editingEnabled) {
+      this.requestUpdate().then(e => {
+        this.shadowRoot.getElementById("button-add-user").disabled = true;
+        this.shadowRoot.getElementById("button-add-role").disabled = true;
+      });
+    }
   }
 
   /**
@@ -595,18 +654,46 @@ class ProjectInfo extends LitElement {
     // get roles from project
     this.roleList = project.roles;
 
+    // when opening a new project, editing should not be enabled
+    this.editingEnabled = false;
+
+    // check if user is allowed to edit the project
+    this.editingAllowed = this.isUserAllowedToEditProject();
+
     // check if the project is already connected to the requirements bazaar
     this.isConnectedToReqBaz = project.reqBazProjectId != 0;
 
-    // disable buttons for adding users and roles
-    // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
-    this.requestUpdate().then(e => {
-      this.shadowRoot.getElementById("button-add-user").disabled = true;
-      this.shadowRoot.getElementById("button-add-role").disabled = true;
-    });
-
     // load components of the selected project
     this.loadComponents();
+  }
+
+  /**
+   * Gets called by the project-management which forwards the event
+   * originally sent from the project-explorer.
+   * @param eventDetail Contains the list of projects by the current user.
+   * @private
+   */
+  _onUserProjectListLoaded(eventDetail) {
+    this.usersProjects = eventDetail.usersProjects;
+  }
+
+  /**
+   * Checks if the user is allowed to edit the currently shown project.
+   * Therefore, it checks if the user is member of the currently shown project.
+   * @returns {boolean} Whether user is allowed to edit the currently shown project.
+   */
+  isUserAllowedToEditProject() {
+    // check if the list of projects where the current user is part of, contains
+    // a project with the id of the currently selected project
+    for(let i in this.usersProjects) {
+      const project = this.usersProjects[i];
+      if(project.id == this.selectedProject.id) {
+        // user is member of the currently shown project
+        return true;
+      }
+    }
+    // user is no member of the currently shown project
+    return false;
   }
 
   /**
