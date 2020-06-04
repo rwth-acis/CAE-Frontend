@@ -143,6 +143,9 @@ class ProjectInfo extends LitElement {
                     <a href="${component.github_url}" class="github-a">
                       <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
                     </a>
+                    ${this.editingEnabled? html`
+                      <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon" icon="delete" style="margin-left: 0.5em"></iron-icon>
+                    ` : html``}
                   </div>
                 </div>
                 <div class="separator"></div>
@@ -731,6 +734,28 @@ class ProjectInfo extends LitElement {
         this.currentlyShownComponents = this.microserviceComponents;
         // since we show the microservice components, also the microservice tab should be shown
         this.shadowRoot.getElementById("component-tabs").selected = 1;
+      }
+    });
+  }
+
+  /**
+   * Gets called when the user wants to remove a component from the project.
+   * @param component
+   * @private
+   */
+  _removeComponentFromProjectClicked(component) {
+    const projectId = this.getProjectId();
+    const componentId = component.id;
+
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components/" + componentId, {
+      method: "DELETE",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        this.showToast("Removed component from project!");
+
+        // just reload components list
+        this.loadComponents();
       }
     });
   }
