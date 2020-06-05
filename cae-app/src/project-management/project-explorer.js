@@ -84,6 +84,15 @@ class ProjectExplorer extends LitElement {
           display: inline-block;
           margin-left: auto;
         }
+        .github-a {
+          margin-top: auto;
+          margin-bottom: auto;
+          margin-right: 1em;
+        }
+        .github-img {
+          width: 1.5em;
+          height: 1.5em;
+        }
       </style>
       <div class="main">
         <div class="explorer-top-menu">
@@ -97,6 +106,9 @@ class ProjectExplorer extends LitElement {
                 <p class="project-item-name">${project.name}</p>
                 ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot"></span>` : html``}
                 <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
+                <a href="${project.gitHubProjectHtmlUrl}" class="github-a">
+                  <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
+                </a>
               </div>
             </paper-card>
         `)}
@@ -307,9 +319,7 @@ class ProjectExplorer extends LitElement {
    */
   getListOfProjectOnlineUsers(projectId) {
     // only some test data for now
-    if(projectId == 1) return "Alice Lastname, Bob Lastname and 2 more";
-    if(projectId == 2) return "Chris Lastname";
-    else return undefined;
+    return "Alice Lastname, Bob Lastname and 2 more";
   }
 }
 
