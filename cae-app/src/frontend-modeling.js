@@ -120,8 +120,10 @@ class FrontendModeling extends PolymerElement {
   ready() {
     super.ready();
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
-    parent.caeSpace = Static.FrontendSpaceId;
-    Common.setCaeSpace(parent.caeSpace);
+
+    // load the current Yjs room name from localStorage into
+    // parent.caeRoom variable (used by modeling/SyncMeta widget)
+    Common.loadCaeRoom();
   }
 }
 

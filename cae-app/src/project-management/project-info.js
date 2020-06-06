@@ -454,15 +454,9 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onComponentClicked(component) {
-    console.log("component clicked");
-    console.log(component);
-    Common.setYjsRoomName("component-" + component.id);
-    if(component.type == "frontend") {
-      Common.setCaeSpace(Static.FrontendSpaceId);
-    } else {
-      Common.setCaeSpace(Static.MicroserviceSpaceId);
-    }
-    this.uploadMetamodels().then(_ => {
+    // set caeRoom and upload metamodel for the component
+    Common.setCaeRoom(this.getProjectId(), component.id);
+    this.uploadMetamodelForComponent(component).then(_ => {
       if(component.type == "frontend") {
         window.location = "cae-modeling/frontend-modeling";
       } else {
@@ -477,17 +471,20 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onOpenApplicationModelingClicked() {
-    this.uploadMetamodels().then(_ => {
+    // TODO: this needs to be updated (currently we do not have components for the application (only for components))
+    console.error("project-info.js: Opening the application modeling is not working yet.");
+    /*this.uploadMetamodels().then(_ => {
       window.location = "cae-modeling/application-modeling";
-    });
+    });*/
   }
 
   /**
-   * Uploads all metamodels for the modeling.
+   * Uploads the metamodel for the modeling of the given component.
+   * @param component The component whose metamodel should be uploaded.
    * @returns {Promise<unknown>}
    */
-  uploadMetamodels() {
-    return MetamodelUploader.uploadAll()
+  uploadMetamodelForComponent(component) {
+    return MetamodelUploader.uploadForComponent(this.getProjectId(), component)
       .then(_ => new Promise((resolve, reject) => {
         // wait for data become active
         setTimeout(_ => resolve(), 2000);
