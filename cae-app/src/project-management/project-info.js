@@ -394,6 +394,9 @@ class ProjectInfo extends LitElement {
       microserviceComponents: {
         type: Array
       },
+      applicationComponent: {
+        type: Object
+      },
       currentlyShownComponents: {
         type: Array
       },
@@ -471,11 +474,11 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onOpenApplicationModelingClicked() {
-    // TODO: this needs to be updated (currently we do not have components for the application (only for components))
-    console.error("project-info.js: Opening the application modeling is not working yet.");
-    /*this.uploadMetamodels().then(_ => {
+    // set caeRoom and upload metamodel for application component
+    Common.setCaeRoom(this.getProjectId(), this.applicationComponent.id);
+    this.uploadMetamodelForComponent(this.applicationComponent).then(_ => {
       window.location = "cae-modeling/application-modeling";
-    });*/
+    });
   }
 
   /**
@@ -700,6 +703,7 @@ class ProjectInfo extends LitElement {
    * Loads the components of the currently selected project.
    */
   loadComponents() {
+    this.applicationComponent = undefined;
     this.frontendComponents = [];
     this.microserviceComponents = [];
 
@@ -719,6 +723,8 @@ class ProjectInfo extends LitElement {
           this.frontendComponents.push(component);
         } else if (component.type == "microservice") {
           this.microserviceComponents.push(component);
+        } else if(component.type == "application") {
+          this.applicationComponent = component;
         }
       }
 
