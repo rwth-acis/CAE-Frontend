@@ -1,7 +1,6 @@
 
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
-import Static from './static.js';
 
 /**
  * @customElement

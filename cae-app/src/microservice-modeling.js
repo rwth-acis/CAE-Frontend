@@ -1,6 +1,5 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
-import Static from './static.js';
 
 /**
  * @customElement
@@ -55,6 +54,12 @@ class MicroserviceModeling extends PolymerElement {
       .innercontainersecond:nth-of-type(1) {
         flex: 2;
       }
+      .innercontainersecond:nth-of-type(2) {
+        flex: 2;
+      }
+      .innercontainersecond:nth-of-type(3) {
+        flex: 1;
+      }
     </style>
     <div class="firstcontainer">
       <div class="innercontainerfirst">
@@ -62,7 +67,7 @@ class MicroserviceModeling extends PolymerElement {
       </div>
       <div class="innercontainerfirst">
         <iframe id="Property Browser" src="{WEBHOST}/syncmeta/attribute.html"> </iframe>
-        <iframe id="Persistence Widget" src="{WEBHOST}/cae-frontend/microservicePersistenceWidget/index.html"> </iframe>
+        <iframe id="Metadata Widget" src="{WEBHOST}/cae-frontend/swaggerWidget/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
         <iframe id="Palette" src="{WEBHOST}/syncmeta/palette.html"> </iframe>
@@ -81,7 +86,7 @@ class MicroserviceModeling extends PolymerElement {
       </div>
       -->
       <div class="innercontainersecond">
-        <iframe id="Metadata Widget" src="{WEBHOST}/cae-frontend/swaggerWidget/widget.html"> </iframe>
+        <p>Versioning Widget Placeholder</p>
       </div>
       <div class="innercontainersecond">
         <iframe id="Open API viewer" src="{WEBHOST}/cae-frontend/swaggerWidget/swaggerUiEditor.html"> </iframe>
@@ -95,8 +100,10 @@ class MicroserviceModeling extends PolymerElement {
   ready() {
     super.ready();
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
-    parent.caeSpace = Static.MicroserviceSpaceId;
-    Common.setCaeSpace(parent.caeSpace);
+
+    // load the current Yjs room name from localStorage into
+    // parent.caeRoom variable (used by modeling/SyncMeta widget)
+    Common.loadCaeRoom();
   }
 }
 

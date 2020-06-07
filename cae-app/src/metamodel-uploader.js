@@ -32,9 +32,6 @@ export default class MetamodelUploader {
     } else if(component.type == "microservice") {
       vls = microservice_vls;
     } else {
-      // TODO: later when application models can be used, then this needs to be changed
-      console.log("MetamodelUplaoder: type is not frontend or microservice.");
-      console.log("Using application as type now...");
       vls = application_vls;
     }
 
