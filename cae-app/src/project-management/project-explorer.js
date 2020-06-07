@@ -5,6 +5,7 @@ import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 import Auth from "../auth";
 import Static from "../static";
+import Common from "../common";
 
 /**
  * PolymerElement for management of projects.
@@ -318,6 +319,44 @@ class ProjectExplorer extends LitElement {
    * @param projectId
    */
   getListOfProjectOnlineUsers(projectId) {
+    // to get list of online users, we need to enter the yjs rooms of every component by the project
+    // get components by projectId
+    const components = this.getProjectById(projectId).components;
+    //console.log(components);
+    for(let i in components) {
+      const component = components[i];
+      // get currently active users in yjs room
+      /*Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: {
+          name: "websockets-client", // use the websockets connector
+          room: Common.getYjsRoomNameForComponent(projectId, component.id),
+          options: { resource: "/socket.io"},
+          url:"http://localhost:1234"
+        },
+        share: { // specify the shared content, in this case only the users
+          users: 'Map',
+          userList: 'Map',
+          join: 'Map'
+        },
+        type:["Text","Map"],
+        sourceDir: '/bower_components'
+      }).then(function(y) {
+        //y.share.data.set('metamodel', vls);
+        console.log(component.name);
+        console.log(y.share.join);
+        console.log(y.share.userList);
+        console.log(y.share.users);
+
+        y.share.join.observe(function(event) {
+          console.log(event);
+        });
+        y.share.join.set()
+        resolve();
+      });*/
+    }
     // only some test data for now
     return "Alice Lastname, Bob Lastname and 2 more";
   }
