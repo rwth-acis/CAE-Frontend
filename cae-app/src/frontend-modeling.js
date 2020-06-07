@@ -1,5 +1,6 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
+import Static from './static.js';
 
 /**
  * @customElement
@@ -66,43 +67,43 @@ class FrontendModeling extends PolymerElement {
       <p>Frontend Modeling</p>
       <div class="maincontainer">
         <div class="innercontainersecond">
-          <iframe id="Canvas" src="{WEBHOST}/syncmeta/widget.html"> </iframe>
+          <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
         </div>
         <div class="innercontainersecond" style="display:flex;flex-flow:column;">
           <div style="display:flex;flex-flow:row;flex:2;">
             <div>
-              <iframe id="Palette" src="{WEBHOST}/syncmeta/palette.html"> </iframe>
+              <iframe id="Palette" src="{{Static.WebhostURL}}/syncmeta/palette.html"> </iframe>
             </div>
             <div>
-              <iframe id="User Activity" src="{WEBHOST}/syncmeta/activity.html"> </iframe>
+              <iframe id="User Activity" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
             </div>    
           </div>
           <div style="flex: 1">
-            <iframe id="Property Browser" src="{WEBHOST}/syncmeta/attribute.html"> </iframe>
+            <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
           </div>
         </div>
         <div class="innercontainersecond">
-          <iframe id="Wireframe Editor" src="{WEBHOST}/wireframe/index.html"> </iframe>
+          <iframe id="Wireframe Editor" src="{{Static.WebhostURL}}/wireframe/index.html"> </iframe>
         </div>
         <!--
         <div class="innercontainersecond">
-          <iframe id="Requirements Bazaar Widget" src="{WEBHOST}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+          <iframe id="Requirements Bazaar Widget" src="{{Static.WebhostURL}}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
         </div>
         -->
       </div>
       <div class="maincontainer">
         <div class="innercontainerfirst">
-          <iframe id="Live Code Editor" src="{WEBHOST}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
+          <iframe id="Live Code Editor" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
           <p>Versioning Widget Placeholder</p>
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
-            <iframe id="Live Preview" src="{WEBHOST}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"> </iframe>
+            <iframe id="Live Preview" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"> </iframe>
           </div>
           <div style="flex:1">
-            <iframe id="Requirements Bazaar Widget" src="{WEBHOST}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+            <iframe id="Requirements Bazaar Widget" src="{{Static.WebhostURL}}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
           </div>
         </div>
       </div>

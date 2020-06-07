@@ -1,5 +1,6 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
+import Static from "./static.js";
 
 /**
  * @customElement
@@ -63,33 +64,33 @@ class MicroserviceModeling extends PolymerElement {
     </style>
     <div class="firstcontainer">
       <div class="innercontainerfirst">
-        <iframe id="Canvas" src="{WEBHOST}/syncmeta/widget.html"> </iframe>      
+        <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>      
       </div>
       <div class="innercontainerfirst">
-        <iframe id="Property Browser" src="{WEBHOST}/syncmeta/attribute.html"> </iframe>
-        <iframe id="Metadata Widget" src="{WEBHOST}/cae-frontend/swaggerWidget/widget.html"> </iframe>
+        <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
+        <iframe id="Metadata Widget" src="{{Static.WebhostURL}}/cae-frontend/swaggerWidget/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <iframe id="Palette" src="{WEBHOST}/syncmeta/palette.html"> </iframe>
+        <iframe id="Palette" src="{{Static.WebhostURL}}/syncmeta/palette.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <iframe id="User Activity" src="{WEBHOST}/syncmeta/activity.html"> </iframe>
+        <iframe id="User Activity" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
     <div class="secondcontainer">
       <div class="innercontainersecond">
-        <iframe id="Live Code Editor" src="{WEBHOST}/cae-frontend/liveCodeEditorWidget/MicroserviceEditorWidget.html"> </iframe>
+        <iframe id="Live Code Editor" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/MicroserviceEditorWidget.html"> </iframe>
       </div>
       <!--
       <div class="innercontainersecond">
-        <iframe id="Import Tool" src="{WEBHOST}/syncmeta/debug.html"> </iframe>
+        <iframe id="Import Tool" src="{{Static.WebhostURL}}/syncmeta/debug.html"> </iframe>
       </div>
       -->
       <div class="innercontainersecond">
         <p>Versioning Widget Placeholder</p>
       </div>
       <div class="innercontainersecond">
-        <iframe id="Open API viewer" src="{WEBHOST}/cae-frontend/swaggerWidget/swaggerUiEditor.html"> </iframe>
+        <iframe id="Open API viewer" src="{{Static.WebhostURL}}/cae-frontend/swaggerWidget/swaggerUiEditor.html"> </iframe>
       </div>
     </div>
     `;
