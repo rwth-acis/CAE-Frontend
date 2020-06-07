@@ -1,6 +1,7 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
 import Static from "./static.js";
+import('./versioning/versioning-element.js');
 
 /**
  * @customElement
@@ -87,7 +88,7 @@ class MicroserviceModeling extends PolymerElement {
       </div>
       -->
       <div class="innercontainersecond">
-        <p>Versioning Widget Placeholder</p>
+        <versioning-element></versioning-element>
       </div>
       <div class="innercontainersecond">
         <iframe id="Open API viewer" src="{{Static.WebhostURL}}/cae-frontend/swaggerWidget/swaggerUiEditor.html"> </iframe>

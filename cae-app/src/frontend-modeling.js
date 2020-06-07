@@ -1,6 +1,7 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
 import Static from './static.js';
+import('./versioning/versioning-element.js');
 
 /**
  * @customElement
@@ -96,7 +97,7 @@ class FrontendModeling extends PolymerElement {
           <iframe id="Live Code Editor" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
-          <p>Versioning Widget Placeholder</p>
+          <versioning-element></versioning-element>
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
