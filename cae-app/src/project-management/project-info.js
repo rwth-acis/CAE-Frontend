@@ -165,33 +165,6 @@ class ProjectInfo extends LitElement {
               <div class="separator"></div>
             </div>
             
-            <!-- Requirements Bazaar -->
-            <div class="requirements-bazaar" style="margin-left: 1em; margin-right: 1em">
-              <h4>Requirements Bazaar</h4>
-                ${this.isConnectedToReqBaz ? html`
-                  <div style="display: flex">
-                    <div>
-                      <p>Connected to a Requirements Bazaar category. <a @click="${this._onDisconnectReqBazClicked}"
-                          href="">Disconnect</a></p>
-                    </div>
-                    <a href="https://requirements-bazaar.org/projects/${this.selectedProject.reqBazProjectId}/categories/${this.selectedProject.reqBazCategoryId}"
-                          style="margin-left:auto; margin-top: auto; margin-bottom: auto">
-                      <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
-                    </a>
-                  </div>
-                ` : html`
-                  <p>This CAE project is not connected to the Requirements Bazaar yet. Enter URL to category to connect to:</p>
-                  <div style="display: flex">
-                    <input id="input-reqbaz-url" class="input-reqbaz-url input"
-                        @input="${(e) => this._onReqBazURLChanged(e.target.value)}"
-                        placeholder="Paste URL to Category" style="margin-left: 0"></input>
-                    <paper-button @click="${this._onConnectReqBazClicked}" ?disabled="${!this.urlMatchesReqBazFormat}" style="margin-left: auto">Connect</paper-button>
-                  </div>
-                  ${this.urlMatchesReqBazFormat ? html`` : html`<p>Entered URL does not match the required format.</p>`}
-                `}
-              <div class="separator"></div>
-            </div>
-            
             <custom-style>
         <style is="custom-style">
           .flex-horizontal-with-ratios {
@@ -406,17 +379,6 @@ class ProjectInfo extends LitElement {
       currentlyShownComponents: {
         type: Array
       },
-      isConnectedToReqBaz: {
-        type: Boolean
-      },
-      /**
-       * When the user enters an URL to the Requirements Bazaar,
-       * this property is used to tell whether the entered
-       * URL matches the required format.
-       */
-      urlMatchesReqBazFormat: {
-        type: Boolean
-      },
       /*
        * Used to determine whether the edit-buttons etc. should be visible or not.
        * Note: Editing is only possible when editingAllowed is true.
@@ -446,8 +408,6 @@ class ProjectInfo extends LitElement {
     this.frontendComponents = [];
     this.microserviceComponents = [];
     this.currentlyShownComponents = [];
-    this.isConnectedToReqBaz = false;
-    this.urlMatchesReqBazFormat = false;
     this.componentTabSelected = 0;
     this.editingEnabled = false;
     this.editingAllowed = false;
@@ -515,94 +475,12 @@ class ProjectInfo extends LitElement {
 
     // disable buttons for adding users and roles
     // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
-    if(this.editingEnabled) {
+    if (this.editingEnabled) {
       this.requestUpdate().then(e => {
         this.shadowRoot.getElementById("button-add-user").disabled = true;
         this.shadowRoot.getElementById("button-add-role").disabled = true;
       });
     }
-  }
-
-  /**
-   * Gets called when the CAE project is not yet
-   * connected to the Requirements Bazaar and the user updates the
-   * URL to the Requiremenets Bazaar category.
-   * @param url The entered url.
-   * @private
-   */
-  _onReqBazURLChanged(url) {
-    // remove / at the end of the URL if needed
-    if(url.slice(-1) == "/") {
-      url = url.substr(0, url.length-1);
-    }
-    const regexp = new RegExp("^https:\/\/requirements-bazaar\.org\/projects\/(\\d+)\/categories\/(\\d+)$");
-    this.urlMatchesReqBazFormat = regexp.test(url);
-  }
-
-  /**
-   * Gets called when the Connect button for the Requirements Bazaar
-   * gets clicked.
-   * The button is only clickable if the entered url matches the required
-   * format for a category on the Requirements Bazaar.
-   * @private
-   */
-  _onConnectReqBazClicked() {
-    let reqBazURL = this.shadowRoot.getElementById("input-reqbaz-url").value;
-
-    // remove / at the end of the URL if needed
-    if(reqBazURL.slice(-1) == "/") {
-      reqBazURL = reqBazURL.substr(0, reqBazURL.length-1);
-    }
-
-    const reqBazProjectId = reqBazURL.split("/projects/")[1].split("/")[0];
-    const reqBazCategoryId = reqBazURL.split("/categories/")[1];
-
-    const caeProjectId = this.getProjectId();
-
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + caeProjectId + "/reqbaz", {
-      method: "PUT",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "projectId": Number.parseInt(reqBazProjectId),
-        "categoryId": Number.parseInt(reqBazCategoryId)
-      })
-    }).then(response => {
-      if(response.ok) {
-        // successfully updated requirements bazaar category
-        // also update locally
-        this.selectedProject.reqBazProjectId = reqBazProjectId;
-        this.selectedProject.reqBazCategoryId = reqBazCategoryId;
-
-        this.isConnectedToReqBaz = true;
-      } else {
-        console.log(response);
-      }
-    });
-  }
-
-  /**
-   * Gets called when the Disconnect button for the Requirements Bazaar
-   * gets clicked.
-   * @private
-   */
-  _onDisconnectReqBazClicked() {
-    const projectId = this.getProjectId();
-
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/reqbaz", {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        // successfully disconnected requirements bazaar category
-        // also update locally
-        this.selectedProject.reqBazProjectId = 0;
-        this.selectedProject.reqBazCategoryId = 0;
-
-        this.isConnectedToReqBaz = false;
-      } else {
-        console.log(response);
-      }
-    });
   }
 
   /**
@@ -674,9 +552,6 @@ class ProjectInfo extends LitElement {
 
     // check if user is allowed to edit the project
     this.editingAllowed = this.isUserAllowedToEditProject();
-
-    // check if the project is already connected to the requirements bazaar
-    this.isConnectedToReqBaz = project.reqBazProjectId != 0;
 
     // load components of the selected project
     this.loadComponents();
