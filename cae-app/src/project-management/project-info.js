@@ -7,6 +7,7 @@ import '@polymer/iron-icon/iron-icon';
 import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
+import '@polymer/paper-spinner/paper-spinner-lite.js';
 import Auth from "../auth";
 import Static from "../static";
 import Common from "../common";
@@ -363,6 +364,11 @@ class ProjectInfo extends LitElement {
         </div>
       </paper-dialog>
       
+      <!-- Dialog showing a loading bar -->
+      <paper-dialog id="dialog-loading" modal>
+        <paper-spinner-lite active></paper-spinner-lite>
+      </paper-dialog>
+      
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
@@ -457,8 +463,11 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onComponentClicked(component) {
-    // set caeRoom and upload metamodel for the component
+    // set caeRoom
     Common.setCaeRoom(this.getProjectId(), component.id);
+    // show spinner
+    this.openLoadingDialog();
+    // upload metamodel for the component
     this.uploadMetamodelForComponent(component).then(_ => {
       if(component.type == "frontend") {
         window.location = "cae-modeling/frontend-modeling";
@@ -474,8 +483,11 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onOpenApplicationModelingClicked() {
-    // set caeRoom and upload metamodel for application component
+    // set caeRoom
     Common.setCaeRoom(this.getProjectId(), this.applicationComponent.id);
+    // show spinner
+    this.openLoadingDialog();
+    // upload metamodel for application component
     this.uploadMetamodelForComponent(this.applicationComponent).then(_ => {
       window.location = "cae-modeling/application-modeling";
     });
@@ -1007,6 +1019,13 @@ class ProjectInfo extends LitElement {
 
       }
     });
+  }
+
+  /**
+   * Opens the dialog which shows a progress spinner.
+   */
+  openLoadingDialog() {
+    this.shadowRoot.getElementById("dialog-loading").open();
   }
 
   /**

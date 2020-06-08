@@ -3,6 +3,7 @@ import '@polymer/paper-card/paper-card.js';
 import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-dialog/paper-dialog.js';
+import '@polymer/paper-spinner/paper-spinner-lite.js';
 import Auth from "../auth";
 import Static from "../static";
 import Common from "../common";
@@ -126,6 +127,11 @@ class ProjectExplorer extends LitElement {
           <paper-button @click="${this._closeCreateProjectDialogClicked}">Cancel</paper-button>
           <paper-button id="dialog-button-create" @click="${this._createProject}">Create</paper-button>
         </div>
+      </paper-dialog>
+      
+      <!-- Dialog showing a loading bar -->
+      <paper-dialog id="dialog-loading" modal>
+        <paper-spinner-lite active></paper-spinner-lite>
       </paper-dialog>
       
       <!-- Toasts -->
@@ -252,6 +258,14 @@ class ProjectExplorer extends LitElement {
    */
   _createProject() {
     const projectName = this.shadowRoot.getElementById("input-project-name").value;
+
+    // close dialog (then also the button is not clickable and user cannot create project twice or more often)
+    // important: get projectName before closing dialog, because when closing the dialog the input field gets cleared
+    this._closeCreateProjectDialogClicked();
+
+    // show loading dialog
+    this.shadowRoot.getElementById("dialog-loading").open();
+
     if(projectName) {
       fetch(Static.ProjectManagementServiceURL + "/projects", {
         method: "POST",
@@ -260,8 +274,8 @@ class ProjectExplorer extends LitElement {
           "name": projectName
         })
       }).then(response => {
-        // close dialog
-        this._closeCreateProjectDialogClicked();
+        // close loading dialog
+        this.shadowRoot.getElementById("dialog-loading").close();
 
         if(response.status == 201) {
           // project got created successfully
