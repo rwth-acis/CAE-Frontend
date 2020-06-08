@@ -21,24 +21,34 @@ export class CommitList extends LitElement {
       <div style="overflow: scroll; max-height: 500px">
         <!-- list commits -->
         ${this.versionedModel.commits.map(commit => html`
-          <div @click=${() => this._onCommitLeftClicked(commit)} @contextmenu="${(e) => this._onCommitRightClicked(e, commit)}">
+          <div>
             <!-- check if commit is the commit for uncommited changes -->
             ${commit.message ? html`
               <!-- standard commit -->
               <div style="display: flex">
-                <!-- version message -->
-                <p style="margin-right: 0.5em">${commit.message}</p>
-                <!-- version tag -->
-                ${commit.tag ? html`<span class="label" style="margin-right: 0.5em">${commit.tag.tag}</span>` : html``}
+                <!-- commit message -->
+                <p style="margin-right: 0; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
+                <!-- button for context menu -->
+                <paper-menu-button vertical-align="bottom" style="padding-left: 0; padding-right: 0">
+                  <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
+                  <p slot="dropdown-content" style="padding-left: 4px; padding-right: 4px"
+                    @click=${() => this._onResetModelToCommitClicked(commit)}>Reset model to this commit</p>
+                </paper-menu-button>
               </div>
+              <!-- version tag -->
+              ${commit.tag ? html`
+                <div style="margin-top: 8px; margin-bottom: 4px">
+                  <span class="label">${commit.tag.tag}</span>
+                </div>
+              ` : html``}
+              <!-- timestamp -->
+              <p style="color: #aeaeae; margin-top: 4px">${commit.timestamp}</p>
             ` : html`
               <!-- commit for uncommited changes -->
               <div>
                 <p>Uncommited changes</p>
               </div>
             `}
-            <!-- timestamp -->
-            <p style="color: #aeaeae">${commit.timestamp}</p>
           </div>
           <div class="separator"></div>
         `)}
@@ -68,26 +78,13 @@ export class CommitList extends LitElement {
   }
 
   /**
-   * Gets called when the user right-clicks on a commit in the commit list.
-   * @param event MouseEvent needed to prevent displaying context menu of browser.
-   * @param commit The commit that was right-clicked.
+   * Gets called when the user wants to reset the model to a specific commit.
+   * @param commit Commit where the model should be reset to.
    * @private
    */
-  _onCommitRightClicked(event, commit) {
-    // preventDefault ensures that the context menu of the browser does not show up
-    event.preventDefault();
-
-    // when the commit is the commit for uncommited changes, then right click should not
-    // do anything, because user cannot go back / revert changes to the specific commit
-    if(!commit.message) return;
-
-    // notify versioning-element about right click on commit
-    let notifyEvent = new CustomEvent("commit-right-click", {
-      detail: {
-        commit: commit
-      }
-    });
-    this.dispatchEvent(notifyEvent);
+  _onResetModelToCommitClicked(commit) {
+    console.log("reset model to commit clicked:");
+    console.log(commit);
   }
 }
 

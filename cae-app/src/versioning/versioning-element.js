@@ -28,8 +28,7 @@ export class VersioningElement extends LitElement {
       
       <div class="container flex-horizontal-with-ratios">
         <div class="flex-commit-list">
-          <commit-list versionedModel=${JSON.stringify(this.versionedModel)}
-            @commit-right-click="${(e) => this._onCommitRightClicked(e.detail)}"></commit-list>
+          <commit-list versionedModel=${JSON.stringify(this.versionedModel)}></commit-list>
         </div>
         <div class="flex-commit-details">
           <commit-details></commit-details>
@@ -116,16 +115,6 @@ export class VersioningElement extends LitElement {
         }
       ]
     };
-  }
-
-  /**
-   * Gets called by the commit-list when the user right clicks on a commit.
-   * @param eventDetail Details of the event containing the clicked commit.
-   * @private
-   */
-  _onCommitRightClicked(eventDetail) {
-    const commit = eventDetail.commit;
-    console.log(commit);
   }
 }
 
