@@ -53,6 +53,10 @@ export class VersioningElement extends LitElement {
       "id": 1,
       "commits": [
         {
+          // this is the commit containing uncommited changes
+          "id": 11
+        },
+        {
           "id": 10,
           "message": "Another test commit without tag but with a longer text message.",
           "timestamp": "07.06.2020 18:20"

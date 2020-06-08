@@ -22,12 +22,21 @@ export class CommitList extends LitElement {
         <!-- list commits -->
         ${this.versionedModel.commits.map(commit => html`
           <div @click=${() => this._onCommitLeftClicked(commit)} @contextmenu="${(e) => this._onCommitRightClicked(e, commit)}">
-            <div style="display: flex">
-              <!-- version message -->
-              <p style="margin-right: 0.5em">${commit.message}</p>
-              <!-- version tag -->
-              ${commit.tag ? html`<span class="label" style="margin-right: 0.5em">${commit.tag.tag}</span>` : html``}
-            </div>
+            <!-- check if commit is the commit for uncommited changes -->
+            ${commit.message ? html`
+              <!-- standard commit -->
+              <div style="display: flex">
+                <!-- version message -->
+                <p style="margin-right: 0.5em">${commit.message}</p>
+                <!-- version tag -->
+                ${commit.tag ? html`<span class="label" style="margin-right: 0.5em">${commit.tag.tag}</span>` : html``}
+              </div>
+            ` : html`
+              <!-- commit for uncommited changes -->
+              <div>
+                <p>Uncommited changes</p>
+              </div>
+            `}
             <!-- timestamp -->
             <p style="color: #aeaeae">${commit.timestamp}</p>
           </div>
@@ -67,6 +76,10 @@ export class CommitList extends LitElement {
   _onCommitRightClicked(event, commit) {
     // preventDefault ensures that the context menu of the browser does not show up
     event.preventDefault();
+
+    // when the commit is the commit for uncommited changes, then right click should not
+    // do anything, because user cannot go back / revert changes to the specific commit
+    if(!commit.message) return;
 
     // notify versioning-element about right click on commit
     let notifyEvent = new CustomEvent("commit-right-click", {
