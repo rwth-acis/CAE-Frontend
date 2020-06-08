@@ -21,7 +21,6 @@ export class VersioningElement extends LitElement {
           }
           .flex-commit-list {
             @apply --layout-flex;
-            margin-right: 1em;
           }
         </style>
       </custom-style>
