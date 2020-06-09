@@ -18,7 +18,7 @@ export class CommitList extends LitElement {
       </style>
       <h3>Commits</h3>
       <div class="separator"></div>
-      <div style="overflow: scroll; max-height: 500px">
+      <div style="overflow: scroll; height: 500px">
         <!-- list commits -->
         ${this.versionedModel.commits.map(commit => html`
           <div>

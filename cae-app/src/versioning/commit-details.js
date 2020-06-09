@@ -1,5 +1,6 @@
 import { LitElement, html} from 'lit-element';
 import '@polymer/paper-checkbox/paper-checkbox.js';
+import Common from "../common";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -47,12 +48,13 @@ export class CommitDetails extends LitElement {
         <div style="flex-grow: 1">
           <!-- div for selecting all changes -->
           <div style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em">
-            <paper-checkbox>Select all changes</paper-checkbox>
+            <paper-checkbox checked="true" disabled="true">Select all changes</paper-checkbox>
           </div>
           <div class="separator"></div>
           <!-- div for changes list -->
           <div>
-          
+            <p>Changes are not yet displayed and it is only possible to commit all new changes.
+            Version tags are also not working yet and there is no check if the model really changed.</p>
           </div>
         </div>
         <div class="separator"></div>
@@ -60,7 +62,7 @@ export class CommitDetails extends LitElement {
         <div style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em; margin-right: 1em">
           <!-- div for commit version tag settings -->
           <div>
-            <paper-checkbox id="new-version-checkbox" @change="${this._onNewVersionCheckBoxChanged}">New version</paper-checkbox>
+            <paper-checkbox checked="false" disabled="true" id="new-version-checkbox" @change="${this._onNewVersionCheckBoxChanged}">New version</paper-checkbox>
             <!-- div for entering version number -->
             <div id="version-number-div" style="display: none">
               <div style="display: flex; height: 2em; margin-top: 0.5em">
@@ -106,7 +108,21 @@ export class CommitDetails extends LitElement {
    * @private
    */
   _onCommitClicked() {
-    console.log("commit button clicked");
+    // get commit message
+    const commitMessage = this.getCommitMessageInput().value;
+
+    // disable button so that it is not possible to click the button twice (or more often)
+    this.getCommitButton().disabled = true;
+
+    // get current model out of Yjs room
+    Common.getModelFromYjsRoom(Common.getYjsRoomName()).then(model => {
+      if(model) {
+        console.log("Loaded current model from Yjs room:");
+        console.log(model);
+      }
+    });
+
+    console.log("commit clicked with commit message: " + commitMessage);
   }
 
   /**
@@ -151,6 +167,14 @@ export class CommitDetails extends LitElement {
    */
   getVersionNumberDiv() {
     return this.shadowRoot.getElementById("version-number-div");
+  }
+
+  /**
+   * Returns the HTMLElement of the input field for entering the commit message.
+   * @returns {HTMLElement} HTMLElement of commit message input field.
+   */
+  getCommitMessageInput() {
+    return this.shadowRoot.getElementById("input-commit-message");
   }
 }
 

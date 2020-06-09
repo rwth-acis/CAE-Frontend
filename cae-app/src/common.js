@@ -1,3 +1,5 @@
+import Static from "./static.js";
+
 /**
  * Helper class used for managing Yjs rooms.
  * When entering the modeling space of a component, then
@@ -84,6 +86,38 @@ export default class Common {
    */
   static getVersionedModelId() {
     return localStorage.getItem(this.KEY_VERSIONED_MODEL_ID);
+  }
+
+  /**
+   * Tries to load the model from the given Yjs room.
+   * @param roomName Room name of the Yjs room where the model should be loaded from.
+   * @returns {Promise<unknown>}
+   */
+  static getModelFromYjsRoom(roomName) {
+    return new Promise((resolve) => {
+      Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: {
+          name: "websockets-client", // use the websockets connector
+          room: roomName,
+          options: { resource: Static.YjsResourcePath},
+          url: Static.YjsAddress
+        },
+        share: { // specify the shared content
+          data: 'Map'
+        }
+      }).then(function(y) {
+        // retrieve current model from the yjs room
+        if (y.share.data.get('model')) {
+          const data = y.share.data.get('model');
+          resolve(data);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 }
 
