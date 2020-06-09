@@ -108,7 +108,7 @@ class ProjectExplorer extends LitElement {
                 <p class="project-item-name">${project.name}</p>
                 ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot"></span>` : html``}
                 <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
-                <a href="${project.gitHubProjectHtmlUrl}" class="github-a">
+                <a href="${project.gitHubProjectHtmlUrl}" class="github-a" style="margin-left: auto">
                   <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
                 </a>
               </div>
@@ -372,7 +372,8 @@ class ProjectExplorer extends LitElement {
       });*/
     }
     // only some test data for now
-    return "Alice Lastname, Bob Lastname and 2 more";
+    return "";
+    //return "Alice Lastname, Bob Lastname and 2 more";
   }
 }
 
