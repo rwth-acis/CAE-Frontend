@@ -9,11 +9,14 @@ export class CommitList extends LitElement {
         }
         .label {
           color: #586069;
-          border: 1px solid #e1e1e1;
+          border: 1px solid #eaeaea;
           margin-top: auto;
           margin-bottom: auto;
           padding: 0.1em 0.2em;
           border-radius: 3px;
+        }
+        .commit:hover {
+          background: #eeeeee;
         }
       </style>
       <h3>Commits</h3>
@@ -21,7 +24,7 @@ export class CommitList extends LitElement {
       <div style="overflow: scroll; height: 500px">
         <!-- list commits -->
         ${this.versionedModel.commits.map(commit => html`
-          <div>
+          <div class="commit" style="padding-bottom: 1em">
             <!-- check if commit is the commit for uncommited changes -->
             ${commit.message ? html`
               <!-- standard commit -->
@@ -42,7 +45,7 @@ export class CommitList extends LitElement {
                 </div>
               ` : html``}
               <!-- timestamp -->
-              <p style="color: #aeaeae; margin-top: 4px">${commit.timestamp}</p>
+              <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0">${this.beautifyTimestamp(commit.timestamp)}</p>
             ` : html`
               <!-- commit for uncommited changes -->
               <div>
@@ -91,6 +94,22 @@ export class CommitList extends LitElement {
   setVersionedModel(versionedModel) {
     console.log("Commit-List: Received versioned model from versioning-element.");
     this.versionedModel = versionedModel;
+  }
+
+  /**
+   * Removes not needed information (seconds) from timestamp and
+   * changes the format a bit.
+   * @param originalTimestamp The timestamp from the database.
+   * @returns {string} Timestamp in format: 31.12.2020 14:00
+   */
+  beautifyTimestamp(originalTimestamp) {
+    const year = originalTimestamp.split("-")[0];
+    const month = originalTimestamp.split("-")[1];
+    const day = originalTimestamp.split("-")[2].split(" ")[0];
+
+    const time = originalTimestamp.split(" ")[1].substring(0,5);
+
+    return day + "." + month + "." + year + " " + time;
   }
 }
 
