@@ -2,6 +2,7 @@ import frontend_vls from './vls/frontendComponent_vls.js';
 import microservice_vls from './vls/microservice_vls.js';
 import application_vls from './vls/application_vls.js';
 import Common from './common.js';
+import Static from "./static";
 
 /**
  * Helper class for upload the metamodels for the components.
@@ -53,8 +54,8 @@ export default class MetamodelUploader {
         connector: {
           name: "websockets-client", // use the websockets connector
           room: caeRoom,
-          options: { resource: "/socket.io"},
-          url:"http://localhost:1234"
+          options: { resource: Static.YjsResourcePath},
+          url: Static.YjsAddress
         },
         share: { // specify the shared content
           data: 'Map'

@@ -12,3 +12,6 @@ Static.ApplicationSpaceId = 'application-modeling';
 Static.ProjectManagementServiceURL = '{CAE_BACKEND_URL}/project-management';
 Static.WebhostURL = '{WEBHOST}';
 Static.ModelPersistenceServiceURL = '{CAE_BACKEND_URL}/CAE';
+// Yjs configuration
+Static.YjsAddress = "{YJS_ADDRESS}";
+Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
