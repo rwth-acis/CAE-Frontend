@@ -6,8 +6,9 @@ Static.FrontendSpaceId = 'frontend-modeling';
 Static.MicroserviceSpaceId = 'microservice-modeling';
 Static.ApplicationSpaceId = 'application-modeling';
 
-// store the URL to the project management service and webhost (for widgets)
+// store the URL to the project management service, model persistence service and webhost (for widgets)
 // this gets updated when using docker env variables
 // and should not end with a "/"
 Static.ProjectManagementServiceURL = '{CAE_BACKEND_URL}/project-management';
 Static.WebhostURL = '{WEBHOST}';
+Static.ModelPersistenceServiceURL = '{CAE_BACKEND_URL}/CAE';

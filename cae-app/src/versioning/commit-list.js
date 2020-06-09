@@ -58,9 +58,6 @@ export class CommitList extends LitElement {
 
   static get properties() {
     return {
-      /**
-       * Gets set by versioning-element.
-       */
       versionedModel: {
         type: Object
       }
@@ -85,6 +82,15 @@ export class CommitList extends LitElement {
   _onResetModelToCommitClicked(commit) {
     console.log("reset model to commit clicked:");
     console.log(commit);
+  }
+
+  /**
+   * Gets called by versioning-element after the versioned model got loaded from API.
+   * @param versionedModel
+   */
+  setVersionedModel(versionedModel) {
+    console.log("Commit-List: Received versioned model from versioning-element.");
+    this.versionedModel = versionedModel;
   }
 }
 

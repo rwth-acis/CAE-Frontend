@@ -425,6 +425,8 @@ class ProjectInfo extends LitElement {
   _onComponentClicked(component) {
     // set caeRoom
     Common.setCaeRoom(this.getProjectId(), component.id);
+    // set versioned model id
+    Common.setVersionedModelId(component.versionedModelId);
     // show spinner
     this.openLoadingDialog();
     // upload metamodel for the component
@@ -445,6 +447,8 @@ class ProjectInfo extends LitElement {
   _onOpenApplicationModelingClicked() {
     // set caeRoom
     Common.setCaeRoom(this.getProjectId(), this.applicationComponent.id);
+    // set versioned model id
+    Common.setVersionedModelId(this.applicationComponent.versionedModelId);
     // show spinner
     this.openLoadingDialog();
     // upload metamodel for application component

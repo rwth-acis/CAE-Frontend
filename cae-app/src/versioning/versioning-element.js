@@ -1,6 +1,8 @@
 import { LitElement, html} from 'lit-element';
 import './commit-list.js';
 import './commit-details.js';
+import Common from "../common";
+import Static from "../static";
 
 export class VersioningElement extends LitElement {
   render() {
@@ -27,7 +29,7 @@ export class VersioningElement extends LitElement {
       
       <div class="container flex-horizontal-with-ratios">
         <div class="flex-commit-list">
-          <commit-list versionedModel=${JSON.stringify(this.versionedModel)}></commit-list>
+          <commit-list id="commit-list"></commit-list>
         </div>
         <div class="flex-commit-details">
           <commit-details></commit-details>
@@ -46,8 +48,15 @@ export class VersioningElement extends LitElement {
 
   constructor() {
     super();
+
+    // load versioned model id from localStorage
+    const versionedModelId = Common.getVersionedModelId();
+
+    // now load versioned model from API
+    this.loadVersionedModel(versionedModelId);
+
     // TODO: this is only some testing data
-    this.versionedModel = {
+    /*this.versionedModel = {
       "id": 1,
       "commits": [
         {
@@ -113,7 +122,33 @@ export class VersioningElement extends LitElement {
           "timestamp": "20.05.2020 13:46"
         }
       ]
-    };
+    };*/
+  }
+
+  /**
+   * Loads the versioned model from API and sends it to the commit-list.
+   * @param versionedModelId Id of the versioned model to load.
+   */
+  loadVersionedModel(versionedModelId) {
+    fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + versionedModelId, {
+      method: "GET"
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      // data contains the versioned model
+      this.versionedModel = data;
+      this.getCommitListElement().setVersionedModel(data);
+    });
+  }
+
+  /**
+   * Returns the HTMLElement of the commit list.
+   * @returns {HTMLElement} HTMLElement of commit list.
+   */
+  getCommitListElement() {
+    return this.shadowRoot.getElementById("commit-list");
   }
 }
 
