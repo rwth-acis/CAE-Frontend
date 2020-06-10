@@ -431,10 +431,11 @@ class ProjectInfo extends LitElement {
     this.openLoadingDialog();
     // upload metamodel for the component
     this.uploadMetamodelForComponent(component).then(_ => {
+      this.closeLoadingDialog();
       if(component.type == "frontend") {
-        window.location = "cae-modeling/frontend-modeling";
+        this.changeView("cae-modeling/frontend-modeling");
       } else {
-        window.location = "cae-modeling/microservice-modeling";
+        this.changeView("cae-modeling/microservice-modeling");
       }
     });
   }
@@ -453,8 +454,24 @@ class ProjectInfo extends LitElement {
     this.openLoadingDialog();
     // upload metamodel for application component
     this.uploadMetamodelForComponent(this.applicationComponent).then(_ => {
-      window.location = "cae-modeling/application-modeling";
+      // close dialog
+      this.closeLoadingDialog();
+      // send event which notifies the cae-static-app to change the view
+      this.changeView("cae-modeling/application-modeling");
     });
+  }
+
+  /**
+   * Sends an event which notifies the cae-static-app to change the view.
+   * @param viewName View that should be shown.
+   */
+  changeView(viewName) {
+    let event = new CustomEvent("change-view", {
+      detail: {
+        view: viewName
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   /**
@@ -905,6 +922,13 @@ class ProjectInfo extends LitElement {
    */
   openLoadingDialog() {
     this.shadowRoot.getElementById("dialog-loading").open();
+  }
+
+  /**
+   * Closes the dialog which shows a progress spinner.
+   */
+  closeLoadingDialog() {
+    this.shadowRoot.getElementById("dialog-loading").close();
   }
 
   /**

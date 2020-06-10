@@ -45,7 +45,7 @@ class ProjectManagement extends LitElement {
                 @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>
           </div>
           <div class="flex-project-info">
-            <project-info id="project-info"></project-info>
+            <project-info @change-view=${(e) => this._changeView(e)} id="project-info"></project-info>
           </div>
         </div>
       ` : html `
@@ -54,6 +54,20 @@ class ProjectManagement extends LitElement {
         </div>
       `}
     `
+  }
+
+  /**
+   * Redirects change-view events from children e.g. project-info to cae-static-app.
+   * @param e Change-view event, sent from child element.
+   * @private
+   */
+  _changeView(e) {
+    let event = new CustomEvent("change-view", {
+      detail: {
+        view: e.detail.view
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   /**

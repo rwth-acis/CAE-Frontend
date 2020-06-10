@@ -3,6 +3,8 @@ import 'las2peer-frontend-statusbar/las2peer-frontend-statusbar.js';
 import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
+import './project-management/project-management.js';
+import './cae-modeling.js';
 import Auth from "./auth";
 import Static from "./static";
 
@@ -27,48 +29,36 @@ class CaeStaticApp extends PolymerElement {
         autoAppendWidget=true
       ></las2peer-frontend-statusbar>
       
+      <!-- app-location binds to the url of the app -->
       <app-location route="{{route}}"></app-location>
-      <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
-      <iron-pages selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
+      
+      <!-- this app-route manages the top-level routes i.e. if the url ends with /x/y,
+           then only x is managed by this app-route. In this case, x would also be the value of
+           routeData.view.-->
+      <app-route route="{{route}}" pattern="/:view" data="{{routeData}}" tail="{{subroute}}"></app-route>
+      <iron-pages selected="[[view]]" attr-for-selected="name" fallback-selection="404">
         <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling name="cae-modeling" route="{{subroute}}"></cae-modeling>
+        <p name="404">Not found!</p>
       </iron-pages>
     `;
   }
 
   static get properties() {
     return {
-      prop1: {
-        type: String,
-        value: 'cae-static-app'
-      },
-      page:{
-        type: String,
-        observer: '_pageChanged'
+      view: {
+        type: String
       }
     };
   }
 
   static get observers(){
-    return ['_routerChanged(routeData.page)'];
+    return ['_viewChanged(routeData.view)'];
   }
 
-  _routerChanged(page){
-    this.page = page || 'project-management';
-  }
-
-  /* this pagechanged triggers for simple onserver written in page properties written above */
-  _pageChanged(currentPage, oldPage) {
-    switch (currentPage) {
-      case 'project-management':
-        import('./project-management/project-management.js').then()
-        break;
-      case 'cae-modeling':
-        import('./cae-modeling.js').then()
-        break;
-      default:
-        this.page = 'project-management';
-    }
+  _viewChanged(view) {
+    this.view = view || 'project-management';
+    console.log("_viewChanged to view: " + this.view);
   }
 
   ready() {
@@ -78,6 +68,11 @@ class CaeStaticApp extends PolymerElement {
     // this.shadowRoot in the handleLogin and handleLogout methods
     statusBar.addEventListener('signed-in', (event) => this.handleLogin(event));
     statusBar.addEventListener('signed-out', (event) => this.handleLogout(event));
+
+    const projectManagement = this.shadowRoot.getElementById("project-management");
+    projectManagement.addEventListener('change-view', (event) => {
+      this.set("route.path", event.detail.view);
+    });
   }
 
   handleLogin(event) {
@@ -85,7 +80,6 @@ class CaeStaticApp extends PolymerElement {
 
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
-    // TODO: adjust url (should be configureable in docker run command)
     fetch(Static.ProjectManagementServiceURL + "/users/me", {
       headers: Auth.getAuthHeader()
     })
