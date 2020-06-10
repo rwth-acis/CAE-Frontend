@@ -18,13 +18,16 @@ export class CommitList extends LitElement {
         .commit:hover {
           background: #eeeeee;
         }
+        .commit-selected {
+          background: #eeeeee;
+        }
       </style>
       <h3>Commits</h3>
       <div class="separator"></div>
       <div style="overflow: scroll; height: 500px">
         <!-- list commits -->
         ${this.versionedModel.commits.map(commit => html`
-          <div class="commit" style="padding-bottom: 1em">
+          <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
             <!-- check if commit is the commit for uncommited changes -->
             ${commit.message ? html`
               <!-- standard commit -->
@@ -45,10 +48,10 @@ export class CommitList extends LitElement {
                 </div>
               ` : html``}
               <!-- timestamp -->
-              <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0">${this.beautifyTimestamp(commit.timestamp)}</p>
+              <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${this.beautifyTimestamp(commit.timestamp)}</p>
             ` : html`
               <!-- commit for uncommited changes -->
-              <div>
+              <div @click=${() => this._onCommitLeftClicked(commit)}>
                 <p>Uncommited changes</p>
               </div>
             `}
@@ -63,6 +66,9 @@ export class CommitList extends LitElement {
     return {
       versionedModel: {
         type: Object
+      },
+      selectedCommitId: {
+        type: Number
       }
     };
   }
@@ -75,6 +81,8 @@ export class CommitList extends LitElement {
   _onCommitLeftClicked(commit) {
     console.log("commit left-clicked:");
     console.log(commit);
+
+    this.selectedCommitId = commit.id;
   }
 
   /**
