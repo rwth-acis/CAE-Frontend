@@ -112,6 +112,13 @@ export default class Common {
         // retrieve current model from the yjs room
         if (y.share.data.get('model')) {
           const data = y.share.data.get('model');
+
+          // check if wireframe model exists (this should only be the case for frontend components)
+          const wireframeModel = y.share.data.get('wireframe');
+          if(wireframeModel) {
+            data.wireframe = wireframeModel;
+          }
+
           resolve(data);
         } else {
           resolve();
