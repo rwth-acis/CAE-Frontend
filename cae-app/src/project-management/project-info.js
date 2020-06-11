@@ -87,14 +87,10 @@ class ProjectInfo extends LitElement {
           padding: 0.1em 0.2em;
           border-radius: 3px;
         }
-        .github-a {
-          margin-top: auto;
-          margin-bottom: auto;
-          margin-left: 1em;
-        }
         .github-img {
           width: 1.5em;
           height: 1.5em;
+          margin-left: 4px;
         }
         .reqbaz-img {
           width: 1.5em;
@@ -140,8 +136,15 @@ class ProjectInfo extends LitElement {
                     ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
                     <!-- Label for external dependencies -->
                     ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
-                    <!-- Link to GitHub (or later maybe GitLab) -->
-                    <a href="${component.github_url}" class="github-a">
+                    <!-- Link to Requirements Bazaar -->
+                    ${component.reqBazCategoryId ? html`
+                      <a style="text-decoration: none"
+                          href="https://requirements-bazaar.org/projects/${component.reqBazProjectId}/categories/${component.reqBazCategoryId}">
+                        <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
+                      </a>
+                    ` : html``}
+                    <!-- Link to GitHub -->
+                    <a href="${component.github_url}">
                       <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                     </a>
                     ${this.editingEnabled? html`
@@ -158,9 +161,19 @@ class ProjectInfo extends LitElement {
               <h4>Application Component</h4>
               <div style="display: flex; padding-bottom: 0.5em">
                 <a @click="${this._onOpenApplicationModelingClicked}" href="">Open in Modeling Space</a>
-                <a href="https://github.com" style="margin-left: auto; margin-top: auto; margin-bottom: auto">
-                  <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
-                </a>
+                <div style="margin-left: auto; margin-top: auto; margin-bottom: auto; display: flex">
+                  <!-- Requirements Bazaar connection -->
+                  ${this.applicationComponent.reqBazCategoryId ? html`
+                    <a style="text-decoration: none"
+                        href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
+                      <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
+                    </a>
+                  ` : html``}
+                  <!-- GitHub connection -->
+                  <a style="text-decoration: none" href="https://github.com">
+                    <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                  </a>
+                </div>
               </div>
               <div class="separator"></div>
             </div>
@@ -894,7 +907,8 @@ class ProjectInfo extends LitElement {
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
         "name": componentName,
-        "type": componentType
+        "type": componentType,
+        "access_token": Auth.getAccessToken()
       })
     }).then(response => {
       if(response.ok) {

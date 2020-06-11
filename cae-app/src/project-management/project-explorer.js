@@ -337,7 +337,8 @@ class ProjectExplorer extends LitElement {
         method: "POST",
         headers: Auth.getAuthHeader(),
         body: JSON.stringify({
-          "name": projectName
+          "name": projectName,
+          "access_token": Auth.getAccessToken()
         })
       }).then(response => {
         // close loading dialog
@@ -351,7 +352,10 @@ class ProjectExplorer extends LitElement {
           this.shadowRoot.getElementById("input-project-name").value = "";
 
           // since a new project exists, reload projects from server
-          this.loadUsersProjects();
+          this.showProjects(false);
+          // switch to tab "My Projects"
+          this.tabSelected = 0;
+          this.shadowRoot.getElementById("my-and-all-projects").selected = 0;
         } else if(response.status == 409) {
           // a project with the given name already exists
           this.shadowRoot.getElementById("toast-already-existing").show();

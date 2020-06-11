@@ -20,6 +20,14 @@ export default class Auth {
   }
 
   /**
+   * Loads the access token stored in localStorage.
+   * @returns {string} Access token which is stored in localStorage.
+   */
+  static getAccessToken() {
+    return localStorage.getItem(this.KEY_ACCESS_TOKEN);
+  }
+
+  /**
    * Removes the access token and userinfo endpoint
    * from localStorage.
    * This can be used after user has logged out or when the access
