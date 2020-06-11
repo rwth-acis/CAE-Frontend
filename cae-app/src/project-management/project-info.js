@@ -442,6 +442,10 @@ class ProjectInfo extends LitElement {
     Common.setVersionedModelId(component.versionedModelId);
     // show spinner
     this.openLoadingDialog();
+
+    // store information for requirements bazaar widget
+    Common.storeRequirementsBazaarProject(component.reqBazProjectId, component.reqBazCategoryId);
+
     // upload metamodel for the component
     this.uploadMetamodelForComponent(component).then(_ => {
       this.closeLoadingDialog();
@@ -465,6 +469,10 @@ class ProjectInfo extends LitElement {
     Common.setVersionedModelId(this.applicationComponent.versionedModelId);
     // show spinner
     this.openLoadingDialog();
+
+    // store information for requirements bazaar widget
+    Common.storeRequirementsBazaarProject(this.applicationComponent.reqBazProjectId, this.applicationComponent.reqBazCategoryId);
+
     // upload metamodel for application component
     this.uploadMetamodelForComponent(this.applicationComponent).then(_ => {
       // close dialog

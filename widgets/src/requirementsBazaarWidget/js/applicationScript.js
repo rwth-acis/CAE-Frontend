@@ -32,8 +32,7 @@
 
 // global variables
 var client,
-  availableProjects = {}, availableCategories = {},
-  selectedProjectId, selectedProjectName, selectedCategoryId, selectedCategoryName, projectConnected = false,
+  selectedProjectId, selectedCategoryId,
   localStorageKey = 'requirements-bazaar-widget', refreshRequirementsIntervalHandle, currentlyOpenedRequirementId;
 
 var init = function () {
@@ -48,102 +47,12 @@ var init = function () {
   } else {
     onProjectDisconnected();
   }
-
-  var projectAutocomplete = $('#project-autocomplete-input');
-  var categoryAutocomplete = $('#category-autocomplete-input');
-  var projectConnectButton = $('#connect-project-button');
-  var projectDisconnectButton = $('#disconnect-project-button');
-  categoryAutocomplete.attr('disabled', 'true');
-
-  projectAutocomplete.autocomplete({
-    data: {},
-    onAutocomplete: function (projectName) {
-      selectedProjectName = projectName;
-      selectedProjectId = availableProjects[projectName];
-      categoryAutocomplete.removeAttr('disabled');
-      searchAndUpdateCategories(categoryAutocomplete);
-    }
-  });
-  searchAndUpdateProjects(projectAutocomplete);
-  projectAutocomplete.on('input', function () {
-    searchAndUpdateProjects($(this));
-  });
-
-  categoryAutocomplete.autocomplete({
-    data: {},
-    onAutocomplete: function (categoryName) {
-      selectedCategoryName = categoryName;
-      selectedCategoryId = availableCategories[categoryName];
-    }
-  });
-  searchAndUpdateCategories(categoryAutocomplete);
-  categoryAutocomplete.on('input', function () {
-    searchAndUpdateCategories($(this));
-  });
-  categoryAutocomplete.on('focus', function () {
-    categoryAutocomplete.autocomplete('open');
-  });
-
-  projectConnectButton.click(function () {
-    if (selectedProjectId && selectedCategoryId) {
-      projectConnected = true;
-      saveConnectedProject();
-      onProjectConnected();
-    }
-  });
-
-  projectDisconnectButton.click(function () {
-    projectConnected = false;
-    deleteConnectedProject();
-    onProjectDisconnected();
-  });
 };
-
-function searchAndUpdateProjects(projectAutocomplete) {
-  var value = projectAutocomplete.val();
-  client.sendRequest("GET", addAccessToken("projects?search=" + encodeURIComponent(value)), "", "application/json", {}, false,
-    function (data, type) {
-      updateProjectAutocomplete(projectAutocomplete, data)
-    },
-    console.error)
-}
-
-function updateProjectAutocomplete(projectAutocomplete, projects) {
-  var autocompleteProjects = {};
-  projects.forEach(function (project) {
-    autocompleteProjects[project.name] = null;
-    availableProjects[project.name] = project.id;
-  });
-  projectAutocomplete.autocomplete('updateData', autocompleteProjects);
-}
-
-function searchAndUpdateCategories(categoryAutocomplete) {
-  if (selectedProjectId) {
-    var value = categoryAutocomplete.val();
-    client.sendRequest("GET", addAccessToken("projects/" + encodeURIComponent(selectedProjectId) + "/categories?search=" + encodeURIComponent(value)), "", "application/json", {}, false,
-      function (data, type) {
-        updateCategoryAutocomplete(categoryAutocomplete, data)
-      },
-      console.error)
-  }
-
-}
-
-function updateCategoryAutocomplete(categoryAutocomplete, categories) {
-  var autocompleteCategories = {};
-  categories.forEach(function (category) {
-    autocompleteCategories[category.name] = null;
-    availableCategories[category.name] = category.id;
-  });
-  categoryAutocomplete.autocomplete('updateData', autocompleteCategories);
-}
 
 function saveConnectedProject() {
   localStorage.setItem(localStorageKey, JSON.stringify({
     selectedProjectId: selectedProjectId,
-    selectedProjectName: selectedProjectName,
-    selectedCategoryId: selectedCategoryId,
-    selectedCategoryName: selectedCategoryName,
+    selectedCategoryId: selectedCategoryId
   }));
 }
 
@@ -152,18 +61,11 @@ function loadConnectedProject() {
   if (storageEntryString) {
     var storageEntry = JSON.parse(storageEntryString);
     selectedProjectId = storageEntry.selectedProjectId;
-    selectedProjectName = storageEntry.selectedProjectName;
     selectedCategoryId = storageEntry.selectedCategoryId;
-    selectedCategoryName = storageEntry.selectedCategoryName;
   }
 }
 
-function deleteConnectedProject() {
-  localStorage.removeItem(localStorageKey);
-}
-
 function onProjectConnected() {
-  $('#connect-project').hide();
   $('#requirements-list-container').show();
   $('#project-link').html(
     `<a href="@@reqbazfrontend/projects/${selectedProjectId}/categories/${selectedCategoryId}" target="_blank">${selectedProjectName}: ${selectedCategoryName}</a>`
@@ -174,7 +76,6 @@ function onProjectConnected() {
 
 
 function onProjectDisconnected() {
-  $('#connect-project').show();
   $('#requirements-list-container').hide();
   $('#project-link').html('');
   clearInterval(refreshRequirementsIntervalHandle);

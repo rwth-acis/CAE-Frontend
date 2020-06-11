@@ -1,7 +1,9 @@
 import Static from "./static.js";
 
 /**
- * Helper class used for managing Yjs rooms.
+ * Helper class used for managing Yjs rooms and for storing the information
+ * used by the Requirements Bazaar widget in the modeling space.
+ *
  * When entering the modeling space of a component, then
  * there needs to be a Yjs room that all the modelers of the
  * component join. Therefore, the name of the Yjs room of a
@@ -24,6 +26,13 @@ export default class Common {
    * @type {string}
    */
   static KEY_VERSIONED_MODEL_ID = "versionedModelId";
+
+  /**
+   * Key used to store the information for the requirements bazaar
+   * widget.
+   * @type {string}
+   */
+  static KEY_REQ_BAZ_WIDGET = "requirements-bazaar-widget";
 
   /**
    * Creates the name for the Yjs room for a specific component in a project.
@@ -125,6 +134,19 @@ export default class Common {
         }
       });
     });
+  }
+
+  /**
+   * Stores the information about the connected Requirements Bazaar
+   * category to localStorage.
+   * @param selectedProjectId Id of the selected Requirements Bazaar project
+   * @param selectedCategoryId Id of the selected Requirements Bazaar category
+   */
+  static storeRequirementsBazaarProject(selectedProjectId, selectedCategoryId) {
+    localStorage.setItem(this.KEY_REQ_BAZ_WIDGET, JSON.stringify({
+      selectedProjectId: selectedProjectId,
+      selectedCategoryId: selectedCategoryId
+    }));
   }
 }
 
