@@ -109,7 +109,8 @@ class ProjectExplorer extends LitElement {
                 ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot"></span>` : html``}
                 <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
                 <a href="${project.gitHubProjectHtmlUrl}" class="github-a" style="margin-left: auto">
-                  <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
+                  <!-- not using the svg from master branch, otherwise the file might be deleted and cannot be displayed anymore -->
+                  <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                 </a>
               </div>
             </paper-card>

@@ -142,7 +142,7 @@ class ProjectInfo extends LitElement {
                     ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
                     <!-- Link to GitHub (or later maybe GitLab) -->
                     <a href="${component.github_url}" class="github-a">
-                      <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
+                      <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                     </a>
                     ${this.editingEnabled? html`
                       <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon" icon="delete" style="margin-left: 0.5em"></iron-icon>
@@ -159,7 +159,7 @@ class ProjectInfo extends LitElement {
               <div style="display: flex; padding-bottom: 0.5em">
                 <a @click="${this._onOpenApplicationModelingClicked}" href="">Open in Modeling Space</a>
                 <a href="https://github.com" style="margin-left: auto; margin-top: auto; margin-bottom: auto">
-                  <img src="https://raw.githubusercontent.com/primer/octicons/master/icons/mark-github.svg" class="github-img">
+                  <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                 </a>
               </div>
               <div class="separator"></div>
