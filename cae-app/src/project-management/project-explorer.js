@@ -95,6 +95,9 @@ class ProjectExplorer extends LitElement {
           width: 1.5em;
           height: 1.5em;
         }
+        paper-tabs {
+          --paper-tabs-selection-bar-color: rgb(30,144,255);
+        }
       </style>
       <div class="main">
         <div class="explorer-top-menu">
@@ -102,6 +105,18 @@ class ProjectExplorer extends LitElement {
           <input class="input-search-project" @input="${(e) => this._onSearchInputChanged(e.target.value)}" 
               placeholder="Search Projects"></input>
         </div>
+        <div>
+          <paper-tabs id="my-and-all-projects" selected="0">
+            <paper-tab @click="${() => this._onTabChanged(0)}">My Projects</paper-tab>
+            <paper-tab @click="${() => this._onTabChanged(1)}">All Projects</paper-tab>
+          </paper-tabs>
+        </div>
+        <!-- show spinner if projects are loading -->
+        ${this.projectsLoading ? html`
+          <div style="width: 100%; display: flex">
+            <paper-spinner-lite style="margin-top: 4em; margin-left: auto; margin-right: auto"active></paper-spinner-lite>
+          </div>
+        ` : html``}
         ${this.listedProjects.map(project => html`
             <paper-card class="project-item-card" @click="${() => this._onProjectItemClicked(project.id)}">
               <div class="project-item-card-content">
@@ -152,39 +167,98 @@ class ProjectExplorer extends LitElement {
 
   static get properties() {
     return {
+      /**
+       * Contains all the projects that could be shown.
+       * Depends on whether "My Projects" or "All Projects"
+       * is selected by the user.
+       */
+      projects: {
+        type: Array
+      },
+      /**
+       * This contains the projects that are shown.
+       * This is a subset of the projects property if search
+       * is enabled.
+       */
       listedProjects: {
         type: Array
+      },
+      tabSelected: {
+        type: Number
+      },
+      projectsLoading: {
+        type: Boolean
       }
     }
   }
 
   constructor() {
     super();
+
+    this.projects = [];
     this.listedProjects = [];
-    this.loadUsersProjects();
+
+    this.showProjects(false);
+  }
+
+  /**
+   * Gets called when the user switches the current tab.
+   * @param tabIndex 0 = My Projects, 1 = All Projects
+   * @private
+   */
+  _onTabChanged(tabIndex) {
+    this.tabSelected = tabIndex;
+    if(tabIndex == 0) {
+      // show users projects / projects where the user is a member of
+      this.showProjects(false);
+    } else {
+      // show all projects
+      this.showProjects(true);
+    }
   }
 
   /**
    * Loads the projects that the user is part from.
+   * @param allProjects If all projects should be shown or only the ones
+   * where the current user is a member of.
    */
-  loadUsersProjects() {
+  showProjects(allProjects) {
+    // set loading to true
+    this.projectsLoading = true;
+
+    // clear current project list
+    this.projects = [];
+    this.listedProjects = [];
+
+    // only send authHeader when not all projects should be shown, but only the
+    // one from the current user
+    const headers = allProjects? undefined : Auth.getAuthHeader();
+
     fetch(Static.ProjectManagementServiceURL + "/projects", {
       method: "GET",
-      headers: Auth.getAuthHeader()
+      headers: headers
     }).then(response => {
       if(!response.ok) throw Error(response.status);
       return response.json();
     }).then(data => {
+      // set loading to false, then the spinner gets hidden
+      this.projectsLoading = false;
+
+      // store loaded projects
+      this.projects = data;
+      // set projects that should be shown (currently all)
       this.listedProjects = data;
 
-      // notify project-management about users projects
-      let event = new CustomEvent("user-project-list-loaded-event", {
-        detail: {
-          message: "Finished loading users projects.",
-          usersProjects: data
-        }
-      });
-      this.dispatchEvent(event);
+      // notify project-management about users projects (only if allProjects is false)
+      if(!allProjects) {
+        let event = new CustomEvent("user-project-list-loaded-event", {
+          detail: {
+            message: "Finished loading users projects.",
+            usersProjects: data
+          }
+        });
+        this.dispatchEvent(event);
+      }
     }).catch(error => {
       if(error.message == "401") {
         // user is not authorized
@@ -235,21 +309,12 @@ class ProjectExplorer extends LitElement {
    */
   _onSearchInputChanged(searchInput) {
     if(searchInput) {
-      // clear projects that are currently shown
-      this.listedProjects = [];
-      // use API to search for projects
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + searchInput)
-        .then(response => {
-          if(!response.ok) throw Error(response.status);
-          return response.json();
-        }).then(data => {
-          this.listedProjects = data;
-        }).catch(error => {
-          console.log(error);
-        });
+      this.listedProjects = this.listedProjects.filter(project => {
+        return project.name.toLowerCase().includes(searchInput.toLowerCase());
+      });
     } else {
-      // no search input, so show projects where the user is part of again
-      this.loadUsersProjects();
+      // no search input, show all projects that were loaded
+      this.listedProjects = this.projects;
     }
   }
 
