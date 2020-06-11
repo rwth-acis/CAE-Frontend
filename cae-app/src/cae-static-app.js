@@ -3,11 +3,13 @@ import 'las2peer-frontend-statusbar/las2peer-frontend-statusbar.js';
 import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
+import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import Auth from "./auth";
 import Static from "./static";
+import Common from "./common";
 
 /**
  * CaeStaticApp is the main PolymerElement of the CAE.
@@ -38,6 +40,12 @@ class CaeStaticApp extends PolymerElement {
           margin-left: 0.5em;
           margin-right: 0.5em;
         }
+        .settings-icon {
+          color: #c6c6c6;
+        }
+        .settings-icon:hover {
+          color: #9d9d9d;
+        }
       </style>
 
       <las2peer-frontend-statusbar
@@ -60,6 +68,8 @@ class CaeStaticApp extends PolymerElement {
           <a href="/cae-modeling/microservice-modeling" style="margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
           <div class="vl"></div>
           <a href="/cae-modeling/application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
+          
+          <iron-icon id="settings-button" icon="settings" class="settings-icon" style="margin-left: auto; margin-right: 2em; margin-top: auto; margin-bottom: auto"></iron-icon>
         </div>
       </paper-card>
       
@@ -75,6 +85,18 @@ class CaeStaticApp extends PolymerElement {
         <cae-modeling name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <p name="404">Not found!</p>
       </iron-pages>
+      
+      <paper-dialog id="dialog-settings" modal>
+        <h4>Settings</h4>
+        <div>
+        Here you can enter your GitHub name. This name will be used to grant access to GitHub projects.
+        <paper-input id="input-github-username" placeholder="GitHub Username"></paper-input>
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button id="settings-button-save" dialog-confirm autofocus>Save</paper-button>
+        </div>
+      </paper-dialog>
     `;
   }
 
@@ -107,6 +129,12 @@ class CaeStaticApp extends PolymerElement {
     projectManagement.addEventListener('change-view', (event) => {
       this.set("route.path", event.detail.view);
     });
+
+    const settingsButton = this.shadowRoot.getElementById("settings-button");
+    settingsButton.addEventListener('click', _ => this._onSettingsButtonClicked());
+
+    const settingsButtonSave = this.shadowRoot.getElementById("settings-button-save");
+    settingsButtonSave.addEventListener('click', _ => this._onSaveSettingsClicked());
   }
 
   handleLogin(event) {
@@ -114,13 +142,7 @@ class CaeStaticApp extends PolymerElement {
 
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
-    fetch(Static.ProjectManagementServiceURL + "/users/me", {
-      headers: Auth.getAuthHeader()
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-      });
+    this.loadCurrentUser();
 
     // when removing this line, we get a problem because some
     // user services used by the las2peer-frontend-statusbar cannot be accessed
@@ -132,8 +154,70 @@ class CaeStaticApp extends PolymerElement {
     this.shadowRoot.getElementById("project-management").requestUpdate();
   }
 
+  loadCurrentUser() {
+    fetch(Static.ProjectManagementServiceURL + "/users/me", {
+      headers: Auth.getAuthHeader()
+    })
+      .then(response => response.json())
+      .then(data => {
+        // store to localStorage
+        Common.storeUserInfo(data);
+      });
+  }
+
   handleLogout() {
     Auth.removeAuthDataFromLocalStorage();
+  }
+
+  /**
+   * Gets called when the settings button gets clicked.
+   * @private
+   */
+  _onSettingsButtonClicked() {
+    // open settings dialog
+    this.getSettingsDialog().open();
+
+    // put currently stored github username into input field
+    const gitHubUsername = Common.getUsersGitHubUsername();
+    this.getSettingsGitHubUsernameInput().value = gitHubUsername;
+  }
+
+  /**
+   * Gets called when the user clicks on the save button in the
+   * settings dialog.
+   * @private
+   */
+  _onSaveSettingsClicked() {
+    // get entered github username
+    const gitHubUsername = this.getSettingsGitHubUsernameInput().value;
+
+    if(gitHubUsername) {
+      // check if it is different from the one stored in localStorage
+      if(gitHubUsername != Common.getUsersGitHubUsername()) {
+        // github username got changed
+        // update it in database
+        fetch(Static.ProjectManagementServiceURL + "/users", {
+          method: "PUT",
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({
+            "gitHubUsername": gitHubUsername
+          })
+        }).then(response => {
+          if(response.ok) {
+            // reload user data (because then it gets updated in localStorage too)
+            this.loadCurrentUser();
+          }
+        });
+      }
+    }
+  }
+
+  getSettingsDialog() {
+    return this.shadowRoot.getElementById("dialog-settings");
+  }
+
+  getSettingsGitHubUsernameInput() {
+    return this.shadowRoot.getElementById("input-github-username");
   }
 }
 

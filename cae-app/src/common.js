@@ -2,7 +2,8 @@ import Static from "./static.js";
 
 /**
  * Helper class used for managing Yjs rooms and for storing the information
- * used by the Requirements Bazaar widget in the modeling space.
+ * used by the Requirements Bazaar widget in the modeling space and for storing
+ * user information.
  *
  * When entering the modeling space of a component, then
  * there needs to be a Yjs room that all the modelers of the
@@ -33,6 +34,12 @@ export default class Common {
    * @type {string}
    */
   static KEY_REQ_BAZ_WIDGET = "requirements-bazaar-widget";
+
+  /**
+   * Key used to store the information about the currently logged in user.
+   * @type {string}
+   */
+  static KEY_USER_INFO = "userInfo";
 
   /**
    * Creates the name for the Yjs room for a specific component in a project.
@@ -147,6 +154,23 @@ export default class Common {
       selectedProjectId: selectedProjectId,
       selectedCategoryId: selectedCategoryId
     }));
+  }
+
+  /**
+   * Stores the information about the currently logged in user.
+   * @param userInfo Info to store in localStorage.
+   */
+  static storeUserInfo(userInfo) {
+    localStorage.setItem(this.KEY_USER_INFO, JSON.stringify(userInfo));
+  }
+
+  /**
+   * Reads out the GitHub username which is stored to localStorage.
+   * Attention: The GitHub username might be null, if none is stored in the database.
+   * @returns {*}
+   */
+  static getUsersGitHubUsername() {
+    return JSON.parse(localStorage.getItem(this.KEY_USER_INFO)).gitHubUsername;
   }
 }
 
