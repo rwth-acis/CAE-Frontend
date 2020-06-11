@@ -212,9 +212,9 @@ class ProjectInfo extends LitElement {
                 ${this.editingEnabled? html`
                   <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
                     <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
-                        @input="${(e) => this._onAddUserInputChanged(e.target.value)}"></input>
-                    <paper-button id="button-add-user" @click="${this._onAddUserToProjectClicked}"
-                        style="margin-left: auto">Add</paper-button>
+                        @input="${(e) => this._onInviteUserInputChanged(e.target.value)}"></input>
+                    <paper-button id="button-invite-user" @click="${this._onInviteUserToProjectClicked}"
+                        style="margin-left: auto">Invite</paper-button>
                   </div>
                 ` : html``}
               </div>
@@ -519,7 +519,7 @@ class ProjectInfo extends LitElement {
     // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
     if (this.editingEnabled) {
       this.requestUpdate().then(e => {
-        this.shadowRoot.getElementById("button-add-user").disabled = true;
+        this.shadowRoot.getElementById("button-invite-user").disabled = true;
         this.shadowRoot.getElementById("button-add-role").disabled = true;
       });
     }
@@ -697,11 +697,11 @@ class ProjectInfo extends LitElement {
    * @param username Current value of the input field.
    * @private
    */
-  _onAddUserInputChanged(username) {
+  _onInviteUserInputChanged(username) {
     if(username) {
-      this.shadowRoot.getElementById("button-add-user").disabled = false;
+      this.shadowRoot.getElementById("button-invite-user").disabled = false;
     } else {
-      this.shadowRoot.getElementById("button-add-user").disabled = true;
+      this.shadowRoot.getElementById("button-invite-user").disabled = true;
     }
   }
 
@@ -718,12 +718,13 @@ class ProjectInfo extends LitElement {
     }
   }
 
-  _onAddUserToProjectClicked() {
+  _onInviteUserToProjectClicked() {
     // get entered username
     const loginName = this.shadowRoot.getElementById("input-username").value;
     const projectId = this.getProjectId();
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users", {
+    // send invitation
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/invitations", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -731,33 +732,22 @@ class ProjectInfo extends LitElement {
       })
     }).then(response => {
       if(response.ok) {
-        return response.json();
+        // show toast message
+        this.showToast("Invited user to project!");
+
+        // clear input text and deactivate button
+        this.shadowRoot.getElementById("input-username").value = "";
+        this.shadowRoot.getElementById("button-invite-user").disabled = true;
       } else {
         throw Error(response.status);
       }
-    }).then(data => {
-      // data is the user which got added to the project
-      // show toast message
-      this.showToast("Added user to project!");
-
-      // show the new user in the users list of the project
-      this.userList.push(data);
-      this.requestUpdate();
-
-      // NOTE: this.userList references to project.users (gets set in _onProjectSelected)
-      // and project is part of the listedProjects array in the project explorer
-      // Thus: the listedProjects automatically contains the newly added user
-
-      // clear input text and deactivate button
-      this.shadowRoot.getElementById("input-username").value = "";
-      this.shadowRoot.getElementById("button-add-user").disabled = true;
     }).catch(error => {
       if(error.message == "404") {
         // user with given name could not be found
         this.showToast("Could not find user with given name.");
       } else if(error.message == "409") {
-        // user is already member of the project
-        this.showToast("User is already member of the project.");
+        // user is already member of the project or already invited to it
+        this.showToast("User is already member of the project or already invited to it.");
       }
     });
   }
