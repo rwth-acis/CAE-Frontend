@@ -49,13 +49,11 @@ var init = function () {
   }
 };
 
-function saveConnectedProject() {
-  localStorage.setItem(localStorageKey, JSON.stringify({
-    selectedProjectId: selectedProjectId,
-    selectedCategoryId: selectedCategoryId
-  }));
-}
-
+/**
+ * Loads the information about the Requirements Bazaar category which is
+ * connected to the CAE. This information gets stored to localStorage
+ * when the user selects a component in the project-management.
+ */
 function loadConnectedProject() {
   var storageEntryString = localStorage.getItem(localStorageKey);
   if (storageEntryString) {
@@ -65,6 +63,10 @@ function loadConnectedProject() {
   }
 }
 
+/**
+ * Gets called when the Requirements Bazaar category stored in
+ * localStorage could be loaded successfully.
+ */
 function onProjectConnected() {
   $('#requirements-list-container').show();
   $('#project-link').html(
@@ -81,6 +83,10 @@ function onProjectDisconnected() {
   clearInterval(refreshRequirementsIntervalHandle);
 }
 
+/**
+ * Reloads the requirements by sending a request to the
+ * Requirements Bazaar API.
+ */
 function refreshRequirements() {
   if (selectedProjectId && selectedCategoryId) {
     client.sendRequest("GET", addAccessToken("categories/" + encodeURIComponent(selectedCategoryId) + "/requirements"),
