@@ -70,7 +70,7 @@ function loadConnectedProject() {
 function onProjectConnected() {
   $('#requirements-list-container').show();
   $('#project-link').html(
-    `<a href="@@reqbazfrontend/projects/${selectedProjectId}/categories/${selectedCategoryId}" target="_blank">${selectedProjectName}: ${selectedCategoryName}</a>`
+    `<a href="@@reqbazfrontend/projects/${selectedProjectId}/categories/${selectedCategoryId}" target="_blank">this category</a>`
   );
   refreshRequirements();
   refreshRequirementsIntervalHandle = setInterval(refreshRequirements, 10000);
