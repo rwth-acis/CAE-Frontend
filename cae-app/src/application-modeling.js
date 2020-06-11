@@ -46,7 +46,6 @@ class ApplicationModeling extends PolymerElement {
         flex-flow:column;
       }
     </style>
-    <p>Application Modeling</p>
     <div class="maincontainer">
       <div class="innercontainerfirst">
         <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>

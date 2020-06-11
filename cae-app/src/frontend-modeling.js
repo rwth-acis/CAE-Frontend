@@ -65,7 +65,6 @@ class FrontendModeling extends PolymerElement {
           flex: 4;
         }
       </style>
-      <p>Frontend Modeling</p>
       <div class="maincontainer">
         <div class="innercontainersecond">
           <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>

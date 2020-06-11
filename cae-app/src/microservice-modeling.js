@@ -10,7 +10,6 @@ import('./versioning/versioning-element.js');
 class MicroserviceModeling extends PolymerElement {
   static get template() {
     return html`
-    <p>Microservice Modeling</p>	
     <style>
       .firstcontainer { 
         display: flex;

@@ -52,7 +52,7 @@ class CaeModeling extends PolymerElement {
         }
       </style>
       
-      <p id="currentRoom">Current Space: Test</p>
+      <p id="currentRoom" style="display: none">Current Space: Test</p>
       
       <app-location route="{{route}}"></app-location>
       <app-route route="{{route}}" pattern="/cae-modeling/:page" data="{{routeData}}"></app-route>
@@ -99,21 +99,25 @@ class CaeModeling extends PolymerElement {
 
   ready() {
     super.ready();
-    this.displayCurrentRoomName();
+
+    // the following line is commented, should only be visible while debugging
+    // this.displayCurrentRoomName();
   }
 
   /**
    * Displays the currently used room name.
-   * TODO: maybe this is not really needed in the final CAE, but for development it is helpful
+   * maybe this is not really needed in the final CAE, but for development it is helpful
    */
   displayCurrentRoomName() {
-    var spaceHTML = "";
+    const element = this.shadowRoot.querySelector('#currentRoom');
+    element.removeAttribute("style");
+    let spaceHTML = "";
     if (Common.getYjsRoomName()) {
       spaceHTML = `<span style="font-weight: bold;">Current Space:</span> ${Common.getYjsRoomName()}`;
     } else {
       spaceHTML = "Please enter a space!";
     }
-    this.shadowRoot.querySelector('#currentRoom').innerHTML = spaceHTML;
+    element.innerHTML = spaceHTML;
   }
 }
 
