@@ -3,6 +3,7 @@ import 'las2peer-frontend-statusbar/las2peer-frontend-statusbar.js';
 import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
 import '@polymer/iron-pages/iron-pages.js';
+import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import Auth from "./auth";
@@ -18,6 +19,27 @@ import Static from "./static";
 class CaeStaticApp extends PolymerElement {
   static get template() {
     return html`
+      <style>
+        #cae-statusbar{
+          display: inline-block;
+          width: 100%;
+          height: 2em;
+          margin-top: 4px;
+        }
+        a {
+          text-decoration: none;
+          color: inherit;
+        }
+        .vl {
+          border-left: 2px solid #e6e6e6;
+          height: 1em;
+          margin-top: auto;
+          margin-bottom: auto;
+          margin-left: 0.5em;
+          margin-right: 0.5em;
+        }
+      </style>
+
       <las2peer-frontend-statusbar
         id="statusBar"
         service="Community Application Editor"
@@ -28,6 +50,18 @@ class CaeStaticApp extends PolymerElement {
         suppresswidgeterror="true"
         autoAppendWidget=true
       ></las2peer-frontend-statusbar>
+      
+      <paper-card id="cae-statusbar">
+        <div style="width: 100%; height: 100%; display: flex">
+          <a href="/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
+          <div class="vl"></div>
+          <a href="/cae-modeling/frontend-modeling" style="margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
+          <div class="vl"></div>
+          <a href="/cae-modeling/microservice-modeling" style="margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
+          <div class="vl"></div>
+          <a href="/cae-modeling/application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
+        </div>
+      </paper-card>
       
       <!-- app-location binds to the url of the app -->
       <app-location route="{{route}}"></app-location>
