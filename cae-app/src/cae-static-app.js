@@ -7,6 +7,7 @@ import '@polymer/iron-icon/iron-icon.js';
 import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
+import './notifications/notification-element.js';
 import Auth from "./auth";
 import Static from "./static";
 import Common from "./common";
@@ -47,6 +48,14 @@ class CaeStaticApp extends PolymerElement {
           color: #9d9d9d;
         }
       </style>
+      
+      <custom-style>
+        <style is="custom-style">
+          .badge-blue {
+            --paper-badge-background: rgb(30,144,255);
+          }
+        </style>
+      </custom-style>
 
       <las2peer-frontend-statusbar
         id="statusBar"
@@ -69,7 +78,9 @@ class CaeStaticApp extends PolymerElement {
           <div class="vl"></div>
           <a href="/cae-modeling/application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
           
-          <iron-icon id="settings-button" icon="settings" class="settings-icon" style="margin-left: auto; margin-right: 2em; margin-top: auto; margin-bottom: auto"></iron-icon>
+          <iron-icon id="notifications-button" icon="mail" class="settings-icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
+          <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
+          <iron-icon id="settings-button" icon="settings" class="settings-icon" style="margin-left: 0.5em; margin-right: 2em; margin-top: auto; margin-bottom: auto"></iron-icon>
         </div>
       </paper-card>
       
@@ -83,6 +94,7 @@ class CaeStaticApp extends PolymerElement {
       <iron-pages selected="[[view]]" attr-for-selected="name" fallback-selection="404">
         <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling name="cae-modeling" route="{{subroute}}"></cae-modeling>
+        <notification-element id="notification-element" name="notifications"></notification-element>
         <p name="404">Not found!</p>
       </iron-pages>
       
@@ -135,6 +147,15 @@ class CaeStaticApp extends PolymerElement {
 
     const settingsButtonSave = this.shadowRoot.getElementById("settings-button-save");
     settingsButtonSave.addEventListener('click', _ => this._onSaveSettingsClicked());
+
+    const notificationsButton = this.getNotificationsButton();
+    notificationsButton.addEventListener('click', _ => this._onNotificationsButtonClicked());
+
+    // add listener for reloading notifications
+    this.getNotificationElement().addEventListener('reload-notifications', _ => this.loadUsersNotifications());
+
+    // load notifications
+    this.loadUsersNotifications();
   }
 
   handleLogin(event) {
@@ -163,6 +184,39 @@ class CaeStaticApp extends PolymerElement {
         // store to localStorage
         Common.storeUserInfo(data);
       });
+  }
+
+  /**
+   * Loads the notifications/invitations that the user received.
+   */
+  loadUsersNotifications() {
+    fetch(Static.ProjectManagementServiceURL + "/invitations", {
+      method: "GET",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      console.log(data);
+      if(data) {
+        const notificationsBadge = this.getNotificationsBadge();
+        if(data.length > 0) {
+          // show badge
+          notificationsBadge.removeAttribute("hidden");
+          // calling updatePosition, otherwise the position is not correct
+          notificationsBadge.updatePosition();
+
+          notificationsBadge.label = data.length;
+        } else {
+          // hide badge
+          notificationsBadge.setAttribute("hidden", "");
+        }
+
+        // notify notification-element about the new notification data
+        this.getNotificationElement().setInvitations(data);
+      }
+    });
   }
 
   handleLogout() {
@@ -212,12 +266,29 @@ class CaeStaticApp extends PolymerElement {
     }
   }
 
+  _onNotificationsButtonClicked() {
+    console.log("clicked notifications button");
+    this.set("route.path", "notifications");
+  }
+
   getSettingsDialog() {
     return this.shadowRoot.getElementById("dialog-settings");
   }
 
   getSettingsGitHubUsernameInput() {
     return this.shadowRoot.getElementById("input-github-username");
+  }
+
+  getNotificationsButton() {
+    return this.shadowRoot.getElementById("notifications-button");
+  }
+
+  getNotificationsBadge() {
+    return this.shadowRoot.getElementById("notifications-badge");
+  }
+
+  getNotificationElement() {
+    return this.shadowRoot.getElementById("notification-element");
   }
 }
 
