@@ -154,8 +154,8 @@ class CaeStaticApp extends PolymerElement {
     // add listener for reloading notifications
     this.getNotificationElement().addEventListener('reload-notifications', _ => this.loadUsersNotifications());
 
-    // load notifications
-    this.loadUsersNotifications();
+    // load notifications every x seconds (currently set to every 10 seconds)
+    window.setInterval(() => this.loadUsersNotifications(), 10000);
   }
 
   handleLogin(event) {
@@ -190,6 +190,7 @@ class CaeStaticApp extends PolymerElement {
    * Loads the notifications/invitations that the user received.
    */
   loadUsersNotifications() {
+    console.log("Requesting notifications from server...");
     fetch(Static.ProjectManagementServiceURL + "/invitations", {
       method: "GET",
       headers: Auth.getAuthHeader()
@@ -198,7 +199,6 @@ class CaeStaticApp extends PolymerElement {
         return response.json();
       }
     }).then(data => {
-      console.log(data);
       if(data) {
         const notificationsBadge = this.getNotificationsBadge();
         if(data.length > 0) {
@@ -267,7 +267,6 @@ class CaeStaticApp extends PolymerElement {
   }
 
   _onNotificationsButtonClicked() {
-    console.log("clicked notifications button");
     this.set("route.path", "notifications");
   }
 
