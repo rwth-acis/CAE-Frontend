@@ -153,6 +153,8 @@ class CaeStaticApp extends PolymerElement {
 
     // add listener for reloading notifications
     this.getNotificationElement().addEventListener('reload-notifications', _ => this.loadUsersNotifications());
+    // add listener for reloading users projects
+    this.getNotificationElement().addEventListener('reload-users-projects', _ => projectManagement.getProjectExplorer().showProjects(false));
 
     // load notifications every x seconds (currently set to every 10 seconds)
     window.setInterval(() => this.loadUsersNotifications(), 10000);

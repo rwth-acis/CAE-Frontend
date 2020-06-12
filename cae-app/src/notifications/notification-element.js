@@ -91,6 +91,12 @@ class NotificationElement extends LitElement {
     }).then(response => {
       if(response.ok) {
         this.reloadNotifications();
+
+        // user accepted invitation
+        // thus, the project list of projects, where the user is a member of, changes
+        // reload the users projects
+        let event = new CustomEvent("reload-users-projects");
+        this.dispatchEvent(event);
       }
     });
   }

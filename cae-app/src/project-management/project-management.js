@@ -94,6 +94,10 @@ class ProjectManagement extends LitElement {
   getProjectInfo() {
     return this.shadowRoot.getElementById("project-info");
   }
+
+  getProjectExplorer() {
+    return this.shadowRoot.getElementById("project-explorer");
+  }
 }
 
 customElements.define('project-management', ProjectManagement);
