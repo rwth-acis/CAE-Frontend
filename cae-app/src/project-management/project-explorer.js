@@ -409,6 +409,12 @@ class ProjectExplorer extends LitElement {
     this.dispatchEvent(event);
   }
 
+  /**
+   * Creates a string which contains a list of the users that are online in the
+   * project with the given id.
+   * @param projectId
+   * @returns {string} String containing a list of online users in the given project.
+   */
   getListOfProjectOnlineUsers(projectId) {
     let s = "";
     for(let i in this.projectsOnlineUser[projectId]) {
@@ -446,28 +452,33 @@ class ProjectExplorer extends LitElement {
           options: { resource: Static.YjsResourcePath},
           url: Static.YjsAddress
         },
-        share: { // specify the shared content, in this case only the users
-          users: 'Map',
-          userList: 'Map',
-          join: 'Map'
+        share: { // specify the shared content
+          userList: 'Map', // used to get full name of users
+          join: 'Map' // used to get currently online users
         },
-        type:["Text","Map"],
-        sourceDir: '/bower_components'
+        type:["Map"]
       }).then(function(y) {
         //y.share.data.set('metamodel', vls);
         //console.log(component.name);
         const userList = y.share.userList;
 
-        y.share.join.observe(event => {
-          const userFullName = userList.get(event.name)["http://purl.org/dc/terms/title"];
-          if(y.share.userList.get(event.name)) {
-            if(!list.includes(userFullName)) {
-              list.push(userFullName);
+        // Start observing for join events.
+        // After that we will join the Yjs room with the username "invisible_user".
+        // When we join the Yjs room, then all the other users send a join event back to us.
+        // Thus, we wait for join events which tell us which users are online.
+        // We use "invisible_user" as username, because this is the only username where SyncMeta's
+        // activity list widget does not show the join/leave events for.
+        y.share.join.observe(event  => {
+          if(userList.get(event.name)) {
+            const userFullName = userList.get(event.name)["http://purl.org/dc/terms/title"];
+            if(y.share.userList.get(event.name)) {
+              if(!list.includes(userFullName)) {
+                list.push(userFullName);
+              }
             }
           }
         });
-        // join with "invisible_user" as username, because this username is specially
-        // used and does not appear in the Activity Widget's user list of SyncMeta
+        // now join the Yjs room
         y.share.join.set("invisible_user", false);
 
         setTimeout(function() {
