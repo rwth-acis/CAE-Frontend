@@ -41,10 +41,10 @@ class CaeStaticApp extends PolymerElement {
           margin-left: 0.5em;
           margin-right: 0.5em;
         }
-        .settings-icon {
+        .icon {
           color: #c6c6c6;
         }
-        .settings-icon:hover {
+        .icon:hover {
           color: #9d9d9d;
         }
       </style>
@@ -78,9 +78,10 @@ class CaeStaticApp extends PolymerElement {
           <div class="vl"></div>
           <a href="/cae-modeling/application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
           
-          <iron-icon id="notifications-button" icon="mail" class="settings-icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
+          <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
-          <iron-icon id="settings-button" icon="settings" class="settings-icon" style="margin-left: 0.5em; margin-right: 2em; margin-top: auto; margin-bottom: auto"></iron-icon>
+          <iron-icon id="settings-button" icon="settings" class="icon" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
+          <iron-icon id="expand-collapse-statusbar-button" icon="icons:expand-less" class="icon" style="margin-left: 0.5em; margin-right: 1.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
         </div>
       </paper-card>
       
@@ -116,6 +117,9 @@ class CaeStaticApp extends PolymerElement {
     return {
       view: {
         type: String
+      },
+      statusBarExpanded: {
+        type: Boolean
       }
     };
   }
@@ -131,11 +135,22 @@ class CaeStaticApp extends PolymerElement {
 
   ready() {
     super.ready();
-    const statusBar = this.shadowRoot.querySelector("#statusBar");
+    const statusBar = this.getStatusBarElement();
     // in the following we use (event) => this.method(event) in order to be able to access
     // this.shadowRoot in the handleLogin and handleLogout methods
     statusBar.addEventListener('signed-in', (event) => this.handleLogin(event));
     statusBar.addEventListener('signed-out', (event) => this.handleLogout(event));
+
+    this.statusBarExpanded = true;
+    const expandCollapseButton = this.shadowRoot.getElementById("expand-collapse-statusbar-button");
+    expandCollapseButton.addEventListener('click', _ => {
+      if(this.statusBarExpanded) {
+        this.collapseStatusBar();
+      } else {
+        this.expandStatusBar();
+      }
+      this.statusBarExpanded = !this.statusBarExpanded;
+    });
 
     const projectManagement = this.shadowRoot.getElementById("project-management");
     projectManagement.addEventListener('change-view', (event) => {
@@ -268,8 +283,32 @@ class CaeStaticApp extends PolymerElement {
     }
   }
 
+  /**
+   * Expands the top status bar.
+   */
+  expandStatusBar() {
+    const button = this.shadowRoot.getElementById("expand-collapse-statusbar-button");
+    button.setAttribute("icon", "icons:expand-less");
+
+    this.getStatusBarElement().removeAttribute("hidden");
+  }
+
+  /**
+   * Collapses the top status bar.
+   */
+  collapseStatusBar() {
+    const button = this.shadowRoot.getElementById("expand-collapse-statusbar-button");
+    button.setAttribute("icon", "icons:expand-more");
+
+    this.getStatusBarElement().setAttribute("hidden", "");
+  }
+
   _onNotificationsButtonClicked() {
     this.set("route.path", "notifications");
+  }
+
+  getStatusBarElement() {
+    return this.shadowRoot.querySelector("#statusBar");
   }
 
   getSettingsDialog() {
