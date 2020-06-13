@@ -406,19 +406,20 @@ class ProjectExplorer extends LitElement {
     // to get list of online users, we need to enter the yjs rooms of every component by the project
     // get components by projectId
     const components = this.getProjectById(projectId).components;
-    //console.log(components);
+    const users = [];
+
     for(let i in components) {
       const component = components[i];
       // get currently active users in yjs room
-      /*Y({
+      Y({
         db: {
           name: "memory" // store the shared data in memory
         },
         connector: {
           name: "websockets-client", // use the websockets connector
           room: Common.getYjsRoomNameForComponent(projectId, component.id),
-          options: { resource: "/socket.io"},
-          url:"http://localhost:1234"
+          options: { resource: Static.YjsResourcePath},
+          url: Static.YjsAddress
         },
         share: { // specify the shared content, in this case only the users
           users: 'Map',
@@ -429,17 +430,25 @@ class ProjectExplorer extends LitElement {
         sourceDir: '/bower_components'
       }).then(function(y) {
         //y.share.data.set('metamodel', vls);
-        console.log(component.name);
-        console.log(y.share.join);
-        console.log(y.share.userList);
-        console.log(y.share.users);
+        //console.log(component.name);
+        //console.log(y.share.userList);
 
         y.share.join.observe(function(event) {
-          console.log(event);
+          if(y.share.userList.get(event.name)) {
+            if(!users.includes(event.name)) {
+              users.push(event.name);
+            }
+          }
         });
-        y.share.join.set()
-        resolve();
-      });*/
+        y.share.join.set("TEST", false);
+
+        setTimeout(function() {
+          y.close();
+          console.log(Common.getYjsRoomNameForComponent(projectId, component.id));
+          console.log(users);
+        }, 5000);
+        //y.close();
+      });
     }
     // only some test data for now
     return "";
