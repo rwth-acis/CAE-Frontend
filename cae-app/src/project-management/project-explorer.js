@@ -121,12 +121,14 @@ class ProjectExplorer extends LitElement {
             <paper-card class="project-item-card" @click="${() => this._onProjectItemClicked(project.id)}">
               <div class="project-item-card-content">
                 <p class="project-item-name">${project.name}</p>
-                ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot"></span>` : html``}
-                <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
-                <a href="${project.gitHubProjectHtmlUrl}" class="github-a" style="margin-left: auto">
-                  <!-- not using the svg from master branch, otherwise the file might be deleted and cannot be displayed anymore -->
-                  <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
-                </a>
+                <div style="margin-left: auto; display: flex">
+                  ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot" style="margin-top: auto; margin-bottom: auto"></span>` : html``}
+                  <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
+                  <a href="${project.gitHubProjectHtmlUrl}" class="github-a" style="margin-top: auto; margin-bottom: auto">
+                    <!-- not using the svg from master branch, otherwise the file might be deleted and cannot be displayed anymore -->
+                    <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                  </a>
+                </div>
               </div>
             </paper-card>
         `)}
@@ -175,6 +177,9 @@ class ProjectExplorer extends LitElement {
       projects: {
         type: Array
       },
+      projectsOnlineUser: {
+        type: Map
+      },
       /**
        * This contains the projects that are shown.
        * This is a subset of the projects property if search
@@ -196,6 +201,7 @@ class ProjectExplorer extends LitElement {
     super();
 
     this.projects = [];
+    this.projectsOnlineUser = new Object();
     this.listedProjects = [];
 
     this.showProjects(false);
@@ -258,6 +264,11 @@ class ProjectExplorer extends LitElement {
           }
         });
         this.dispatchEvent(event);
+      }
+
+      // load online users
+      for(let i in this.projects) {
+        this.loadListOfProjectOnlineUsers(this.projects[i].id);
       }
     }).catch(error => {
       if(error.message == "401") {
@@ -398,20 +409,34 @@ class ProjectExplorer extends LitElement {
     this.dispatchEvent(event);
   }
 
+  getListOfProjectOnlineUsers(projectId) {
+    let s = "";
+    for(let i in this.projectsOnlineUser[projectId]) {
+      s += this.projectsOnlineUser[projectId][i] + ",";
+    }
+    if(s) {
+      s = s.substr(0,s.length-1);
+    }
+    return s;
+  }
+
   /**
-   * TODO: check which users are really online in the project.
+   * Load users that are online in the given project.
    * @param projectId
    */
-  getListOfProjectOnlineUsers(projectId) {
+  loadListOfProjectOnlineUsers(projectId) {
     // to get list of online users, we need to enter the yjs rooms of every component by the project
     // get components by projectId
     const components = this.getProjectById(projectId).components;
-    const users = [];
+
+    // clear list
+    let list = [];
+    this.projectsOnlineUser[projectId] = list;
 
     for(let i in components) {
       const component = components[i];
       // get currently active users in yjs room
-      Y({
+      new Promise((resolve) => Y({
         db: {
           name: "memory" // store the shared data in memory
         },
@@ -431,12 +456,13 @@ class ProjectExplorer extends LitElement {
       }).then(function(y) {
         //y.share.data.set('metamodel', vls);
         //console.log(component.name);
-        //console.log(y.share.userList);
+        const userList = y.share.userList;
 
-        y.share.join.observe(function(event) {
+        y.share.join.observe(event => {
+          const userFullName = userList.get(event.name)["http://purl.org/dc/terms/title"];
           if(y.share.userList.get(event.name)) {
-            if(!users.includes(event.name)) {
-              users.push(event.name);
+            if(!list.includes(userFullName)) {
+              list.push(userFullName);
             }
           }
         });
@@ -444,15 +470,12 @@ class ProjectExplorer extends LitElement {
 
         setTimeout(function() {
           y.close();
-          console.log(Common.getYjsRoomNameForComponent(projectId, component.id));
-          console.log(users);
+          resolve();
         }, 5000);
-        //y.close();
+      })).then(_ => {
+        this.requestUpdate();
       });
     }
-    // only some test data for now
-    return "";
-    //return "Alice Lastname, Bob Lastname and 2 more";
   }
 }
 
