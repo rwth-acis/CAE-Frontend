@@ -888,6 +888,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onCreateComponentClicked() {
+    this.openLoadingDialog();
     const projectId = this.getProjectId();
 
     const componentName = this.shadowRoot.getElementById("dialog-add-component-input-name").value;
@@ -909,6 +910,7 @@ class ProjectInfo extends LitElement {
         "access_token": Auth.getAccessToken()
       })
     }).then(response => {
+      this.closeLoadingDialog();
       if(response.ok) {
         // successfully created new component
         // reload components
