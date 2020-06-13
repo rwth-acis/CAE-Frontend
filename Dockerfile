@@ -27,7 +27,7 @@ RUN git clone https://github.com/rwth-acis/syncmeta.git
 
 # TODO: Use master branch
 WORKDIR /usr/src/app/syncmeta
-RUN git checkout master && cd widgets && rm package-lock.json && npm install && bower install --allow-root
+RUN git checkout invisible-user && cd widgets && rm package-lock.json && npm install && bower install --allow-root
 
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/CAE-WireframingEditor.git

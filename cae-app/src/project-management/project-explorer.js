@@ -466,7 +466,9 @@ class ProjectExplorer extends LitElement {
             }
           }
         });
-        y.share.join.set("TEST", false);
+        // join with "invisible_user" as username, because this username is specially
+        // used and does not appear in the Activity Widget's user list of SyncMeta
+        y.share.join.set("invisible_user", false);
 
         setTimeout(function() {
           y.close();
