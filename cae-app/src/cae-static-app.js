@@ -179,7 +179,11 @@ class CaeStaticApp extends PolymerElement {
     this.getNotificationElement().addEventListener('reload-users-projects', _ => projectManagement.getProjectExplorer().showProjects(false));
 
     // load notifications every x seconds (currently set to every 10 seconds)
-    window.setInterval(() => this.loadUsersNotifications(), 10000);
+    window.setInterval(() => {
+      if(Auth.isAccessTokenAvailable()) {
+        this.loadUsersNotifications();
+      }
+    }, 10000);
 
     // check if information on modelingInfo is stored
     if(Common.getModelingInfo() == undefined) {
