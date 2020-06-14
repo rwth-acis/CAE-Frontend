@@ -94,7 +94,7 @@ class CaeStaticApp extends PolymerElement {
       <app-route route="{{route}}" pattern="/:view" data="{{routeData}}" tail="{{subroute}}"></app-route>
       <iron-pages selected="[[view]]" attr-for-selected="name" fallback-selection="404">
         <project-management id="project-management" name="project-management"></project-management>
-        <cae-modeling name="cae-modeling" route="{{subroute}}"></cae-modeling>
+        <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <notification-element id="notification-element" name="notifications"></notification-element>
         <p name="404">Not found!</p>
       </iron-pages>
@@ -123,6 +123,9 @@ class CaeStaticApp extends PolymerElement {
       },
       statusBarExpanded: {
         type: Boolean
+      },
+      menuItemClickListener: {
+        type: Function
       }
     };
   }
@@ -161,6 +164,13 @@ class CaeStaticApp extends PolymerElement {
     });
     // update-menu event gets fired from project-info when selecting/entering components
     projectManagement.addEventListener('update-menu', (event) => {
+      // get type of the component that got selected/entered in project-info
+      const componentType = event.detail.componentType;
+      // reload cae room for component type
+      // because as an example when opening a frontend component while a
+      // frontend component is already opened, then the cae room needs to be updated
+      this.reloadCaeRoom(componentType);
+
       this.updateMenu();
     });
 
@@ -199,21 +209,24 @@ class CaeStaticApp extends PolymerElement {
    */
   updateMenu() {
     const modelingInfo = Common.getModelingInfo();
-    this.showMenuItem("frontend");
-    this.showMenuItem("microservice");
-    this.showMenuItem("application");
 
     if(!this.isComponentOpened("frontend")) {
       // hide it
       this.hideMenuItem("frontend");
+    } else {
+      this.showMenuItem("frontend");
     }
     if(!this.isComponentOpened("microservice")) {
       // hide it
       this.hideMenuItem("microservice");
+    } else {
+      this.showMenuItem("microservice");
     }
     if(!this.isComponentOpened("application")) {
       // hide it
       this.hideMenuItem("application");
+    } else {
+      this.showMenuItem("application");
     }
   }
 
@@ -417,23 +430,40 @@ class CaeStaticApp extends PolymerElement {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.setProperty("color", "#e6e6e6");
     menuElement.removeAttribute("href");
-    menuElement.removeEventListener('click', this.menuItemClick);
+    if(menuItem == "frontend") {
+      menuElement.removeEventListener('click', this.menuItemClickFrontend);
+    } else if(menuItem == "microservice") {
+      menuElement.removeEventListener('click', this.menuItemClickMicroservice);
+    } else {
+      menuElement.removeEventListener('click', this.menuItemClickApplication);
+    }
     menuElement.addEventListener('click', this.menuItemClickNoComponent.bind(this));
   }
 
   menuItemClickNoComponent() {
+    console.log("menuItemClickNoComponent");
     this.showToast("You need to open a component of the given type first.");
   }
 
-  menuItemClick(menuItem) {
-    if(menuItem == "frontend") {
-      Common.setCaeRoom(Common.getModelingInfo().frontend.versionedModelId);
-    } else if(menuItem == "microservice") {
-      Common.setCaeRoom(Common.getModelingInfo().microservice.versionedModelId);
-    } else {
-      Common.setCaeRoom(Common.getModelingInfo().application.versionedModelId);
-    }
-    this.set("route.path", "cae-modeling/" + menuItem + "-modeling");
+  menuItemClickFrontend() {
+    console.log("menuItemClickFrontend");
+    this.reloadCaeRoom("frontend");
+    this.set("route.path", "cae-modeling/frontend-modeling");
+  }
+  menuItemClickMicroservice() {
+    console.log("menuItemClickMicroservice");
+    this.reloadCaeRoom("microservice");
+    this.set("route.path", "cae-modeling/microservice-modeling");
+  }
+  menuItemClickApplication() {
+    console.log("menuItemClickApplication");
+    this.reloadCaeRoom("application");
+    this.set("route.path", "cae-modeling/application-modeling");
+  }
+
+  reloadCaeRoom(type) {
+    const modelingElement = this.shadowRoot.getElementById("cae-modeling");
+    modelingElement.reloadModelingElement(type);
   }
 
   /**
@@ -445,8 +475,13 @@ class CaeStaticApp extends PolymerElement {
   showMenuItem(menuItem) {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.removeEventListener('click', this.menuItemClickNoComponent);
-    menuElement.addEventListener('click', this.menuItemClick.bind(this, menuItem));
-    //menuElement.href = "/cae-modeling/" + menuItem + "-modeling";
+    if(menuItem == "frontend") {
+      menuElement.addEventListener('click', this.menuItemClickFrontend.bind(this));
+    } else if(menuItem == "microservice") {
+      menuElement.addEventListener('click', this.menuItemClickMicroservice.bind(this));
+    } else {
+      menuElement.addEventListener('click', this.menuItemClickApplication.bind(this));
+    }
     menuElement.style.removeProperty("color");
   }
 

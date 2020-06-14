@@ -447,7 +447,7 @@ class ProjectInfo extends LitElement {
       modelingInfo.microservice = content;
     }
     Common.storeModelingInfo(modelingInfo);
-    this.updateMenu();
+    this.updateMenu(component.type);
 
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(this.applicationComponent.versionedModelId);
@@ -481,7 +481,7 @@ class ProjectInfo extends LitElement {
       "versionedModelId": this.applicationComponent.versionedModelId
     };
     Common.storeModelingInfo(modelingInfo);
-    this.updateMenu();
+    this.updateMenu(this.applicationComponent.type);
 
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(this.applicationComponent.versionedModelId);
@@ -517,8 +517,12 @@ class ProjectInfo extends LitElement {
   /**
    * Fires an event which should notify the cae-static-app to update the menu.
    */
-  updateMenu() {
-    let event = new CustomEvent("update-menu");
+  updateMenu(componentType) {
+    let event = new CustomEvent("update-menu", {
+      detail: {
+        componentType: componentType
+      }
+    });
     this.dispatchEvent(event);
   }
 

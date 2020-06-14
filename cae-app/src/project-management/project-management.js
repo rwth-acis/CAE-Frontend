@@ -45,7 +45,7 @@ class ProjectManagement extends LitElement {
                 @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>
           </div>
           <div class="flex-project-info">
-            <project-info @change-view=${(e) => this._changeView(e)} @update-menu=${(e) => this._updateMenu()} id="project-info"></project-info>
+            <project-info @change-view=${(e) => this._changeView(e)} @update-menu=${(e) => this._updateMenu(e.detail)} id="project-info"></project-info>
           </div>
         </div>
       ` : html `
@@ -74,8 +74,10 @@ class ProjectManagement extends LitElement {
    * Redirects update-menu events from the project-info child to the cae-static-app.
    * @private
    */
-  _updateMenu() {
-    let event = new CustomEvent("update-menu");
+  _updateMenu(detail) {
+    let event = new CustomEvent("update-menu", {
+      detail: detail
+    });
     this.dispatchEvent(event);
   }
 

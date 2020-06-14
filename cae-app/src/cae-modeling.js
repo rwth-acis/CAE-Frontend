@@ -2,6 +2,9 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import '@polymer/paper-button/paper-button.js';
 import Common from "./common";
 import MetamodelUploader from "./metamodel-uploader";
+import './frontend-modeling.js';
+import './microservice-modeling.js';
+import './application-modeling.js';
 
 /**
  * PolymerElement for the modeling page of the CAE.
@@ -56,10 +59,10 @@ class CaeModeling extends PolymerElement {
       
       <app-location route="{{route}}"></app-location>
       <app-route route="{{route}}" pattern="/cae-modeling/:page" data="{{routeData}}"></app-route>
-      <iron-pages selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
-        <frontend-modeling name="frontend-modeling"></frontend-modeling>
-        <microservice-modeling name="microservice-modeling"></microservice-modeling>
-        <application-modeling name="application-modeling"></application-modeling>
+      <iron-pages id="iron-pages" selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
+        <!--<frontend-modeling id="frontend-modeling" name="frontend-modeling"></frontend-modeling>
+        <microservice-modeling id="microservice-modeling" name="microservice-modeling"></microservice-modeling>
+        <application-modeling id="application-modeling" name="application-modeling"></application-modeling>-->
       </iron-pages>
     `;
   }
@@ -82,19 +85,57 @@ class CaeModeling extends PolymerElement {
   }
 
   _subpageChanged(currentSubpage, oldSubpage) {
-    switch (currentSubpage) {
+    console.log("subpage changed: " + currentSubpage);
+    /*switch (currentSubpage) {
       case 'frontend-modeling':
-        import('./frontend-modeling.js').then()
+        this.removeModelingElement("frontend");
+        this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement("frontend"));
         break;
       case 'microservice-modeling':
-        import('./microservice-modeling.js').then()
+        this.removeModelingElement("microservice");
+        this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement("microservice"));
         break;
       case 'application-modeling':
-        import('./application-modeling.js').then()
+        this.removeModelingElement("application");
+        this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement("application"));
         break;
       default:
         this.page = 'cae-modeling';
+    }*/
+  }
+
+  /**
+   * Creates a new modeling element for the given type.
+   * This is needed, because everytime a page gets opened, the
+   * element must be replaced by a new one. Otherwise it is not
+   * possible to switch the Yjs room.
+   * @param type
+   */
+  createNewModelingElement(type) {
+    const elem = document.createElement(type + "-modeling");
+    elem.setAttribute("name", type + "-modeling");
+    elem.setAttribute("id", type + "-modeling");
+    return elem;
+  }
+
+  /**
+   * Removes the modeling element of the given type.
+   * @param type
+   */
+  removeModelingElement(type) {
+    if(this.shadowRoot.getElementById(type + "-modeling") != null) {
+      this.shadowRoot.getElementById(type + "-modeling").remove();
     }
+  }
+
+  /**
+   * Reloads the modeling element with the given type.
+   * This can be used in order to reload/change the Yjs room of the modeling element.
+   * @param type
+   */
+  reloadModelingElement(type) {
+    this.removeModelingElement(type);
+    this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement(type));
   }
 
   ready() {
