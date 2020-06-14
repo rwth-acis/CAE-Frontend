@@ -42,6 +42,12 @@ export default class Common {
   static KEY_USER_INFO = "userInfo";
 
   /**
+   * Key used to store the information about the currently opened tabs in the modeling space.
+   * @type {string}
+   */
+  static KEY_MODELING_INFO = "modelingInfo";
+
+  /**
    * Creates the name for the Yjs room for a specific component in a project.
    * @param projectId Id of the project
    * @param componentId Id of the component, where the Yjs room name should be created for
@@ -171,6 +177,22 @@ export default class Common {
    */
   static getUsersGitHubUsername() {
     return JSON.parse(localStorage.getItem(this.KEY_USER_INFO)).gitHubUsername;
+  }
+
+  /**
+   * Stores the modeling info to localStorage.
+   * @param modelingInfo
+   */
+  static storeModelingInfo(modelingInfo) {
+    localStorage.setItem(this.KEY_MODELING_INFO, JSON.stringify(modelingInfo));
+  }
+
+  /**
+   * Loads the modeling info from localStorage.
+   * @returns {string}
+   */
+  static getModelingInfo() {
+    return JSON.parse(localStorage.getItem(this.KEY_MODELING_INFO));
   }
 }
 

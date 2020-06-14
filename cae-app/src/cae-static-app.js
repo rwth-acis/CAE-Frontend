@@ -72,11 +72,11 @@ class CaeStaticApp extends PolymerElement {
         <div style="width: 100%; height: 100%; display: flex">
           <a href="/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
           <div class="vl"></div>
-          <a href="/cae-modeling/frontend-modeling" style="margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
+          <a id="menu-frontend-modeling" style="margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
           <div class="vl"></div>
-          <a href="/cae-modeling/microservice-modeling" style="margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
+          <a id="menu-microservice-modeling" style="margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
           <div class="vl"></div>
-          <a href="/cae-modeling/application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
+          <a id="menu-application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
           
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
@@ -110,6 +110,9 @@ class CaeStaticApp extends PolymerElement {
           <paper-button id="settings-button-save" dialog-confirm autofocus>Save</paper-button>
         </div>
       </paper-dialog>
+      
+      <!-- Generic Toast (see showToast method for more information) -->
+      <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
 
@@ -173,10 +176,74 @@ class CaeStaticApp extends PolymerElement {
 
     // load notifications every x seconds (currently set to every 10 seconds)
     window.setInterval(() => this.loadUsersNotifications(), 10000);
+
+    // check if information on modelingInfo is stored
+    if(Common.getModelingInfo() == undefined) {
+      this.storeEmptyModelingInfo();
+    }
+
+    this.updateMenu();
+  }
+
+  /**
+   * Loads the modeling info from localStorage and
+   * depending on that shows or hides
+   */
+  updateMenu() {
+    const modelingInfo = Common.getModelingInfo();
+    this.showMenuItem("frontend");
+    this.showMenuItem("microservice");
+    this.showMenuItem("application");
+
+    if(!this.isComponentOpened("frontend")) {
+      // hide it
+      this.hideMenuItem("frontend");
+    }
+    if(!this.isComponentOpened("microservice")) {
+      // hide it
+      this.hideMenuItem("microservice");
+    }
+    if(!this.isComponentOpened("application")) {
+      // hide it
+      this.hideMenuItem("application");
+    }
+  }
+
+  /**
+   * Stores a modelingInfo to localStorage where no component is
+   * currently opened.
+   */
+  storeEmptyModelingInfo() {
+    const modelingInfo = {
+      "frontend": null,
+      "microservice": null,
+      "application": null
+    };
+    Common.storeModelingInfo(modelingInfo);
+  }
+
+  /**
+   * Checks if a component of the given type is opened, i.e. information
+   * on it is stored in localStorage.
+   * @param type
+   * @returns {boolean}
+   */
+  isComponentOpened(type) {
+    const modelingInfo = Common.getModelingInfo();
+    if(type == "frontend") {
+      return modelingInfo.frontend != null;
+    } else if(type == "microservice") {
+      return modelingInfo.microservice != null;
+    } else if(type == "application") {
+      return modelingInfo.application != null;
+    }
   }
 
   handleLogin(event) {
     Auth.setAuthDataToLocalStorage(event.detail.access_token);
+
+    this.storeEmptyModelingInfo();
+    this.updateMenu();
 
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
@@ -329,6 +396,48 @@ class CaeStaticApp extends PolymerElement {
 
   getNotificationElement() {
     return this.shadowRoot.getElementById("notification-element");
+  }
+
+  /**
+   * Hides the given menu item.
+   * Hiding means changing the color and changing the click listener, so that
+   * a click results in a toast message notifiying the user that no component of the
+   * given type is opened.
+   * @param menuItem
+   */
+  hideMenuItem(menuItem) {
+    const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
+    menuElement.style.setProperty("color", "#e6e6e6");
+    menuElement.removeAttribute("href");
+    menuElement.addEventListener('click', _ => {
+      console.log("test");
+      this.showToast("You need to open a component of the given type first.");
+    });
+  }
+
+  /**
+   * Shows the given menu item.
+   * This means, that the menu item will be clickable after calling this method and
+   * will then redirect to to modeling space of the specific type.
+   * @param menuItem
+   */
+  showMenuItem(menuItem) {
+    const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
+    menuElement.href = "/cae-modeling/" + menuItem + "-modeling";
+    menuElement.style.removeProperty("color");
+  }
+
+  /**
+   * Since the cae-static-app page uses lots of toast messages,
+   * it is helpful to have this method for displaying toast messages.
+   * It allows to have one single paper-toast item in the html which
+   * gets used for different message texts.
+   * @param text Text to display in the toast.
+   */
+  showToast(text) {
+    const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
   }
 }
 
