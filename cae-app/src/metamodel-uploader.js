@@ -20,12 +20,11 @@ export default class MetamodelUploader {
    * Uploads the correct metamodel/VLS for the given component.
    * The component type gets used to identify which metamodel/VLS
    * gets uploaded (e.g. frontend, microservice,...).
-   * @param projectId Id of the project which the component belong to.
    * @param component The full component (containing type attribute) where the metamodel
    * should be uploaded for.
    * @returns {*|Promise<unknown>|Promise}
    */
-  static uploadForComponent(projectId, component) {
+  static uploadForComponent(component) {
     // get the correct VLS depending on the type of the given component
     let vls;
     if(component.type == "frontend") {
@@ -36,7 +35,7 @@ export default class MetamodelUploader {
       vls = application_vls;
     }
 
-    return this.uploadSingle(Common.getYjsRoomNameForComponent(projectId, component.id), vls);
+    return this.uploadSingle(Common.getYjsRoomNameForVersionedModel(component.versionedModelId), vls);
   }
 
   /**

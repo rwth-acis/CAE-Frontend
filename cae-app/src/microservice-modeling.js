@@ -104,7 +104,8 @@ class MicroserviceModeling extends PolymerElement {
 
     // load the current Yjs room name from localStorage into
     // parent.caeRoom variable (used by modeling/SyncMeta widget)
-    Common.loadCaeRoom();
+    const modelingInfo = Common.getModelingInfo();
+    Common.setCaeRoom(modelingInfo.frontend.versionedModelId);
   }
 }
 

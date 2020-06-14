@@ -448,7 +448,7 @@ class ProjectExplorer extends LitElement {
         },
         connector: {
           name: "websockets-client", // use the websockets connector
-          room: Common.getYjsRoomNameForComponent(projectId, component.id),
+          room: Common.getYjsRoomNameForVersionedModel(component.versionedModelId),
           options: { resource: Static.YjsResourcePath},
           url: Static.YjsAddress
         },

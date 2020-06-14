@@ -17,12 +17,6 @@ import Static from "./static.js";
 export default class Common {
 
   /**
-   * Key used to store the current Yjs room name into localStorage.
-   * @type {string}
-   */
-  static KEY_YJS_ROOM_NAME = "yjsRoomName";
-
-  /**
    * Key used to store the information for the requirements bazaar
    * widget.
    * @type {string}
@@ -42,50 +36,28 @@ export default class Common {
   static KEY_MODELING_INFO = "modelingInfo";
 
   /**
-   * Creates the name for the Yjs room for a specific component in a project.
-   * @param projectId Id of the project
-   * @param componentId Id of the component, where the Yjs room name should be created for
-   * @returns {string} Name of the Yjs room for the specific component.
+   * Key used to store the id of the currently used versioned model.
+   * @type {string}
    */
-  static getYjsRoomNameForComponent(projectId, componentId) {
-    return "project" + projectId + "-component" + componentId;
+  static KEY_VERSIONED_MODEL_ID = "versionedModelId";
+
+  /**
+   * Creates the name for the Yjs room for a specific versioned model.
+   * @param versionedModelId Id of the versioned model
+   * @returns {string} Name of the Yjs room for the specific versioned model.
+   */
+  static getYjsRoomNameForVersionedModel(versionedModelId) {
+    return "versionedModel-" + versionedModelId;
   }
 
   /**
-   * Sets the current Yjs room name to the one of the given component.
+   * Sets the current Yjs room name to the one of the given versioned model.
    * Therefore, the parent.caeRoom variable gets set and it also gets stored
    * to the localStorage by calling storeYjsRoomName.
-   * @param projectId Id of the project that the component belongs to.
-   * @param componentId Id of the component, which should be set as the Yjs room.
+   * @param versionedModelId Id of the versioned model
    */
-  static setCaeRoom(projectId, componentId) {
-    parent.caeRoom = this.getYjsRoomNameForComponent(projectId, componentId);
-    this.storeYjsRoomName(parent.caeRoom);
-  }
-
-  /**
-   * Loads the Yjs room name from localStorage into the
-   * parent.caeRoom variable.
-   */
-  static loadCaeRoom() {
-    parent.caeRoom = this.getYjsRoomName();
-  }
-
-  /**
-   * Stores the given room name into localStorage.
-   * @param caeRoomName Room name that should be saved to localStorage.
-   */
-  static storeYjsRoomName(caeRoomName) {
-    localStorage.setItem(this.KEY_YJS_ROOM_NAME, caeRoomName);
-  }
-
-  /**
-   * Returns the Yjs room name which is currently stored in
-   * localStorage.
-   * @returns {string}
-   */
-  static getYjsRoomName() {
-    return localStorage.getItem(this.KEY_YJS_ROOM_NAME);
+  static setCaeRoom(versionedModelId) {
+    parent.caeRoom = this.getYjsRoomNameForVersionedModel(versionedModelId);
   }
 
   /**
@@ -171,6 +143,22 @@ export default class Common {
    */
   static getModelingInfo() {
     return JSON.parse(localStorage.getItem(this.KEY_MODELING_INFO));
+  }
+
+  /**
+   * Stores the id of the currently used versioned model into localStorage.
+   * @param versionedModelId Id of the versioned model which should be stored.
+   */
+  static setVersionedModelId(versionedModelId) {
+    localStorage.setItem(this.KEY_VERSIONED_MODEL_ID, versionedModelId);
+  }
+
+  /**
+   * Returns the versioned model id which is currently stored in localStorage.
+   * @returns {string}
+   */
+  static getVersionedModelId() {
+    return localStorage.getItem(this.KEY_VERSIONED_MODEL_ID);
   }
 }
 

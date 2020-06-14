@@ -436,9 +436,6 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onComponentClicked(component) {
-    // set caeRoom
-    Common.setCaeRoom(this.getProjectId(), component.id);
-
     // update modeling info
     const modelingInfo = Common.getModelingInfo();
     const content = {
@@ -451,6 +448,9 @@ class ProjectInfo extends LitElement {
     }
     Common.storeModelingInfo(modelingInfo);
     this.updateMenu();
+
+    // set this versioned model as the currently opened one
+    Common.setVersionedModelId(this.applicationComponent.versionedModelId);
 
     // show spinner
     this.openLoadingDialog();
@@ -475,9 +475,6 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onOpenApplicationModelingClicked() {
-    // set caeRoom
-    Common.setCaeRoom(this.getProjectId(), this.applicationComponent.id);
-
     // update modeling info
     const modelingInfo = Common.getModelingInfo();
     modelingInfo.application = {
@@ -485,6 +482,9 @@ class ProjectInfo extends LitElement {
     };
     Common.storeModelingInfo(modelingInfo);
     this.updateMenu();
+
+    // set this versioned model as the currently opened one
+    Common.setVersionedModelId(this.applicationComponent.versionedModelId);
 
     // show spinner
     this.openLoadingDialog();
@@ -528,7 +528,7 @@ class ProjectInfo extends LitElement {
    * @returns {Promise<unknown>}
    */
   uploadMetamodelForComponent(component) {
-    return MetamodelUploader.uploadForComponent(this.getProjectId(), component)
+    return MetamodelUploader.uploadForComponent(component)
       .then(_ => new Promise((resolve, reject) => {
         // wait for data become active
         setTimeout(_ => resolve(), 2000);
