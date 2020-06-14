@@ -97,6 +97,9 @@ class ProjectInfo extends LitElement {
           height: 1.5em;
           background: #447500;
         }
+        .disabled {
+          color: #e1e1e1;
+        }
       </style>
       <div class="main">
         ${this.selectedProject ?
@@ -310,7 +313,7 @@ class ProjectInfo extends LitElement {
           <div class="separator"></div>
         </div>
         <div>
-          <h4>Include Dependency:</h4>
+          <h4 class="disabled">Include Dependency:</h4>
           <div style="display: flex; align-items: center">
             <!-- Search for Component -->
             <input class="input" placeholder="Search Component"></input>
@@ -323,12 +326,12 @@ class ProjectInfo extends LitElement {
               </paper-listbox>
             </paper-dropdown-menu>
             <!-- Button for adding component -->
-            <paper-button>Add</paper-button>
+            <paper-button disabled="true">Add</paper-button>
           </div>
           <div class="separator"></div>
         </div>
         <div>
-          <h4>Include External Dependency:</h4>
+          <h4 class="disabled">Include External Dependency:</h4>
           <div style="display: flex; align-items: center">
             <!-- Enter GitHub URL of external component -->
             <input class="input" placeholder="Enter GitHub URL"></input>
@@ -341,7 +344,7 @@ class ProjectInfo extends LitElement {
               </paper-listbox>
             </paper-dropdown-menu>
             <!-- Button for adding component -->
-            <paper-button>Add</paper-button>
+            <paper-button disabled="true">Add</paper-button>
           </div>
           <div class="separator"></div>
         </div>
