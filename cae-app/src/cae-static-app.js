@@ -413,11 +413,23 @@ class CaeStaticApp extends PolymerElement {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.setProperty("color", "#e6e6e6");
     menuElement.removeAttribute("href");
-    menuElement.addEventListener('click', this.menuItemClickListenerNoComponent.bind(this));
+    menuElement.removeEventListener('click', this.menuItemClick);
+    menuElement.addEventListener('click', this.menuItemClickNoComponent.bind(this));
   }
 
-  menuItemClickListenerNoComponent() {
+  menuItemClickNoComponent() {
     this.showToast("You need to open a component of the given type first.");
+  }
+
+  menuItemClick(menuItem) {
+    if(menuItem == "frontend") {
+      Common.setCaeRoom(Common.getModelingInfo().frontend.versionedModelId);
+    } else if(menuItem == "microservice") {
+      Common.setCaeRoom(Common.getModelingInfo().microservice.versionedModelId);
+    } else {
+      Common.setCaeRoom(Common.getModelingInfo().application.versionedModelId);
+    }
+    this.set("route.path", "cae-modeling/" + menuItem + "-modeling");
   }
 
   /**
@@ -428,8 +440,9 @@ class CaeStaticApp extends PolymerElement {
    */
   showMenuItem(menuItem) {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
-    menuElement.removeEventListener('click', this.menuItemClickListenerNoComponent);
-    menuElement.href = "/cae-modeling/" + menuItem + "-modeling";
+    menuElement.removeEventListener('click', this.menuItemClickNoComponent);
+    menuElement.addEventListener('click', this.menuItemClick.bind(this, menuItem));
+    //menuElement.href = "/cae-modeling/" + menuItem + "-modeling";
     menuElement.style.removeProperty("color");
   }
 
