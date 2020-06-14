@@ -159,6 +159,10 @@ class CaeStaticApp extends PolymerElement {
     projectManagement.addEventListener('change-view', (event) => {
       this.set("route.path", event.detail.view);
     });
+    // update-menu event gets fired from project-info when selecting/entering components
+    projectManagement.addEventListener('update-menu', (event) => {
+      this.updateMenu();
+    });
 
     const settingsButton = this.shadowRoot.getElementById("settings-button");
     settingsButton.addEventListener('click', _ => this._onSettingsButtonClicked());
@@ -409,10 +413,11 @@ class CaeStaticApp extends PolymerElement {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.setProperty("color", "#e6e6e6");
     menuElement.removeAttribute("href");
-    menuElement.addEventListener('click', _ => {
-      console.log("test");
-      this.showToast("You need to open a component of the given type first.");
-    });
+    menuElement.addEventListener('click', this.menuItemClickListenerNoComponent.bind(this));
+  }
+
+  menuItemClickListenerNoComponent() {
+    this.showToast("You need to open a component of the given type first.");
   }
 
   /**
@@ -423,6 +428,7 @@ class CaeStaticApp extends PolymerElement {
    */
   showMenuItem(menuItem) {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
+    menuElement.removeEventListener('click', this.menuItemClickListenerNoComponent);
     menuElement.href = "/cae-modeling/" + menuItem + "-modeling";
     menuElement.style.removeProperty("color");
   }

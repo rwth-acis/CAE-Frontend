@@ -438,8 +438,20 @@ class ProjectInfo extends LitElement {
   _onComponentClicked(component) {
     // set caeRoom
     Common.setCaeRoom(this.getProjectId(), component.id);
-    // set versioned model id
-    Common.setVersionedModelId(component.versionedModelId);
+
+    // update modeling info
+    const modelingInfo = Common.getModelingInfo();
+    const content = {
+      "versionedModelId": component.versionedModelId
+    };
+    if(component.type == "frontend") {
+      modelingInfo.frontend = content;
+    } else {
+      modelingInfo.microservice = content;
+    }
+    Common.storeModelingInfo(modelingInfo);
+    this.updateMenu();
+
     // show spinner
     this.openLoadingDialog();
 
@@ -465,8 +477,15 @@ class ProjectInfo extends LitElement {
   _onOpenApplicationModelingClicked() {
     // set caeRoom
     Common.setCaeRoom(this.getProjectId(), this.applicationComponent.id);
-    // set versioned model id
-    Common.setVersionedModelId(this.applicationComponent.versionedModelId);
+
+    // update modeling info
+    const modelingInfo = Common.getModelingInfo();
+    modelingInfo.application = {
+      "versionedModelId": this.applicationComponent.versionedModelId
+    };
+    Common.storeModelingInfo(modelingInfo);
+    this.updateMenu();
+
     // show spinner
     this.openLoadingDialog();
 
@@ -492,6 +511,14 @@ class ProjectInfo extends LitElement {
         view: viewName
       }
     });
+    this.dispatchEvent(event);
+  }
+
+  /**
+   * Fires an event which should notify the cae-static-app to update the menu.
+   */
+  updateMenu() {
+    let event = new CustomEvent("update-menu");
     this.dispatchEvent(event);
   }
 

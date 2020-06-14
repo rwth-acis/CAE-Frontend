@@ -23,12 +23,6 @@ export default class Common {
   static KEY_YJS_ROOM_NAME = "yjsRoomName";
 
   /**
-   * Key used to store the id of the currently used versioned model.
-   * @type {string}
-   */
-  static KEY_VERSIONED_MODEL_ID = "versionedModelId";
-
-  /**
    * Key used to store the information for the requirements bazaar
    * widget.
    * @type {string}
@@ -92,22 +86,6 @@ export default class Common {
    */
   static getYjsRoomName() {
     return localStorage.getItem(this.KEY_YJS_ROOM_NAME);
-  }
-
-  /**
-   * Stores the id of the currently used versioned model into localStorage.
-   * @param versionedModelId Id of the versioned model which should be stored.
-   */
-  static setVersionedModelId(versionedModelId) {
-    localStorage.setItem(this.KEY_VERSIONED_MODEL_ID, versionedModelId);
-  }
-
-  /**
-   * Returns the versioned model id which is currently stored in localStorage.
-   * @returns {string}
-   */
-  static getVersionedModelId() {
-    return localStorage.getItem(this.KEY_VERSIONED_MODEL_ID);
   }
 
   /**
