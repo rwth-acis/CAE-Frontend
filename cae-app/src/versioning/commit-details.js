@@ -85,6 +85,11 @@ export class CommitDetails extends LitElement {
           </div>
         </div>
       </div>
+      
+      <!-- Dialog showing a loading bar -->
+      <paper-dialog id="dialog-loading" modal>
+        <paper-spinner-lite active></paper-spinner-lite>
+      </paper-dialog>
     `;
   }
 
@@ -116,6 +121,9 @@ export class CommitDetails extends LitElement {
     // disable button so that it is not possible to click the button twice (or more often)
     this.getCommitButton().disabled = true;
 
+    // show dialog
+    this.openLoadingDialog();
+
     // get current model out of Yjs room
     Common.getModelFromYjsRoom(Common.getYjsRoomNameForVersionedModel(Common.getVersionedModelId())).then(model => {
       if(model) {
@@ -127,6 +135,14 @@ export class CommitDetails extends LitElement {
             model: model
           })
         }).then(response => {
+          // close dialog
+          this.closeLoadingDialog();
+
+          // activate button again
+          this.getCommitButton().disabled = false;
+          // clear input field
+          this.getCommitMessageInput().value = "";
+
           if(response.ok) {
             // reload commit list
             this.sendReloadCommitListEvent();
@@ -196,6 +212,20 @@ export class CommitDetails extends LitElement {
    */
   getCommitMessageInput() {
     return this.shadowRoot.getElementById("input-commit-message");
+  }
+
+  /**
+   * Opens the dialog which shows a progress spinner.
+   */
+  openLoadingDialog() {
+    this.shadowRoot.getElementById("dialog-loading").open();
+  }
+
+  /**
+   * Closes the dialog which shows a progress spinner.
+   */
+  closeLoadingDialog() {
+    this.shadowRoot.getElementById("dialog-loading").close();
   }
 }
 
