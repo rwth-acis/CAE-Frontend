@@ -64,15 +64,15 @@ export class CommitDetails extends LitElement {
         <div style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em; margin-right: 1em">
           <!-- div for commit version tag settings -->
           <div>
-            <paper-checkbox checked="false" disabled="true" id="new-version-checkbox" @change="${this._onNewVersionCheckBoxChanged}">New version</paper-checkbox>
+            <paper-checkbox aria-checked="false" id="new-version-checkbox" @change="${this._onNewVersionCheckBoxChanged}">New version</paper-checkbox>
             <!-- div for entering version number -->
             <div id="version-number-div" style="display: none">
               <div style="display: flex; height: 2em; margin-top: 0.5em">
-                <input class="input input-version-number"/>
+                <input id="input-version-number-1" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
-                <input class="input input-version-number"/>
+                <input id="input-version-number-2" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
-                <input class="input input-version-number"/>
+                <input id="input-version-number-3" class="input input-version-number"/>
               </div>
             </div>
           </div>
@@ -124,16 +124,23 @@ export class CommitDetails extends LitElement {
     // show dialog
     this.openLoadingDialog();
 
+    const body = {
+      message: commitMessage
+    };
+
+    if(this.getNewVersionCheckBox().checked) {
+      body.versionTag = this.getEnteredVersion();
+    }
+
     // get current model out of Yjs room
     Common.getModelFromYjsRoom(Common.getYjsRoomNameForVersionedModel(Common.getVersionedModelId())).then(model => {
       if(model) {
+        body.model = model;
+
         fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
           method: "POST",
           headers: Auth.getAuthHeader(),
-          body: JSON.stringify({
-            message: commitMessage,
-            model: model
-          })
+          body: JSON.stringify(body)
         }).then(response => {
           // close dialog
           this.closeLoadingDialog();
@@ -195,6 +202,17 @@ export class CommitDetails extends LitElement {
    */
   getNewVersionCheckBox() {
     return this.shadowRoot.getElementById("new-version-checkbox");
+  }
+
+  /**
+   * Creates a semantic version number from the three input fields.
+   * @returns {string}
+   */
+  getEnteredVersion() {
+    const major = this.shadowRoot.getElementById("input-version-number-1").value;
+    const minor = this.shadowRoot.getElementById("input-version-number-2").value;
+    const patch = this.shadowRoot.getElementById("input-version-number-3").value;
+    return major + "." + minor + "." + patch;
   }
 
   /**

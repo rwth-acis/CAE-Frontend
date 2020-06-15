@@ -42,9 +42,9 @@ export class CommitList extends LitElement {
                 </paper-menu-button>
               </div>
               <!-- version tag -->
-              ${commit.tag ? html`
+              ${commit.versionTag ? html`
                 <div style="margin-top: 8px; margin-bottom: 4px">
-                  <span class="label">${commit.tag.tag}</span>
+                  <span class="label">${commit.versionTag}</span>
                 </div>
               ` : html``}
               <!-- timestamp -->
