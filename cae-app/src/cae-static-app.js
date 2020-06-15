@@ -157,6 +157,10 @@ class CaeStaticApp extends PolymerElement {
       }
       this.statusBarExpanded = !this.statusBarExpanded;
     });
+    // hide second status bar if users not logged in
+    if(!Auth.isAccessTokenAvailable()) {
+      this.getCaeStatusbar().setAttribute("hidden", "");
+    }
 
     const projectManagement = this.shadowRoot.getElementById("project-management");
     projectManagement.addEventListener('change-view', (event) => {
@@ -270,6 +274,14 @@ class CaeStaticApp extends PolymerElement {
     // if the user is not yet registered, then the project management service will do this
     this.loadCurrentUser();
 
+    // show statusbar again
+    this.getCaeStatusbar().removeAttribute("hidden");
+
+    // set project-management as current page
+    // Reason: when the user logged out in modeling, then after login the user
+    // should start with project management page again
+    this.set("route.path", "/");
+
     // when removing this line, we get a problem because some
     // user services used by the las2peer-frontend-statusbar cannot be accessed
     //location.reload();
@@ -278,6 +290,19 @@ class CaeStaticApp extends PolymerElement {
     // to reload the project management manually, since otherwise the "Please login"
     // message does not disappear.
     this.shadowRoot.getElementById("project-management").requestUpdate();
+  }
+
+  handleLogout() {
+    Auth.removeAuthDataFromLocalStorage();
+
+    // hide cae statusbar
+    this.getCaeStatusbar().setAttribute("hidden", "");
+
+    // update project management, because then it shows the login hint
+    this.shadowRoot.getElementById("project-management").requestUpdate();
+
+    // remove userInfo from localStorage
+    Common.removeUserInfoFromStorage();
   }
 
   loadCurrentUser() {
@@ -322,10 +347,6 @@ class CaeStaticApp extends PolymerElement {
         this.getNotificationElement().setInvitations(data);
       }
     });
-  }
-
-  handleLogout() {
-    Auth.removeAuthDataFromLocalStorage();
   }
 
   /**
@@ -496,6 +517,10 @@ class CaeStaticApp extends PolymerElement {
     const toastElement = this.shadowRoot.getElementById("toast");
     toastElement.text = text;
     toastElement.show();
+  }
+
+  getCaeStatusbar() {
+    return this.shadowRoot.getElementById("cae-statusbar");
   }
 }
 

@@ -121,6 +121,14 @@ export default class Common {
   }
 
   /**
+   * Removes the userInfo from localStorage.
+   * This method may be used when user has logged out.
+   */
+  static removeUserInfoFromStorage() {
+    localStorage.removeItem(this.KEY_USER_INFO);
+  }
+
+  /**
    * Reads out the GitHub username which is stored to localStorage.
    * Attention: The GitHub username might be null, if none is stored in the database.
    * @returns {*}
