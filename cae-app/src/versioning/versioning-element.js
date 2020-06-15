@@ -32,7 +32,7 @@ export class VersioningElement extends LitElement {
           <commit-list id="commit-list"></commit-list>
         </div>
         <div class="flex-commit-details">
-          <commit-details></commit-details>
+          <commit-details @reload-commit-list=${this.loadVersionedModel}></commit-details>
         </div>
       </div>
     `;
@@ -42,6 +42,9 @@ export class VersioningElement extends LitElement {
     return {
       versionedModel: {
         type: Object
+      },
+      versionedModelId: {
+        type: Number
       }
     };
   }
@@ -50,87 +53,17 @@ export class VersioningElement extends LitElement {
     super();
 
     // load versioned model id from localStorage
-    const versionedModelId = Common.getVersionedModelId();
+    this.versionedModelId = Common.getVersionedModelId();
 
     // now load versioned model from API
-    this.loadVersionedModel(versionedModelId);
-
-    // TODO: this is only some testing data
-    /*this.versionedModel = {
-      "id": 1,
-      "commits": [
-        {
-          // this is the commit containing uncommited changes
-          "id": 11
-        },
-        {
-          "id": 10,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "07.06.2020 18:20"
-        },
-        {
-          "id": 9,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "07.06.2020 18:15"
-        },
-        {
-          "id": 8,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "07.06.2020 14:46"
-        },
-        {
-          "id": 7,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "06.06.2020 09:34"
-        },
-        {
-          "id": 6,
-          "message": "Again a commit with a version tag attached. This one has a longer text message.",
-          "tag": {
-            "id": 2,
-            "tag": "0.1.0"
-          },
-          "timestamp": "05.06.2020 16:20"
-        },
-        {
-          "id": 5,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "05.06.2020 13:17"
-        },
-        {
-          "id": 4,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "04.06.2020 22:24"
-        },
-        {
-          "id": 3,
-          "message": "Another test commit without tag but with a longer text message.",
-          "timestamp": "04.06.2020 16:10"
-        },
-        {
-          "id": 2,
-          "message": "This commit has a version tag attached.",
-          "tag": {
-            "id": 1,
-            "tag": "0.0.1"
-          },
-          "timestamp": "02.06.2020 11:20"
-        },
-        {
-          "id": 1,
-          "message": "This is a test commit message for Commit 1.",
-          "timestamp": "20.05.2020 13:46"
-        }
-      ]
-    };*/
+    this.loadVersionedModel();
   }
 
   /**
    * Loads the versioned model from API and sends it to the commit-list.
-   * @param versionedModelId Id of the versioned model to load.
    */
-  loadVersionedModel(versionedModelId) {
-    fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + versionedModelId, {
+  loadVersionedModel() {
+    fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + this.versionedModelId, {
       method: "GET"
     }).then(response => {
       if(response.ok) {

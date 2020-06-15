@@ -127,10 +127,23 @@ export class CommitDetails extends LitElement {
             model: model
           })
         }).then(response => {
-          console.log(response.status);
+          if(response.ok) {
+            // reload commit list
+            this.sendReloadCommitListEvent();
+          } else {
+            console.log(response.status);
+          }
         });
       }
     });
+  }
+
+  /**
+   * Notifies the versioning-element to reload the commit list.
+   */
+  sendReloadCommitListEvent() {
+    const event = new CustomEvent("reload-commit-list");
+    this.dispatchEvent(event);
   }
 
   /**
