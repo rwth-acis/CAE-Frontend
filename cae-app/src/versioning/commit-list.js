@@ -35,7 +35,7 @@ export class CommitList extends LitElement {
                 <!-- commit message -->
                 <p style="margin-right: 0; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
                 <!-- button for context menu -->
-                <paper-menu-button vertical-align="bottom" style="padding-left: 0; padding-right: 0">
+                <paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
                   <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
                   <p slot="dropdown-content" style="padding-left: 4px; padding-right: 4px"
                     @click=${() => this._onResetModelToCommitClicked(commit)}>Reset model to this commit</p>
