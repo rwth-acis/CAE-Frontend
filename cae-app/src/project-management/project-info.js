@@ -450,10 +450,11 @@ class ProjectInfo extends LitElement {
       modelingInfo.microservice = content;
     }
     Common.storeModelingInfo(modelingInfo);
-    this.updateMenu(component.type);
 
     // set this versioned model as the currently opened one
-    Common.setVersionedModelId(this.applicationComponent.versionedModelId);
+    Common.setVersionedModelId(component.versionedModelId);
+
+    this.updateMenu(component.type);
 
     // show spinner
     this.openLoadingDialog();
@@ -484,10 +485,11 @@ class ProjectInfo extends LitElement {
       "versionedModelId": this.applicationComponent.versionedModelId
     };
     Common.storeModelingInfo(modelingInfo);
-    this.updateMenu(this.applicationComponent.type);
 
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(this.applicationComponent.versionedModelId);
+
+    this.updateMenu(this.applicationComponent.type);
 
     // show spinner
     this.openLoadingDialog();

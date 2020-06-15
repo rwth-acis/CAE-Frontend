@@ -111,6 +111,7 @@ export class CommitList extends LitElement {
    * @returns {string} Timestamp in format: 31.12.2020 14:00
    */
   beautifyTimestamp(originalTimestamp) {
+    if(originalTimestamp == null) return null;
     const year = originalTimestamp.split("-")[0];
     const month = originalTimestamp.split("-")[1];
     const day = originalTimestamp.split("-")[2].split(" ")[0];

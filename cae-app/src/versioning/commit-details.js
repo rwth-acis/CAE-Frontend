@@ -1,6 +1,8 @@
 import { LitElement, html} from 'lit-element';
 import '@polymer/paper-checkbox/paper-checkbox.js';
 import Common from "../common";
+import Auth from "../auth";
+import Static from "../static";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -115,14 +117,20 @@ export class CommitDetails extends LitElement {
     this.getCommitButton().disabled = true;
 
     // get current model out of Yjs room
-    Common.getModelFromYjsRoom(Common.getYjsRoomName()).then(model => {
+    Common.getModelFromYjsRoom(Common.getYjsRoomNameForVersionedModel(Common.getVersionedModelId())).then(model => {
       if(model) {
-        console.log("Loaded current model from Yjs room:");
-        console.log(model);
+        fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
+          method: "POST",
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({
+            message: commitMessage,
+            model: model
+          })
+        }).then(response => {
+          console.log(response.status);
+        });
       }
     });
-
-    console.log("commit clicked with commit message: " + commitMessage);
   }
 
   /**
