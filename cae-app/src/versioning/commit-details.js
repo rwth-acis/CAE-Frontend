@@ -145,8 +145,11 @@ export class CommitDetails extends LitElement {
           // close dialog
           this.closeLoadingDialog();
 
-          // clear input field
+          // clear message input field
           this.getCommitMessageInput().value = "";
+
+          // reset version tag input area
+          this.resetVersionTagUI();
 
           if(response.ok) {
             // reload commit list
@@ -202,15 +205,32 @@ export class CommitDetails extends LitElement {
     return this.shadowRoot.getElementById("new-version-checkbox");
   }
 
+  resetVersionTagUI() {
+    // reset checkbox
+    this.getNewVersionCheckBox().checked = false;
+
+    // reset input fields
+    this.getVersionNumberInput(1).value = "";
+    this.getVersionNumberInput(2).value = "";
+    this.getVersionNumberInput(3).value = "";
+
+    // hide version number div
+    this.getVersionNumberDiv().style.display = "none";
+  }
+
   /**
    * Creates a semantic version number from the three input fields.
    * @returns {string}
    */
   getEnteredVersion() {
-    const major = this.shadowRoot.getElementById("input-version-number-1").value;
-    const minor = this.shadowRoot.getElementById("input-version-number-2").value;
-    const patch = this.shadowRoot.getElementById("input-version-number-3").value;
+    const major = this.getVersionNumberInput(1).value;
+    const minor = this.getVersionNumberInput(2).value;
+    const patch = this.getVersionNumberInput(3).value;
     return major + "." + minor + "." + patch;
+  }
+
+  getVersionNumberInput(part) {
+    return this.shadowRoot.getElementById("input-version-number-" + part);
   }
 
   /**
