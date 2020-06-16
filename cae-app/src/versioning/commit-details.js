@@ -56,7 +56,7 @@ export class CommitDetails extends LitElement {
           <!-- div for changes list -->
           <div>
             <p>Changes are not yet displayed and it is only possible to commit all new changes.
-            Version tags are also not working yet and there is no check if the model really changed.</p>
+            There is no check if the model really changed.</p>
           </div>
         </div>
         <div class="separator"></div>
@@ -145,8 +145,6 @@ export class CommitDetails extends LitElement {
           // close dialog
           this.closeLoadingDialog();
 
-          // activate button again
-          this.getCommitButton().disabled = false;
           // clear input field
           this.getCommitMessageInput().value = "";
 

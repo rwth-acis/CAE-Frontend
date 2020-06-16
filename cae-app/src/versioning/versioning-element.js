@@ -32,7 +32,7 @@ export class VersioningElement extends LitElement {
           <commit-list id="commit-list"></commit-list>
         </div>
         <div class="flex-commit-details">
-          <commit-details @reload-commit-list=${this.loadVersionedModel}></commit-details>
+          <commit-details @reload-commit-list=${this.reloadCommitList}></commit-details>
         </div>
       </div>
     `;
@@ -74,6 +74,16 @@ export class VersioningElement extends LitElement {
       this.versionedModel = data;
       this.getCommitListElement().setVersionedModel(data);
     });
+  }
+
+  /**
+   * Gets called after creating a new commit to reload the commit list.
+   */
+  reloadCommitList() {
+    this.loadVersionedModel();
+
+    // show loading spinner
+    this.getCommitListElement().getSpinner().style.display = "flex";
   }
 
   /**

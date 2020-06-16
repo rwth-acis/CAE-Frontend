@@ -25,7 +25,11 @@ export class CommitList extends LitElement {
       <h3>Commits</h3>
       <div class="separator"></div>
       <div style="overflow: scroll; height: 500px">
+        <div id="spinner-commit-list" style="display: flex; width: 100%">
+          <paper-spinner-lite style="margin-top: 2em; margin-left: auto; margin-right: auto" active></paper-spinner-lite>
+        </div>
         <!-- list commits -->
+        ${this.versionedModel ? html`
         ${this.versionedModel.commits.map(commit => html`
           <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
             <!-- check if commit is the commit for uncommited changes -->
@@ -58,6 +62,7 @@ export class CommitList extends LitElement {
           </div>
           <div class="separator"></div>
         `)}
+        ` : html``}
       </div>
     `;
   }
@@ -102,6 +107,9 @@ export class CommitList extends LitElement {
   setVersionedModel(versionedModel) {
     console.log("Commit-List: Received versioned model from versioning-element.");
     this.versionedModel = versionedModel;
+
+    // hide loading spinner
+    this.getSpinner().style.display = "none";
   }
 
   /**
@@ -119,6 +127,10 @@ export class CommitList extends LitElement {
     const time = originalTimestamp.split(" ")[1].substring(0,5);
 
     return day + "." + month + "." + year + " " + time;
+  }
+
+  getSpinner() {
+    return this.shadowRoot.getElementById("spinner-commit-list");
   }
 }
 
