@@ -115,6 +115,7 @@ export class CommitDetails extends LitElement {
    * @private
    */
   _onCommitClicked() {
+    console.log("_onCommitClicked() called");
     // get commit message
     const commitMessage = this.getCommitMessageInput().value;
 
@@ -158,6 +159,8 @@ export class CommitDetails extends LitElement {
             console.log(response.status);
           }
         });
+      } else {
+        console.error("Tried loading model out of Yjs room, but model is undefined.");
       }
     });
   }
