@@ -90,6 +90,9 @@ export class CommitDetails extends LitElement {
       <paper-dialog id="dialog-loading" modal>
         <paper-spinner-lite active></paper-spinner-lite>
       </paper-dialog>
+      
+       <!-- Generic Toast (see showToast method for more information) -->
+      <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
 
@@ -157,6 +160,9 @@ export class CommitDetails extends LitElement {
             this.sendReloadCommitListEvent();
           } else {
             console.log(response.status);
+            if(response.status == "403") {
+              this.showToast("You are not allowed to commit to this component!");
+            }
           }
         });
       } else {
@@ -265,6 +271,19 @@ export class CommitDetails extends LitElement {
    */
   closeLoadingDialog() {
     this.shadowRoot.getElementById("dialog-loading").close();
+  }
+
+  /**
+   * Since the cae-static-app page uses lots of toast messages,
+   * it is helpful to have this method for displaying toast messages.
+   * It allows to have one single paper-toast item in the html which
+   * gets used for different message texts.
+   * @param text Text to display in the toast.
+   */
+  showToast(text) {
+    const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
   }
 }
 
