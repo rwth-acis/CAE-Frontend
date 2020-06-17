@@ -463,13 +463,16 @@ class ProjectInfo extends LitElement {
     Common.storeRequirementsBazaarProject(component.reqBazProjectId, component.reqBazCategoryId);
 
     // upload metamodel for the component
-    this.uploadMetamodelForComponent(component).then(_ => {
+    this.uploadMetamodelAndModelForComponent(component).then(_ => {
       this.closeLoadingDialog();
       if(component.type == "frontend") {
         this.changeView("cae-modeling/frontend-modeling");
       } else {
         this.changeView("cae-modeling/microservice-modeling");
       }
+    }, _ => {
+      this.closeLoadingDialog();
+      this.showToast("Error while opening component!");
     });
   }
 
@@ -498,11 +501,14 @@ class ProjectInfo extends LitElement {
     Common.storeRequirementsBazaarProject(this.applicationComponent.reqBazProjectId, this.applicationComponent.reqBazCategoryId);
 
     // upload metamodel for application component
-    this.uploadMetamodelForComponent(this.applicationComponent).then(_ => {
+    this.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
       // close dialog
       this.closeLoadingDialog();
       // send event which notifies the cae-static-app to change the view
       this.changeView("cae-modeling/application-modeling");
+    }, _ => {
+      this.closeLoadingDialog();
+      this.showToast("Error while opening component!");
     });
   }
 
@@ -536,11 +542,11 @@ class ProjectInfo extends LitElement {
    * @param component The component whose metamodel should be uploaded.
    * @returns {Promise<unknown>}
    */
-  uploadMetamodelForComponent(component) {
-    return MetamodelUploader.uploadForComponent(component)
+  uploadMetamodelAndModelForComponent(component) {
+    return MetamodelUploader.uploadMetamodelAndModelForComponent(component)
       .then(_ => new Promise((resolve, reject) => {
         // wait for data become active
-        setTimeout(_ => resolve(), 2000);
+        setTimeout(_ => resolve(), 10000);
       }));
   }
 
