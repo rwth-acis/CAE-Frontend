@@ -741,6 +741,28 @@ class ProjectInfo extends LitElement {
 
         // just reload components list
         this.loadComponents();
+
+        // check if the component which got deleted is currently opened (in the menu)
+        // because then the menu and the modelingInfo in localStorage need to be updated
+        const modelingInfo = Common.getModelingInfo();
+        if(this.componentToDelete.type == "frontend") {
+          if(modelingInfo.frontend != null) {
+            if(modelingInfo.frontend.versionedModelId == this.componentToDelete.versionedModelId) {
+              modelingInfo.frontend = null;
+              Common.storeModelingInfo(modelingInfo);
+              this.updateMenu("frontend");
+            }
+          }
+        }
+        if(this.componentToDelete.type == "microservice") {
+          if(modelingInfo.microservice != null) {
+            if(modelingInfo.microservice.versionedModelId == this.componentToDelete.versionedModelId) {
+              modelingInfo.microservice = null;
+              Common.storeModelingInfo(modelingInfo);
+              this.updateMenu("microservice");
+            }
+          }
+        }
       }
     });
   }
