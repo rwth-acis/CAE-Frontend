@@ -70,7 +70,7 @@ class ProjectInfo extends LitElement {
           background: rgb(216,81,73);
         }
         .edit-icon {
-          color: #c6c6c6;
+          color: #4c4c4c;
         }
         .components {
           margin-left: 1em;
@@ -108,15 +108,15 @@ class ProjectInfo extends LitElement {
             <div class="project-title" style="display: flex; margin-left: 1em; margin-right: 1em;">
               <h3>${this.selectedProject.name}</h3>
               <!-- Button for adding components to a project -->
-              ${this.editingEnabled? html`
+              ${this.editingEnabled ? html`
                 <paper-button @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
               ` : html``}
               <!-- Show button for editing or saving -->
-              ${this.editingAllowed? html`
-                ${this.editingEnabled? html`
+              ${this.editingAllowed ? html`
+                ${this.editingEnabled ? html`
                   <iron-icon @click="${this._onEditProjectClicked}" class="edit-icon"
                       icon="done" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
-                ` : html `
+                ` : html`
                   <iron-icon @click="${this._onEditProjectClicked}" class="edit-icon"
                       icon="create" style="margin-left: auto; margin-top: auto; margin-bottom: auto"></iron-icon>
                 `}
@@ -150,7 +150,7 @@ class ProjectInfo extends LitElement {
                     <a href="${component.github_url}">
                       <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                     </a>
-                    ${this.editingEnabled? html`
+                    ${this.editingEnabled ? html`
                       <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon" icon="delete" style="margin-left: 0.5em"></iron-icon>
                     ` : html``}
                   </div>
@@ -203,7 +203,7 @@ class ProjectInfo extends LitElement {
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${user.loginName}</p>
                       <p style="margin-right: 0.5em; margin-left: auto">${this.getRoleById(user.roleId).name}</p>
-                      ${this.editingEnabled? html`
+                      ${this.editingEnabled ? html`
                         <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
                       ` : html``}
                     </div>
@@ -212,7 +212,7 @@ class ProjectInfo extends LitElement {
                 </div>
             
                 <!-- Add users to the project -->
-                ${this.editingEnabled? html`
+                ${this.editingEnabled ? html`
                   <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
                     <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
                         @input="${(e) => this._onInviteUserInputChanged(e.target.value)}"></input>
@@ -228,7 +228,7 @@ class ProjectInfo extends LitElement {
                   ${this.roleList.map(role => html`
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${role.name}</p>
-                      ${this.editingEnabled? html`
+                      ${this.editingEnabled ? html`
                         <iron-icon @click="${() => this._roleEditButtonClicked(role)}" class="edit-icon"
                             icon="create" style="margin-left: auto"></iron-icon>
                       ` : html``}
@@ -238,7 +238,7 @@ class ProjectInfo extends LitElement {
                 </div>
                 
                 <!-- Add roles to the project -->
-                ${this.editingEnabled? html`               
+                ${this.editingEnabled ? html`               
                   <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
                     <input id="input-role" class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
                         @input="${(e) => this._onAddRoleInputChanged(e.target.value)}"></input>
