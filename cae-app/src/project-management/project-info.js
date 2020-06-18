@@ -543,11 +543,34 @@ class ProjectInfo extends LitElement {
    * @returns {Promise<unknown>}
    */
   uploadMetamodelAndModelForComponent(component) {
-    return MetamodelUploader.uploadMetamodelAndModelForComponent(component)
-      .then(_ => new Promise((resolve, reject) => {
-        // wait for data become active
-        setTimeout(_ => resolve(), 10000);
-      }));
+    return MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => new Promise((resolve, reject) => {
+      // wait for data become active
+      setTimeout(_ => resolve(), 10000);
+    }));
+  }
+
+  /**
+   * When the user opens the first project and no application component
+   * is opened yet, then the one from the newly opened project should be
+   * opened automatically. This should be done in the background, i.e. silent.
+   */
+  uploadMetamodelAndModelForApplicationSilent() {
+    console.log("Silent upload of (meta)model for application component started...");
+    MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => new Promise((resolve, reject) => {
+      // wait for data become active
+      setTimeout(_ => resolve(), 10000);
+    })).then(_ => {
+      // success
+      const modelingInfo = Common.getModelingInfo();
+      modelingInfo.application = {
+        "versionedModelId": this.applicationComponent.versionedModelId
+      };
+      Common.storeModelingInfo(modelingInfo);
+
+      this.updateMenu(this.applicationComponent.type);
+    }, _ => {
+      // failed
+    });
   }
 
   /**
@@ -638,7 +661,17 @@ class ProjectInfo extends LitElement {
     this.editingAllowed = this.isUserAllowedToEditProject();
 
     // load components of the selected project
-    this.loadComponents();
+    this.loadComponents().then(_ => {
+      // check if there is an application component opened yet
+      // otherwise, the one of this project should be automatically
+      // opened in the background
+      // for the frontend and microservices this is not possible, since
+      // there could be multiple ones and we do not know which of them
+      // should be opened
+      if(Common.getModelingInfo().application == null) {
+        this.uploadMetamodelAndModelForApplicationSilent();
+      }
+    }, _ => {});
   }
 
   /**
@@ -674,42 +707,48 @@ class ProjectInfo extends LitElement {
    * Loads the components of the currently selected project.
    */
   loadComponents() {
-    const projectId = this.getProjectId();
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
-      method: "GET"
-    }).then(response => {
-        if(response.ok) {
-          return response.json();
+    return new Promise((resolveLoading, rejectLoading) => {
+      const projectId = this.getProjectId();
+      fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
+        method: "GET"
+      }).then(response => {
+          if(response.ok) {
+            return response.json();
+          } else {
+            rejectLoading();
+          }
         }
-      }
-    ).then(data => {
-      // clear current components
-      this.applicationComponent = undefined;
-      this.frontendComponents = [];
-      this.microserviceComponents = [];
+      ).then(data => {
+        // clear current components
+        this.applicationComponent = undefined;
+        this.frontendComponents = [];
+        this.microserviceComponents = [];
 
-      // data is a JSONArray containing both frontend and microservice components
-      for(let i in data) {
-        const component = data[i];
-        if (component.type == "frontend") {
-          this.frontendComponents.push(component);
-        } else if (component.type == "microservice") {
-          this.microserviceComponents.push(component);
-        } else if(component.type == "application") {
-          this.applicationComponent = component;
+        // data is a JSONArray containing both frontend and microservice components
+        for(let i in data) {
+          const component = data[i];
+          if (component.type == "frontend") {
+            this.frontendComponents.push(component);
+          } else if (component.type == "microservice") {
+            this.microserviceComponents.push(component);
+          } else if(component.type == "application") {
+            this.applicationComponent = component;
+          }
         }
-      }
 
-      // check which component tab is currently shown
-      if(this.componentTabSelected == 0) {
-        this.currentlyShownComponents = this.frontendComponents;
-        // since we show the frontend components, also the frontend tab should be shown
-        this.shadowRoot.getElementById("component-tabs").selected = 0;
-      } else {
-        this.currentlyShownComponents = this.microserviceComponents;
-        // since we show the microservice components, also the microservice tab should be shown
-        this.shadowRoot.getElementById("component-tabs").selected = 1;
-      }
+        resolveLoading();
+
+        // check which component tab is currently shown
+        if(this.componentTabSelected == 0) {
+          this.currentlyShownComponents = this.frontendComponents;
+          // since we show the frontend components, also the frontend tab should be shown
+          this.shadowRoot.getElementById("component-tabs").selected = 0;
+        } else {
+          this.currentlyShownComponents = this.microserviceComponents;
+          // since we show the microservice components, also the microservice tab should be shown
+          this.shadowRoot.getElementById("component-tabs").selected = 1;
+        }
+      });
     });
   }
 
