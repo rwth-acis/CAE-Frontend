@@ -135,13 +135,13 @@ class ProjectInfo extends LitElement {
                     ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
                     <!-- Link to Requirements Bazaar -->
                     ${component.reqBazCategoryId ? html`
-                      <a style="text-decoration: none"
+                      <a style="text-decoration: none" target="_blank"
                           href="https://requirements-bazaar.org/projects/${component.reqBazProjectId}/categories/${component.reqBazCategoryId}">
                         <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
                       </a>
                     ` : html``}
                     <!-- Link to GitHub -->
-                    <a href="${component.github_url}">
+                    <a href="${component.github_url}" target="_blank">
                       <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                     </a>
                     ${this.editingAllowed ? html`
@@ -161,13 +161,13 @@ class ProjectInfo extends LitElement {
                 <div style="margin-left: auto; margin-top: auto; margin-bottom: auto; display: flex">
                   <!-- Requirements Bazaar connection -->
                   ${this.applicationComponent.reqBazCategoryId ? html`
-                    <a style="text-decoration: none"
+                    <a style="text-decoration: none" target="_blank"
                         href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
                       <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
                     </a>
                   ` : html``}
                   <!-- GitHub connection -->
-                  <a style="text-decoration: none" href="https://github.com">
+                  <a style="text-decoration: none" href=${this.applicationComponent.github_url} target="_blank">
                     <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                   </a>
                 </div>
