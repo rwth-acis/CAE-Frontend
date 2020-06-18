@@ -674,10 +674,6 @@ class ProjectInfo extends LitElement {
    * Loads the components of the currently selected project.
    */
   loadComponents() {
-    this.applicationComponent = undefined;
-    this.frontendComponents = [];
-    this.microserviceComponents = [];
-
     const projectId = this.getProjectId();
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
       method: "GET"
@@ -687,6 +683,11 @@ class ProjectInfo extends LitElement {
         }
       }
     ).then(data => {
+      // clear current components
+      this.applicationComponent = undefined;
+      this.frontendComponents = [];
+      this.microserviceComponents = [];
+
       // data is a JSONArray containing both frontend and microservice components
       for(let i in data) {
         const component = data[i];
