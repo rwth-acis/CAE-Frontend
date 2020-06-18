@@ -45,7 +45,8 @@ class ProjectManagement extends LitElement {
                 @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>
           </div>
           <div class="flex-project-info">
-            <project-info @change-view=${(e) => this._changeView(e)} @update-menu=${(e) => this._updateMenu(e.detail)} id="project-info"></project-info>
+            <project-info @change-view=${(e) => this._changeView(e)} @update-menu=${(e) => this._updateMenu(e.detail)} 
+                @reload-projects=${this._reloadProjects} id="project-info"></project-info>
           </div>
         </div>
       ` : html `
@@ -100,6 +101,10 @@ class ProjectManagement extends LitElement {
    */
   _onUserProjectListLoaded(eventDetail) {
     this.getProjectInfo()._onUserProjectListLoaded(eventDetail);
+  }
+
+  _reloadProjects() {
+    this.getProjectExplorer().showProjects(false);
   }
 
   getProjectInfo() {

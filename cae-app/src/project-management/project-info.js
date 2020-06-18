@@ -242,6 +242,14 @@ class ProjectInfo extends LitElement {
                 ` : html``}
               </div>
             </div>
+            <div style="margin-left: 1em; margin-right: 1em; margin-bottom: 0.5em">
+              <div class="separator"></div>
+              <h4>Danger Zone</h4>
+              <div style="display: flex">
+                <p>Delete this project. Please note that a project cannot be restored after deletion.</p>
+                <paper-button @click=${this._onDeleteProjectClicked} class="button-danger" style="margin-top: auto; margin-bottom: auto; margin-left: auto">Delete</paper-button>
+              </div>
+            </div>
           ` :
       html`
             <div style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
@@ -364,6 +372,18 @@ class ProjectInfo extends LitElement {
         </div>
       </paper-dialog>
       
+      <!-- Dialog: Are you sure to delete the project? -->
+      <paper-dialog id="dialog-delete-project" modal>
+        <h4>Delete Project</h4>
+        <div>
+        Are you sure that you want to delete the project?
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button @click=${this._deleteProject} dialog-confirm autofocus>Yes</paper-button>
+        </div>
+      </paper-dialog>
+      
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
@@ -426,6 +446,11 @@ class ProjectInfo extends LitElement {
 
   constructor() {
     super();
+    this.resetProjectInfo();
+  }
+
+  resetProjectInfo() {
+    this.selectedProject = undefined;
     this.userList = [];
     this.roleList = [];
     this.frontendComponents = [];
@@ -1002,6 +1027,71 @@ class ProjectInfo extends LitElement {
         this.showToast("Successfully created new component!");
       } else {
 
+      }
+    });
+  }
+
+  /**
+   * Gets called when the user clicks on the delete button at the bottom
+   * in the project info.
+   * @private
+   */
+  _onDeleteProjectClicked() {
+    // show dialog to ensure that the user really wants to delete the project
+    this.shadowRoot.getElementById("dialog-delete-project").open();
+  }
+
+  /**
+   * Gets called when the user has confirmed that the project should really be deleted.
+   * @private
+   */
+  _deleteProject() {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id, {
+      method: "DELETE",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.status == 204) {
+        // ok, project got deleted
+        // update modelingInfo in localStorage and update menu
+        const modelingInfo = Common.getModelingInfo();
+        if(modelingInfo.frontend != null) {
+          for(let i in this.frontendComponents) {
+            const component = this.frontendComponents[i];
+            if(component.versionedModelId == modelingInfo.frontend.versionedModelId) {
+              modelingInfo.frontend = null;
+              Common.storeModelingInfo(modelingInfo);
+              this.updateMenu("frontend");
+            }
+          }
+        }
+        if(modelingInfo.microservice != null) {
+          for(let i in this.microserviceComponents) {
+            const component = this.microserviceComponents[i];
+            if(component.versionedModelId == modelingInfo.microservice.versionedModelId) {
+              modelingInfo.microservice = null;
+              Common.storeModelingInfo(modelingInfo);
+              this.updateMenu("microservice");
+            }
+          }
+        }
+        if(modelingInfo.application != null) {
+          if(this.applicationComponent.versionedModelId == modelingInfo.application.versionedModelId) {
+            modelingInfo.application = null;
+            Common.storeModelingInfo(modelingInfo);
+            this.updateMenu("application");
+          }
+        }
+
+
+        // reset project info, so that the project-info element does not show any content anymore
+        this.resetProjectInfo();
+
+        // reload projects in explorer
+        const event = new CustomEvent("reload-projects");
+        this.dispatchEvent(event);
+      } else {
+        // error deleting project
+        this.showToast("Error deleting project!");
       }
     });
   }
