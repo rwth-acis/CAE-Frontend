@@ -161,7 +161,7 @@ class ProjectInfo extends LitElement {
             
             <!-- Application Component -->
             <div class="application-component" style="margin-left: 1em; margin-right: 1em">
-              <h4>Application Component</h4>
+              <h4>Application</h4>
               <div style="display: flex; padding-bottom: 0.5em">
                 <a @click="${this._onOpenApplicationModelingClicked}" href="">Open in Modeling Space</a>
                 <div style="margin-left: auto; margin-top: auto; margin-bottom: auto; display: flex">

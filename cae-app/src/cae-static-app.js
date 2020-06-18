@@ -76,7 +76,7 @@ class CaeStaticApp extends PolymerElement {
           <div class="vl"></div>
           <a id="menu-microservice-modeling" style="margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
           <div class="vl"></div>
-          <a id="menu-application-modeling" style="margin-top: auto; margin-bottom: auto">Application Modeling</a>
+          <a id="menu-application-modeling" style="margin-top: auto; margin-bottom: auto">Application Mashup</a>
           
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
