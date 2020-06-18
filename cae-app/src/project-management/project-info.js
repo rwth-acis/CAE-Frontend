@@ -76,6 +76,9 @@ class ProjectInfo extends LitElement {
         .edit-icon {
           color: #000000;
         }
+        .edit-icon:hover {
+          color: #7c7c7c;
+        }
         .components {
           margin-left: 1em;
           margin-right: 1em;
