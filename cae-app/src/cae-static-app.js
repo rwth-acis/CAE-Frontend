@@ -209,29 +209,20 @@ class CaeStaticApp extends PolymerElement {
 
   /**
    * Loads the modeling info from localStorage and
-   * depending on that shows or hides
+   * depending on that shows or hides the menu items for the components.
    */
   updateMenu() {
     const modelingInfo = Common.getModelingInfo();
 
-    if(!this.isComponentOpened("frontend")) {
-      // hide it
-      this.hideMenuItem("frontend");
-    } else {
-      this.showMenuItem("frontend");
-    }
-    if(!this.isComponentOpened("microservice")) {
-      // hide it
-      this.hideMenuItem("microservice");
-    } else {
-      this.showMenuItem("microservice");
-    }
-    if(!this.isComponentOpened("application")) {
-      // hide it
-      this.hideMenuItem("application");
-    } else {
-      this.showMenuItem("application");
-    }
+    // set event listener for click event
+    this.setMenuItemClickListener("frontend");
+    this.setMenuItemClickListener("microservice");
+    this.setMenuItemClickListener("application");
+
+    // show or hide component in the menu (depending on if the component is opened or not)
+    this.isComponentOpened("frontend") ? this.showMenuItem("frontend") : this.hideMenuItem("frontend");
+    this.isComponentOpened("microservice") ? this.showMenuItem("microservice") : this.hideMenuItem("microservice");
+    this.isComponentOpened("application") ? this.showMenuItem("application") : this.hideMenuItem("application");
   }
 
   /**
@@ -245,23 +236,6 @@ class CaeStaticApp extends PolymerElement {
       "application": null
     };
     Common.storeModelingInfo(modelingInfo);
-  }
-
-  /**
-   * Checks if a component of the given type is opened, i.e. information
-   * on it is stored in localStorage.
-   * @param type
-   * @returns {boolean}
-   */
-  isComponentOpened(type) {
-    const modelingInfo = Common.getModelingInfo();
-    if(type == "frontend") {
-      return modelingInfo.frontend != null;
-    } else if(type == "microservice") {
-      return modelingInfo.microservice != null;
-    } else if(type == "application") {
-      return modelingInfo.application != null;
-    }
   }
 
   handleLogin(event) {
@@ -451,37 +425,14 @@ class CaeStaticApp extends PolymerElement {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.setProperty("color", "#e6e6e6");
     menuElement.removeAttribute("href");
-    if(menuItem == "frontend") {
-      menuElement.removeEventListener('click', this.menuItemClickFrontend);
-    } else if(menuItem == "microservice") {
-      menuElement.removeEventListener('click', this.menuItemClickMicroservice);
-    } else {
-      menuElement.removeEventListener('click', this.menuItemClickApplication);
-    }
-    menuElement.addEventListener('click', this.menuItemClickNoComponent.bind(this));
   }
 
-  menuItemClickNoComponent() {
-    console.log("menuItemClickNoComponent");
-    this.showToast("You need to open a component of the given type first.");
-  }
-
-  menuItemClickFrontend() {
-    console.log("menuItemClickFrontend");
-    this.reloadCaeRoom("frontend");
-    this.set("route.path", "cae-modeling/frontend-modeling");
-  }
-  menuItemClickMicroservice() {
-    console.log("menuItemClickMicroservice");
-    this.reloadCaeRoom("microservice");
-    this.set("route.path", "cae-modeling/microservice-modeling");
-  }
-  menuItemClickApplication() {
-    console.log("menuItemClickApplication");
-    this.reloadCaeRoom("application");
-    this.set("route.path", "cae-modeling/application-modeling");
-  }
-
+  /**
+   * Notifies the cae-modeling to reload the modeling element of the given type.
+   * This "reloading" is needed to reload the widgets that are connected to a Yjs room.
+   * Reloading then allows to change the Yjs room that the widgets are using.
+   * @param type
+   */
   reloadCaeRoom(type) {
     const modelingElement = this.shadowRoot.getElementById("cae-modeling");
     modelingElement.reloadModelingElement(type);
@@ -489,21 +440,53 @@ class CaeStaticApp extends PolymerElement {
 
   /**
    * Shows the given menu item.
-   * This means, that the menu item will be clickable after calling this method and
-   * will then redirect to to modeling space of the specific type.
+   * Sets click listener and removes color.
    * @param menuItem
    */
   showMenuItem(menuItem) {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
-    menuElement.removeEventListener('click', this.menuItemClickNoComponent);
-    if(menuItem == "frontend") {
-      menuElement.addEventListener('click', this.menuItemClickFrontend.bind(this));
-    } else if(menuItem == "microservice") {
-      menuElement.addEventListener('click', this.menuItemClickMicroservice.bind(this));
-    } else {
-      menuElement.addEventListener('click', this.menuItemClickApplication.bind(this));
-    }
     menuElement.style.removeProperty("color");
+  }
+
+  setMenuItemClickListener(menuItem) {
+    const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
+    menuElement.addEventListener('click', _ => this.menuItemClick(menuItem));
+  }
+
+  /**
+   * Depending on whether a component of the given type is opened or not,
+   * it opens the corresponding modeling space or shows a toast message
+   * that no component of the type is opened yet.
+   * @param menuItemComponentType
+   */
+  menuItemClick(menuItemComponentType) {
+    const modelingInfo = Common.getModelingInfo();
+    if(this.isComponentOpened(menuItemComponentType)) {
+      // click should open modeling space
+      this.reloadCaeRoom(menuItemComponentType);
+      this.set("route.path", "cae-modeling/" + menuItemComponentType + "-modeling");
+    } else {
+      // component is not opened
+      // show toast message
+      this.showToast("You need to open a component of the given type first.");
+    }
+  }
+
+  /**
+   * Checks if a component of the given type is opened, i.e. information
+   * on it is stored in localStorage.
+   * @param type
+   * @returns {boolean}
+   */
+  isComponentOpened(type) {
+    const modelingInfo = Common.getModelingInfo();
+    if(type == "frontend") {
+      return modelingInfo.frontend != null;
+    } else if(type == "microservice") {
+      return modelingInfo.microservice != null;
+    } else if(type == "application") {
+      return modelingInfo.application != null;
+    }
   }
 
   /**
