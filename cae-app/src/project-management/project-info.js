@@ -52,11 +52,14 @@ class ProjectInfo extends LitElement {
           outline: none;
         }
         paper-button {
+          height: 2.5em;
+        }
+        .paper-button-blue {
           color: rgb(240,248,255);
           background: rgb(30,144,255);
           height: 2.5em;
         }
-        paper-button:hover {
+        .paper-button-blue:hover {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
         }
@@ -64,13 +67,14 @@ class ProjectInfo extends LitElement {
           background: #e1e1e1;
         }
         .button-danger {
+          color: rgb(240,248,255);
           background: rgb(255,93,84);
         }
         .button-danger:hover {
           background: rgb(216,81,73);
         }
         .edit-icon {
-          color: #4c4c4c;
+          color: #000000;
         }
         .components {
           margin-left: 1em;
@@ -108,18 +112,8 @@ class ProjectInfo extends LitElement {
             <div class="project-title" style="display: flex; margin-left: 1em; margin-right: 1em;">
               <h3>${this.selectedProject.name}</h3>
               <!-- Button for adding components to a project -->
-              ${this.editingEnabled ? html`
-                <paper-button @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
-              ` : html``}
-              <!-- Show button for editing or saving -->
               ${this.editingAllowed ? html`
-                ${this.editingEnabled ? html`
-                  <iron-icon @click="${this._onEditProjectClicked}" class="edit-icon"
-                      icon="done" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
-                ` : html`
-                  <iron-icon @click="${this._onEditProjectClicked}" class="edit-icon"
-                      icon="create" style="margin-left: auto; margin-top: auto; margin-bottom: auto"></iron-icon>
-                `}
+                <paper-button class="paper-button-blue" @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
               ` : html``}
             </div>
             
@@ -150,7 +144,7 @@ class ProjectInfo extends LitElement {
                     <a href="${component.github_url}">
                       <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                     </a>
-                    ${this.editingEnabled ? html`
+                    ${this.editingAllowed ? html`
                       <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon" icon="delete" style="margin-left: 0.5em"></iron-icon>
                     ` : html``}
                   </div>
@@ -203,7 +197,7 @@ class ProjectInfo extends LitElement {
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${user.loginName}</p>
                       <p style="margin-right: 0.5em; margin-left: auto">${this.getRoleById(user.roleId).name}</p>
-                      ${this.editingEnabled ? html`
+                      ${this.editingAllowed ? html`
                         <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
                       ` : html``}
                     </div>
@@ -212,11 +206,11 @@ class ProjectInfo extends LitElement {
                 </div>
             
                 <!-- Add users to the project -->
-                ${this.editingEnabled ? html`
+                ${this.editingAllowed ? html`
                   <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
                     <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
                         @input="${(e) => this._onInviteUserInputChanged(e.target.value)}"></input>
-                    <paper-button id="button-invite-user" @click="${this._onInviteUserToProjectClicked}"
+                    <paper-button disabled="true" class="paper-button-blue" id="button-invite-user" @click="${this._onInviteUserToProjectClicked}"
                         style="margin-left: auto">Invite</paper-button>
                   </div>
                 ` : html``}
@@ -228,7 +222,7 @@ class ProjectInfo extends LitElement {
                   ${this.roleList.map(role => html`
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${role.name}</p>
-                      ${this.editingEnabled ? html`
+                      ${this.editingAllowed ? html`
                         <iron-icon @click="${() => this._roleEditButtonClicked(role)}" class="edit-icon"
                             icon="create" style="margin-left: auto"></iron-icon>
                       ` : html``}
@@ -238,11 +232,11 @@ class ProjectInfo extends LitElement {
                 </div>
                 
                 <!-- Add roles to the project -->
-                ${this.editingEnabled ? html`               
+                ${this.editingAllowed ? html`               
                   <div class="add-role" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
                     <input id="input-role" class="input-role input" placeholder="Enter Role Name" style="margin-left: 0"
                         @input="${(e) => this._onAddRoleInputChanged(e.target.value)}"></input>
-                    <paper-button id="button-add-role" @click="${this._onAddRoleToProjectClicked}"
+                    <paper-button disabled="true" class="paper-button-blue" id="button-add-role" @click="${this._onAddRoleToProjectClicked}"
                         style="margin-left: auto">Add</paper-button>
                   </div>
                 ` : html``}
@@ -274,9 +268,9 @@ class ProjectInfo extends LitElement {
           <paper-button class="button-danger" @click="${this._removeUserFromProjectClicked}">Remove From Project</paper-button>
         </div>
         
-        <div>
-          <paper-button @click="${this._closeEditUserDialogClicked}">Cancel</paper-button>
-          <paper-button>Save</paper-button>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm>Save</paper-button>
         </div>
       </paper-dialog>
       
@@ -287,9 +281,9 @@ class ProjectInfo extends LitElement {
           <paper-button class="button-danger" @click="${this._removeRoleFromProjectClicked}">Remove From Project</paper-button>
         </div>
         
-        <div>
-          <paper-button @click="${this._closeEditRoleDialogClicked}">Cancel</paper-button>
-          <paper-button>Save</paper-button>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button dialog-confirm>Save</paper-button>
         </div>
       </paper-dialog>
       
@@ -308,7 +302,7 @@ class ProjectInfo extends LitElement {
             <!-- Enter Component Name -->
             <input id="dialog-add-component-input-name" class="input" style="margin-left: 1em" placeholder="Enter Component Name"></input>
             <!-- Button for creating component -->
-            <paper-button @click="${this._onCreateComponentClicked}">Create</paper-button>
+            <paper-button class="paper-button-blue" @click="${this._onCreateComponentClicked}">Create</paper-button>
           </div>
           <div class="separator"></div>
         </div>
@@ -326,7 +320,7 @@ class ProjectInfo extends LitElement {
               </paper-listbox>
             </paper-dropdown-menu>
             <!-- Button for adding component -->
-            <paper-button disabled="true">Add</paper-button>
+            <paper-button class="paper-button-blue" disabled="true">Add</paper-button>
           </div>
           <div class="separator"></div>
         </div>
@@ -344,18 +338,30 @@ class ProjectInfo extends LitElement {
               </paper-listbox>
             </paper-dropdown-menu>
             <!-- Button for adding component -->
-            <paper-button disabled="true">Add</paper-button>
+            <paper-button class="paper-button-blue" disabled="true">Add</paper-button>
           </div>
           <div class="separator"></div>
         </div>
-        <div>
-          <paper-button @click="${this._closeAddComponentDialogClicked}">Close</paper-button>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Close</paper-button>
         </div>
       </paper-dialog>
       
       <!-- Dialog showing a loading bar -->
       <paper-dialog id="dialog-loading" modal>
         <paper-spinner-lite active></paper-spinner-lite>
+      </paper-dialog>
+      
+      <!-- Dialog: Are you sure to delete the component? -->
+      <paper-dialog id="dialog-delete-component" modal>
+        <h4>Delete Component</h4>
+        <div>
+        Are you sure that you want to delete the component?
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button @click=${this._removeComponentFromProject} dialog-confirm autofocus>Yes</paper-button>
+        </div>
       </paper-dialog>
       
       <!-- Generic Toast (see showToast method for more information) -->
@@ -395,13 +401,6 @@ class ProjectInfo extends LitElement {
       currentlyShownComponents: {
         type: Array
       },
-      /*
-       * Used to determine whether the edit-buttons etc. should be visible or not.
-       * Note: Editing is only possible when editingAllowed is true.
-       */
-      editingEnabled: {
-        type: Boolean
-      },
       /**
        * Tells if the logged in user is allowed to edit the currently selected project.
        */
@@ -413,6 +412,14 @@ class ProjectInfo extends LitElement {
        */
       usersProjects: {
         type: Array
+      },
+      /**
+       * Gets set before the "Are you sure that you want to delete...?" dialog
+       * appears. Then this attribute gets used in the click event of the
+       * dialogs "Yes" button.
+        */
+      componentToDelete: {
+        type: Object
       }
     }
   }
@@ -425,7 +432,6 @@ class ProjectInfo extends LitElement {
     this.microserviceComponents = [];
     this.currentlyShownComponents = [];
     this.componentTabSelected = 0;
-    this.editingEnabled = false;
     this.editingAllowed = false;
     this.usersProjects = [];
   }
@@ -573,50 +579,6 @@ class ProjectInfo extends LitElement {
     });
   }
 
-  /**
-   * Gets called when the "edit" or "save" button gets called.
-   * @private
-   */
-  _onEditProjectClicked() {
-    this.editingEnabled = !this.editingEnabled;
-
-    // disable buttons for adding users and roles
-    // wait until the layout has updated, otherwise the button elements cannot be found because they are not shown yet
-    if (this.editingEnabled) {
-      this.requestUpdate().then(e => {
-        this.shadowRoot.getElementById("button-invite-user").disabled = true;
-        this.shadowRoot.getElementById("button-add-role").disabled = true;
-      });
-    }
-  }
-
-  /**
-   * Gets called when the user wants to close
-   * the edit user dialog.
-   * @private
-   */
-  _closeEditUserDialogClicked() {
-    this.shadowRoot.getElementById("dialog-edit-user").close();
-  }
-
-  /**
-   * Gets called when the user wants to close
-   * the edit role dialog.
-   * @private
-   */
-  _closeEditRoleDialogClicked() {
-    this.shadowRoot.getElementById("dialog-edit-role").close();
-  }
-
-  /**
-   * Gets called when the user want to close
-   * the add component dialog.
-   * @private
-   */
-  _closeAddComponentDialogClicked() {
-    this.shadowRoot.getElementById("dialog-add-component").close();
-  }
-
   _userEditButtonClicked(user) {
     this.editingUser = user;
     this.shadowRoot.getElementById("dialog-edit-user").open()
@@ -653,9 +615,6 @@ class ProjectInfo extends LitElement {
 
     // get roles from project
     this.roleList = project.roles;
-
-    // when opening a new project, editing should not be enabled
-    this.editingEnabled = false;
 
     // check if user is allowed to edit the project
     this.editingAllowed = this.isUserAllowedToEditProject();
@@ -758,10 +717,22 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProjectClicked(component) {
+    this.componentToDelete = component;
+
     const projectId = this.getProjectId();
     const componentId = component.id;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components/" + componentId, {
+    // first show dialog and ensure that the user really want to delete the component
+    this.shadowRoot.getElementById("dialog-delete-component").open();
+  }
+
+  /**
+   * Gets called when the user clicks "Yes" in the "Are you sure that you want to delete the component?"
+   * button in the delete dialog.
+   * @private
+   */
+  _removeComponentFromProject() {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/components/" + this.componentToDelete.id, {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -836,7 +807,7 @@ class ProjectInfo extends LitElement {
 
   _removeUserFromProjectClicked() {
     // close dialog
-    this._closeEditUserDialogClicked();
+    this.shadowRoot.getElementById("dialog-edit-user").close();
 
     const projectId = this.getProjectId();
     const userToRemove = this.editingUser;
@@ -915,7 +886,7 @@ class ProjectInfo extends LitElement {
    */
   _removeRoleFromProjectClicked() {
     // close dialog
-    this._closeEditRoleDialogClicked();
+    this.shadowRoot.getElementById("dialog-edit-role").close();
 
     const projectId = this.getProjectId();
     const roleToRemove = this.editingRole;

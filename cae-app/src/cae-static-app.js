@@ -42,10 +42,10 @@ class CaeStaticApp extends PolymerElement {
           margin-right: 0.5em;
         }
         .icon {
-          color: #4c4c4c;
+          color: #000000;
         }
         .icon:hover {
-          color: #9d9d9d;
+          color: #7c7c7c;
         }
       </style>
       
