@@ -726,14 +726,19 @@ class ProjectInfo extends LitElement {
         resolveLoading();
 
         // check which component tab is currently shown
+        const componentTabs = this.shadowRoot.getElementById("component-tabs");
         if(this.componentTabSelected == 0) {
           this.currentlyShownComponents = this.frontendComponents;
           // since we show the frontend components, also the frontend tab should be shown
-          this.shadowRoot.getElementById("component-tabs").selected = 0;
+          if(componentTabs != null) {
+            componentTabs.selected = 0;
+          }
         } else {
           this.currentlyShownComponents = this.microserviceComponents;
           // since we show the microservice components, also the microservice tab should be shown
-          this.shadowRoot.getElementById("component-tabs").selected = 1;
+          if(componentTabs != null) {
+            componentTabs.selected = 1;
+          }
         }
       });
     });
