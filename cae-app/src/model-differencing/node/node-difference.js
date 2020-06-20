@@ -1,4 +1,6 @@
-export default class NodeDifference {
+import Difference from "../difference";
+
+export default class NodeDifference extends Difference {
 
   /**
    * Constructor for NodeDifference objects.
@@ -7,77 +9,25 @@ export default class NodeDifference {
    * @param nodeValue Value of the node.
    */
   constructor(nodeKey, nodeValue) {
-    this.nodeKey = nodeKey;
-    this.nodeValue = nodeValue;
+    super(nodeKey, nodeValue);
   }
 
-  getNodeKey() {
-    return this.nodeKey;
-  }
-
-  getNodeValue() {
-    return this.nodeValue;
-  }
-
-  getNodeType() {
-    return this.getNodeValue()["type"];
+  getType() {
+    return this.getValue()["type"];
   }
 
   toHTMLElement() {
-    // create an outer div with some padding to all sides
-    const outerDiv = document.createElement("div");
-    outerDiv.style.setProperty("width", "100%");
-    outerDiv.style.setProperty("padding-left", "0.5em");
-    outerDiv.style.setProperty("padding-right", "0.5em");
-    outerDiv.style.setProperty("padding-top", "0.5em");
-    outerDiv.style.setProperty("padding-bottom", "0.5em");
+    const element = super.toHTMLElement();
 
-    // the top div is the one thats always visible
-    const topDiv = document.createElement("div");
-    topDiv.style.setProperty("display", "flex");
+    // set text value
+    const textElement = element.getElementsByClassName("text")[0];
+    textElement.innerText = this.getType();
 
-    // add icon to top div (this will be +,-, or an edit icon)
-    const ironIcon = document.createElement("iron-icon");
-    topDiv.appendChild(ironIcon);
-
-    // add text to top div (small description of what has changed)
-    const text = document.createElement("p");
-    text.innerText = this.getNodeType();
-    text.style.setProperty("margin-top", "auto");
-    text.style.setProperty("margin-bottom", "auto");
-    topDiv.appendChild(text);
-
-    // add button to expand/collapse details (containing more information on the changed element)
-    const buttonExpandCollapse = document.createElement("iron-icon");
-    buttonExpandCollapse.icon = "icons:expand-more";
-    buttonExpandCollapse.addEventListener("click", _ => {
-      console.log("clicked");
-      if(buttonExpandCollapse.icon == "icons:expand-more") {
-        // expand details
-        buttonExpandCollapse.icon = "icons:expand-less";
-        const detailsElement = outerDiv.getElementsByClassName("details")[0];
-        detailsElement.style.removeProperty("display");
-      } else {
-        // collapse details
-        buttonExpandCollapse.icon = "icons:expand-more";
-        const detailsElement = outerDiv.getElementsByClassName("details")[0];
-        detailsElement.style.setProperty("display", "none");
-      }
-    });
-    buttonExpandCollapse.style.setProperty("margin-left", "auto");
-    buttonExpandCollapse.style.setProperty("margin-right", "0.5em");
-    topDiv.appendChild(buttonExpandCollapse);
-
-    outerDiv.appendChild(topDiv);
-
-    const detailsDiv = document.createElement("div");
-    detailsDiv.setAttribute("class", "details");
-    detailsDiv.style.setProperty("display", "none");
-    detailsDiv.style.setProperty("padding-left", "24px");
+    // details div should include node attributes
+    const detailsDiv = element.getElementsByClassName("details")[0];
     detailsDiv.appendChild(this.attributesToHTMLElement());
-    outerDiv.appendChild(detailsDiv);
 
-    return outerDiv;
+    return element;
   }
 
   attributesToHTMLElement() {
@@ -95,10 +45,9 @@ export default class NodeDifference {
   }
 
   getAttributes() {
-    const nodeValue = this.getNodeValue();
+    const nodeValue = this.getValue();
     const syncMetaAttributeMap = nodeValue.attributes;
     let attributeMap = new Object();
-    console.log(syncMetaAttributeMap);
     for(const value of Object.values(syncMetaAttributeMap)) {
       const attributeName = value.name;
       const attributeValue = value.value.value;

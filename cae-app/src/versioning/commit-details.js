@@ -215,13 +215,13 @@ export class CommitDetails extends LitElement {
     }).then(function(y) {
       y.share.data.observe(event => {
         console.log("data observer: ", event);
-        const nodeDifferences = ModelDifferencing.getNodeDifferences(lastCommit.model, y.share.data.get("model"));
+        const differences = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
 
-        console.log("nodeDifferences: ", nodeDifferences);
+        console.log("differences: ", differences);
 
-        if(nodeDifferences.length > 0) {
+        if(differences.length > 0) {
           // there are differences since the last commit
-          this.differences = nodeDifferences;
+          this.differences = differences;
           this.updateChangesListElement();
         }
       });
@@ -234,7 +234,7 @@ export class CommitDetails extends LitElement {
     // clear all elements
     while (changesListElement.firstChild) changesListElement.removeChild(changesListElement.firstChild);
 
-    // readd elements
+    // read elements
     for(let i in this.differences) {
       const difference = this.differences[i];
 

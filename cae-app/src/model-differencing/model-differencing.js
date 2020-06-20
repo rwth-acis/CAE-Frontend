@@ -1,8 +1,9 @@
 // TODO: documentation
-import NodeDifference from "./node/node-difference";
 import NodeAddition from "./node/node-addition";
 import NodeDeletion from "./node/node-deletion";
 import NodeUpdate from "./node/node-update";
+import EdgeAddition from "./edge/edge-addition";
+import EdgeDeletion from "./edge/edge-deletion";
 
 export default class ModelDifferencing {
 
@@ -12,7 +13,65 @@ export default class ModelDifferencing {
    * @param model2 Model as JSON (given from the database).
    */
   static getDifferences(model1, model2) {
+    const nodeDifferences = this.getNodeDifferences(model1, model2);
+    const edgeDifferences = this.getEdgeDifferences(model1, model2);
 
+    let differences = [];
+    differences = differences.concat(nodeDifferences, edgeDifferences);
+    return differences;
+  }
+
+  /**
+   * Calculates the differences between the two given models regarding their edges.
+   * Note: model2 gets used as the "newer" one, i.e. if one edge exists in model2 which does
+   * not exist in model1, then it gets seen as an addition and not as a deletion.
+   * @param model1
+   * @param model2
+   */
+  static getEdgeDifferences(model1, model2) {
+    const edges1 = model1.edges;
+    const edges2 = model2.edges;
+
+    // nodes are also needed to get source and target of edges that changed
+    const nodes1 = model1.nodes;
+    const nodes2 = model2.nodes;
+
+    // edges might be an empty json object: {}
+    // otherwise it contains a "map" where the edges are identified by their SyncMeta id
+
+    let additions = [];
+    let deletions = [];
+    // check if edges got added
+    // iterate through all the edges in model2 and check if they already existed in model1
+    for(const [key, value] of Object.entries(edges2)) {
+      if(!edges1[key]) {
+        // edge does not exist in model1, thus it must be a new edge
+        // add the edge to nodeDifferences and mark it as an addition
+        // find out source and target nodes
+        const source = nodes2[value.source];
+        const target = nodes2[value.target];
+
+        additions.push(new EdgeAddition(key, value, source, target));
+      }
+    }
+
+    // check if edges got deleted
+    // iterate through all the edges in model1 and check if they are still included in model2
+    for(const [key, value] of Object.entries(edges1)) {
+      if(!edges2[key]) {
+        // edge does not exist in model2 anymore, thus it got deleted
+        // add the edge to nodeDifferences and mark it as an deletion
+        // find out source and target nodes
+        const source = nodes1[value.source];
+        const target = nodes1[value.target];
+
+        deletions.push(new EdgeDeletion(key, value, source, target));
+      }
+    }
+
+    let edgeDifferences = [];
+    edgeDifferences = edgeDifferences.concat(additions, deletions);
+    return edgeDifferences;
   }
 
   /**
@@ -54,7 +113,7 @@ export default class ModelDifferencing {
     // now we have found the nodes that got added or removed
     // now we have a look at the nodes of model2 that are no additions, which means
     // that they are possible candidates for nodes that got updated
-    let additionsKeys = additions.map(addition => addition.getNodeKey());
+    let additionsKeys = additions.map(addition => addition.getKey());
     let updates = [];
     for(const [key, value] of Object.entries(nodes2)) {
       if(!additionsKeys.includes(key)) {
@@ -77,7 +136,6 @@ export default class ModelDifferencing {
 
     let nodeDifferences = [];
     nodeDifferences = nodeDifferences.concat(additions, deletions, updates);
-
     return nodeDifferences;
   }
 
