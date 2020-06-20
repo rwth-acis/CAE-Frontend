@@ -49,6 +49,8 @@ export default class Difference {
 
     // add icon to top div (this will be +,-, or an edit icon)
     const ironIcon = document.createElement("iron-icon");
+    // ensure that none of the icons shrinks (because then some icons are smaller than others)
+    ironIcon.style.setProperty("flex-shrink", "0");
     topDiv.appendChild(ironIcon);
 
     // add text to top div (small description of what has changed)
@@ -77,6 +79,8 @@ export default class Difference {
     });
     buttonExpandCollapse.style.setProperty("margin-left", "auto");
     buttonExpandCollapse.style.setProperty("margin-right", "0.5em");
+    // ensure that none of the icons shrinks (because then some icons are smaller than others)
+    buttonExpandCollapse.style.setProperty("flex-shrink", "0");
     topDiv.appendChild(buttonExpandCollapse);
 
     outerDiv.appendChild(topDiv);
