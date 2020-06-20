@@ -37,7 +37,7 @@ export class CommitList extends LitElement {
               <!-- standard commit -->
               <div style="display: flex">
                 <!-- commit message -->
-                <p style="margin-right: 0; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
+                <p style="width: 100%; margin-right: 0; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
                 <!-- button for context menu -->
                 <paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
                   <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
