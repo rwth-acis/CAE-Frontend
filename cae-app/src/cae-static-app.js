@@ -301,6 +301,11 @@ class CaeStaticApp extends PolymerElement {
     }).then(response => {
       if(response.ok) {
         return response.json();
+      } else if(response.status == "401") {
+        // user is not authorized
+        // maybe the access token has expired
+        Auth.removeAuthDataFromLocalStorage();
+        location.reload();
       }
     }).then(data => {
       if(data) {
