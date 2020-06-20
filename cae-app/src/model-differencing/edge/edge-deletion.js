@@ -1,11 +1,25 @@
 import EdgeDifference from "./edge-difference";
 
+/**
+ * Represents an edge that got deleted from the model.
+ */
 export default class EdgeDeletion extends EdgeDifference {
 
+  /**
+   * Constructor for edge that got deleted from the model.
+   * @param edgeKey Key of the deleted edge, i.e. a SyncMeta id.
+   * @param edgeValue Value of the deleted edge.
+   * @param edgeSource Source node of the edge.
+   * @param edgeTarget Target node of the edge.
+   */
   constructor(edgeKey, edgeValue, edgeSource, edgeTarget) {
     super(edgeKey, edgeValue, edgeSource, edgeTarget);
   }
 
+  /**
+   * Creates the HTML representation of the deleted edge.
+   * @returns {HTMLDivElement} HTML representation of the deleted edge.
+   */
   toHTMLElement() {
     const base = super.toHTMLElement();
     // set correct icon

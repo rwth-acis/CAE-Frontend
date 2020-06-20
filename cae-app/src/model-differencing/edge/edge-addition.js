@@ -1,11 +1,25 @@
 import EdgeDifference from "./edge-difference";
 
+/**
+ * Represents an edge that got added to the model.
+ */
 export default class EdgeAddition extends EdgeDifference {
 
+  /**
+   * Constructor for edge that got added to the model.
+   * @param edgeKey Key of the added edge, i.e. a SyncMeta id.
+   * @param edgeValue Value of the added edge.
+   * @param edgeSource Source node of the edge.
+   * @param edgeTarget Target node of the edge.
+   */
   constructor(edgeKey, edgeValue, edgeSource, edgeTarget) {
     super(edgeKey, edgeValue, edgeSource, edgeTarget);
   }
 
+  /**
+   * Creates the HTML representation of the added edge.
+   * @returns {HTMLDivElement} HTML representation of the added edge.
+   */
   toHTMLElement() {
     const base = super.toHTMLElement();
     // set correct icon

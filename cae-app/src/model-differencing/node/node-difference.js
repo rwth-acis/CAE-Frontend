@@ -1,5 +1,8 @@
 import Difference from "../difference";
 
+/**
+ * Represents a node that has changed between two model versions.
+ */
 export default class NodeDifference extends Difference {
 
   /**
@@ -12,10 +15,18 @@ export default class NodeDifference extends Difference {
     super(nodeKey, nodeValue);
   }
 
+  /**
+   * Getter for the type of the node which has changed.
+   * @returns {*} Type of the node which has changed.
+   */
   getType() {
     return this.getValue()["type"];
   }
 
+  /**
+   * Creates the HTML representation of the changed node.
+   * @returns {HTMLDivElement} HTML representation of the changed node.
+   */
   toHTMLElement() {
     const element = super.toHTMLElement();
 
@@ -30,6 +41,10 @@ export default class NodeDifference extends Difference {
     return element;
   }
 
+  /**
+   * Creates a HTML element displaying the attributes of the node.
+   * @returns {HTMLDivElement} HTML element displaying the attribute of the node.
+   */
   attributesToHTMLElement() {
     const div = document.createElement("div");
     const attributes = this.getAttributes();
@@ -44,6 +59,10 @@ export default class NodeDifference extends Difference {
     return div;
   }
 
+  /**
+   * Returns a map where the name of an attribute gets mapped to the value of the attribute.
+   * @returns {Object} Map where the name of an attribute gets mapped to the value of the attribute.
+   */
   getAttributes() {
     const nodeValue = this.getValue();
     const syncMetaAttributeMap = nodeValue.attributes;

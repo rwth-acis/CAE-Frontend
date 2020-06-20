@@ -1,14 +1,18 @@
-// TODO: documentation
 import NodeAddition from "./node/node-addition";
 import NodeDeletion from "./node/node-deletion";
 import NodeUpdate from "./node/node-update";
 import EdgeAddition from "./edge/edge-addition";
 import EdgeDeletion from "./edge/edge-deletion";
 
+/**
+ * Class used for calculating the differences between two versions of a model.
+ * Note, that some differences are not considered, i.e. position changes of a node.
+ */
 export default class ModelDifferencing {
 
   /**
-   *
+   * Calculates the node and edge differences between the given models.
+   * Note: model2 gets used as the "newer" one.
    * @param model1 Model as JSON (given from the database).
    * @param model2 Model as JSON (given from the database).
    */

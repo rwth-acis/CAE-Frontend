@@ -1,9 +1,12 @@
 import NodeDifference from "./node-difference";
 
+/**
+ * Represents a node that got added to the model.
+ */
 export default class NodeAddition extends NodeDifference {
 
   /**
-   * Constructor for NodeDifferences of type addition.
+   * Constructor for node that got added to the model.
    * @param nodeKey Key of the node that got added, i.e. the SyncMeta id of it.
    * @param nodeValue Value of the node that got added.
    */
@@ -11,6 +14,10 @@ export default class NodeAddition extends NodeDifference {
     super(nodeKey, nodeValue);
   }
 
+  /**
+   * Creates the HTML representation of the added node.
+   * @returns {HTMLDivElement} HTML representation of the added node.
+   */
   toHTMLElement() {
     const base = super.toHTMLElement();
     // set correct icon

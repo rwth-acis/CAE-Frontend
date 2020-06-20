@@ -1,18 +1,39 @@
+/**
+ * Class used as a base for all differences that appear between two
+ * model versions.
+ */
 export default class Difference {
 
+  /**
+   * Constructor setting key and value.
+   * @param key Key of the element that has changed, i.e. a SyncMeta id.
+   * @param value Value of the element that has changed.
+   */
   constructor(key, value) {
     this.key = key;
     this.value = value;
   }
 
+  /**
+   * Returns the key of the element that has changed.
+   * @returns {*} Key of element that has changed.
+   */
   getKey() {
     return this.key;
   }
 
+  /**
+   * Returns the value of the element that has changed.
+   * @returns {*} Value of the element that has changed.
+   */
   getValue() {
     return this.value;
   }
 
+  /**
+   * Creates the HTML representation of the model difference.
+   * @returns {HTMLDivElement} HTML representation of the model difference.
+   */
   toHTMLElement() {
     // create an outer div with some padding to all sides
     const outerDiv = document.createElement("div");

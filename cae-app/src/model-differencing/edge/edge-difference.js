@@ -1,7 +1,17 @@
 import Difference from "../difference";
 
+/**
+ * Represents an edge that has changed between two model versions.
+ */
 export default class EdgeDifference extends Difference {
 
+  /**
+   * Constructor for edge that has changed.
+   * @param edgeKey Key of the changed edge, i.e. a SyncMeta id.
+   * @param edgeValue Value of the changed edge.
+   * @param edgeSource Source node of the edge.
+   * @param edgeTarget Target node of the edge.
+   */
   constructor(edgeKey, edgeValue, edgeSource, edgeTarget) {
     super();
     this.edgeKey = edgeKey;
@@ -10,6 +20,10 @@ export default class EdgeDifference extends Difference {
     this.edgeTarget = edgeTarget;
   }
 
+  /**
+   * Creates the HTML representation of the changed edge.
+   * @returns {HTMLDivElement} HTML representation of the changed edge.
+   */
   toHTMLElement() {
     const element = super.toHTMLElement();
 
