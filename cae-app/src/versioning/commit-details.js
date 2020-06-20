@@ -213,22 +213,23 @@ export class CommitDetails extends LitElement {
         data: 'Map'
       }
     }).then(function(y) {
+      // get differences between last commit and current model state initially
+      const differences = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+      this.differences = differences;
+      this.updateChangesListElement();
+
       y.share.data.observe(event => {
         console.log("data observer: ", event);
         const differences = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
-
-        console.log("differences: ", differences);
-
-        if(differences.length > 0) {
-          // there are differences since the last commit
-          this.differences = differences;
-          this.updateChangesListElement();
-        }
+        this.differences = differences;
+        this.updateChangesListElement();
       });
     }.bind(this));
   }
 
   updateChangesListElement() {
+    if(this.differences.length <= 0) return;
+
     const changesListElement = this.getChangesListElement();
 
     // clear all elements
