@@ -29,7 +29,7 @@ export class VersioningElement extends LitElement {
       
       <div class="container flex-horizontal-with-ratios">
         <div class="flex-commit-list">
-          <commit-list id="commit-list"></commit-list>
+          <commit-list id="commit-list" @commit-selected=${(e) => this._onCommitSelected(e.detail.commit)}></commit-list>
         </div>
         <div class="flex-commit-details">
           <commit-details id="commit-details" @reload-commit-list=${this.reloadCommitList}></commit-details>
@@ -75,6 +75,11 @@ export class VersioningElement extends LitElement {
       this.getCommitListElement().setVersionedModel(data);
       this.getCommitDetailsElement().setVersionedModel(data);
     });
+  }
+
+  _onCommitSelected(commit) {
+    console.log("Selected commit", commit);
+    // TODO: show model at the specific commit
   }
 
   /**

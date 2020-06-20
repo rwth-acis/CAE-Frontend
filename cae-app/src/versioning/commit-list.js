@@ -84,10 +84,13 @@ export class CommitList extends LitElement {
    * @private
    */
   _onCommitLeftClicked(commit) {
-    console.log("commit left-clicked:");
-    console.log(commit);
-
     this.selectedCommitId = commit.id;
+    const event = new CustomEvent("commit-selected", {
+      detail: {
+        commit: commit
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   /**
