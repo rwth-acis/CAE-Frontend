@@ -32,7 +32,7 @@ export class VersioningElement extends LitElement {
           <commit-list id="commit-list"></commit-list>
         </div>
         <div class="flex-commit-details">
-          <commit-details @reload-commit-list=${this.reloadCommitList}></commit-details>
+          <commit-details id="commit-details" @reload-commit-list=${this.reloadCommitList}></commit-details>
         </div>
       </div>
     `;
@@ -73,6 +73,7 @@ export class VersioningElement extends LitElement {
       // data contains the versioned model
       this.versionedModel = data;
       this.getCommitListElement().setVersionedModel(data);
+      this.getCommitDetailsElement().setVersionedModel(data);
     });
   }
 
@@ -92,6 +93,14 @@ export class VersioningElement extends LitElement {
    */
   getCommitListElement() {
     return this.shadowRoot.getElementById("commit-list");
+  }
+
+  /**
+   * Returns the HTMLElement of the commit details.
+   * @returns {HTMLElement} HTMLElement of commit details.
+   */
+  getCommitDetailsElement() {
+    return this.shadowRoot.getElementById("commit-details");
   }
 }
 

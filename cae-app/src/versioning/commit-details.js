@@ -3,6 +3,10 @@ import '@polymer/paper-checkbox/paper-checkbox.js';
 import Common from "../common";
 import Auth from "../auth";
 import Static from "../static";
+import ModelDifferencing from "../model-differencing/model-differencing";
+import NodeAddition from "../model-differencing/node/node-addition";
+import NodeDeletion from "../model-differencing/node/node-deletion";
+import NodeUpdate from "../model-differencing/node/node-update";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -54,9 +58,8 @@ export class CommitDetails extends LitElement {
           </div>
           <div class="separator"></div>
           <!-- div for changes list -->
-          <div>
-            <p>Changes are not yet displayed and it is only possible to commit all new changes.
-            There is no check if the model really changed.</p>
+          <div id="changes-list" style="overflow: scroll; height: 400px">
+            <!-- gets replaced by code -->
           </div>
         </div>
         <div class="separator"></div>
@@ -94,6 +97,19 @@ export class CommitDetails extends LitElement {
        <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
+  }
+
+  static get properties() {
+    return {
+      differences: {
+        type: Array
+      }
+    };
+  }
+
+  constructor() {
+    super();
+    this.differences = [];
   }
 
   /**
@@ -169,6 +185,72 @@ export class CommitDetails extends LitElement {
         console.error("Tried loading model out of Yjs room, but model is undefined.");
       }
     });
+  }
+
+  /**
+   * Gets called by versioning-element after the versioned model got loaded from API.
+   * @param versionedModel
+   */
+  setVersionedModel(versionedModel) {
+    console.log("Commit-Details: Received versioned model from versioning-element.");
+
+    const commits = versionedModel.commits;
+    // get last real commit (do not take "uncommited changes" commit)
+    const lastCommit = commits[1];
+
+    // observe current model for changes
+    Y({
+      db: {
+        name: "memory" // store the shared data in memory
+      },
+      connector: {
+        name: "websockets-client", // use the websockets connector
+        room: Common.getYjsRoomNameForVersionedModel(versionedModel.id),
+        options: { resource: Static.YjsResourcePath},
+        url: Static.YjsAddress
+      },
+      share: { // specify the shared content
+        data: 'Map'
+      }
+    }).then(function(y) {
+      y.share.data.observe(event => {
+        console.log("data observer: ", event);
+        const nodeDifferences = ModelDifferencing.getNodeDifferences(lastCommit.model, y.share.data.get("model"));
+
+        console.log("nodeDifferences: ", nodeDifferences);
+
+        if(nodeDifferences.length > 0) {
+          // there are differences since the last commit
+          this.differences = nodeDifferences;
+          this.updateChangesListElement();
+        }
+      });
+    }.bind(this));
+  }
+
+  updateChangesListElement() {
+    const changesListElement = this.getChangesListElement();
+
+    // clear all elements
+    while (changesListElement.firstChild) changesListElement.removeChild(changesListElement.firstChild);
+
+    // readd elements
+    for(let i in this.differences) {
+      const difference = this.differences[i];
+
+      changesListElement.appendChild(difference.toHTMLElement());
+      changesListElement.appendChild(this.getSeparatorElement());
+    }
+  }
+
+  getSeparatorElement() {
+    const separator = document.createElement("div");
+    separator.setAttribute("class", "separator");
+    return separator;
+  }
+
+  getChangesListElement() {
+    return this.shadowRoot.getElementById("changes-list");
   }
 
   /**
