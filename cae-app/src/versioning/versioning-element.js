@@ -77,9 +77,16 @@ export class VersioningElement extends LitElement {
     });
   }
 
+  /**
+   * Gets called by the commit-list when the selected commit got changed.
+   * @param commit Commit that got selected.
+   * @private
+   */
   _onCommitSelected(commit) {
     console.log("Selected commit", commit);
-    // TODO: show model at the specific commit
+
+    // notify commit-details about the selected commit
+    this.getCommitDetailsElement()._onCommitSelected(commit);
   }
 
   /**

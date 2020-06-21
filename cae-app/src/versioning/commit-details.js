@@ -103,6 +103,21 @@ export class CommitDetails extends LitElement {
     return {
       differences: {
         type: Array
+      },
+      versionedModel: {
+        type: Object
+      },
+      selectedCommit: {
+        type: Object
+      },
+      /**
+       * Stores the differences that were done since the last real commit.
+       * This is needed, because when the users views the changes of a different
+       * commit than the "uncommited changes" one, and after that wants to see the
+       * "uncommited changes" again, then we do not want to reload them from the Yjs room.
+       */
+      differencesUncommitedChanges: {
+        type: Array
       }
     };
   }
@@ -192,9 +207,12 @@ export class CommitDetails extends LitElement {
    * @param versionedModel
    */
   setVersionedModel(versionedModel) {
+    this.versionedModel = versionedModel;
     console.log("Commit-Details: Received versioned model from versioning-element.");
 
     const commits = versionedModel.commits;
+    // set uncommited changes commit as the selected one
+    this.selectedCommit = commits[0];
     // get last real commit (do not take "uncommited changes" commit)
     const lastCommit = commits[1];
 
@@ -214,22 +232,88 @@ export class CommitDetails extends LitElement {
       }
     }).then(function(y) {
       // get differences between last commit and current model state initially
-      const differences = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
-      this.differences = differences;
-      this.updateChangesListElement();
+      this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+      this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
 
       y.share.data.observe(event => {
-        console.log("data observer: ", event);
-        const differences = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
-        this.differences = differences;
-        this.updateChangesListElement();
+        // only update changes list if the "uncommited changes" commit is selected
+        this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+        if(this.selectedCommit.message == null) {
+          this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
+        }
       });
     }.bind(this));
   }
 
-  updateChangesListElement() {
-    if(this.differences.length <= 0) return;
+  /**
+   * Gets called when the selected commit in the commit-list has changed.
+   * @param commit
+   * @private
+   */
+  _onCommitSelected(commit) {
+    //console.log("commit changed", commit);
+    this.selectedCommit = commit;
+    if(commit.message == null) {
+      // the selected commit is the one for "uncommited changes"
+      // if we just use the model given from commit.model, then this will be the same
+      // as the commit before it
+      // we must choose the current model from yjs room
+      this.differences = this.differencesUncommitedChanges;
+      this.updateChangesListElement();
+      return;
+    }
 
+    const commitBefore = this.getCommitBefore(commit);
+    if(commitBefore) {
+      this.updateDifferencesAndChangesListElement(commitBefore.model, commit.model);
+    } else {
+      this.updateDifferencesAndChangesListElement(undefined, commit.model);
+    }
+  }
+
+  /**
+   * Searches for the last commit that was commited before the given one.
+   * @param commit
+   */
+  getCommitBefore(commit) {
+    let returnNext = false;
+    let commitToReturn = undefined;
+    for(let c of this.versionedModel.commits) {
+      if(returnNext) {
+        commitToReturn =  c;
+        break;
+      }
+      if(c.id == commit.id) {
+        // this is the commit we searched for, the one before should get returned
+        // the one before is the next one in the array
+        returnNext = true;
+      }
+    }
+    return commitToReturn;
+  }
+
+  /**
+   * Updates the changes list, by displaying the changes between model1 and model2.
+   * @param model1
+   * @param model2
+   */
+  updateDifferencesAndChangesListElement(model1, model2) {
+    let differences;
+    if(model1) {
+      differences = ModelDifferencing.getDifferences(model1, model2);
+    } else {
+      differences = ModelDifferencing.getDifferencesOfSingleModel(model2);
+    }
+    this.differences = differences;
+    if(this.differences.length <= 0) return;
+    this.updateChangesListElement();
+  }
+
+  /**
+   * Updates the changes list by using the differences stored in
+   * this.differences.
+   */
+  updateChangesListElement() {
     const changesListElement = this.getChangesListElement();
 
     // clear all elements

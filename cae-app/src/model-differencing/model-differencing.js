@@ -26,6 +26,20 @@ export default class ModelDifferencing {
   }
 
   /**
+   * Calculates the nodes and edges that the given model consists of.
+   * This may be used to calculate the differences of the initial commit.
+   * @param model2
+   * @returns {[]}
+   */
+  static getDifferencesOfSingleModel(model2) {
+    const emptyModel = {
+      "nodes": {},
+      "edges": {}
+    };
+    return this.getDifferences(emptyModel, model2);
+  }
+
+  /**
    * Calculates the differences between the two given models regarding their edges.
    * Note: model2 gets used as the "newer" one, i.e. if one edge exists in model2 which does
    * not exist in model1, then it gets seen as an addition and not as a deletion.
