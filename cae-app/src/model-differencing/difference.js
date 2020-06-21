@@ -32,9 +32,10 @@ export default class Difference {
 
   /**
    * Creates the HTML representation of the model difference.
+   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
    * @returns {HTMLDivElement} HTML representation of the model difference.
    */
-  toHTMLElement() {
+  toHTMLElement(displayCheckbox) {
     // create an outer div with some padding to all sides
     const outerDiv = document.createElement("div");
     outerDiv.style.setProperty("width", "100%");
@@ -47,10 +48,20 @@ export default class Difference {
     const topDiv = document.createElement("div");
     topDiv.style.setProperty("display", "flex");
 
+    if(displayCheckbox) {
+      // add checkbox to top div (for selecting if the difference should be included in a commit)
+      const checkbox = document.createElement("paper-checkbox");
+      checkbox.style.setProperty("margin-top", "auto");
+      checkbox.style.setProperty("margin-bottom", "auto");
+      topDiv.appendChild(checkbox);
+    }
+
     // add icon to top div (this will be +,-, or an edit icon)
     const ironIcon = document.createElement("iron-icon");
     // ensure that none of the icons shrinks (because then some icons are smaller than others)
     ironIcon.style.setProperty("flex-shrink", "0");
+    ironIcon.style.setProperty("margin-top", "auto");
+    ironIcon.style.setProperty("margin-bottom", "auto");
     topDiv.appendChild(ironIcon);
 
     // add text to top div (small description of what has changed)

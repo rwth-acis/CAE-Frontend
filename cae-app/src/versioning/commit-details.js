@@ -54,7 +54,7 @@ export class CommitDetails extends LitElement {
         <div style="flex-grow: 1">
           <!-- div for selecting all changes -->
           <div style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em">
-            <paper-checkbox checked="true" disabled="true">Select all changes</paper-checkbox>
+            <paper-checkbox checked="false" disabled="true">Select all changes</paper-checkbox>
           </div>
           <div class="separator"></div>
           <!-- div for changes list -->
@@ -323,7 +323,10 @@ export class CommitDetails extends LitElement {
     for(let i in this.differences) {
       const difference = this.differences[i];
 
-      changesListElement.appendChild(difference.toHTMLElement());
+      // only display the checkbox on the left of the element if the current commit is the "uncommited changes" one
+      const displayCheckbox = this.selectedCommit.message == null;
+
+      changesListElement.appendChild(difference.toHTMLElement(displayCheckbox));
       changesListElement.appendChild(this.getSeparatorElement());
     }
   }

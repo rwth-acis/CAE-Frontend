@@ -18,10 +18,11 @@ export default class EdgeAddition extends EdgeDifference {
 
   /**
    * Creates the HTML representation of the added edge.
+   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
    * @returns {HTMLDivElement} HTML representation of the added edge.
    */
-  toHTMLElement() {
-    const base = super.toHTMLElement();
+  toHTMLElement(displayCheckbox) {
+    const base = super.toHTMLElement(displayCheckbox);
     // set correct icon
     const icon = base.getElementsByTagName("iron-icon")[0];
     icon.icon = "add";

@@ -25,10 +25,11 @@ export default class NodeDifference extends Difference {
 
   /**
    * Creates the HTML representation of the changed node.
+   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
    * @returns {HTMLDivElement} HTML representation of the changed node.
    */
-  toHTMLElement() {
-    const element = super.toHTMLElement();
+  toHTMLElement(displayCheckbox) {
+    const element = super.toHTMLElement(displayCheckbox);
 
     // set text value
     const textElement = element.getElementsByClassName("text")[0];
