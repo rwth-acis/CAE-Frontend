@@ -16,16 +16,20 @@ export default class NodeAddition extends NodeDifference {
 
   /**
    * Creates the HTML representation of the added node.
-   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
+   * @param checkboxListener Only set when checkbox should be displayed.
    * @returns {HTMLDivElement} HTML representation of the added node.
    */
-  toHTMLElement(displayCheckbox) {
-    const base = super.toHTMLElement(displayCheckbox);
+  toHTMLElement(checkboxListener) {
+    const base = super.toHTMLElement(checkboxListener);
     // set correct icon
     const icon = base.getElementsByTagName("iron-icon")[0];
     icon.icon = "add";
     icon.style.setProperty("color", "#0F9D58");
     return base;
+  }
+
+  applyToModel(model) {
+    model.nodes[this.key] = this.value;
   }
 
 }

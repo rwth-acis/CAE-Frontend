@@ -39,6 +39,14 @@ export default class ModelDifferencing {
     return this.getDifferences(emptyModel, model2);
   }
 
+  static createModelFromDifferences(modelStart, differences) {
+    for(let i in differences) {
+      const difference = differences[i];
+      difference.applyToModel(modelStart);
+    }
+    return modelStart;
+  }
+
   /**
    * Calculates the differences between the two given models regarding their edges.
    * Note: model2 gets used as the "newer" one, i.e. if one edge exists in model2 which does

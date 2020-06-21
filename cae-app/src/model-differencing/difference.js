@@ -32,10 +32,10 @@ export default class Difference {
 
   /**
    * Creates the HTML representation of the model difference.
-   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
+   * @param checkboxListener Only set when checkbox should be displayed.
    * @returns {HTMLDivElement} HTML representation of the model difference.
    */
-  toHTMLElement(displayCheckbox) {
+  toHTMLElement(checkboxListener) {
     // create an outer div with some padding to all sides
     const outerDiv = document.createElement("div");
     outerDiv.style.setProperty("width", "100%");
@@ -48,11 +48,12 @@ export default class Difference {
     const topDiv = document.createElement("div");
     topDiv.style.setProperty("display", "flex");
 
-    if(displayCheckbox) {
+    if(checkboxListener) {
       // add checkbox to top div (for selecting if the difference should be included in a commit)
       const checkbox = document.createElement("paper-checkbox");
       checkbox.style.setProperty("margin-top", "auto");
       checkbox.style.setProperty("margin-bottom", "auto");
+      checkbox.addEventListener("change", _ => checkboxListener(checkbox.checked));
       topDiv.appendChild(checkbox);
     }
 

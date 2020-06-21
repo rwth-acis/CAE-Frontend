@@ -118,6 +118,12 @@ export class CommitDetails extends LitElement {
        */
       differencesUncommitedChanges: {
         type: Array
+      },
+      /**
+       * The differences where the checkbox is checked.
+       */
+      selectedDifferences: {
+        type: Array
       }
     };
   }
@@ -167,37 +173,42 @@ export class CommitDetails extends LitElement {
       body.versionTag = this.getEnteredVersion();
     }
 
-    // get current model out of Yjs room
-    Common.getModelFromYjsRoom(Common.getYjsRoomNameForVersionedModel(Common.getVersionedModelId())).then(model => {
-      if(model) {
-        body.model = model;
+    // check if a previous model exists
+    if(this.versionedModel.commits.length > 1) {
+      // previous model exists
+      const previousModel = this.versionedModel.commits[1].model;
+      // create the updated model which should be stored into the database, by applying the currently selected differences
+      const updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences);
+      body.model = updatedModel;
+    } else {
+      // there does not exist a previous model
+      // TODO:
+      console.error("first commit does not work yet");
+      return;
+    }
+    
+    fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
+      method: "POST",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify(body)
+    }).then(response => {
+      // close dialog
+      this.closeLoadingDialog();
 
-        fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
-          method: "POST",
-          headers: Auth.getAuthHeader(),
-          body: JSON.stringify(body)
-        }).then(response => {
-          // close dialog
-          this.closeLoadingDialog();
+      // clear message input field
+      this.getCommitMessageInput().value = "";
 
-          // clear message input field
-          this.getCommitMessageInput().value = "";
+      // reset version tag input area
+      this.resetVersionTagUI();
 
-          // reset version tag input area
-          this.resetVersionTagUI();
-
-          if(response.ok) {
-            // reload commit list
-            this.sendReloadCommitListEvent();
-          } else {
-            console.log(response.status);
-            if(response.status == "403") {
-              this.showToast("You are not allowed to commit to this component!");
-            }
-          }
-        });
+      if(response.ok) {
+        // reload commit list
+        this.sendReloadCommitListEvent();
       } else {
-        console.error("Tried loading model out of Yjs room, but model is undefined.");
+        console.log(response.status);
+        if(response.status == "403") {
+          this.showToast("You are not allowed to commit to this component!");
+        }
       }
     });
   }
@@ -233,11 +244,13 @@ export class CommitDetails extends LitElement {
     }).then(function(y) {
       // get differences between last commit and current model state initially
       this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+      this.selectedDifferences = [];
       this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
 
       y.share.data.observe(event => {
         // only update changes list if the "uncommited changes" commit is selected
         this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+        this.selectedDifferences = [];
         if(this.selectedCommit.message == null) {
           this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
         }
@@ -324,9 +337,16 @@ export class CommitDetails extends LitElement {
       const difference = this.differences[i];
 
       // only display the checkbox on the left of the element if the current commit is the "uncommited changes" one
-      const displayCheckbox = this.selectedCommit.message == null;
+      const listener = function(checkboxChecked) {
+        if(checkboxChecked) {
+          this.selectedDifferences.push(difference);
+        } else {
+          this.selectedDifferences = this.selectedDifferences.filter(diff => diff == difference);
+        }
+      }.bind(this);
+      const checkboxListener = this.selectedCommit.message == null ? listener : undefined;
 
-      changesListElement.appendChild(difference.toHTMLElement(displayCheckbox));
+      changesListElement.appendChild(difference.toHTMLElement(checkboxListener));
       changesListElement.appendChild(this.getSeparatorElement());
     }
   }

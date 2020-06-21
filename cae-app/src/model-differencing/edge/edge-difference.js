@@ -22,11 +22,11 @@ export default class EdgeDifference extends Difference {
 
   /**
    * Creates the HTML representation of the changed edge.
-   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
+   * @param checkboxListener Only set when checkbox should be displayed.
    * @returns {HTMLDivElement} HTML representation of the changed edge.
    */
-  toHTMLElement(displayCheckbox) {
-    const element = super.toHTMLElement(displayCheckbox);
+  toHTMLElement(checkboxListener) {
+    const element = super.toHTMLElement(checkboxListener);
 
     // set text value
     const textElement = element.getElementsByClassName("text")[0];

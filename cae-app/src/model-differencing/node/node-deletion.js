@@ -16,15 +16,19 @@ export default class NodeDeletion extends NodeDifference {
 
   /**
    * Creates the HTML representation of the deleted node.
-   * @param displayCheckbox Whether a checkbox should appear on the left or not. This may be used to select the difference.
+   * @param checkboxListener Only set when checkbox should be displayed.
    * @returns {HTMLDivElement} HTML representation of the deleted node.
    */
-  toHTMLElement(displayCheckbox) {
-    const base = super.toHTMLElement(displayCheckbox);
+  toHTMLElement(checkboxListener) {
+    const base = super.toHTMLElement(checkboxListener);
     // set correct icon
     const icon = base.getElementsByTagName("iron-icon")[0];
     icon.icon = "remove";
     icon.style.setProperty("color", "#DB4437");
     return base;
+  }
+
+  applyToModel(model) {
+    delete model.nodes[this.key];
   }
 }
