@@ -4,9 +4,6 @@ import Common from "../common";
 import Auth from "../auth";
 import Static from "../static";
 import ModelDifferencing from "../model-differencing/model-differencing";
-import NodeAddition from "../model-differencing/node/node-addition";
-import NodeDeletion from "../model-differencing/node/node-deletion";
-import NodeUpdate from "../model-differencing/node/node-update";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -53,7 +50,7 @@ export class CommitDetails extends LitElement {
         <!-- div for displaying changes -->
         <div style="flex-grow: 1">
           <!-- div for selecting all changes -->
-          <div style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em">
+          <div id="div-select-all" style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em">
             <paper-checkbox checked="false" disabled="true">Select all changes</paper-checkbox>
           </div>
           <div class="separator"></div>
@@ -64,7 +61,7 @@ export class CommitDetails extends LitElement {
         </div>
         <div class="separator"></div>
         <!-- div for commit settings -->
-        <div style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em; margin-right: 1em">
+        <div id="div-commit-settings" style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em; margin-right: 1em">
           <!-- div for commit version tag settings -->
           <div>
             <paper-checkbox aria-checked="false" id="new-version-checkbox" @change="${this._onNewVersionCheckBoxChanged}">New version</paper-checkbox>
@@ -134,6 +131,38 @@ export class CommitDetails extends LitElement {
   }
 
   /**
+   * Whether the currently selected commit is the one for "uncommited changes".
+   * @returns {boolean} Whether the currently selected commit is the one for "uncommited changes".
+   */
+  isUncommitedChangesCommitSelected() {
+    if(this.selectedCommit) {
+      return this.selectedCommit.message == null;
+    }
+    return true;
+  }
+
+  /**
+   * When the user just views an older commit, then the UI for entering the commit
+   * message, for choosing the version tag and for selecting all changes is not needed.
+   * This method can be used to hide these UI elements.
+   */
+  hideUIForCommiting() {
+    this.shadowRoot.getElementById("div-select-all").style.setProperty("display", "none");
+    this.shadowRoot.getElementById("div-commit-settings").style.setProperty("display", "none");
+  }
+
+  /**
+   * When the UI for commiting got hidden by a call of hideUIForCommiting(),
+   * but after that the "uncommited changes" commit gets choosen again, the
+   * UI has to be displayed again.
+   * Therefore, this method might be used.
+   */
+  showUIForCommiting() {
+    this.shadowRoot.getElementById("div-select-all").style.removeProperty("display");
+    this.shadowRoot.getElementById("div-commit-settings").style.removeProperty("display");
+  }
+
+  /**
    * Gets called when the input of the commit message input field
    * gets changed.
    * @param commitMessage The currently entered commit message.
@@ -155,7 +184,6 @@ export class CommitDetails extends LitElement {
    * @private
    */
   _onCommitClicked() {
-    console.log("_onCommitClicked() called");
     // get commit message
     const commitMessage = this.getCommitMessageInput().value;
 
@@ -186,7 +214,7 @@ export class CommitDetails extends LitElement {
       console.error("first commit does not work yet");
       return;
     }
-    
+
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
       headers: Auth.getAuthHeader(),
@@ -266,6 +294,14 @@ export class CommitDetails extends LitElement {
   _onCommitSelected(commit) {
     //console.log("commit changed", commit);
     this.selectedCommit = commit;
+
+    // show or hide UI for commiting
+    if(this.isUncommitedChangesCommitSelected()) {
+      this.showUIForCommiting();
+    } else {
+      this.hideUIForCommiting();
+    }
+
     if(commit.message == null) {
       // the selected commit is the one for "uncommited changes"
       // if we just use the model given from commit.model, then this will be the same
