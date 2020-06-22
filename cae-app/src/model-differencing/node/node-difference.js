@@ -60,7 +60,10 @@ export default class NodeDifference extends Difference {
       // only show those attributes that are set to something
       if(value != "") {
         const p = document.createElement("p");
+        // set key as class, this will then be used to highlight the attribute which got edited (if its a node-update)
+        p.setAttribute("class", key);
         p.innerText = key + ": " + value;
+        p.style.setProperty("margin-right", "1.5em");
         div.appendChild(p);
       }
     }

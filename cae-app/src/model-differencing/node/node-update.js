@@ -35,6 +35,16 @@ export default class NodeUpdate extends NodeDifference {
     const icon = base.getElementsByTagName("iron-icon")[0];
     icon.icon = "create";
     icon.style.setProperty("color", "#dba027");
+
+    // highlight the attribute which got edited
+    // we only have the attribute key, so get the attribute value first
+    const attributeValue = this.getValue().attributes[this.getAttributeKey()];
+    const attributeName = attributeValue.name;
+    // find the element of the attributes in the details div which belongs to this attribute
+    const attributeElement = base.getElementsByClassName(attributeName)[0];
+    // highlight this element
+    attributeElement.style.setProperty("background", "#e1e1e1");
+
     return base;
   }
 
