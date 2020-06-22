@@ -17,9 +17,6 @@ export default class ModelDifferencing {
    * @param model2 Model as JSON (given from the database).
    */
   static getDifferences(model1, model2) {
-    console.log("getDifference called with");
-    console.log("model1", model1);
-    console.log("model2", model2);
     const nodeDifferences = this.getNodeDifferences(model1, model2);
     const edgeDifferences = this.getEdgeDifferences(model1, model2);
 
@@ -35,8 +32,6 @@ export default class ModelDifferencing {
    * @returns {[]}
    */
   static getDifferencesOfSingleModel(model2) {
-    console.log("getDifferencesOfSingleModel called with");
-    console.log("model2", model2);
     return this.getDifferences(this.getEmptyModel(), model2);
   }
 
