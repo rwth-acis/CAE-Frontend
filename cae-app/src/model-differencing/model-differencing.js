@@ -39,12 +39,35 @@ export default class ModelDifferencing {
   static getDifferencesOfSingleModel(model2) {
     console.log("getDifferencesOfSingleModel called with");
     console.log("model2", model2);
-    const emptyModel = this.getEmptyModel();
-    return this.getDifferences(emptyModel, model2);
+    return this.getDifferences(this.getEmptyModel(), model2);
   }
 
   static getEmptyModel() {
-    return emptyModel;
+    // just put the empty model in here, do not load it from another file
+    // then crazy bugs seem to occur
+    return {
+      "nodes": {},
+      "wireframe": null,
+      "edges": {},
+      "attributes": {
+        "top": "0",
+        "left": "0",
+        "width": "0",
+        "attributes": {},
+        "label": {
+          "name": "Label",
+          "id": "modelAttributes[label]",
+          "value": {
+            "name": "Label",
+            "id": "modelAttributes[label]",
+            "value": "NAME DOES NOT EXIST ANYMORE"
+          }
+        },
+        "type": "ModelAttributesNode",
+        "height": "0",
+        "zIndex": "0"
+      }
+    };
   }
 
   static createModelFromDifferences(modelStart, differences) {

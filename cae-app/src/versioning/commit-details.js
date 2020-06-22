@@ -121,6 +121,12 @@ export class CommitDetails extends LitElement {
        */
       selectedDifferences: {
         type: Array
+      },
+      yjsRunning: {
+        type: Boolean
+      },
+      commits: {
+        type: Array
       }
     };
   }
@@ -128,6 +134,8 @@ export class CommitDetails extends LitElement {
   constructor() {
     super();
     this.differences = [];
+    this.yjsRunning = false;
+    this.commits = [];
   }
 
   /**
@@ -229,6 +237,9 @@ export class CommitDetails extends LitElement {
       this.resetVersionTagUI();
 
       if(response.ok) {
+        // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
+        this.differencesUncommitedChanges = this.differencesUncommitedChanges.filter(diff => !this.selectedDifferences.includes(diff));
+
         // reload commit list
         this.sendReloadCommitListEvent();
       } else {
@@ -248,55 +259,105 @@ export class CommitDetails extends LitElement {
     this.versionedModel = versionedModel;
     console.log("Commit-Details: Received versioned model from versioning-element.");
 
-    const commits = versionedModel.commits;
+    this.commits = versionedModel.commits;
     // set uncommited changes commit as the selected one
-    this.selectedCommit = commits[0];
+    this.selectedCommit = this.commits[0];
+
+    this.selectedDifferences = [];
+
+    // only setup Yjs if this is the first time when setVersionedModel is called
+    if(!this.yjsRunning) {
+      this.yjsRunning = true;
+      // observe current model for changes
+      Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: {
+          name: "websockets-client", // use the websockets connector
+          room: Common.getYjsRoomNameForVersionedModel(versionedModel.id),
+          options: { resource: Static.YjsResourcePath},
+          url: Static.YjsAddress
+        },
+        share: { // specify the shared content
+          data: 'Map'
+        }
+      }).then(function(y) {
+        // wait until a model is available
+        // because there was the bug, that the model sometimes was not available yet
+        const waitForModel = function() {
+          if(y.share.data.get("model") != undefined) {
+            // model is available
+            console.log("model is available now");
+
+            // update this.differencesUncommitedChanges
+            this.updateDifferencesUncommitedChanges(y.share.data.get("model"));
+
+            // since the versioning widget got just started, the selected commit is the "uncommited changes" one
+            this.setDifferencesToDifferencesUncommitedChanges();
+            this.updateChangesListElement();
+
+            y.share.data.observe(event => {
+              console.log("model has changed");
+              // model might have changed
+
+              // update this.differencesUncommitedChanges
+              this.updateDifferencesUncommitedChanges(y.share.data.get("model"));
+
+              // reset selected differences
+              // TODO: this should be changed later, the selected changes should still be selected
+              this.selectedDifferences = [];
+
+              // check if the currently selected commit is the one for "uncommited changes"
+              if(this.selectedCommit.message == null) {
+                // the currently selected commit is the one for "uncommited changes"
+                // since the differences might have changed, we need to update the changes list
+                this.setDifferencesToDifferencesUncommitedChanges();
+                this.updateChangesListElement();
+              } else {
+                // the currently selected commit is not the one for "uncommited changes"
+                // thus, we do not need to update the changes list
+              }
+            });
+          } else {
+            // model not available yet
+            console.log("Waiting for model...");
+            setTimeout(waitForModel, 500);
+          }
+        }.bind(this);
+        waitForModel();
+      }.bind(this));
+    }
+  }
+
+  /**
+   * Updates the variable this.differencesUncommitedChanges by calculating the differences
+   * that were done since the last commit.
+   * @param currentModelFromYjsRoom Current state of the model given from Yjs room.
+   */
+  updateDifferencesUncommitedChanges(currentModelFromYjsRoom) {
     // get last real commit (do not take "uncommited changes" commit)
-    const lastCommit = commits[1];
+    // lastCommit might be undefined
+    let lastCommit = this.commits[1];
 
-    // observe current model for changes
-    Y({
-      db: {
-        name: "memory" // store the shared data in memory
-      },
-      connector: {
-        name: "websockets-client", // use the websockets connector
-        room: Common.getYjsRoomNameForVersionedModel(versionedModel.id),
-        options: { resource: Static.YjsResourcePath},
-        url: Static.YjsAddress
-      },
-      share: { // specify the shared content
-        data: 'Map'
-      }
-    }).then(function(y) {
-      // get differences between last commit and current model state initially
-      this.selectedDifferences = [];
-      if(lastCommit == undefined) {
-        // TODO: when a new component got created, then sometimes y.share.data.get("model") is undefined in the first start
-        // TODO: but then the observe should get the changes ... doesn't make sense
-        this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(y.share.data.get("model"));
-        this.updateDifferencesAndChangesListElement(undefined, y.share.data.get("model"));
-      } else {
-        this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
-        this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
-      }
+    // get differences between last commit and current model state
+    if(lastCommit == undefined) {
+      // there does not exist a commit, so calculated everything that the current model consists of
+      this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(currentModelFromYjsRoom);
+    } else {
+      // there exists a last commit, so we can calculate the differences between the last commit and the current model state
+      this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, currentModelFromYjsRoom);
+    }
+  }
 
-      y.share.data.observe(event => {
-        console.log("model has changed, lastCommit is " + lastCommit + " y.js db is " + y.db.userId);
-        // only update changes list if the "uncommited changes" commit is selected
-        if(lastCommit == undefined) {
-          this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(y.share.data.get("model"));
-        } else {
-          this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
-        }
-        this.selectedDifferences = [];
-        if(this.selectedCommit.message == null) {
-          const lastCommitModel = lastCommit ? lastCommit.model : undefined;
-          this.updateDifferencesAndChangesListElement(lastCommitModel, y.share.data.get("model"));
-        }
-        console.log(this.differences);
-      });
-    }.bind(this));
+  /**
+   * Sets this.differences to the differences of the "uncommited changes".
+   */
+  setDifferencesToDifferencesUncommitedChanges() {
+    this.differences = [];
+    for(const diff of this.differencesUncommitedChanges) {
+      this.differences.push(diff);
+    }
   }
 
   /**
@@ -310,26 +371,30 @@ export class CommitDetails extends LitElement {
 
     // show or hide UI for commiting
     if(this.isUncommitedChangesCommitSelected()) {
-      this.showUIForCommiting();
-    } else {
-      this.hideUIForCommiting();
-    }
-
-    if(commit.message == null) {
       // the selected commit is the one for "uncommited changes"
+      this.showUIForCommiting();
+
       // if we just use the model given from commit.model, then this will be the same
       // as the commit before it
       // we must choose the current model from yjs room
-      this.differences = this.differencesUncommitedChanges;
+      this.setDifferencesToDifferencesUncommitedChanges();
       this.updateChangesListElement();
-      return;
-    }
-
-    const commitBefore = this.getCommitBefore(commit);
-    if(commitBefore) {
-      this.updateDifferencesAndChangesListElement(commitBefore.model, commit.model);
     } else {
-      this.updateDifferencesAndChangesListElement(undefined, commit.model);
+      // the selected commit is not the one for "uncommited changes"
+      this.hideUIForCommiting();
+
+      // get previous commit before the one that got selected
+      const commitBefore = this.getCommitBefore(commit);
+      // check if a previous commit exists
+      if(commitBefore) {
+        // previous commit exists
+        this.differences = ModelDifferencing.getDifferences(commitBefore.model, commit.model);
+        this.updateChangesListElement();
+      } else {
+        // previous commit does not exist
+        this.differences = ModelDifferencing.getDifferencesOfSingleModel(commit.model);
+        this.updateChangesListElement();
+      }
     }
   }
 
@@ -352,23 +417,6 @@ export class CommitDetails extends LitElement {
       }
     }
     return commitToReturn;
-  }
-
-  /**
-   * Updates the changes list, by displaying the changes between model1 and model2.
-   * @param model1
-   * @param model2
-   */
-  updateDifferencesAndChangesListElement(model1, model2) {
-    let differences;
-    if(model1) {
-      differences = ModelDifferencing.getDifferences(model1, model2);
-    } else {
-      differences = ModelDifferencing.getDifferencesOfSingleModel(model2);
-    }
-    this.differences = differences;
-    if(this.differences.length <= 0) return;
-    this.updateChangesListElement();
   }
 
   /**
