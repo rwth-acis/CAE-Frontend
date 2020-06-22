@@ -767,7 +767,10 @@ class ProjectInfo extends LitElement {
   _removeComponentFromProject() {
     fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/components/" + this.componentToDelete.id, {
       method: "DELETE",
-      headers: Auth.getAuthHeader()
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "access_token": Auth.getAccessToken()
+      })
     }).then(response => {
       if(response.ok) {
         this.showToast("Removed component from project!");
@@ -1056,7 +1059,10 @@ class ProjectInfo extends LitElement {
   _deleteProject() {
     fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id, {
       method: "DELETE",
-      headers: Auth.getAuthHeader()
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        "access_token": Auth.getAccessToken()
+      })
     }).then(response => {
       if(response.status == 204) {
         // ok, project got deleted
