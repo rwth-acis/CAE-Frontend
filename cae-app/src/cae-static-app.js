@@ -470,6 +470,9 @@ class CaeStaticApp extends PolymerElement {
       // click should open modeling space
       this.reloadCaeRoom(menuItemComponentType);
       this.set("route.path", "cae-modeling/" + menuItemComponentType + "-modeling");
+
+      // update versionedModelId in localStorage
+      Common.setVersionedModelId(modelingInfo[menuItemComponentType].versionedModelId);
     } else {
       // component is not opened
       // show toast message
