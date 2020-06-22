@@ -30,6 +30,11 @@ export default class EdgeDifference extends Difference {
     const textElement = element.getElementsByClassName("text")[0];
     textElement.innerText = "Edge from " + this.edgeSource.type + " to " + this.edgeTarget.type;
 
+    // remove button for expanding/collapsing details (because they are currently not used for edges)
+    element.getElementsByClassName("button-expand-collapse")[0].remove();
+    // set margin right to text, because when removing the button, this is needed
+    element.getElementsByClassName("text")[0].style.setProperty("margin-right", "1.5em");
+
     return element;
   }
 

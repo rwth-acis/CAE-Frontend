@@ -35,9 +35,16 @@ export default class NodeDifference extends Difference {
     const textElement = element.getElementsByClassName("text")[0];
     textElement.innerText = this.getType();
 
-    // details div should include node attributes
-    const detailsDiv = element.getElementsByClassName("details")[0];
-    detailsDiv.appendChild(this.attributesToHTMLElement());
+    if(this.hasNonEmptyAttributes()) {
+      // details div should include node attributes
+      const detailsDiv = element.getElementsByClassName("details")[0];
+      detailsDiv.appendChild(this.attributesToHTMLElement());
+    } else {
+      // remove button for expanding/collapsing details (because no details/non-empty attributes exist)
+      element.getElementsByClassName("button-expand-collapse")[0].remove();
+      // set margin right to text, because when removing the button, this is needed
+      element.getElementsByClassName("text")[0].style.setProperty("margin-right", "1.5em");
+    }
 
     return element;
   }
@@ -58,6 +65,23 @@ export default class NodeDifference extends Difference {
       }
     }
     return div;
+  }
+
+  /**
+   * Checks if one of the attribute values of the node is not the empty string.
+   * @returns {boolean} Whether at least one node attribute exists where the value is not the empty string.
+   */
+  hasNonEmptyAttributes() {
+    let hasNonEmptyAttributes = false;
+
+    for(const [key, value] of Object.entries(this.getAttributes())) {
+      if(value != "") {
+        hasNonEmptyAttributes = true;
+        break;
+      }
+    }
+
+    return hasNonEmptyAttributes;
   }
 
   /**

@@ -74,9 +74,9 @@ export default class Difference {
 
     // add button to expand/collapse details (containing more information on the changed element)
     const buttonExpandCollapse = document.createElement("iron-icon");
+    buttonExpandCollapse.setAttribute("class", "button-expand-collapse");
     buttonExpandCollapse.icon = "icons:expand-more";
     buttonExpandCollapse.addEventListener("click", _ => {
-      console.log("clicked");
       if(buttonExpandCollapse.icon == "icons:expand-more") {
         // expand details
         buttonExpandCollapse.icon = "icons:expand-less";
