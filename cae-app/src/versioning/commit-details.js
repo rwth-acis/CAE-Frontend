@@ -443,7 +443,7 @@ export class CommitDetails extends LitElement {
         if(checkboxChecked) {
           this.selectedDifferences.push(difference);
         } else {
-          this.selectedDifferences = this.selectedDifferences.filter(diff => diff == difference);
+          this.selectedDifferences = this.selectedDifferences.filter(diff => diff != difference);
         }
         console.log("selected differences", this.selectedDifferences);
       }.bind(this);
