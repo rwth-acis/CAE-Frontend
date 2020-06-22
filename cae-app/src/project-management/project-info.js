@@ -137,7 +137,7 @@ class ProjectInfo extends LitElement {
                     <!-- Label for external dependencies -->
                     ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
                     <!-- Link to Requirements Bazaar -->
-                    ${component.reqBazCategoryId ? html`
+                    ${component.reqBazCategoryId && component.reqBazCategoryId != -1 ? html`
                       <a style="text-decoration: none" target="_blank"
                           href="https://requirements-bazaar.org/projects/${component.reqBazProjectId}/categories/${component.reqBazCategoryId}">
                         <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
@@ -163,7 +163,7 @@ class ProjectInfo extends LitElement {
                 <a @click="${this._onOpenApplicationModelingClicked}" href="">Open in Modeling Space</a>
                 <div style="margin-left: auto; margin-top: auto; margin-bottom: auto; display: flex">
                   <!-- Requirements Bazaar connection -->
-                  ${this.applicationComponent.reqBazCategoryId ? html`
+                  ${this.applicationComponent.reqBazCategoryId && this.applicationComponent.reqBazCategoryId != -1 ? html`
                     <a style="text-decoration: none" target="_blank"
                         href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
                       <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">

@@ -42,7 +42,7 @@ var init = function () {
   client = new Las2peerWidgetLibrary("@@reqbazbackend", iwcCallback, '*');
 
   loadConnectedProject();
-  if (selectedProjectId && selectedCategoryId) {
+  if (selectedProjectId != -1 && selectedCategoryId != -1) {
     onProjectConnected();
   } else {
     onProjectDisconnected();
@@ -81,6 +81,7 @@ function onProjectDisconnected() {
   $('#requirements-list-container').hide();
   $('#project-link').html('');
   clearInterval(refreshRequirementsIntervalHandle);
+  $('#not-connected').show();
 }
 
 /**
@@ -94,7 +95,9 @@ function refreshRequirements() {
       function (data, type) {
         renderRequirements(data)
       },
-      console.error)
+      function(error) {
+        onProjectDisconnected();
+      })
   }
 }
 
