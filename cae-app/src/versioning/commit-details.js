@@ -210,9 +210,8 @@ export class CommitDetails extends LitElement {
       body.model = updatedModel;
     } else {
       // there does not exist a previous model
-      // TODO:
-      console.error("first commit does not work yet");
-      return;
+      const updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences);
+      body.model = updatedModel;
     }
 
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
@@ -271,17 +270,31 @@ export class CommitDetails extends LitElement {
       }
     }).then(function(y) {
       // get differences between last commit and current model state initially
-      this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
       this.selectedDifferences = [];
-      this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
+      if(lastCommit == undefined) {
+        // TODO: when a new component got created, then sometimes y.share.data.get("model") is undefined in the first start
+        // TODO: but then the observe should get the changes ... doesn't make sense
+        this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(y.share.data.get("model"));
+        this.updateDifferencesAndChangesListElement(undefined, y.share.data.get("model"));
+      } else {
+        this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+        this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
+      }
 
       y.share.data.observe(event => {
+        console.log("model has changed, lastCommit is " + lastCommit + " y.js db is " + y.db.userId);
         // only update changes list if the "uncommited changes" commit is selected
-        this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+        if(lastCommit == undefined) {
+          this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(y.share.data.get("model"));
+        } else {
+          this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, y.share.data.get("model"));
+        }
         this.selectedDifferences = [];
         if(this.selectedCommit.message == null) {
-          this.updateDifferencesAndChangesListElement(lastCommit.model, y.share.data.get("model"));
+          const lastCommitModel = lastCommit ? lastCommit.model : undefined;
+          this.updateDifferencesAndChangesListElement(lastCommitModel, y.share.data.get("model"));
         }
+        console.log(this.differences);
       });
     }.bind(this));
   }
@@ -379,6 +392,7 @@ export class CommitDetails extends LitElement {
         } else {
           this.selectedDifferences = this.selectedDifferences.filter(diff => diff == difference);
         }
+        console.log("selected differences", this.selectedDifferences);
       }.bind(this);
       const checkboxListener = this.selectedCommit.message == null ? listener : undefined;
 
