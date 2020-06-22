@@ -4,8 +4,6 @@ import NodeUpdate from "./node/node-update";
 import EdgeAddition from "./edge/edge-addition";
 import EdgeDeletion from "./edge/edge-deletion";
 
-import emptyModel from "./empty-model";
-
 /**
  * Class used for calculating the differences between two versions of a model.
  * Note, that some differences are not considered, i.e. position changes of a node.

@@ -240,6 +240,11 @@ export class CommitDetails extends LitElement {
         // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
         this.differencesUncommitedChanges = this.differencesUncommitedChanges.filter(diff => !this.selectedDifferences.includes(diff));
 
+        // since the user commited, we have the "uncommited changes" commit as the selected commit
+        // thus, after the commit, the changes list needs to be updated
+        this.setDifferencesToDifferencesUncommitedChanges();
+        this.updateChangesListElement();
+
         // reload commit list
         this.sendReloadCommitListEvent();
       } else {
