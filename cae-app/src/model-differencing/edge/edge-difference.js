@@ -13,9 +13,7 @@ export default class EdgeDifference extends Difference {
    * @param edgeTarget Target node of the edge.
    */
   constructor(edgeKey, edgeValue, edgeSource, edgeTarget) {
-    super();
-    this.edgeKey = edgeKey;
-    this.edgeValue = edgeValue;
+    super(edgeKey, edgeValue);
     this.edgeSource = edgeSource;
     this.edgeTarget = edgeTarget;
   }
