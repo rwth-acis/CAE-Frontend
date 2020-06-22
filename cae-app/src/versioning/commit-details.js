@@ -51,7 +51,7 @@ export class CommitDetails extends LitElement {
         <div style="flex-grow: 1">
           <!-- div for selecting all changes -->
           <div id="div-select-all" style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em">
-            <paper-checkbox checked="false" disabled="true">Select all changes</paper-checkbox>
+            <paper-checkbox @change=${this._onCheckboxSelectAllChanged} id="checkbox-select-all" aria-checked="false">Select all changes</paper-checkbox>
           </div>
           <div class="separator"></div>
           <!-- div for changes list -->
@@ -127,6 +127,14 @@ export class CommitDetails extends LitElement {
       },
       commits: {
         type: Array
+      },
+      /**
+       * Stores the HTML Elements of the differences, i.e. the changes that are displayed
+       * in the list. This array is used to change the checked-state of the checkboxes
+       * of the difference HTML elements.
+       */
+      differenceElements: {
+        type: Array
       }
     };
   }
@@ -136,6 +144,7 @@ export class CommitDetails extends LitElement {
     this.differences = [];
     this.yjsRunning = false;
     this.commits = [];
+    this.differenceElements = [];
   }
 
   /**
@@ -374,6 +383,11 @@ export class CommitDetails extends LitElement {
     //console.log("commit changed", commit);
     this.selectedCommit = commit;
 
+    // reset checkbox to select all changes
+    this.getCheckboxSelectAllElement().checked = false;
+    // reset selected differences
+    this.selectedDifferences = [];
+
     // show or hide UI for commiting
     if(this.isUncommitedChangesCommitSelected()) {
       // the selected commit is the one for "uncommited changes"
@@ -434,6 +448,7 @@ export class CommitDetails extends LitElement {
     // clear all elements
     while (changesListElement.firstChild) changesListElement.removeChild(changesListElement.firstChild);
 
+    this.differenceElements = [];
     // read elements
     for(let i in this.differences) {
       const difference = this.differences[i];
@@ -442,16 +457,61 @@ export class CommitDetails extends LitElement {
       const listener = function(checkboxChecked) {
         if(checkboxChecked) {
           this.selectedDifferences.push(difference);
+          // check if every change is checked, because then the checkbox to select all changes should also be checked
+          let allChecked = true;
+          for(let diffElement of this.differenceElements) {
+            const checkbox = diffElement.getElementsByTagName("paper-checkbox")[0];
+            if(!checkbox.checked) allChecked = false;
+          }
+          // special case: no diff elements available
+          if(this.differenceElements.length == 0) allChecked = false;
+          if(allChecked) {
+            this.getCheckboxSelectAllElement().checked = true;
+          }
         } else {
           this.selectedDifferences = this.selectedDifferences.filter(diff => diff != difference);
+          // since at least one checkbox is not checked, the checkbox to select all changes should also not be checked
+          this.getCheckboxSelectAllElement().checked = false;
         }
         console.log("selected differences", this.selectedDifferences);
       }.bind(this);
       const checkboxListener = this.selectedCommit.message == null ? listener : undefined;
 
-      changesListElement.appendChild(difference.toHTMLElement(checkboxListener));
+      const diffHTMLElement = difference.toHTMLElement(checkboxListener);
+      this.differenceElements.push(diffHTMLElement);
+
+      changesListElement.appendChild(diffHTMLElement);
       changesListElement.appendChild(this.getSeparatorElement());
     }
+  }
+
+  /**
+   * Gets called when the checked-state of the checkbox to select all changes gets changed.
+   * @param event
+   * @private
+   */
+  _onCheckboxSelectAllChanged(event) {
+    const checked = this.getCheckboxSelectAllElement().checked;
+
+    if(checked) {
+      for(const element of this.differenceElements) {
+        const checkbox = element.getElementsByTagName("paper-checkbox")[0];
+        if(checkbox) {
+          if(!checkbox.checked) {
+            checkbox.checked = true;
+
+            // also fire a change event so that the change listener gets called
+            const event = document.createEvent("HTMLEvents");
+            event.initEvent("change", false, true);
+            checkbox.dispatchEvent(event);
+          }
+        }
+      }
+    }
+  }
+
+  getCheckboxSelectAllElement() {
+    return this.shadowRoot.getElementById("checkbox-select-all");
   }
 
   getSeparatorElement() {
