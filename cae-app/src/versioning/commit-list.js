@@ -55,7 +55,7 @@ export class CommitList extends LitElement {
               <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${this.beautifyTimestamp(commit.timestamp)}</p>
             ` : html`
               <!-- commit for uncommited changes -->
-              <div @click=${() => this._onCommitLeftClicked(commit)}>
+              <div style="display: flex" @click=${() => this._onCommitLeftClicked(commit)}>
                 <p>Uncommited changes</p>
               </div>
             `}
