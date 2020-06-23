@@ -40,4 +40,17 @@ export default class SemVer {
     if(number2.major == number1.major && number2.minor == number1.minor && number2.patch >= number1.patch) return true;
     return false;
   }
+
+  /**
+   * Whether the second version number is greater than the first one.
+   * @param number1 Object with major, minor, patch attributes.
+   * @param number2 Object with major, minor, patch attributes.
+   * @returns {boolean} Whether the second version number is greater or equal than the first one.
+   */
+  static greater(number1, number2) {
+    if(number2.major > number1.major) return true;
+    if(number2.major == number1.major && number2.minor > number1.minor) return true;
+    if(number2.major == number1.major && number2.minor == number1.minor && number2.patch > number1.patch) return true;
+    return false;
+  }
 }

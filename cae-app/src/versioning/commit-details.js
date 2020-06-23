@@ -232,6 +232,14 @@ export class CommitDetails extends LitElement {
       return;
     }
 
+    // check if version tag got increased (if a version tag got entered)
+    if(this.getNewVersionCheckBox().checked) {
+      if(!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
+        this.showWarningToast("You need to increase the version number in order to commit!");
+        return;
+      }
+    }
+
     // get commit message
     const commitMessage = this.getCommitMessageInput().value;
 
