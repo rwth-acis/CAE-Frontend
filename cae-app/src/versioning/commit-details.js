@@ -169,6 +169,7 @@ export class CommitDetails extends LitElement {
     this.yjsRunning = false;
     this.commits = [];
     this.differenceElements = [];
+    this.latestVersionTag = undefined;
   }
 
   /**
@@ -234,9 +235,11 @@ export class CommitDetails extends LitElement {
 
     // check if version tag got increased (if a version tag got entered)
     if(this.getNewVersionCheckBox().checked) {
-      if(!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
-        this.showWarningToast("You need to increase the version number in order to commit!");
-        return;
+      if(this.latestVersionTag != undefined) {
+        if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
+          this.showWarningToast("You need to increase the version number in order to commit!");
+          return;
+        }
       }
     }
 
@@ -666,40 +669,41 @@ export class CommitDetails extends LitElement {
     // update minimum values of input fields
 
     // set minimum for major part
-    if(currentVersionTag.major > this.latestVersionTag.major) {
-      this.getVersionNumberInput(1).min = this.latestVersionTag.major;
-      this.getVersionNumberInput(2).min = "0";
-      this.getVersionNumberInput(3).min = "0";
-    } else if(currentVersionTag.major == this.latestVersionTag.major) {
-      this.getVersionNumberInput(1).min = this.latestVersionTag.major;
-      if(currentVersionTag.minor > this.latestVersionTag.minor) {
-        this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+    if(this.latestVersionTag) {
+      if(currentVersionTag.major > this.latestVersionTag.major) {
+        this.getVersionNumberInput(1).min = this.latestVersionTag.major;
+        this.getVersionNumberInput(2).min = "0";
         this.getVersionNumberInput(3).min = "0";
-      } else if(currentVersionTag.minor == this.latestVersionTag.minor) {
-        this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
-        this.getVersionNumberInput(3).min = this.latestVersionTag.patch;
+      } else if(currentVersionTag.major == this.latestVersionTag.major) {
+        this.getVersionNumberInput(1).min = this.latestVersionTag.major;
+        if(currentVersionTag.minor > this.latestVersionTag.minor) {
+          this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+          this.getVersionNumberInput(3).min = "0";
+        } else if(currentVersionTag.minor == this.latestVersionTag.minor) {
+          this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+          this.getVersionNumberInput(3).min = this.latestVersionTag.patch;
+        }
+      }
+
+      // reset colors
+      this.getVersionNumberInput(1).style.removeProperty("background");
+      this.getVersionNumberInput(2).style.removeProperty("background");
+      this.getVersionNumberInput(3).style.removeProperty("background");
+
+      // check if the new version tag is lower than the previous one
+      this.getCommitButton().disabled = this.getCommitMessageInput().value == "";
+      if(!SemVer.greaterEqual(this.latestVersionTag, currentVersionTag)) {
+        console.log("current is not greater equal last version tag");
+        if(currentVersionTag.major < this.latestVersionTag.major) {
+          this.getVersionNumberInput(1).style.setProperty("background", "rgba(239,57,67,0.59)");
+        } else if(currentVersionTag.minor < this.latestVersionTag.minor) {
+          this.getVersionNumberInput(2).style.setProperty("background", "rgba(239,57,67,0.59)");
+        } else if(currentVersionTag.patch < this.latestVersionTag.patch) {
+          this.getVersionNumberInput(3).style.setProperty("background", "rgba(239,57,67,0.59)");
+        }
+        this.getCommitButton().disabled = true;
       }
     }
-
-    // reset colors
-    this.getVersionNumberInput(1).style.removeProperty("background");
-    this.getVersionNumberInput(2).style.removeProperty("background");
-    this.getVersionNumberInput(3).style.removeProperty("background");
-
-    // check if the new version tag is lower than the previous one
-    this.getCommitButton().disabled = this.getCommitMessageInput().value == "";
-    if(!SemVer.greaterEqual(this.latestVersionTag, currentVersionTag)) {
-      console.log("current is not greater equal last version tag");
-      if(currentVersionTag.major < this.latestVersionTag.major) {
-        this.getVersionNumberInput(1).style.setProperty("background", "rgba(239,57,67,0.59)");
-      } else if(currentVersionTag.minor < this.latestVersionTag.minor) {
-        this.getVersionNumberInput(2).style.setProperty("background", "rgba(239,57,67,0.59)");
-      } else if(currentVersionTag.patch < this.latestVersionTag.patch) {
-        this.getVersionNumberInput(3).style.setProperty("background", "rgba(239,57,67,0.59)");
-      }
-      this.getCommitButton().disabled = true;
-    }
-
   }
 
   /**
