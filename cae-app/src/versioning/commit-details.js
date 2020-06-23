@@ -26,7 +26,7 @@ export class CommitDetails extends LitElement {
           outline: none;
         }
         .input-version-number {
-          width: 1em;
+          width: 2.5em;
           height: 2em;
         }
         paper-button {
@@ -40,6 +40,13 @@ export class CommitDetails extends LitElement {
         }
         paper-button[disabled] {
           background: #e1e1e1;
+        }
+        /*
+         The following is used to always show the up/down buttons next to the version tag
+         number input fields. Only needed for Chrome. Automatically works in Firefox.
+         */
+        input[type=number]::-webkit-inner-spin-button {
+          opacity: 1
         }
       </style>
       
@@ -68,11 +75,11 @@ export class CommitDetails extends LitElement {
             <!-- div for entering version number -->
             <div id="version-number-div" style="display: none">
               <div style="display: flex; height: 2em; margin-top: 0.5em">
-                <input id="input-version-number-1" class="input input-version-number"/>
+                <input id="input-version-number-1" type="number" step="1" min="0" value="0" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
-                <input id="input-version-number-2" class="input input-version-number"/>
+                <input id="input-version-number-2" type="number" step="1" min="0" value="0" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
-                <input id="input-version-number-3" class="input input-version-number"/>
+                <input id="input-version-number-3" type="number" step="1" min="0" value="0" class="input input-version-number"/>
               </div>
             </div>
           </div>
