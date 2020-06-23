@@ -58,7 +58,7 @@ export class CommitDetails extends LitElement {
         <!-- div for displaying changes -->
         <div style="flex-grow: 1">
           <!-- div for selecting all changes -->
-          <div id="div-select-all" style="margin-left: 1em; margin-top: 1em; margin-bottom: 1em">
+          <div id="div-select-all" style="padding-left: 0.5em; margin-top: 1em; margin-bottom: 1em">
             <paper-checkbox @change=${this._onCheckboxSelectAllChanged} id="checkbox-select-all" aria-checked="false">Select all changes</paper-checkbox>
           </div>
           <div class="separator"></div>
