@@ -99,8 +99,17 @@ export class CommitDetails extends LitElement {
         <paper-spinner-lite active></paper-spinner-lite>
       </paper-dialog>
       
-       <!-- Generic Toast (see showToast method for more information) -->
+      <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
+      
+      <!-- Generic Warning-Toast (see showWarningToast method for more information) -->
+      <custom-style><style is="custom-style">
+        #warning-toast {
+          --paper-toast-background-color: red;
+          --paper-toast-color: white;
+        }
+      </style></custom-style>
+      <paper-toast id="warning-toast" text="Will be changed later."></paper-toast>
     `;
   }
 
@@ -216,6 +225,13 @@ export class CommitDetails extends LitElement {
    * @private
    */
   _onCommitClicked() {
+    // check if at least one change got selected
+    if(this.selectedDifferences.length == 0) {
+      // no difference selected, commiting is not possible
+      this.showWarningToast("You need to select at least one change to commit!");
+      return;
+    }
+
     // get commit message
     const commitMessage = this.getCommitMessageInput().value;
 
@@ -745,6 +761,19 @@ export class CommitDetails extends LitElement {
    */
   showToast(text) {
     const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
+  }
+
+  /**
+   * Since the cae-static-app page uses lots of toast messages,
+   * it is helpful to have this method for displaying warning toast messages.
+   * It allows to have one single paper-toast item in the html which
+   * gets used for different message texts.
+   * @param text Text to display in the toast.
+   */
+  showWarningToast(text) {
+    const toastElement = this.shadowRoot.getElementById("warning-toast");
     toastElement.text = text;
     toastElement.show();
   }
