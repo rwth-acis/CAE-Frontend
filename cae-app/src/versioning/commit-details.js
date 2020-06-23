@@ -4,6 +4,7 @@ import Common from "../common";
 import Auth from "../auth";
 import Static from "../static";
 import ModelDifferencing from "../model-differencing/model-differencing";
+import SemVer from "../util/sem-ver";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -75,11 +76,11 @@ export class CommitDetails extends LitElement {
             <!-- div for entering version number -->
             <div id="version-number-div" style="display: none">
               <div style="display: flex; height: 2em; margin-top: 0.5em">
-                <input id="input-version-number-1" type="number" step="1" min="0" value="0" class="input input-version-number"/>
+                <input id="input-version-number-1" @change=${(e) => this._onVersionInputChanged(e, 1)} type="number" step="1" min="0" value="0" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
-                <input id="input-version-number-2" type="number" step="1" min="0" value="0" class="input input-version-number"/>
+                <input id="input-version-number-2" @change=${(e) => this._onVersionInputChanged(e, 2)} type="number" step="1" min="0" value="0" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
-                <input id="input-version-number-3" type="number" step="1" min="0" value="0" class="input input-version-number"/>
+                <input id="input-version-number-3" @change=${(e) => this._onVersionInputChanged(e, 3)} type="number" step="1" min="0" value="0" class="input input-version-number"/>
               </div>
             </div>
           </div>
@@ -142,6 +143,13 @@ export class CommitDetails extends LitElement {
        */
       differenceElements: {
         type: Array
+      },
+      /**
+       * After setting the versioned model, this gets set to the latest version tag that is
+       * assigned to a commit.
+       */
+      latestVersionTag: {
+        type: Object
       }
     };
   }
@@ -285,6 +293,18 @@ export class CommitDetails extends LitElement {
     this.selectedCommit = this.commits[0];
 
     this.selectedDifferences = [];
+
+    // check if there exists a commit with a version tag
+    // if there exists one, then get the currently latest version tag
+    this.latestVersionTag = undefined;
+    for(const commit of this.commits) {
+      const versionTag = commit.versionTag;
+      // check if it matches the Semantic Version format
+      if(SemVer.isSemanticVersionNumber(versionTag)) {
+        this.latestVersionTag = SemVer.extractSemanticVersionParts(versionTag);
+        break;
+      }
+    }
 
     // only setup Yjs if this is the first time when setVersionedModel is called
     if(!this.yjsRunning) {
@@ -551,6 +571,9 @@ export class CommitDetails extends LitElement {
     if(checked) {
       // expand possibility to edit version tag
       this.getVersionNumberDiv().removeAttribute("style");
+
+      // reset version number
+      this.setInitVersionNumber();
     } else {
       // hide possibility to edit version tag
       this.getVersionNumberDiv().style.display = "none";
@@ -579,12 +602,80 @@ export class CommitDetails extends LitElement {
     this.getNewVersionCheckBox().checked = false;
 
     // reset input fields
-    this.getVersionNumberInput(1).value = "";
-    this.getVersionNumberInput(2).value = "";
-    this.getVersionNumberInput(3).value = "";
+    this.setInitVersionNumber();
 
     // hide version number div
     this.getVersionNumberDiv().style.display = "none";
+  }
+
+  setInitVersionNumber() {
+    // set to default init values
+    // As mentioned on https://semver.org/, the simplest way is starting
+    // the initial development release at 0.1.0
+    let initMajor = 0;
+    let initMinor = 1;
+    let initPatch = 0;
+
+    // if there already exists a version tag on a previous commit, then take the version number from there
+    // as the initial version number
+    if(this.latestVersionTag) {
+      initMajor = this.latestVersionTag.major;
+      initMinor = this.latestVersionTag.minor;
+      initPatch = this.latestVersionTag.patch;
+    }
+    // put initial number into input fields
+    this.setEnteredVersion(initMajor,initMinor,initPatch);
+    // set these initial values as the minimum for the input fields
+    this.getVersionNumberInput(1).min = initMinor;
+    this.getVersionNumberInput(2).min = initMinor;
+    this.getVersionNumberInput(3).min = initPatch;
+  }
+
+  _onVersionInputChanged(event, field) {
+    console.log("version tag: input field " + field + " changed");
+    const inputElement = this.getVersionNumberInput(field);
+    // Example: latestVersionTag is 0.1.2, then the minimum values for the input fields are 0, 1 and 2.
+    // If the user changes the version tag to 0.2.2, then the minimum value of the patch part could also
+    // be 0, because 0.2.0 > 0.1.2. Thus the minimum of the second input field needs to be updated from 2 to 0.
+    const currentVersionTag = SemVer.extractSemanticVersionParts(this.getEnteredVersion());
+
+    // update minimum values of input fields
+
+    // set minimum for major part
+    if(currentVersionTag.major > this.latestVersionTag.major) {
+      this.getVersionNumberInput(1).min = this.latestVersionTag.major;
+      this.getVersionNumberInput(2).min = "0";
+      this.getVersionNumberInput(3).min = "0";
+    } else if(currentVersionTag.major == this.latestVersionTag.major) {
+      this.getVersionNumberInput(1).min = this.latestVersionTag.major;
+      if(currentVersionTag.minor > this.latestVersionTag.minor) {
+        this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+        this.getVersionNumberInput(3).min = "0";
+      } else if(currentVersionTag.minor == this.latestVersionTag.minor) {
+        this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+        this.getVersionNumberInput(3).min = this.latestVersionTag.patch;
+      }
+    }
+
+    // reset colors
+    this.getVersionNumberInput(1).style.removeProperty("background");
+    this.getVersionNumberInput(2).style.removeProperty("background");
+    this.getVersionNumberInput(3).style.removeProperty("background");
+
+    // check if the new version tag is lower than the previous one
+    this.getCommitButton().disabled = this.getCommitMessageInput().value == "";
+    if(!SemVer.greaterEqual(this.latestVersionTag, currentVersionTag)) {
+      console.log("current is not greater equal last version tag");
+      if(currentVersionTag.major < this.latestVersionTag.major) {
+        this.getVersionNumberInput(1).style.setProperty("background", "rgba(239,57,67,0.59)");
+      } else if(currentVersionTag.minor < this.latestVersionTag.minor) {
+        this.getVersionNumberInput(2).style.setProperty("background", "rgba(239,57,67,0.59)");
+      } else if(currentVersionTag.patch < this.latestVersionTag.patch) {
+        this.getVersionNumberInput(3).style.setProperty("background", "rgba(239,57,67,0.59)");
+      }
+      this.getCommitButton().disabled = true;
+    }
+
   }
 
   /**
@@ -596,6 +687,18 @@ export class CommitDetails extends LitElement {
     const minor = this.getVersionNumberInput(2).value;
     const patch = this.getVersionNumberInput(3).value;
     return major + "." + minor + "." + patch;
+  }
+
+  /**
+   * Puts the given Semantic Version number into the three input fields.
+   * @param major Major part of the version number.
+   * @param minor Minor part of the version number.
+   * @param patch Patch part of the version number.
+   */
+  setEnteredVersion(major, minor, patch) {
+    this.getVersionNumberInput(1).value = major;
+    this.getVersionNumberInput(2).value = minor;
+    this.getVersionNumberInput(3).value = patch;
   }
 
   getVersionNumberInput(part) {
