@@ -1,6 +1,7 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
 import Static from "./static.js";
+import CanvasSwitchHelper from "./util/canvas-switch-helper";
 import('./versioning/versioning-element.js');
 
 /**
@@ -63,7 +64,7 @@ class MicroserviceModeling extends PolymerElement {
       }
     </style>
     <div class="firstcontainer">
-      <div class="innercontainerfirst">
+      <div id="div-canvas" class="innercontainerfirst">
         <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>      
       </div>
       <div class="innercontainerfirst">
@@ -87,7 +88,7 @@ class MicroserviceModeling extends PolymerElement {
       </div>
       -->
       <div class="innercontainersecond">
-        <versioning-element></versioning-element>
+        <versioning-element id="versioning-widget"></versioning-element>
       </div>
       <div class="innercontainersecond">
         <iframe id="Open API viewer" src="{{Static.WebhostURL}}/cae-frontend/swaggerWidget/swaggerUiEditor.html"> </iframe>
@@ -103,6 +104,8 @@ class MicroserviceModeling extends PolymerElement {
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
 
     this.reloadCaeRoom();
+
+    new CanvasSwitchHelper(this.shadowRoot);
   }
 
   reloadCaeRoom() {
