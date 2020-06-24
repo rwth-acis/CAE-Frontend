@@ -497,7 +497,7 @@ class ProjectInfo extends LitElement {
     Common.storeRequirementsBazaarProject(component.reqBazProjectId, component.reqBazCategoryId);
 
     // upload metamodel for the component
-    this.uploadMetamodelAndModelForComponent(component).then(_ => {
+    MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       this.closeLoadingDialog();
       if(component.type == "frontend") {
         this.changeView("cae-modeling/frontend-modeling");
@@ -535,7 +535,7 @@ class ProjectInfo extends LitElement {
     Common.storeRequirementsBazaarProject(this.applicationComponent.reqBazProjectId, this.applicationComponent.reqBazCategoryId);
 
     // upload metamodel for application component
-    this.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
+    MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
       // close dialog
       this.closeLoadingDialog();
       // send event which notifies the cae-static-app to change the view
@@ -572,28 +572,13 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Uploads the metamodel for the modeling of the given component.
-   * @param component The component whose metamodel should be uploaded.
-   * @returns {Promise<unknown>}
-   */
-  uploadMetamodelAndModelForComponent(component) {
-    return MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => new Promise((resolve, reject) => {
-      // wait for data become active
-      setTimeout(_ => resolve(), 10000);
-    }));
-  }
-
-  /**
    * When the user opens the first project and no application component
    * is opened yet, then the one from the newly opened project should be
    * opened automatically. This should be done in the background, i.e. silent.
    */
   uploadMetamodelAndModelForApplicationSilent() {
     console.log("Silent upload of (meta)model for application component started...");
-    MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => new Promise((resolve, reject) => {
-      // wait for data become active
-      setTimeout(_ => resolve(), 10000);
-    })).then(_ => {
+    MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
       // success
       const modelingInfo = Common.getModelingInfo();
       modelingInfo.application = {
