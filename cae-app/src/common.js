@@ -79,45 +79,6 @@ export default class Common {
   }
 
   /**
-   * Tries to load the model from the given Yjs room.
-   * @param roomName Room name of the Yjs room where the model should be loaded from.
-   * @returns {Promise<unknown>}
-   */
-  static getModelFromYjsRoom(roomName) {
-    return new Promise((resolve) => {
-      Y({
-        db: {
-          name: "memory" // store the shared data in memory
-        },
-        connector: {
-          name: "websockets-client", // use the websockets connector
-          room: roomName,
-          options: { resource: Static.YjsResourcePath},
-          url: Static.YjsAddress
-        },
-        share: { // specify the shared content
-          data: 'Map'
-        }
-      }).then(function(y) {
-        // retrieve current model from the yjs room
-        if (y.share.data.get('model')) {
-          const data = y.share.data.get('model');
-
-          // check if wireframe model exists (this should only be the case for frontend components)
-          const wireframeModel = y.share.data.get('wireframe');
-          if(wireframeModel) {
-            data.wireframe = wireframeModel;
-          }
-
-          resolve(data);
-        } else {
-          resolve();
-        }
-      });
-    });
-  }
-
-  /**
    * Stores the information about the connected Requirements Bazaar
    * category to localStorage.
    * @param selectedProjectId Id of the selected Requirements Bazaar project
@@ -169,6 +130,13 @@ export default class Common {
    */
   static getModelingInfo() {
     return JSON.parse(localStorage.getItem(this.KEY_MODELING_INFO));
+  }
+
+  static getComponentTypeByVersionedModelId(versionedModelId) {
+    const modelingInfo = this.getModelingInfo();
+    if(modelingInfo.frontend != null) if(modelingInfo.frontend.versionedModelId == versionedModelId) return "frontend";
+    if(modelingInfo.microservice != null) if(modelingInfo.microservice.versionedModelId == versionedModelId) return "microservice";
+    if(modelingInfo.application != null) if(modelingInfo.application.versionedModelId == versionedModelId) return "application";
   }
 
   /**

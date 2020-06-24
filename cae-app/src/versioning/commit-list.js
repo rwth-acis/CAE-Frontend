@@ -1,5 +1,6 @@
 import { LitElement, html} from 'lit-element';
 import Common from "../common";
+import MetamodelUploader from "../metamodel-uploader";
 
 export class CommitList extends LitElement {
   render() {
@@ -104,9 +105,15 @@ export class CommitList extends LitElement {
     } else {
       // change the model which is shown in the canvas
       // we want to show the model at a previous stage/commit
-      parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id);
-      // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
-      this.dispatchEvent(new CustomEvent("show-commit-canvas"));
+      const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
+      MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, commit.model,
+        this.versionedModel.id, commit.id).then(
+        (_ => {
+          parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id);
+          // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
+          this.dispatchEvent(new CustomEvent("show-commit-canvas"));
+        }).bind(this)
+      );
     }
   }
 

@@ -32,58 +32,102 @@ export default class MetamodelUploader {
    */
   static uploadMetamodelAndModelForComponent(component) {
     // get the correct VLS depending on the type of the given component
-    let vls;
-    if(component.type == "frontend") {
-      vls = frontend_vls;
-    } else if(component.type == "microservice") {
-      vls = microservice_vls;
-    } else {
-      vls = application_vls;
-    }
+    const metamodel = this.getMetamodelByType(component.type);
 
+    // load versioned model
     return new Promise((resolve, reject) => {
-      Y({
-        db: {
-          name: "memory" // store the shared data in memory
-        },
-        connector: {
-          name: "websockets-client", // use the websockets connector
-          room: Common.getYjsRoomNameForVersionedModel(component.versionedModelId),
-          options: { resource: Static.YjsResourcePath},
-          url: Static.YjsAddress
-        },
-        share: { // specify the shared content
-          data: 'Map'
-        },
-        type:["Text","Map"],
-        sourceDir: '/bower_components'
-      }).then(function(y) {
-        // metamodel can be set everytime
-        // it does not matter if it is already existing
-        y.share.data.set('metamodel', vls);
-
-        // only set model if there does not exist one in the yjs room
-        if(y.share.data.get('model') == undefined) {
-          // load versioned model
-          fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + component.versionedModelId, {
-            method: "GET"
-          }).then(response => {
-            if(response.ok) {
-              return response.json();
-            } else {
-              reject();
-            }
-          }).then(data => {
-            // get model of latest commit from database
-            const model = data.commits[0].model;
-            y.share.data.set('model', model);
-            resolve();
-          });
+      fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + component.versionedModelId, {
+        method: "GET"
+      }).then(response => {
+        if(response.ok) {
+          return response.json();
         } else {
-          // model already exists in yjs room
-          resolve();
+          reject();
         }
+      }).then(data => {
+        // get model of latest commit from database
+        const model = data.commits[0].model;
+        this.uploadMetamodelAndModelInYjsRoom(metamodel, model,
+          Common.getYjsRoomNameForVersionedModel(component.versionedModelId), resolve);
       });
     });
+  }
+
+  /**
+   * Uploads the metamodel and model for a specific commit.
+   * This method is used when the user wants to view a previous version of a model.
+   * @param componentType
+   * @param model
+   * @param versionedModelId
+   * @param commitId
+   * @returns {Promise<unknown>}
+   */
+  static uploadMetamodelAndModelForSpecificCommit(componentType, model, versionedModelId, commitId) {
+    // get the correct VLS depending on the given component type
+    const metamodel = this.getMetamodelByType(componentType);
+
+    // load versioned model
+    return new Promise((resolve, reject) => {
+      this.uploadMetamodelAndModelInYjsRoom(metamodel, model,
+        Common.getYjsRoomNameForSpecificCommit(versionedModelId, commitId), resolve);
+    });
+  }
+
+  /**
+   * Uploads the given metamodel and model to the Yjs room with the given name.
+   * Model only gets uploaded if no model exists in the Yjs room.
+   * @param metamodel
+   * @param model
+   * @param yjsRoomName
+   * @param resolve
+   */
+  static uploadMetamodelAndModelInYjsRoom(metamodel, model, yjsRoomName, resolve) {
+    console.log("Uploading metamodel and model into Yjs room: " + yjsRoomName);
+    Y({
+      db: {
+        name: "memory" // store the shared data in memory
+      },
+      connector: {
+        name: "websockets-client", // use the websockets connector
+        room: yjsRoomName,
+        options: { resource: Static.YjsResourcePath},
+        url: Static.YjsAddress
+      },
+      share: { // specify the shared content
+        data: 'Map'
+      },
+      type:["Text","Map"],
+      sourceDir: '/bower_components'
+    }).then(function(y) {
+      // metamodel can be set everytime
+      // it does not matter if it is already existing
+      y.share.data.set('metamodel', metamodel);
+
+      // only set model if there does not exist one in the yjs room
+      if(y.share.data.get('model') == undefined) {
+        y.share.data.set('model', model);
+        resolve();
+      } else {
+        // model already exists in yjs room
+        resolve();
+      }
+    });
+  }
+
+  /**
+   * Returns the correct VLS for the given type.
+   * @param type Either "frontend", "microservice" or "application".
+   * @returns {{nodes, edges, attributes}}
+   */
+  static getMetamodelByType(type) {
+    let metamodel;
+    if(type == "frontend") {
+      metamodel = frontend_vls;
+    } else if(type == "microservice") {
+      metamodel = microservice_vls;
+    } else {
+      metamodel = application_vls;
+    }
+    return metamodel;
   }
 }
