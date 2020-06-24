@@ -43,11 +43,29 @@ export default class Common {
 
   /**
    * Creates the name for the Yjs room for a specific versioned model.
+   * This then will be the main Yjs room used for modeling the versioned model.
+   *
+   * For viewing previous versions of the model, different Yjs rooms are used.
+   * Therefore, have a look at getYjsRoomNameForSpecificCommit().
    * @param versionedModelId Id of the versioned model
    * @returns {string} Name of the Yjs room for the specific versioned model.
    */
   static getYjsRoomNameForVersionedModel(versionedModelId) {
     return "versionedModel-" + versionedModelId;
+  }
+
+  /**
+   * Creates the name for the Yjs room for a specific commit of a versioned model.
+   * This then will be the Yjs room for viewing a previous version of a model.
+   *
+   * For viewing and modeling the current state of the versioned model, a different
+   * Yjs room is used. Therefore, have a look at getYjsRoomNameForVersionedModel().
+   * @param versionedModelId Id of the versioned model
+   * @param commitId Id of the commit, whose model version should be shown in the Yjs room.
+   * @returns {string} Name of the Yjs room for the specific commit of the versioned model.
+   */
+  static getYjsRoomNameForSpecificCommit(versionedModelId, commitId) {
+    return "versionedModel-" + versionedModelId + "-" + commitId;
   }
 
   /**
