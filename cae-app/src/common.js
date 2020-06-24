@@ -43,11 +43,29 @@ export default class Common {
 
   /**
    * Creates the name for the Yjs room for a specific versioned model.
+   * This then will be the main Yjs room used for modeling the versioned model.
+   *
+   * For viewing previous versions of the model, different Yjs rooms are used.
+   * Therefore, have a look at getYjsRoomNameForSpecificCommit().
    * @param versionedModelId Id of the versioned model
    * @returns {string} Name of the Yjs room for the specific versioned model.
    */
   static getYjsRoomNameForVersionedModel(versionedModelId) {
     return "versionedModel-" + versionedModelId;
+  }
+
+  /**
+   * Creates the name for the Yjs room for a specific commit of a versioned model.
+   * This then will be the Yjs room for viewing a previous version of a model.
+   *
+   * For viewing and modeling the current state of the versioned model, a different
+   * Yjs room is used. Therefore, have a look at getYjsRoomNameForVersionedModel().
+   * @param versionedModelId Id of the versioned model
+   * @param commitId Id of the commit, whose model version should be shown in the Yjs room.
+   * @returns {string} Name of the Yjs room for the specific commit of the versioned model.
+   */
+  static getYjsRoomNameForSpecificCommit(versionedModelId, commitId) {
+    return "versionedModel-" + versionedModelId + "-" + commitId;
   }
 
   /**
@@ -58,45 +76,6 @@ export default class Common {
    */
   static setCaeRoom(versionedModelId) {
     parent.caeRoom = this.getYjsRoomNameForVersionedModel(versionedModelId);
-  }
-
-  /**
-   * Tries to load the model from the given Yjs room.
-   * @param roomName Room name of the Yjs room where the model should be loaded from.
-   * @returns {Promise<unknown>}
-   */
-  static getModelFromYjsRoom(roomName) {
-    return new Promise((resolve) => {
-      Y({
-        db: {
-          name: "memory" // store the shared data in memory
-        },
-        connector: {
-          name: "websockets-client", // use the websockets connector
-          room: roomName,
-          options: { resource: Static.YjsResourcePath},
-          url: Static.YjsAddress
-        },
-        share: { // specify the shared content
-          data: 'Map'
-        }
-      }).then(function(y) {
-        // retrieve current model from the yjs room
-        if (y.share.data.get('model')) {
-          const data = y.share.data.get('model');
-
-          // check if wireframe model exists (this should only be the case for frontend components)
-          const wireframeModel = y.share.data.get('wireframe');
-          if(wireframeModel) {
-            data.wireframe = wireframeModel;
-          }
-
-          resolve(data);
-        } else {
-          resolve();
-        }
-      });
-    });
   }
 
   /**
@@ -151,6 +130,13 @@ export default class Common {
    */
   static getModelingInfo() {
     return JSON.parse(localStorage.getItem(this.KEY_MODELING_INFO));
+  }
+
+  static getComponentTypeByVersionedModelId(versionedModelId) {
+    const modelingInfo = this.getModelingInfo();
+    if(modelingInfo.frontend != null) if(modelingInfo.frontend.versionedModelId == versionedModelId) return "frontend";
+    if(modelingInfo.microservice != null) if(modelingInfo.microservice.versionedModelId == versionedModelId) return "microservice";
+    if(modelingInfo.application != null) if(modelingInfo.application.versionedModelId == versionedModelId) return "application";
   }
 
   /**

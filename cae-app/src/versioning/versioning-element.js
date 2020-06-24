@@ -29,7 +29,9 @@ export class VersioningElement extends LitElement {
       
       <div class="container flex-horizontal-with-ratios">
         <div class="flex-commit-list">
-          <commit-list id="commit-list" @commit-selected=${(e) => this._onCommitSelected(e.detail.commit)}></commit-list>
+          <commit-list id="commit-list" @show-commit-canvas=${(e) => this.dispatchEvent(new CustomEvent("show-commit-canvas"))} 
+              @show-main-canvas=${(e) => this.dispatchEvent(new CustomEvent("show-main-canvas"))}
+              @commit-selected=${(e) => this._onCommitSelected(e.detail.commit)}></commit-list>
         </div>
         <div class="flex-commit-details">
           <commit-details id="commit-details" @reload-commit-list=${this.reloadCommitList}></commit-details>

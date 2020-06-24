@@ -2,6 +2,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
 import Static from './static.js';
 import './versioning/versioning-element.js';
+import CanvasSwitchHelper from "./util/canvas-switch-helper";
 
 /**
  * @customElement
@@ -66,7 +67,7 @@ class FrontendModeling extends PolymerElement {
         }
       </style>
       <div class="maincontainer">
-        <div class="innercontainersecond">
+        <div id="div-canvas" class="innercontainersecond">
           <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
         </div>
         <div class="innercontainersecond" style="display:flex;flex-flow:column;">
@@ -96,7 +97,7 @@ class FrontendModeling extends PolymerElement {
           <iframe id="Live Code Editor" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
-          <versioning-element></versioning-element>
+          <versioning-element id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
@@ -117,6 +118,8 @@ class FrontendModeling extends PolymerElement {
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
 
     this.reloadCaeRoom();
+
+    new CanvasSwitchHelper(this.shadowRoot);
   }
 
   reloadCaeRoom() {
