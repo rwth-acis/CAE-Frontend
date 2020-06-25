@@ -1,13 +1,15 @@
 import Static from "../static";
 
 /**
- * The CanvasSwitchHelper is used in the different modeling pages to handle
- * the switching between the main Canvas (which uses the main Yjs room) which
- * is used for modeling the component, and another Canvas used to view the previous
- * versions of a model.
+ * The SyncMetaSwitchHelper is used in the different modeling pages to handle
+ * the switching between the main modeling (which uses the main Yjs room) of the components
+ * and the view-mode for previous model versions.
+ * Therefore it switches some SyncMeta widgets, e.g. the Canvas.
+ * This switching should be used after the parent.caeRoom variable has changed.
+ * Then the new SyncMeta widgets automatically use the new caeRoom.
  *
  * Since the code is the same for the different modeling pages, it gets
- * bundled here. Calling the CanvasSwitchHelper constructor is enough and then
+ * bundled here. Calling the SyncMetaSwitchHelper constructor is enough and then
  * the events coming from the commit-list when a user selects a commit are
  * automatically handled.
  *
@@ -17,7 +19,7 @@ import Static from "../static";
  * - This Canvas iFrame must be element of a div with the id "div-canvas". This div then also gets used
  * for the second Canvas.
  */
-export default class CanvasSwitchHelper {
+export default class SyncMetaSwitchHelper {
 
   constructor(shadowRoot) {
     this.shadowRoot = shadowRoot;

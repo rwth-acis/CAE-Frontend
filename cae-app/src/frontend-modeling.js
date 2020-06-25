@@ -2,7 +2,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
 import Static from './static.js';
 import './versioning/versioning-element.js';
-import CanvasSwitchHelper from "./util/canvas-switch-helper";
+import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
 
 /**
  * @customElement
@@ -119,7 +119,7 @@ class FrontendModeling extends PolymerElement {
 
     this.reloadCaeRoom();
 
-    new CanvasSwitchHelper(this.shadowRoot);
+    new SyncMetaSwitchHelper(this.shadowRoot);
   }
 
   reloadCaeRoom() {
