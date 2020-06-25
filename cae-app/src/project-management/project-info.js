@@ -97,11 +97,12 @@ class ProjectInfo extends LitElement {
         .github-img {
           width: 1.5em;
           height: 1.5em;
-          margin-left: 4px;
+          margin-left: 0.5em;
         }
         .reqbaz-img {
           width: 1.5em;
           height: 1.5em;
+          margin-left: 0.5em;
           background: #447500;
         }
         .disabled {
@@ -128,14 +129,15 @@ class ProjectInfo extends LitElement {
               </paper-tabs>
               ${this.currentlyShownComponents.map(component => html`
                 <div style="display: flex">
-                  <div @click="${() => this._onComponentClicked(component)}" style="width: 100%">
+                  <div style="width: 100%">
                       <p>${component.name}</p>
                   </div>
                   <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
-                    <!-- Label for dependencies -->
+                    <!-- Since dependencies are not yet supported, we dont need this yet 
                     ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
-                    <!-- Label for external dependencies -->
-                    ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
+                    ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}-->
+                    <!-- Link to open modeling space -->
+                    <iron-icon @click="${() => this._onComponentClicked(component)}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
                     <!-- Link to Requirements Bazaar -->
                     ${component.reqBazCategoryId && component.reqBazCategoryId != -1 ? html`
                       <a style="text-decoration: none" target="_blank"
@@ -157,26 +159,25 @@ class ProjectInfo extends LitElement {
             </div>
             
             <!-- Application Component -->
-            <div class="application-component" style="margin-left: 1em; margin-right: 1em">
+            <div class="application-component" style="display: flex; margin-left: 1em; margin-right: 1em; margin-top: 1em">
               <h4>Application</h4>
-              <div style="display: flex; padding-bottom: 0.5em">
-                <a @click="${this._onOpenApplicationModelingClicked}" href="">Open in Modeling Space</a>
-                <div style="margin-left: auto; margin-top: auto; margin-bottom: auto; display: flex">
-                  <!-- Requirements Bazaar connection -->
-                  ${this.applicationComponent.reqBazCategoryId && this.applicationComponent.reqBazCategoryId != -1 ? html`
-                    <a style="text-decoration: none" target="_blank"
-                        href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
-                      <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
-                    </a>
-                  ` : html``}
-                  <!-- GitHub connection -->
-                  <a style="text-decoration: none" href=${this.applicationComponent.github_url} target="_blank">
-                    <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+              <div style="margin-left: auto; margin-top:auto; margin-bottom: auto; display: flex">
+                <!-- Open in modeling space -->
+                <iron-icon @click="${this._onOpenApplicationModelingClicked}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
+                <!-- Requirements Bazaar connection -->
+                ${this.applicationComponent.reqBazCategoryId && this.applicationComponent.reqBazCategoryId != -1 ? html`
+                  <a style="text-decoration: none" target="_blank"
+                      href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
+                    <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
                   </a>
-                </div>
+                ` : html``}
+                <!-- GitHub connection -->
+                <a style="text-decoration: none" href=${this.applicationComponent.github_url} target="_blank">
+                  <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                </a>
               </div>
-              <div class="separator"></div>
             </div>
+            <div class="separator" style="margin-left: 1em; margin-right: 1em"></div>
             
             <custom-style>
         <style is="custom-style">
