@@ -105,6 +105,9 @@ class ProjectInfo extends LitElement {
           margin-left: 0.5em;
           background: #447500;
         }
+        .reqbaz-img:hover {
+          background: #65ab00;
+        }
         .disabled {
           color: #e1e1e1;
         }
@@ -142,12 +145,16 @@ class ProjectInfo extends LitElement {
                     ${component.reqBazCategoryId && component.reqBazCategoryId != -1 ? html`
                       <a style="text-decoration: none" target="_blank"
                           href="https://requirements-bazaar.org/projects/${component.reqBazProjectId}/categories/${component.reqBazCategoryId}">
-                        <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
+                          <svg width="24px" height="24px" class="reqbaz-img">
+                            <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
+                          </svg>
                       </a>
                     ` : html``}
                     <!-- Link to GitHub -->
                     <a href="${component.github_url}" target="_blank">
-                      <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                      <svg width="24px" height="24px" class="github-img">
+                        <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
+                      </svg>
                     </a>
                     ${this.editingAllowed ? html`
                       <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon" icon="delete" style="margin-left: 0.5em"></iron-icon>
@@ -168,7 +175,9 @@ class ProjectInfo extends LitElement {
                 ${this.applicationComponent.reqBazCategoryId && this.applicationComponent.reqBazCategoryId != -1 ? html`
                   <a style="text-decoration: none" target="_blank"
                       href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
-                    <img src="https://requirements-bazaar.org/images/reqbaz-logo.svg" class="reqbaz-img">
+                    <svg width="24px" height="24px" class="reqbaz-img">
+                      <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
+                    </svg>
                   </a>
                 ` : html``}
                 <!-- GitHub connection -->
