@@ -48,7 +48,7 @@ export default class MetamodelUploader {
         // get model of latest commit from database
         const model = data.commits[0].model;
         this.uploadMetamodelAndModelInYjsRoom(metamodel, model,
-          Common.getYjsRoomNameForVersionedModel(component.versionedModelId), resolve);
+          Common.getYjsRoomNameForVersionedModel(component.versionedModelId), resolve, false);
       });
     });
   }
@@ -69,7 +69,7 @@ export default class MetamodelUploader {
     // load versioned model
     return new Promise((resolve, reject) => {
       this.uploadMetamodelAndModelInYjsRoom(metamodel, model,
-        Common.getYjsRoomNameForSpecificCommit(versionedModelId, commitId), resolve);
+        Common.getYjsRoomNameForSpecificCommit(versionedModelId, commitId), resolve, true);
     });
   }
 
@@ -81,7 +81,7 @@ export default class MetamodelUploader {
    * @param yjsRoomName
    * @param resolve
    */
-  static uploadMetamodelAndModelInYjsRoom(metamodel, model, yjsRoomName, resolve) {
+  static uploadMetamodelAndModelInYjsRoom(metamodel, model, yjsRoomName, resolve, viewOnly) {
     console.log("Uploading metamodel and model into Yjs room: " + yjsRoomName);
     Y({
       db: {
@@ -94,11 +94,16 @@ export default class MetamodelUploader {
         url: Static.YjsAddress
       },
       share: { // specify the shared content
-        data: 'Map'
+        data: 'Map',
+        widgetConfig: 'Map'
       },
       type:["Text","Map"],
       sourceDir: '/bower_components'
     }).then(function(y) {
+      // set if view only mode should be activated
+      console.log("Setting view_only in Yjs room to: " + viewOnly);
+      y.share.widgetConfig.set('view_only', viewOnly);
+
       // metamodel can be set everytime
       // it does not matter if it is already existing
       y.share.data.set('metamodel', metamodel);
