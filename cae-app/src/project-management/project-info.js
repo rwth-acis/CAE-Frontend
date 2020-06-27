@@ -140,10 +140,10 @@ class ProjectInfo extends LitElement {
                     ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
                     ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}-->
                     <!-- Link to open modeling space -->
-                    <iron-icon @click="${() => this._onComponentClicked(component)}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
+                    <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
                     <!-- Link to Requirements Bazaar -->
                     ${component.reqBazCategoryId && component.reqBazCategoryId != -1 ? html`
-                      <a style="text-decoration: none" target="_blank"
+                      <a title="Open in Requirements Bazaar" style="text-decoration: none" target="_blank"
                           href="https://requirements-bazaar.org/projects/${component.reqBazProjectId}/categories/${component.reqBazCategoryId}">
                           <svg width="24px" height="24px" class="reqbaz-img">
                             <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
@@ -151,7 +151,7 @@ class ProjectInfo extends LitElement {
                       </a>
                     ` : html``}
                     <!-- Link to GitHub -->
-                    <a href="${component.github_url}" target="_blank">
+                    <a title="View component on GitHub" href="${component.github_url}" target="_blank">
                       <svg width="24px" height="24px" class="github-img">
                         <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
                       </svg>
@@ -170,10 +170,10 @@ class ProjectInfo extends LitElement {
               <h4>Application</h4>
               <div style="margin-left: auto; margin-top:auto; margin-bottom: auto; display: flex">
                 <!-- Open in modeling space -->
-                <iron-icon @click="${this._onOpenApplicationModelingClicked}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
+                <iron-icon title="Open modeling" @click="${this._onOpenApplicationModelingClicked}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
                 <!-- Requirements Bazaar connection -->
                 ${this.applicationComponent.reqBazCategoryId && this.applicationComponent.reqBazCategoryId != -1 ? html`
-                  <a style="text-decoration: none" target="_blank"
+                  <a title="Open in Requirements Bazaar" style="text-decoration: none" target="_blank"
                       href="https://requirements-bazaar.org/projects/${this.applicationComponent.reqBazProjectId}/categories/${this.applicationComponent.reqBazCategoryId}">
                     <svg width="24px" height="24px" class="reqbaz-img">
                       <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
@@ -181,7 +181,7 @@ class ProjectInfo extends LitElement {
                   </a>
                 ` : html``}
                 <!-- GitHub connection -->
-                <a style="text-decoration: none" href=${this.applicationComponent.github_url} target="_blank">
+                <a title="View application on GitHub" style="text-decoration: none" href=${this.applicationComponent.github_url} target="_blank">
                   <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                 </a>
               </div>
