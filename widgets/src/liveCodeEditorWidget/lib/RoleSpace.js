@@ -158,7 +158,7 @@ export default class RoleSpace extends EventEmitter{
   }
 
   getComponentName(){
-    return this.componentName;
+    return "frontendComponent-" + parent.caeRoom.split("versionedModel-")[1];
   }
 
   init(){
