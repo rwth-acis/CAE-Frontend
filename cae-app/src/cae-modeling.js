@@ -61,6 +61,9 @@ class CaeModeling extends PolymerElement {
       <app-route route="{{route}}" pattern="/cae-modeling/:page" data="{{routeData}}"></app-route>
       <iron-pages id="iron-pages" selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
         <div name="404"><p>Could not find page.</p></div>
+        <div name="frontend-modeling" id="frontend-modeling"></div>
+        <div name="microservice-modeling" id="microservice-modeling"></div>
+        <div name="application-modeling" id="application-modeling"></div>
       </iron-pages>
     `;
   }
@@ -111,8 +114,8 @@ class CaeModeling extends PolymerElement {
    */
   createNewModelingElement(type) {
     const elem = document.createElement(type + "-modeling");
-    elem.setAttribute("name", type + "-modeling");
-    elem.setAttribute("id", type + "-modeling");
+    elem.setAttribute("name", type + "-modeling-element");
+    elem.setAttribute("id", type + "-modeling-element");
     return elem;
   }
 
@@ -121,8 +124,8 @@ class CaeModeling extends PolymerElement {
    * @param type
    */
   removeModelingElement(type) {
-    if(this.shadowRoot.getElementById(type + "-modeling") != null) {
-      this.shadowRoot.getElementById(type + "-modeling").remove();
+    if(this.shadowRoot.getElementById(type + "-modeling-element") != null) {
+      this.shadowRoot.getElementById(type + "-modeling-element").remove();
     }
   }
 
@@ -133,7 +136,8 @@ class CaeModeling extends PolymerElement {
    */
   reloadModelingElement(type) {
     this.removeModelingElement(type);
-    this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement(type));
+    let div = this.shadowRoot.getElementById(type + "-modeling");
+    div.appendChild(this.createNewModelingElement(type));
   }
 
   ready() {
