@@ -510,9 +510,9 @@ class ProjectInfo extends LitElement {
 
       this.closeLoadingDialog();
       if(component.type == "frontend") {
-        this.changeView("cae-modeling/frontend-modeling");
+        setTimeout(() => this.changeView("cae-modeling/frontend-modeling"), 1);
       } else {
-        this.changeView("cae-modeling/microservice-modeling");
+        setTimeout(() => this.changeView("cae-modeling/microservice-modeling"), 1);
       }
     }, _ => {
       this.closeLoadingDialog();
