@@ -498,8 +498,6 @@ class ProjectInfo extends LitElement {
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(component.versionedModelId);
 
-    this.updateMenu(component.type);
-
     // show spinner
     this.openLoadingDialog();
 
@@ -508,6 +506,8 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
+      this.updateMenu(component.type);
+
       this.closeLoadingDialog();
       if(component.type == "frontend") {
         this.changeView("cae-modeling/frontend-modeling");
@@ -536,8 +536,6 @@ class ProjectInfo extends LitElement {
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(this.applicationComponent.versionedModelId);
 
-    this.updateMenu(this.applicationComponent.type);
-
     // show spinner
     this.openLoadingDialog();
 
@@ -546,6 +544,8 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
+      this.updateMenu(this.applicationComponent.type);
+
       // close dialog
       this.closeLoadingDialog();
       // send event which notifies the cae-static-app to change the view
