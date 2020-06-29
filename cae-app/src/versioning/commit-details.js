@@ -283,6 +283,10 @@ export class CommitDetails extends LitElement {
     // add wireframe to model
     body.model.wireframe = this.currentWireframe;
 
+    // add type of component, because the Model Persistence Service then adds it as an attribute to the model
+    // and the Code Generation Service can use it
+    body.componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
+
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
       headers: Auth.getAuthHeader(),
