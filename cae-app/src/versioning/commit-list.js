@@ -41,11 +41,11 @@ export class CommitList extends LitElement {
                 <!-- commit message -->
                 <p style="width: 100%; margin-right: 0; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
                 <!-- button for context menu -->
-                <paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
+                <!--<paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
                   <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
                   <p slot="dropdown-content" style="padding-left: 4px; padding-right: 4px"
                     @click=${() => this._onResetModelToCommitClicked(commit)}>Reset model to this commit</p>
-                </paper-menu-button>
+                </paper-menu-button>-->
               </div>
               <!-- version tag -->
               ${commit.versionTag ? html`
@@ -117,15 +117,16 @@ export class CommitList extends LitElement {
     }
   }
 
+  // This is currently not used, but might be added as a feature later.
   /**
    * Gets called when the user wants to reset the model to a specific commit.
    * @param commit Commit where the model should be reset to.
    * @private
    */
-  _onResetModelToCommitClicked(commit) {
+  /*_onResetModelToCommitClicked(commit) {
     console.log("reset model to commit clicked:");
     console.log(commit);
-  }
+  }*/
 
   /**
    * Gets called by versioning-element after the versioned model got loaded from API.
