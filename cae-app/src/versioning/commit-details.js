@@ -159,6 +159,12 @@ export class CommitDetails extends LitElement {
        */
       latestVersionTag: {
         type: Object
+      },
+      /**
+       * Only used when a wireframe exists, i.e. only in frontend modeling.
+       */
+      currentWireframe: {
+        type: String
       }
     };
   }
@@ -170,6 +176,7 @@ export class CommitDetails extends LitElement {
     this.commits = [];
     this.differenceElements = [];
     this.latestVersionTag = undefined;
+    this.currentWireframe = undefined;
   }
 
   /**
@@ -273,6 +280,9 @@ export class CommitDetails extends LitElement {
       body.model = updatedModel;
     }
 
+    // add wireframe to model
+    body.model.wireframe = this.currentWireframe;
+
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
       headers: Auth.getAuthHeader(),
@@ -365,6 +375,9 @@ export class CommitDetails extends LitElement {
             this.setDifferencesToDifferencesUncommitedChanges();
             this.updateChangesListElement();
 
+            // set wireframe (does not matter if there exists one or not)
+            this.currentWireframe = y.share.data.get("wireframe");
+
             y.share.data.observe(event => {
               console.log("model has changed");
               // model might have changed
@@ -386,6 +399,9 @@ export class CommitDetails extends LitElement {
                 // the currently selected commit is not the one for "uncommited changes"
                 // thus, we do not need to update the changes list
               }
+
+              // maybe the wireframe changed too (does not matter if one exists or not)
+              this.currentWireframe = y.share.data.get("wireframe");
             });
           } else {
             // model not available yet
