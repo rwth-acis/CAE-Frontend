@@ -52,7 +52,7 @@ class ApplicationModeling extends PolymerElement {
       </div>
       <div class="innercontainerfirst">
         <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
-        <iframe id="Application Persistence Widget" src="{{Static.WebhostURL}}/cae-frontend/applicationPersistenceWidget/widget.html"> </iframe>
+        <!--<versioning-element></versioning-element>-->
       </div>
       <div class="innercontainerfirst">
         <div style="display:flex;flex-flow:row;flex:1;">
