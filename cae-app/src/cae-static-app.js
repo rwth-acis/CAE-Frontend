@@ -472,7 +472,12 @@ class CaeStaticApp extends PolymerElement {
       this.set("route.path", "cae-modeling/" + menuItemComponentType + "-modeling");
 
       // update versionedModelId in localStorage
-      Common.setVersionedModelId(modelingInfo[menuItemComponentType].versionedModelId);
+      const versionedModelId = modelingInfo[menuItemComponentType].versionedModelId;
+      Common.setVersionedModelId(versionedModelId);
+
+      // update GitHub repo name in localStorage
+      const repoPrefix = menuItemComponentType == "frontend" ? "frontendComponent" : menuItemComponentType;
+      Common.setGitHubRepoName(repoPrefix + "-" + versionedModelId);
     } else {
       // component is not opened
       // show toast message

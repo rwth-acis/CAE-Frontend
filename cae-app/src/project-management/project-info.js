@@ -498,6 +498,10 @@ class ProjectInfo extends LitElement {
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(component.versionedModelId);
 
+    // set GitHub repo name in localStorage
+    const repoPrefix = component.type == "frontend" ? "frontendComponent" : component.type;
+    Common.setGitHubRepoName(repoPrefix + "-" + component.versionedModelId);
+
     // show spinner
     this.openLoadingDialog();
 
@@ -535,6 +539,9 @@ class ProjectInfo extends LitElement {
 
     // set this versioned model as the currently opened one
     Common.setVersionedModelId(this.applicationComponent.versionedModelId);
+
+    // set GitHub repo name in localStorage
+    Common.setGitHubRepoName("application-" + this.applicationComponent.versionedModelId);
 
     // show spinner
     this.openLoadingDialog();

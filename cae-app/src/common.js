@@ -42,6 +42,13 @@ export default class Common {
   static KEY_VERSIONED_MODEL_ID = "versionedModelId";
 
   /**
+   * Key used to store the name of the GitHub repository which belongs to the
+   * currently opened component.
+   * @type {string}
+   */
+  static KEY_GITHUB_REPO_NAME = "githubRepoName";
+
+  /**
    * Creates the name for the Yjs room for a specific versioned model.
    * This then will be the main Yjs room used for modeling the versioned model.
    *
@@ -153,6 +160,16 @@ export default class Common {
    */
   static getVersionedModelId() {
     return localStorage.getItem(this.KEY_VERSIONED_MODEL_ID);
+  }
+
+  /**
+   * Stores the name of the GitHub repository which belongs to the
+   * currently opened component into localStorage.
+   * This then gets used by the LiveCodeEditor to fetch the files.
+   * @param gitHubRepoName Name of the GitHub repository of the currently opened component.
+   */
+  static setGitHubRepoName(gitHubRepoName) {
+    localStorage.setItem(this.KEY_GITHUB_REPO_NAME, gitHubRepoName);
   }
 }
 
