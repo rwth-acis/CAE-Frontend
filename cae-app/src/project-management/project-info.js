@@ -533,7 +533,8 @@ class ProjectInfo extends LitElement {
     // update modeling info
     const modelingInfo = Common.getModelingInfo();
     modelingInfo.application = {
-      "versionedModelId": this.applicationComponent.versionedModelId
+      "versionedModelId": this.applicationComponent.versionedModelId,
+      "projectId": this.getProjectId()
     };
     Common.storeModelingInfo(modelingInfo);
 
@@ -599,7 +600,8 @@ class ProjectInfo extends LitElement {
       // success
       const modelingInfo = Common.getModelingInfo();
       modelingInfo.application = {
-        "versionedModelId": this.applicationComponent.versionedModelId
+        "versionedModelId": this.applicationComponent.versionedModelId,
+        "projectId": this.getProjectId()
       };
       Common.storeModelingInfo(modelingInfo);
 
