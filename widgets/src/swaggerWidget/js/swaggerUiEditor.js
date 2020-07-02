@@ -143,7 +143,7 @@ var loadMetadata = function(y) {
         loadedModel = currentComponentName;
     } else if (y.share.data.get('model')) {
         var data = y.share.data.get('model');
-        loadedModel = data.attributes.label.value.value;
+        loadedModel = localStorage.getItem("versionedModelId");
         // special case if model was only saved in the space (not loaded from db)
         if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
             loadedModel = null;
