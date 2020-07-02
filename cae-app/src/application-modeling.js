@@ -51,8 +51,8 @@ class ApplicationModeling extends PolymerElement {
         <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
-        <!--<versioning-element></versioning-element>-->
+        <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
+        <versioning-element></versioning-element>
       </div>
       <div class="innercontainerfirst">
         <div>
