@@ -41,14 +41,16 @@ var getServices = function() {
       var name = value.name;
       var version = "TODO";
 
-      $("#microserviceTable").append("<tr><td>" + name +
+      $("#microserviceTable").append("<tr id='" + index + "'><td>" + name +
         "</td><td>" + version + "</td></tr>");
-      // make table rows "clickable"
-      $("#microserviceTable").find("tr").click(function() {
-        // get the name
-        var name = $(this).find("td").get(0).innerHTML;
-        createNode(name);
-      });
+    });
+
+    // make table rows "clickable"
+    $("#microserviceTable").find("tr").click(function() {
+      // get the versioned model id
+      var index = $(this).attr("id");
+      var versionedModelId = projectMicroservices[index].versionedModelId;
+      createNode("" + versionedModelId);
     });
 
   }, function(error) {
