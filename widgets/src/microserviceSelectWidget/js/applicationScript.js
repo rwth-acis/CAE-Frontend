@@ -39,7 +39,7 @@ var getServices = function() {
     $.each(projectMicroservices, function(index, value) {
       // add table rows
       var name = value.name;
-      var version = "NOT YET IMPLEMENTED";
+      var version = "TODO";
 
       $("#microserviceTable").append("<tr><td>" + name +
         "</td><td>" + version + "</td></tr>");

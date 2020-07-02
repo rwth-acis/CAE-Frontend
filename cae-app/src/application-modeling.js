@@ -55,13 +55,11 @@ class ApplicationModeling extends PolymerElement {
         <!--<versioning-element></versioning-element>-->
       </div>
       <div class="innercontainerfirst">
-        <div style="display:flex;flex-flow:row;flex:1;">
-          <div>
-            <iframe id="Frontend Component Select Widget" src="{{Static.WebhostURL}}/cae-frontend/frontendComponentSelectWidget/widget.html"> </iframe>
-          </div>
-          <div>
-            <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"> </iframe>
-          </div>
+        <div>
+          <iframe id="Frontend Component Select Widget" src="{{Static.WebhostURL}}/cae-frontend/frontendComponentSelectWidget/widget.html"
+              style="height: 250px"></iframe>
+          <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"
+              style="height: 250px"></iframe>
         </div>
         <!--
         <div style="flex:1;">

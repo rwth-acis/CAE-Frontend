@@ -70,7 +70,7 @@ var getServices = function() {
     $.each(projectFrontendComponents, function(index, value) {
       // add table rows
       var name = value.name;
-      var version = "NOT YET IMPLEMENTED";
+      var version = "TODO";
 
       $("#frontendComponentTable").append("<tr><td>" + name +
         "</td><td>" + version + "</td></tr>");
