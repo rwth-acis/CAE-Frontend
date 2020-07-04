@@ -2,6 +2,7 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './common.js';
 import Static from "./static.js";
+import './deployment-widget/deployment-widget.js';
 
 /**
  * @customElement
@@ -61,6 +62,7 @@ class ApplicationModeling extends PolymerElement {
           <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"
               style="height: 250px"></iframe>
         </div>
+        <deployment-widget></deployment-widget>
         <!--
         <div style="flex:1;">
           <iframe id="Import Tool" src="{{Static.WebhostURL}}/syncmeta/debug.html"> </iframe>
