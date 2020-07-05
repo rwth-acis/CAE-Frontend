@@ -301,6 +301,9 @@ export class CommitDetails extends LitElement {
       // reset version tag input area
       this.resetVersionTagUI();
 
+      // uncheck "select all" checkbox
+      this.getCheckboxSelectAllElement().checked = false;
+
       if(response.ok) {
         // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
         this.differencesUncommitedChanges = this.differencesUncommitedChanges.filter(diff => !this.selectedDifferences.includes(diff));
