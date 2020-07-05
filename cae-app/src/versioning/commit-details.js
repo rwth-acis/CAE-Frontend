@@ -1,7 +1,7 @@
 import { LitElement, html} from 'lit-element';
 import '@polymer/paper-checkbox/paper-checkbox.js';
-import Common from "../common";
-import Auth from "../auth";
+import Common from "../util/common";
+import Auth from "../util/auth";
 import Static from "../static";
 import ModelDifferencing from "../model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";

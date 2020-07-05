@@ -1,7 +1,7 @@
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import '@polymer/paper-button/paper-button.js';
-import Common from "./common";
-import MetamodelUploader from "./metamodel-uploader";
+import Common from "./util/common";
+import MetamodelUploader from "./util/metamodel-uploader";
 import './frontend-modeling.js';
 import './microservice-modeling.js';
 import './application-modeling.js';

@@ -1,5 +1,5 @@
 import {LitElement, html} from "lit-element";
-import Common from "../common";
+import Common from "../util/common";
 import Static from "../static";
 
 export class DeploymentWidget extends LitElement {

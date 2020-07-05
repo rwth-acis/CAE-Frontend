@@ -2,7 +2,7 @@ import {html, LitElement} from 'lit-element';
 import './project-explorer';
 import './project-info';
 import '@polymer/iron-flex-layout/iron-flex-layout-classes';
-import Auth from "../auth";
+import Auth from "../util/auth";
 
 /**
  * PolymerElement for the project management page of the CAE.

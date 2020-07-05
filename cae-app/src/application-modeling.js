@@ -1,6 +1,6 @@
 
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
-import Common from './common.js';
+import Common from './util/common.js';
 import Static from "./static.js";
 import './deployment-widget/deployment-widget.js';
 

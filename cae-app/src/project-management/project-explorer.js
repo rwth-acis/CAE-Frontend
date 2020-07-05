@@ -4,9 +4,9 @@ import '@polymer/paper-button/paper-button.js';
 import '@polymer/paper-input/paper-input.js';
 import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-spinner/paper-spinner-lite.js';
-import Auth from "../auth";
+import Auth from "../util/auth";
 import Static from "../static";
-import Common from "../common";
+import Common from "../util/common";
 
 /**
  * PolymerElement for management of projects.

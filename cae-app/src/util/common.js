@@ -1,4 +1,4 @@
-import Static from "./static.js";
+import Static from "../static.js";
 
 /**
  * Helper class used for managing Yjs rooms and for storing the information

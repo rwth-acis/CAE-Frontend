@@ -8,9 +8,9 @@ import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import './notifications/notification-element.js';
-import Auth from "./auth";
+import Auth from "./util/auth";
 import Static from "./static";
-import Common from "./common";
+import Common from "./util/common";
 
 /**
  * CaeStaticApp is the main PolymerElement of the CAE.

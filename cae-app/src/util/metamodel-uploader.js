@@ -1,7 +1,7 @@
-import frontend_vls from './vls/frontendComponent_vls.js';
-import microservice_vls from './vls/microservice_vls.js';
-import application_vls from './vls/application_vls.js';
-import Static from "./static";
+import frontend_vls from '../vls/frontendComponent_vls.js';
+import microservice_vls from '../vls/microservice_vls.js';
+import application_vls from '../vls/application_vls.js';
+import Static from "../static";
 import Common from "./common";
 
 /**

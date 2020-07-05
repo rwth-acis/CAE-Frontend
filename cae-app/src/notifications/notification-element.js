@@ -1,7 +1,7 @@
 import {html, LitElement} from 'lit-element';
 import '@polymer/iron-icon/iron-icon.js';
 import Static from "../static";
-import Auth from "../auth";
+import Auth from "../util/auth";
 
 // TODO: class description when everything is ready
 class NotificationElement extends LitElement {

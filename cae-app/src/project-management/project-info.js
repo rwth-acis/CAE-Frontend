@@ -8,10 +8,10 @@ import '@polymer/paper-dialog/paper-dialog.js';
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
 import '@polymer/paper-spinner/paper-spinner-lite.js';
-import Auth from "../auth";
+import Auth from "../util/auth";
 import Static from "../static";
-import Common from "../common";
-import MetamodelUploader from "../metamodel-uploader";
+import Common from "../util/common";
+import MetamodelUploader from "../util/metamodel-uploader";
 
 /**
  * PolymerElement for management of project components and users.

@@ -1,7 +1,7 @@
 import { LitElement, html} from 'lit-element';
 import './commit-list.js';
 import './commit-details.js';
-import Common from "../common";
+import Common from "../util/common";
 import Static from "../static";
 
 export class VersioningElement extends LitElement {

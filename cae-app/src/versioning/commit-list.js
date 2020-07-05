@@ -1,6 +1,6 @@
 import { LitElement, html} from 'lit-element';
-import Common from "../common";
-import MetamodelUploader from "../metamodel-uploader";
+import Common from "../util/common";
+import MetamodelUploader from "../util/metamodel-uploader";
 
 export class CommitList extends LitElement {
   render() {
