@@ -111,6 +111,11 @@ export default class MetamodelUploader {
       // only set model if there does not exist one in the yjs room
       if(y.share.data.get('model') == undefined) {
         y.share.data.set('model', model);
+
+        // also upload wireframe
+        if(model.wireframe) {
+          y.share.data.set('wireframe', model.wireframe);
+        }
         resolve();
       } else {
         // model already exists in yjs room
