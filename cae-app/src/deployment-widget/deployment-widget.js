@@ -98,7 +98,7 @@ export class DeploymentWidget extends LitElement {
         switch(jobAlias){
           case "Build":
             this.getStatusInput().value = "Building was successfully!";
-            //deployRequest("Docker");
+            this.deployRequest("Docker");
             break;
           case "Docker":
             //$("#deploy-model").prop('disabled',true);
