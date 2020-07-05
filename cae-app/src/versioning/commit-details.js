@@ -55,17 +55,14 @@ export class CommitDetails extends LitElement {
       <div class="separator"></div>
       <!-- div for main content -->
       <div style="height: 500px; display: flex; flex-direction: column">
+        <!-- div for selecting all changes -->
+        <div id="div-select-all" style="padding-left: 0.5em; margin-top: 1em; margin-bottom: 1em">
+          <paper-checkbox @change=${this._onCheckboxSelectAllChanged} id="checkbox-select-all" aria-checked="false">Select all changes</paper-checkbox>
+        </div>
+        <div class="separator"></div>
         <!-- div for displaying changes -->
-        <div style="flex-grow: 1">
-          <!-- div for selecting all changes -->
-          <div id="div-select-all" style="padding-left: 0.5em; margin-top: 1em; margin-bottom: 1em">
-            <paper-checkbox @change=${this._onCheckboxSelectAllChanged} id="checkbox-select-all" aria-checked="false">Select all changes</paper-checkbox>
-          </div>
-          <div class="separator"></div>
-          <!-- div for changes list -->
-          <div id="changes-list" style="overflow: scroll; height: 400px">
-            <!-- gets replaced by code -->
-          </div>
+        <div id="changes-list" style="overflow-y: scroll; height: 100%">
+          <!-- gets replaced by code -->
         </div>
         <div class="separator"></div>
         <!-- div for commit settings -->
