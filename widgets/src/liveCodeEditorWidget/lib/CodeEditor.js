@@ -289,7 +289,7 @@ class CodeEditor{
     editor.getSession().setMode("ace/mode/xml");
     editor.getSession().setFoldStyle('manual');
     editor.setTheme("ace/theme/chrome");
-    editor.setFontSize(25);
+    editor.setFontSize(15);
     return editor;
   }
 
