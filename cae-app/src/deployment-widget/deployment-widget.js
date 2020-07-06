@@ -27,7 +27,10 @@ export class DeploymentWidget extends LitElement {
         }
       </style>
       
-      <paper-button id="deploy-model" @click=${this._onDeployButtonClicked} class="paper-button-blue">Deploy</paper-button>
+      <div style="display: flex; margin-left: 4px; margin-right: 4px;">
+        <paper-button id="deploy-model" @click=${this._onDeployButtonClicked} class="paper-button-blue">Deploy</paper-button>
+        <a id="open-deployment" href=${Static.DeploymentURL} style="margin-left: auto; margin-top: auto; margin-bottom: auto">Open deployment</a>
+      </div>
       
       <div class="form-group" style="margin-left: 4px; margin-right: 4px; margin-top: 4px">
         <input type="text" class="form-control" id="status" style="width: 100%" placeholder="Status..">
@@ -52,6 +55,7 @@ export class DeploymentWidget extends LitElement {
     this.requestUpdate().then(_ => {
       this.getStatusInput().style.setProperty("display", "none");
       this.getDeployStatusTextarea().style.setProperty("display", "none");
+      this.getOpenDeploymentLink().style.setProperty("display", "none");
     });
   }
 
@@ -109,7 +113,6 @@ export class DeploymentWidget extends LitElement {
       this.getDeployStatusTextarea().style.removeProperty("display");
       this.getDeployStatusTextarea().value = data;
 
-      //$("#deploy-status").text(data);
       //$('#deploy-status').scrollTop($('#deploy-status')[0].scrollHeight);
       if(data.indexOf("Finished: SUCCESS") > -1){
         switch(jobAlias){
@@ -118,10 +121,10 @@ export class DeploymentWidget extends LitElement {
             this.deployRequest("Docker");
             break;
           case "Docker":
-            //$("#deploy-model").prop('disabled',true);
             this.getStatusInput().value = "Application is now ready!";
-            console.log("Deployment: Application is now ready!");
-            //$("#deploy-status").hide();
+            this.getDeployStatusTextarea().style.setProperty("display", "none");
+
+            this.getOpenDeploymentLink().style.removeProperty("display");
             break;
         }
       }else if(data.indexOf("Finished: FAILURE") > - 1){
@@ -143,6 +146,10 @@ export class DeploymentWidget extends LitElement {
 
   getStatusInput() {
     return this.shadowRoot.getElementById("status");
+  }
+
+  getOpenDeploymentLink() {
+    return this.shadowRoot.getElementById("open-deployment");
   }
 }
 

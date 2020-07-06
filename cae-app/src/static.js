@@ -15,3 +15,6 @@ Static.ModelPersistenceServiceURL = '{CAE_BACKEND_URL}/CAE';
 // Yjs configuration
 Static.YjsAddress = "{YJS_ADDRESS}";
 Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
+
+// URL where the deployed application can be seen
+Static.DeploymentURL = "{DEPLOYMENT_URL}";

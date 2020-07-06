@@ -19,6 +19,7 @@ check_if_exists "$REQBAZ_BACKEND" "REQBAZ_BACKEND"
 check_if_exists "$REQBAZ_FRONTEND" "REQBAZ_FRONTEND"
 check_if_exists "$OIDC_CLIENT_ID" "OIDC_CLIENT_ID"
 check_if_exists "$YJS_RESOURCE_PATH" "YJS_RESOURCE_PATH"
+check_if_exists "$DEPLOYMENT_URL" "DEPLOYMENT_URL"
 
 if [ "$ENV_VARIABLE_NOT_SET" = true ] ; then
     echo "Missing environment variables, exiting..."
