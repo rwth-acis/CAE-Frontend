@@ -87,22 +87,18 @@ class CaeModeling extends PolymerElement {
 
   _subpageChanged(currentSubpage, oldSubpage) {
     console.log("subpage changed: " + currentSubpage);
-    /*switch (currentSubpage) {
-      case 'frontend-modeling':
-        this.removeModelingElement("frontend");
-        this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement("frontend"));
-        break;
-      case 'microservice-modeling':
-        this.removeModelingElement("microservice");
-        this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement("microservice"));
-        break;
-      case 'application-modeling':
-        this.removeModelingElement("application");
-        this.shadowRoot.getElementById("iron-pages").appendChild(this.createNewModelingElement("application"));
-        break;
-      default:
-        this.page = 'cae-modeling';
-    }*/
+
+    if(currentSubpage == "frontend-modeling" || currentSubpage == "microservice-modeling" || currentSubpage == "application-modeling") {
+      // check if div in iron-pages is empty
+      let ironPagesDivName = currentSubpage;
+      const hasChildNodes = this.shadowRoot.getElementById(ironPagesDivName).hasChildNodes();
+      // if the div is empty, then the page got reloaded and the div is empty, so no modeling page would be shown
+      // this should be prevented
+      if(!hasChildNodes) {
+        // split makes "frontend-modeling" to "frontend" etc.
+        this.reloadModelingElement(ironPagesDivName.split("-")[0]);
+      }
+    }
   }
 
   /**
