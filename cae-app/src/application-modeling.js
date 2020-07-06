@@ -55,14 +55,14 @@ class ApplicationModeling extends PolymerElement {
         <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
         <versioning-element></versioning-element>
       </div>
-      <div class="innercontainerfirst">
+      <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <div>
           <iframe id="Frontend Component Select Widget" src="{{Static.WebhostURL}}/cae-frontend/frontendComponentSelectWidget/widget.html"
               style="height: 250px"></iframe>
           <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"
               style="height: 250px"></iframe>
         </div>
-        <deployment-widget></deployment-widget>
+        <deployment-widget style="flex: 1"></deployment-widget>
         <!--
         <div style="flex:1;">
           <iframe id="Import Tool" src="{{Static.WebhostURL}}/syncmeta/debug.html"> </iframe>

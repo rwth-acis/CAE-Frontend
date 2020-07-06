@@ -21,14 +21,18 @@ export class DeploymentWidget extends LitElement {
         paper-button[disabled] {
           background: #e1e1e1;
         }
+        textarea#deploy-status {
+          background-color:#000000;
+          color:#ffffff;
+        }
       </style>
       
       <paper-button id="deploy-model" @click=${this._onDeployButtonClicked} class="paper-button-blue">Deploy</paper-button>
       
-      <div class="form-group">
-      <input type="text" class="form-control" id="status" placeholder="Status..">
-      <br>
-      <textarea id="deploy-status" class="form-control" readonly></textarea>
+      <div class="form-group" style="margin-left: 4px; margin-right: 4px; margin-top: 4px">
+        <input type="text" class="form-control" id="status" style="width: 100%" placeholder="Status..">
+        <br>
+        <textarea id="deploy-status" style="width: 100%; min-height: 200px;" class="form-control" readonly></textarea>
     </div>
     `;
   }
@@ -44,10 +48,22 @@ export class DeploymentWidget extends LitElement {
   constructor() {
     super();
     this.pendingDots = 0;
+
+    this.requestUpdate().then(_ => {
+      this.getStatusInput().style.setProperty("display", "none");
+      this.getDeployStatusTextarea().style.setProperty("display", "none");
+    });
   }
 
   _onDeployButtonClicked() {
+    // disable button until deployment has finished
     this.getDeployButton().setAttribute("disabled", "true");
+
+    // show status input field and textarea for deployment status
+    this.getStatusInput().style.removeProperty("display");
+
+    // send deploy request
+    this.getStatusInput().value = "Sending deploy request...";
     this.deployRequest("Build");
   }
 
@@ -90,6 +106,7 @@ export class DeploymentWidget extends LitElement {
 
       this.pendingDots = (this.pendingDots + 1) % 4;
 
+      this.getDeployStatusTextarea().style.removeProperty("display");
       this.getDeployStatusTextarea().value = data;
 
       //$("#deploy-status").text(data);
