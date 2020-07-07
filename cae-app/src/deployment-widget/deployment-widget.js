@@ -61,7 +61,7 @@ export class DeploymentWidget extends LitElement {
 
   _onDeployButtonClicked() {
     // disable button until deployment has finished
-    this.getDeployButton().setAttribute("disabled", "true");
+    this.getDeployButton().disabled = true;
 
     // show status input field and textarea for deployment status
     this.getStatusInput().style.removeProperty("display");
@@ -125,6 +125,9 @@ export class DeploymentWidget extends LitElement {
             this.getDeployStatusTextarea().style.setProperty("display", "none");
 
             this.getOpenDeploymentLink().style.removeProperty("display");
+
+            // allow to deploy again by activating the deploy button
+            this.getDeployButton().disabled = false;
             break;
         }
       }else if(data.indexOf("Finished: FAILURE") > - 1){
