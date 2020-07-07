@@ -76,6 +76,13 @@ export class VersioningElement extends LitElement {
       this.versionedModel = data;
       this.getCommitListElement().setVersionedModel(data);
       this.getCommitDetailsElement().setVersionedModel(data);
+
+      // also notify parent elements (e.g. application-modeling needs to know whether commits exist or not)
+      this.dispatchEvent(new CustomEvent("versioned-model-loaded", {
+        detail: {
+          versionedModel: this.versionedModel
+        }
+      }));
     });
   }
 

@@ -44,7 +44,7 @@ export class DeploymentWidget extends LitElement {
     return {
       pendingDots: {
         type: Number
-      }
+      },
     }
   }
 
@@ -53,10 +53,19 @@ export class DeploymentWidget extends LitElement {
     this.pendingDots = 0;
 
     this.requestUpdate().then(_ => {
+      this.getDeployButton().disabled = true;
       this.getStatusInput().style.setProperty("display", "none");
       this.getDeployStatusTextarea().style.setProperty("display", "none");
       this.getOpenDeploymentLink().style.setProperty("display", "none");
     });
+  }
+
+  /**
+   * Gets called by application-modeling.js when at least one commit exists (and code got generated)
+   * and deployment can get started.
+   */
+  enableWidget() {
+    this.getDeployButton().disabled = false;
   }
 
   _onDeployButtonClicked() {

@@ -53,7 +53,7 @@ class ApplicationModeling extends PolymerElement {
       </div>
       <div class="innercontainerfirst">
         <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
-        <versioning-element></versioning-element>
+        <versioning-element id="versioning-element"></versioning-element>
       </div>
       <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <div>
@@ -62,7 +62,7 @@ class ApplicationModeling extends PolymerElement {
           <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"
               style="height: 250px"></iframe>
         </div>
-        <deployment-widget style="flex: 1"></deployment-widget>
+        <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
         <!--
         <div style="flex:1;">
           <iframe id="Import Tool" src="{{Static.WebhostURL}}/syncmeta/debug.html"> </iframe>
@@ -83,6 +83,15 @@ class ApplicationModeling extends PolymerElement {
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
 
     this.reloadCaeRoom();
+
+    // in the beginning, the deployment widget is always disabled
+    // if there exist at least one real commit (so not only the "uncommited changes" one), then
+    // the deployment widget should be enabled
+    this.shadowRoot.getElementById("versioning-element").addEventListener("versioned-model-loaded", function(event) {
+      if(event.detail.versionedModel.commits.length > 1) {
+        this.shadowRoot.getElementById("deployment-widget").enableWidget();
+      }
+    }.bind(this));
   }
 
   reloadCaeRoom() {
