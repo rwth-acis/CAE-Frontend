@@ -5,6 +5,7 @@ import Auth from "../util/auth";
 import Static from "../static";
 import ModelDifferencing from "../model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";
+import ModelValidator from "../model-differencing/model-validator";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -237,6 +238,24 @@ export class CommitDetails extends LitElement {
       return;
     }
 
+    // check if a previous model exists
+    let updatedModel;
+    if(this.versionedModel.commits.length > 1) {
+      // previous model exists
+      const previousModel = this.versionedModel.commits[1].model;
+      // create the updated model which should be stored into the database, by applying the currently selected differences
+      updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences);
+    } else {
+      // there does not exist a previous model
+      updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences);
+    }
+
+    const modelValid = ModelValidator.edgesValid(updatedModel);
+    if(!modelValid) {
+      this.showWarningToast("Model is not valid when applying the selected changes!");
+      return;
+    }
+
     // check if version tag got increased (if a version tag got entered)
     if(this.getNewVersionCheckBox().checked) {
       if(this.latestVersionTag != undefined) {
@@ -260,21 +279,10 @@ export class CommitDetails extends LitElement {
       message: commitMessage
     };
 
+    body.model = updatedModel;
+
     if(this.getNewVersionCheckBox().checked) {
       body.versionTag = this.getEnteredVersion();
-    }
-
-    // check if a previous model exists
-    if(this.versionedModel.commits.length > 1) {
-      // previous model exists
-      const previousModel = this.versionedModel.commits[1].model;
-      // create the updated model which should be stored into the database, by applying the currently selected differences
-      const updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences);
-      body.model = updatedModel;
-    } else {
-      // there does not exist a previous model
-      const updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences);
-      body.model = updatedModel;
     }
 
     // add wireframe to model
