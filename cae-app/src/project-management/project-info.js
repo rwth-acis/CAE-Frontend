@@ -151,7 +151,7 @@ class ProjectInfo extends LitElement {
                       </a>
                     ` : html``}
                     <!-- Link to GitHub -->
-                    <a title="View component on GitHub" href="${component.github_url}" target="_blank">
+                    <a title="View component on GitHub" href=${this.getComponentGitHubURL(component)} target="_blank">
                       <svg width="24px" height="24px" class="github-img">
                         <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
                       </svg>
@@ -181,7 +181,7 @@ class ProjectInfo extends LitElement {
                   </a>
                 ` : html``}
                 <!-- GitHub connection -->
-                <a title="View application on GitHub" style="text-decoration: none" href=${this.applicationComponent.github_url} target="_blank">
+                <a title="View application on GitHub" style="text-decoration: none" href=${this.getComponentGitHubURL(this.applicationComponent)} target="_blank">
                   <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                 </a>
               </div>
@@ -1112,6 +1112,12 @@ class ProjectInfo extends LitElement {
         this.showToast("Error deleting project!");
       }
     });
+  }
+
+  getComponentGitHubURL(component) {
+    let type = component.type;
+    if(type == "frontend") type = "frontendComponent";
+    return "https://github.com/" + Static.GitHubOrg + "/" + type + "-" + component.versionedModelId;
   }
 
   /**

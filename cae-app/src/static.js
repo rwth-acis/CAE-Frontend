@@ -18,3 +18,5 @@ Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
 
 // URL where the deployed application can be seen
 Static.DeploymentURL = "{DEPLOYMENT_URL}";
+// name of the GitHub organization where the source code is hosted
+Static.GitHubOrg = "{GIT_ORGANIZATION}";
