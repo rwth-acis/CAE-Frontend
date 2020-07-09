@@ -164,6 +164,14 @@ export default {
                 "93641f72fb49c4f74264a780": {
                     "key": "label",
                     "value": "string"
+                },
+                "93641f72fb49c4f74264a781": {
+                    "key": "versionedModelId",
+                    "value": "string"
+                },
+                "93641f72fb49c4f74264a782": {
+                    "key": "version",
+                    "value": "string"
                 }
             },
             "shape": {
