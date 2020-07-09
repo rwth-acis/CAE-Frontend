@@ -10,10 +10,17 @@ $(function() {
     getServices()
 });
 
-function createNode(name, version) {
+function createNode(name, versionedModelId) {
   lastMicroserviceName = name;
   var time = new Date().getTime();
-  var data = JSON.stringify({selectedToolName: "Microservice", name: name, version: version});
+  var data = JSON.stringify({
+    selectedToolName: "Microservice",
+    name: name,
+    defaultAttributeValues: {
+      "6a4e681cd6b9d6b21e765c46": versionedModelId,
+      "6a4e681cd6b9d6b21e765c47": "TODO",
+    }
+  });
   var intent = new IWC.Intent("MICROSERVICE_SELECT_WIDGET", "Canvas", "ACTION_DATA", data, false);
   intent.extras = {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time}
   client.iwcClient.publish(intent);
@@ -50,7 +57,8 @@ var getServices = function() {
       // get the versioned model id
       var index = $(this).attr("id");
       var versionedModelId = projectMicroservices[index].versionedModelId;
-      createNode("" + versionedModelId);
+      var name = projectMicroservices[index].name;
+      createNode(name, "" + versionedModelId);
     });
 
   }, function(error) {

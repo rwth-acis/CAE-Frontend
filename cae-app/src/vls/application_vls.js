@@ -147,6 +147,14 @@ export default {
                 "6a4e681cd6b9d6b21e765c45": {
                     "key": "label",
                     "value": "string"
+                },
+                "6a4e681cd6b9d6b21e765c46": {
+                    "key": "versionedModelId",
+                    "value": "string"
+                },
+                "6a4e681cd6b9d6b21e765c47": {
+                    "key": "version",
+                    "value": "string"
                 }
             },
             "shape": {
