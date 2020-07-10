@@ -202,4 +202,84 @@ export default class ModelDifferencing {
     }
     return attributeValueMap;
   }
+
+  /**
+   * Restricts the wireframe to the nodes that the model contains.
+   * Removes nodes from the wireframe, if the are not part of the model.
+   * @param model
+   * @returns {boolean} False, if the wireframe would not be valid after restriction. True, otherwise.
+   */
+  static restrictWireframeToModel(model) {
+    const wireframe = model.wireframe;
+    const parser = new DOMParser();
+    const dom = parser.parseFromString(wireframe, "application/xml");
+
+    // get all uiObjs
+    const uiObjs = dom.getElementsByTagName("uiObj");
+
+    // get list of ids of nodes of model
+    const modelNodeIds = this.getNodeIds(model);
+
+    const remainingUiObjIdList = [];
+    const uiObjsToRemove = [];
+
+    // iterate over all uiObjs
+    for(const uiObj of uiObjs) {
+      // get id of uiObj - this id corresponds to a node id in the model
+      const uiObjId = uiObj.id;
+
+      // check if the model contains a node with the given id
+      if(!modelNodeIds.includes(uiObjId)) {
+        // the current uiObj (of the wireframe) is not selected in the commit (not included in the model which should be commited)
+        // thus, remove it from the wireframe
+        uiObjsToRemove.push(uiObj);
+      } else {
+        // should not be removed
+        remainingUiObjIdList.push(uiObjId);
+      }
+    }
+
+    // now remove the uiObjs
+    for(const uiObj of uiObjsToRemove) {
+      uiObj.parentNode.removeChild(uiObj);
+    }
+
+    // now the wireframe dom only contains the uiObjs which are also part of the model
+    // problem: as an example, if we have a div containing another element
+    // and the element is selected in the commit, but the div not, then we would add an uiObj where
+    // the parent does not exist
+    // thus we need to check for the remaining uiObjs, if their parent (if set) still exists in the dom
+    let failed = false;
+    for(const remainingUiObjId of remainingUiObjIdList) {
+      // get corresponding uiObj
+      const uiObj = dom.getElementById(remainingUiObjId);
+      const child = uiObj.children[1];
+      const parent = child.getAttribute("parent");
+      if(parent != "0" && parent != "1") {
+        // check if parent still exists
+        if(!remainingUiObjIdList.includes(parent)) {
+          failed = true;
+          break;
+        }
+      }
+
+    }
+    if(failed) return false;
+
+    model.wireframe = new XMLSerializer().serializeToString(dom);
+    return true;
+  }
+
+  /**
+   * Returns a list containing the SyncMeta ids of the nodes of the given model.
+   * @param model
+   * @returns {[]} List containing the SyncMeta ids of the nodes of the given model.
+   */
+  static getNodeIds(model) {
+    const nodeIds = [];
+    for(const [key, value] of Object.entries(model.nodes)) {
+      nodeIds.push(key);
+    }
+    return nodeIds;
+  }
 }

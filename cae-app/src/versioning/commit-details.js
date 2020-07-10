@@ -269,12 +269,6 @@ export class CommitDetails extends LitElement {
     // get commit message
     const commitMessage = this.getCommitMessageInput().value;
 
-    // disable button so that it is not possible to click the button twice (or more often)
-    this.getCommitButton().disabled = true;
-
-    // show dialog
-    this.openLoadingDialog();
-
     const body = {
       message: commitMessage
     };
@@ -288,9 +282,22 @@ export class CommitDetails extends LitElement {
     // add wireframe to model
     body.model.wireframe = this.currentWireframe;
 
+    // restrict the wireframe to the nodes that are selected in the commit
+    const success = ModelDifferencing.restrictWireframeToModel(body.model);
+    if(!success) {
+      this.showWarningToast("Wireframe is not valid when applying the selected changes!");
+      return;
+    }
+
     // add type of component, because the Model Persistence Service then adds it as an attribute to the model
     // and the Code Generation Service can use it
     body.componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
+
+    // disable button so that it is not possible to click the button twice (or more often)
+    this.getCommitButton().disabled = true;
+
+    // show dialog
+    this.openLoadingDialog();
 
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
@@ -391,7 +398,6 @@ export class CommitDetails extends LitElement {
             this.currentWireframe = y.share.data.get("wireframe");
 
             y.share.data.observe(event => {
-              console.log("model has changed");
               // model might have changed
 
               // update this.differencesUncommitedChanges
