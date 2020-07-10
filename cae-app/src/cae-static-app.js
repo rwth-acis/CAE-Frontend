@@ -467,10 +467,6 @@ class CaeStaticApp extends PolymerElement {
   menuItemClick(menuItemComponentType) {
     const modelingInfo = Common.getModelingInfo();
     if(this.isComponentOpened(menuItemComponentType)) {
-      // click should open modeling space
-      this.reloadCaeRoom(menuItemComponentType);
-      this.set("route.path", "cae-modeling/" + menuItemComponentType + "-modeling");
-
       // update versionedModelId in localStorage
       const versionedModelId = modelingInfo[menuItemComponentType].versionedModelId;
       Common.setVersionedModelId(versionedModelId);
@@ -478,6 +474,10 @@ class CaeStaticApp extends PolymerElement {
       // update GitHub repo name in localStorage
       const repoPrefix = menuItemComponentType == "frontend" ? "frontendComponent" : menuItemComponentType;
       Common.setGitHubRepoName(repoPrefix + "-" + versionedModelId);
+
+      // click should open modeling space
+      this.reloadCaeRoom(menuItemComponentType);
+      this.set("route.path", "cae-modeling/" + menuItemComponentType + "-modeling");
     } else {
       // component is not opened
       // show toast message
