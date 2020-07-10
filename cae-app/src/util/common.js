@@ -165,11 +165,21 @@ export default class Common {
   /**
    * Stores the name of the GitHub repository which belongs to the
    * currently opened component into localStorage.
-   * This then gets used by the LiveCodeEditor to fetch the files.
+   * This then gets used by the LiveCodeEditor to fetch the files and by the versioning widget
+   * to link commits to GitHub commits.
    * @param gitHubRepoName Name of the GitHub repository of the currently opened component.
    */
   static setGitHubRepoName(gitHubRepoName) {
     localStorage.setItem(this.KEY_GITHUB_REPO_NAME, gitHubRepoName);
+  }
+
+  /**
+   * Returns the name of the GitHub repo which corresponds to the currently
+   * opened component.
+   * @returns {string}
+   */
+  static getGitHubRepoName() {
+    return localStorage.getItem(this.KEY_GITHUB_REPO_NAME);
   }
 }
 

@@ -1,6 +1,7 @@
 import { LitElement, html} from 'lit-element';
 import Common from "../util/common";
 import MetamodelUploader from "../util/metamodel-uploader";
+import Static from "../static";
 
 export class CommitList extends LitElement {
   render() {
@@ -37,15 +38,21 @@ export class CommitList extends LitElement {
             <!-- check if commit is the commit for uncommited changes -->
             ${commit.message ? html`
               <!-- standard commit -->
-              <div style="display: flex">
+              <div style="display: flex; padding-top: 0.5em">
                 <!-- commit message -->
-                <p style="width: 100%; margin-right: 0; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
+                <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
                 <!-- button for context menu -->
                 <!--<paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
                   <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
                   <p slot="dropdown-content" style="padding-left: 4px; padding-right: 4px"
                     @click=${() => this._onResetModelToCommitClicked(commit)}>Reset model to this commit</p>
                 </paper-menu-button>-->
+                ${!this.isApplication() ? html`
+                  <a title="View commit on GitHub" style="text-decoration: none; margin-left: 0.5em; margin-right: 0.5em; margin-top: auto; margin-bottom: auto" 
+                      href=${this.getCommitGitHubURL(commit)} target="_blank">
+                    <img style="width: 1.5em; height: 1.5em" src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                  </a>
+                ` : html``}
               </div>
               <!-- version tag -->
               ${commit.versionTag ? html`
@@ -155,6 +162,18 @@ export class CommitList extends LitElement {
     const time = originalTimestamp.split(" ")[1].substring(0,5);
 
     return day + "." + month + "." + year + " " + time;
+  }
+
+  /**
+   * Returns whether the currently shown component is an application mashup.
+   * @returns {boolean} Whether the currently shown component is an application mashup.
+   */
+  isApplication() {
+    return Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId()) == "application";
+  }
+
+  getCommitGitHubURL(commit) {
+    return "https://github.com/" + Static.GitHubOrg + "/" + Common.getGitHubRepoName() + "/commit/" + commit.sha;
   }
 
   getSpinner() {
