@@ -491,33 +491,56 @@ export class CommitDetails extends LitElement {
     // reset selected differences
     this.selectedDifferences = [];
 
-    // show or hide UI for commiting
-    if(this.isUncommitedChangesCommitSelected()) {
-      // the selected commit is the one for "uncommited changes"
-      this.showUIForCommiting();
+    // Yjs room might have changed when the selected commit got changed
+    // then the highlighting feature might not work anymore
+    // => update it's Yjs instance
+    Y({
+      db: {
+        name: "memory" // store the shared data in memory
+      },
+      connector: {
+        name: "websockets-client", // use the websockets connector
+        room: parent.caeRoom,
+        options: { resource: Static.YjsResourcePath},
+        url: Static.YjsAddress
+      },
+      share: { // specify the shared content
+        data: 'Map',
+        canvas: 'Map'
+      }
+    }).then(function(y) {
+      this.y = y;
 
-      // if we just use the model given from commit.model, then this will be the same
-      // as the commit before it
-      // we must choose the current model from yjs room
-      this.setDifferencesToDifferencesUncommitedChanges();
-      this.updateChangesListElement();
-    } else {
-      // the selected commit is not the one for "uncommited changes"
-      this.hideUIForCommiting();
+      // now since Yjs instance is updated, reload commit changes
 
-      // get previous commit before the one that got selected
-      const commitBefore = this.getCommitBefore(commit);
-      // check if a previous commit exists
-      if(commitBefore) {
-        // previous commit exists
-        this.differences = ModelDifferencing.getDifferences(commitBefore.model, commit.model);
+      // show or hide UI for commiting
+      if(this.isUncommitedChangesCommitSelected()) {
+        // the selected commit is the one for "uncommited changes"
+        this.showUIForCommiting();
+
+        // if we just use the model given from commit.model, then this will be the same
+        // as the commit before it
+        // we must choose the current model from yjs room
+        this.setDifferencesToDifferencesUncommitedChanges();
         this.updateChangesListElement();
       } else {
-        // previous commit does not exist
-        this.differences = ModelDifferencing.getDifferencesOfSingleModel(commit.model);
-        this.updateChangesListElement();
+        // the selected commit is not the one for "uncommited changes"
+        this.hideUIForCommiting();
+
+        // get previous commit before the one that got selected
+        const commitBefore = this.getCommitBefore(commit);
+        // check if a previous commit exists
+        if(commitBefore) {
+          // previous commit exists
+          this.differences = ModelDifferencing.getDifferences(commitBefore.model, commit.model);
+          this.updateChangesListElement();
+        } else {
+          // previous commit does not exist
+          this.differences = ModelDifferencing.getDifferencesOfSingleModel(commit.model);
+          this.updateChangesListElement();
+        }
       }
-    }
+    }.bind(this));
   }
 
   /**

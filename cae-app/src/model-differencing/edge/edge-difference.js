@@ -49,9 +49,7 @@ export default class EdgeDifference extends Difference {
     // now, hightlight the edge itself and the nodes that it connects
     const key = this.getKey();
     const sourceNodeKey = this.edgeSourceKey;
-    console.log(sourceNodeKey);
     const targetNodeKey = this.edgeTargetKey;
-    console.log(targetNodeKey);
     y.share.canvas.set("highlight", {
       entities: [key, sourceNodeKey, targetNodeKey],
       color : "yellow",

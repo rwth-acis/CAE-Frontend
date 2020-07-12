@@ -97,12 +97,6 @@ export class CommitList extends LitElement {
     if(commit.id == this.selectedCommitId) return;
 
     this.selectedCommitId = commit.id;
-    const event = new CustomEvent("commit-selected", {
-      detail: {
-        commit: commit
-      }
-    });
-    this.dispatchEvent(event);
 
     // check if the commit is the one for "uncommited changes"
     if(commit.message == null) {
@@ -113,15 +107,22 @@ export class CommitList extends LitElement {
       // change the model which is shown in the canvas
       // we want to show the model at a previous stage/commit
       const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
+      parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id);
       MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, commit.model,
         this.versionedModel.id, commit.id).then(
         (_ => {
-          parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id);
           // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
           this.dispatchEvent(new CustomEvent("show-commit-canvas"));
         }).bind(this)
       );
     }
+
+    const event = new CustomEvent("commit-selected", {
+      detail: {
+        commit: commit
+      }
+    });
+    this.dispatchEvent(event);
   }
 
   // This is currently not used, but might be added as a feature later.
