@@ -160,6 +160,12 @@ export class CommitDetails extends LitElement {
       selectedDifference: {
         type: Object
       },
+      /**
+       * HTMLElement which belongs to the selected difference.
+       */
+      selectedDifferenceHTML: {
+        type: Object
+      },
       yjsRunning: {
         type: Boolean
       },
@@ -617,11 +623,16 @@ export class CommitDetails extends LitElement {
       const checkboxListener = this.selectedCommit.message == null ? listener : undefined;
 
       const diffHTMLElement = difference.toHTMLElement(checkboxListener, this.y);
+
+      if(JSON.stringify(difference) == JSON.stringify(this.selectedDifference)) {
+        diffHTMLElement.style.background = "#eeeeee";
+      }
+
       diffHTMLElement.addEventListener("mouseover", function() {
         diffHTMLElement.style.background = "#eeeeee";
       });
       diffHTMLElement.addEventListener("mouseleave", function() {
-        if(this.selectedDifference != diffHTMLElement) {
+        if(JSON.stringify(this.selectedDifference) != JSON.stringify(difference)) {
           diffHTMLElement.style.removeProperty("background");
         }
       }.bind(this));
@@ -633,11 +644,12 @@ export class CommitDetails extends LitElement {
         if(this.selectedDifference) {
           // currently, there's another element selected
           // remove background color from that
-          this.selectedDifference.style.removeProperty("background");
+          this.selectedDifferenceHTML.style.removeProperty("background");
         }
 
         // set this list element as the selected one
-        this.selectedDifference = diffHTMLElement;
+        this.selectedDifference = difference;
+        this.selectedDifferenceHTML = diffHTMLElement;
 
         // highlight node/edge in canvas
         difference.highlight(this.y);
