@@ -63,11 +63,30 @@ export default class ModelDifferencing {
     };
   }
 
-  static createModelFromDifferences(modelStart, differences) {
+  static createModelFromDifferences(modelStart, differences, currentModel) {
+    // apply differences to modelStart, i.e. to the previous stored model
     for(let i in differences) {
       const difference = differences[i];
       difference.applyToModel(modelStart);
     }
+
+    // changes regarding the position or size of nodes are not part of the differences array
+    // thus, we need to get these changes from the currentModel and apply them too
+    const currentNodes = currentModel.nodes;
+    const currentNodeKeys = Object.keys(currentNodes);
+    for(const [key, value] of Object.entries(modelStart.nodes)) {
+      if(currentNodeKeys.includes(key)) {
+        // node still exists in current model
+        // apply position/size changes to node in modelStart
+        const currentNode = currentNodes[key];
+        value.top = currentNode.top;
+        value.left = currentNode.left;
+        value.width = currentNode.width;
+        value.height = currentNode.height;
+        value.zIndex = currentNode.zIndex;
+      }
+    }
+
     return modelStart;
   }
 

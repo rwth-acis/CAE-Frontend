@@ -266,16 +266,18 @@ export class CommitDetails extends LitElement {
       return;
     }
 
+    const currentModel = this.y.share.data.get("model");
+
     // check if a previous model exists
     let updatedModel;
     if(this.versionedModel.commits.length > 1) {
       // previous model exists
       const previousModel = this.versionedModel.commits[1].model;
       // create the updated model which should be stored into the database, by applying the currently selected differences
-      updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences);
+      updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences, currentModel);
     } else {
       // there does not exist a previous model
-      updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences);
+      updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences, currentModel);
     }
 
     const modelValid = ModelValidator.edgesValid(updatedModel);
