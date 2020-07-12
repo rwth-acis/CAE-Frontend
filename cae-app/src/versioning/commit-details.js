@@ -348,6 +348,9 @@ export class CommitDetails extends LitElement {
         // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
         this.differencesUncommitedChanges = this.differencesUncommitedChanges.filter(diff => !this.selectedDifferences.includes(diff));
 
+        // every selected difference was commited, thus now there should not be any selected difference
+        this.selectedDifferences = [];
+
         // since the user commited, we have the "uncommited changes" commit as the selected commit
         // thus, after the commit, the changes list needs to be updated
         this.setDifferencesToDifferencesUncommitedChanges();
@@ -432,10 +435,6 @@ export class CommitDetails extends LitElement {
 
               // update this.differencesUncommitedChanges
               this.updateDifferencesUncommitedChanges(y.share.data.get("model"));
-
-              // reset selected differences
-              // TODO: this should be changed later, the selected changes should still be selected
-              this.selectedDifferences = [];
 
               // check if the currently selected commit is the one for "uncommited changes"
               if(this.selectedCommit.message == null) {
@@ -621,6 +620,12 @@ export class CommitDetails extends LitElement {
 
       if(Difference.equals(difference, this.selectedDifference)) {
         diffHTMLElement.style.background = "#eeeeee";
+      }
+
+      for(const selectedDiff of this.selectedDifferences) {
+        if(Difference.equals(selectedDiff, difference)) {
+          diffHTMLElement.getElementsByTagName("paper-checkbox")[0].checked = true;
+        }
       }
 
       diffHTMLElement.addEventListener("mouseover", function() {
