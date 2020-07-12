@@ -124,7 +124,7 @@ class ProjectExplorer extends LitElement {
                 <div style="margin-left: auto; display: flex">
                   ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot" style="margin-top: auto; margin-bottom: auto"></span>` : html``}
                   <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
-                  <a href="${project.gitHubProjectHtmlUrl}" target="_blank" class="github-a" style="margin-top: auto; margin-bottom: auto">
+                  <a href="${project.gitHubProjectHtmlUrl}" title="Open on GitHub Projects" target="_blank" class="github-a" style="margin-top: auto; margin-bottom: auto">
                     <!-- not using the svg from master branch, otherwise the file might be deleted and cannot be displayed anymore -->
                     <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                   </a>
