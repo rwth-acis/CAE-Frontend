@@ -1,5 +1,6 @@
 import { LitElement, html} from 'lit-element';
 import '@polymer/paper-checkbox/paper-checkbox.js';
+import '@polymer/paper-progress/paper-progress.js';
 import Common from "../util/common";
 import Auth from "../util/auth";
 import Static from "../static";
@@ -93,8 +94,21 @@ export class CommitDetails extends LitElement {
       </div>
       
       <!-- Dialog showing a loading bar -->
+      <custom-style>
+        <style is="custom-style">
+          paper-progress.blue {
+            --paper-progress-active-color: rgb(30,144,255);
+          }
+        </style>
+      </custom-style>
       <paper-dialog id="dialog-loading" modal>
-        <paper-spinner-lite active></paper-spinner-lite>
+        <h2>Committing and pushing...</h2>
+        <div>
+          <paper-progress class="blue" style="width: 100%" indeterminate></paper-progress>
+          <p>
+            The changes are committed and pushed to GitHub. This may take some time.
+          </p>
+        </div>
       </paper-dialog>
       
       <!-- Generic Toast (see showToast method for more information) -->
