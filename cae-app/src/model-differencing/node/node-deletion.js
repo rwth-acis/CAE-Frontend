@@ -11,7 +11,7 @@ export default class NodeDeletion extends NodeDifference {
    * @param nodeValue Value of the node that got deleted.
    */
   constructor(nodeKey, nodeValue) {
-    super(nodeKey, nodeValue);
+    super(nodeKey, nodeValue, "NodeDeletion");
   }
 
   /**

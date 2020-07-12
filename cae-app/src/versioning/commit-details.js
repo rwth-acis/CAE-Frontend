@@ -7,6 +7,7 @@ import Static from "../static";
 import ModelDifferencing from "../model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";
 import ModelValidator from "../model-differencing/model-validator";
+import Difference from "../model-differencing/difference";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -158,12 +159,6 @@ export class CommitDetails extends LitElement {
        * it does not mean that it is "selected" here.
        */
       selectedDifference: {
-        type: Object
-      },
-      /**
-       * HTMLElement which belongs to the selected difference.
-       */
-      selectedDifferenceHTML: {
         type: Object
       },
       yjsRunning: {
@@ -624,7 +619,7 @@ export class CommitDetails extends LitElement {
 
       const diffHTMLElement = difference.toHTMLElement(checkboxListener, this.y);
 
-      if(JSON.stringify(difference) == JSON.stringify(this.selectedDifference)) {
+      if(Difference.equals(difference, this.selectedDifference)) {
         diffHTMLElement.style.background = "#eeeeee";
       }
 
@@ -632,7 +627,7 @@ export class CommitDetails extends LitElement {
         diffHTMLElement.style.background = "#eeeeee";
       });
       diffHTMLElement.addEventListener("mouseleave", function() {
-        if(JSON.stringify(this.selectedDifference) != JSON.stringify(difference)) {
+        if(!Difference.equals(this.selectedDifference, difference)) {
           diffHTMLElement.style.removeProperty("background");
         }
       }.bind(this));
@@ -643,13 +638,15 @@ export class CommitDetails extends LitElement {
         }
         if(this.selectedDifference) {
           // currently, there's another element selected
-          // remove background color from that
-          this.selectedDifferenceHTML.style.removeProperty("background");
+          // remove background color from that (just remove it from all)
+          for(const child of changesListElement.childNodes) {
+            child.style.removeProperty("background");
+          }
         }
+        diffHTMLElement.style.background = "#eeeeee";
 
         // set this list element as the selected one
         this.selectedDifference = difference;
-        this.selectedDifferenceHTML = diffHTMLElement;
 
         // highlight node/edge in canvas
         difference.highlight(this.y);

@@ -11,7 +11,7 @@ export default class NodeAddition extends NodeDifference {
    * @param nodeValue Value of the node that got added.
    */
   constructor(nodeKey, nodeValue) {
-    super(nodeKey, nodeValue);
+    super(nodeKey, nodeValue, "NodeAddition");
   }
 
   /**

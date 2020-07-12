@@ -12,7 +12,7 @@ export default class NodeUpdate extends NodeDifference {
    * @param attributeKey Key of the attribute that got updated.
    */
   constructor(nodeKey, nodeValue, attributeKey) {
-    super(nodeKey, nodeValue);
+    super(nodeKey, nodeValue, "NodeUpdate");
     this.attributeKey = attributeKey;
   }
 

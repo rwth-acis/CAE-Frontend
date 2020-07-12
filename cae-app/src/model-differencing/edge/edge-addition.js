@@ -15,7 +15,7 @@ export default class EdgeAddition extends EdgeDifference {
    * @param edgeTargetValue Target node of the edge.
    */
   constructor(edgeKey, edgeValue, edgeSourceKey, edgeSourceValue, edgeTargetKey, edgeTargetValue) {
-    super(edgeKey, edgeValue, edgeSourceKey, edgeSourceValue, edgeTargetKey, edgeTargetValue);
+    super(edgeKey, edgeValue, edgeSourceKey, edgeSourceValue, edgeTargetKey, edgeTargetValue, "EdgeAddition");
   }
 
   /**

@@ -11,8 +11,8 @@ export default class NodeDifference extends Difference {
    * @param nodeKey Key of the node, i.e. the SyncMeta id of it.
    * @param nodeValue Value of the node.
    */
-  constructor(nodeKey, nodeValue) {
-    super(nodeKey, nodeValue);
+  constructor(nodeKey, nodeValue, type) {
+    super(nodeKey, nodeValue, type);
   }
 
   /**

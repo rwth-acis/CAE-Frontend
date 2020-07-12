@@ -12,9 +12,10 @@ export default class Difference {
    * @param key Key of the element that has changed, i.e. a SyncMeta id.
    * @param value Value of the element that has changed.
    */
-  constructor(key, value) {
+  constructor(key, value, type) {
     this.key = key;
     this.value = value;
+    this.type = type;
   }
 
   /**
@@ -113,7 +114,7 @@ export default class Difference {
     // first, unhighlight every entity
     this.unhighlightAll(y);
 
-    // now, hightlight the node/edge belonging to this difference element
+    // now, highlight the node/edge belonging to this difference element
     const key = this.getKey();
     y.share.canvas.set("highlight", {
       entities: [key],
@@ -150,5 +151,22 @@ export default class Difference {
       entityIds.push(key);
     }
     return entityIds;
+  }
+
+  /**
+   * Compares the two given difference objects.
+   * @param diff1
+   * @param diff2
+   * @returns {boolean} Whether the two given difference objects are equals (content equals).
+   */
+  static equals(diff1, diff2) {
+    if(!diff1 && !diff2) return true;
+    if(!diff1 || !diff2) return false;
+    if(diff1.type != diff2.type) return false;
+    if (diff1.type === "NodeUpdate") {
+      return (diff1.key == diff2.key) && (diff1.attributeKey == diff2.attributeKey);
+    } else {
+      return diff1.key == diff2.key;
+    }
   }
 }
