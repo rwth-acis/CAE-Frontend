@@ -137,6 +137,15 @@ export class CommitDetails extends LitElement {
       selectedDifferences: {
         type: Array
       },
+      /**
+       * The difference object of the differences list which is currently
+       * selected, i.e. the user clicked on the item and it is highlighted now.
+       * Note: This has nothing to do with the checkboxes, if an item is checked, then
+       * it does not mean that it is "selected" here.
+       */
+      selectedDifference: {
+        type: Object
+      },
       yjsRunning: {
         type: Boolean
       },
@@ -163,6 +172,9 @@ export class CommitDetails extends LitElement {
        */
       currentWireframe: {
         type: String
+      },
+      y: {
+        type: Object
       }
     };
   }
@@ -175,6 +187,7 @@ export class CommitDetails extends LitElement {
     this.differenceElements = [];
     this.latestVersionTag = undefined;
     this.currentWireframe = undefined;
+    this.selectedDifference = undefined;
   }
 
   /**
@@ -377,9 +390,11 @@ export class CommitDetails extends LitElement {
           url: Static.YjsAddress
         },
         share: { // specify the shared content
-          data: 'Map'
+          data: 'Map',
+          canvas: 'Map'
         }
       }).then(function(y) {
+        this.y = y;
         // wait until a model is available
         // because there was the bug, that the model sometimes was not available yet
         const waitForModel = function() {
@@ -561,11 +576,35 @@ export class CommitDetails extends LitElement {
           // since at least one checkbox is not checked, the checkbox to select all changes should also not be checked
           this.getCheckboxSelectAllElement().checked = false;
         }
-        console.log("selected differences", this.selectedDifferences);
       }.bind(this);
       const checkboxListener = this.selectedCommit.message == null ? listener : undefined;
 
-      const diffHTMLElement = difference.toHTMLElement(checkboxListener);
+      const diffHTMLElement = difference.toHTMLElement(checkboxListener, this.y);
+      diffHTMLElement.addEventListener("mouseover", function() {
+        diffHTMLElement.style.background = "#eeeeee";
+      });
+      diffHTMLElement.addEventListener("mouseleave", function() {
+        if(this.selectedDifference != diffHTMLElement) {
+          diffHTMLElement.style.removeProperty("background");
+        }
+      }.bind(this));
+      diffHTMLElement.addEventListener("click", function(event) {
+        if(event.path[0].tagName == "IRON-ICON") {
+          // user clicked on expand/collapse button
+          return;
+        }
+        if(this.selectedDifference) {
+          // currently, there's another element selected
+          // remove background color from that
+          this.selectedDifference.style.removeProperty("background");
+        }
+
+        // set this list element as the selected one
+        this.selectedDifference = diffHTMLElement;
+
+        // highlight node/edge in canvas
+        difference.highlight(this.y);
+      }.bind(this));
       this.differenceElements.push(diffHTMLElement);
 
       changesListElement.appendChild(diffHTMLElement);

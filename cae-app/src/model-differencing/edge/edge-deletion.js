@@ -9,11 +9,13 @@ export default class EdgeDeletion extends EdgeDifference {
    * Constructor for edge that got deleted from the model.
    * @param edgeKey Key of the deleted edge, i.e. a SyncMeta id.
    * @param edgeValue Value of the deleted edge.
-   * @param edgeSource Source node of the edge.
-   * @param edgeTarget Target node of the edge.
+   * @param edgeSourceKey Key of the source node of the edge.
+   * @param edgeSourceValue Source node of the edge.
+   * @param edgeTargetKey Key of the target node of the edge.
+   * @param edgeTargetValue Target node of the edge.
    */
-  constructor(edgeKey, edgeValue, edgeSource, edgeTarget) {
-    super(edgeKey, edgeValue, edgeSource, edgeTarget);
+  constructor(edgeKey, edgeValue, edgeSourceKey, edgeSourceValue, edgeTargetKey, edgeTargetValue) {
+    super(edgeKey, edgeValue, edgeSourceKey, edgeSourceValue, edgeTargetKey, edgeTargetValue);
   }
 
   /**

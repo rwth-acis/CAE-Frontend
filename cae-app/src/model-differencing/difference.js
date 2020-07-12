@@ -1,3 +1,6 @@
+import Common from "../util/common";
+import Static from "../static";
+
 /**
  * Class used as a base for all differences that appear between two
  * model versions.
@@ -104,5 +107,48 @@ export default class Difference {
     outerDiv.appendChild(detailsDiv);
 
     return outerDiv;
+  }
+
+  highlight(y) {
+    // first, unhighlight every entity
+    this.unhighlightAll(y);
+
+    // now, hightlight the node/edge belonging to this difference element
+    const key = this.getKey();
+    y.share.canvas.set("highlight", {
+      entities: [key],
+      color : "yellow",
+      label: "Selected in versioning system",
+      userId: Common.getUserInfo().sub,
+      remote: false
+    });
+  }
+
+  unhighlightAll(y) {
+    y.share.canvas.set("unhighlight", {
+      entities: this.getEntityIdsFromModel(y.share.data.get("model")),
+      userId: Common.getUserInfo().sub,
+      remote: false
+    });
+  }
+
+  /**
+   * Returns a list containing the ids of every node and edge entity in the given model.
+   * @param model Model given from Yjs room.
+   * @returns {[]} A list containing the ids of every node and edge entity in the given model.
+   */
+  getEntityIdsFromModel(model) {
+    const nodes = model.nodes;
+    const edges = model.edges;
+
+    const entityIds = [];
+
+    for(const [key, value] of Object.entries(nodes)) {
+      entityIds.push(key);
+    }
+    for(const [key, value] of Object.entries(edges)) {
+      entityIds.push(key);
+    }
+    return entityIds;
   }
 }

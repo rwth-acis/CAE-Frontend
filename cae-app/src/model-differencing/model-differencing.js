@@ -101,7 +101,7 @@ export default class ModelDifferencing {
         const source = nodes2[value.source];
         const target = nodes2[value.target];
 
-        additions.push(new EdgeAddition(key, value, source, target));
+        additions.push(new EdgeAddition(key, value, value.source, source, value.target, target));
       }
     }
 
@@ -115,7 +115,7 @@ export default class ModelDifferencing {
         const source = nodes1[value.source];
         const target = nodes1[value.target];
 
-        deletions.push(new EdgeDeletion(key, value, source, target));
+        deletions.push(new EdgeDeletion(key, value, value.source, source, value.target, target));
       }
     }
 

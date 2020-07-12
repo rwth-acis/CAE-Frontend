@@ -1,4 +1,5 @@
 import Difference from "../difference";
+import Common from "../../util/common";
 
 /**
  * Represents an edge that has changed between two model versions.
@@ -9,13 +10,17 @@ export default class EdgeDifference extends Difference {
    * Constructor for edge that has changed.
    * @param edgeKey Key of the changed edge, i.e. a SyncMeta id.
    * @param edgeValue Value of the changed edge.
-   * @param edgeSource Source node of the edge.
-   * @param edgeTarget Target node of the edge.
+   * @param edgeSourceKey Key of the source node of the edge.
+   * @param edgeSourceValue Source node of the edge.
+   * @param edgeTargetKey Key of the target node of the edge.
+   * @param edgeTargetValue Target node of the edge.
    */
-  constructor(edgeKey, edgeValue, edgeSource, edgeTarget) {
+  constructor(edgeKey, edgeValue, edgeSourceKey, edgeSourceValue, edgeTargetKey, edgeTargetValue) {
     super(edgeKey, edgeValue);
-    this.edgeSource = edgeSource;
-    this.edgeTarget = edgeTarget;
+    this.edgeSourceKey = edgeSourceKey;
+    this.edgeSourceValue = edgeSourceValue;
+    this.edgeTargetKey = edgeTargetKey;
+    this.edgeTargetValue = edgeTargetValue;
   }
 
   /**
@@ -28,7 +33,7 @@ export default class EdgeDifference extends Difference {
 
     // set text value
     const textElement = element.getElementsByClassName("text")[0];
-    textElement.innerText = "Edge from " + this.edgeSource.type + " to " + this.edgeTarget.type;
+    textElement.innerText = "Edge from " + this.edgeSourceValue.type + " to " + this.edgeTargetValue.type;
 
     // remove button for expanding/collapsing details (because they are currently not used for edges)
     element.getElementsByClassName("button-expand-collapse")[0].remove();
@@ -36,6 +41,24 @@ export default class EdgeDifference extends Difference {
     element.getElementsByClassName("text")[0].style.setProperty("margin-right", "1.5em");
 
     return element;
+  }
+
+  highlight(y) {
+    super.unhighlightAll(y);
+
+    // now, hightlight the edge itself and the nodes that it connects
+    const key = this.getKey();
+    const sourceNodeKey = this.edgeSourceKey;
+    console.log(sourceNodeKey);
+    const targetNodeKey = this.edgeTargetKey;
+    console.log(targetNodeKey);
+    y.share.canvas.set("highlight", {
+      entities: [key, sourceNodeKey, targetNodeKey],
+      color : "yellow",
+      label: "Selected in versioning system",
+      userId: Common.getUserInfo().sub,
+      remote: false
+    });
   }
 
 }

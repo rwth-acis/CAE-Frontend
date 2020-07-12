@@ -99,6 +99,14 @@ export default class Common {
   }
 
   /**
+   * Returns the information about the currently logged in user.
+   * @returns {string}
+   */
+  static getUserInfo() {
+    return JSON.parse(localStorage.getItem(this.KEY_USER_INFO));
+  }
+
+  /**
    * Stores the information about the currently logged in user.
    * @param userInfo Info to store in localStorage.
    */
