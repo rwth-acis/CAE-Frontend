@@ -296,7 +296,7 @@ export class CommitDetails extends LitElement {
     let updatedModel;
     if(this.versionedModel.commits.length > 1) {
       // previous model exists
-      const previousModel = this.versionedModel.commits[1].model;
+      const previousModel = this.getLastCommit(this.versionedModel.commits).model;
       // create the updated model which should be stored into the database, by applying the currently selected differences
       updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences, currentModel);
     } else {
@@ -525,7 +525,8 @@ export class CommitDetails extends LitElement {
   updateDifferencesUncommitedChanges(currentModelFromYjsRoom) {
     // get last real commit (do not take "uncommited changes" commit)
     // lastCommit might be undefined
-    let lastCommit = this.commits[1];
+    let lastCommit = this.getLastCommit(this.commits);
+
 
     // get differences between last commit and current model state
     if(lastCommit == undefined) {
@@ -535,6 +536,19 @@ export class CommitDetails extends LitElement {
       // there exists a last commit, so we can calculate the differences between the last commit and the current model state
       this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, currentModelFromYjsRoom);
     }
+  }
+
+  getLastCommit(commits) {
+    let lastCommit = undefined;
+    if(commits.length > 1) {
+      for (let i = 1; i < commits.length; i++) {
+        if(commits[i].commitType == 0) {
+          lastCommit = commits[i];
+          break;
+        }
+      }
+    }
+    return lastCommit;
   }
 
   /**
@@ -623,8 +637,10 @@ export class CommitDetails extends LitElement {
     let commitToReturn = undefined;
     for(let c of this.versionedModel.commits) {
       if(returnNext) {
-        commitToReturn =  c;
-        break;
+        if(c.commitType == 0) {
+          commitToReturn = c;
+          break;
+        }
       }
       if(c.id == commit.id) {
         // this is the commit we searched for, the one before should get returned
