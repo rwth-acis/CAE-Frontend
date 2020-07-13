@@ -34,7 +34,8 @@ export class VersioningElement extends LitElement {
               @commit-selected=${(e) => this._onCommitSelected(e.detail.commit)}></commit-list>
         </div>
         <div class="flex-commit-details">
-          <commit-details id="commit-details" @reload-commit-list=${this.reloadCommitList}></commit-details>
+          <commit-details id="commit-details" @reload-commit-list=${this.reloadCommitList}
+              @reload-current-modeling-page=${(e) => this.dispatchEvent(new CustomEvent("reload-current-modeling-page"))}></commit-details>
         </div>
       </div>
     `;

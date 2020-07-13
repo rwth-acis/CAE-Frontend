@@ -112,6 +112,11 @@ class CaeModeling extends PolymerElement {
     const elem = document.createElement(type + "-modeling");
     elem.setAttribute("name", type + "-modeling-element");
     elem.setAttribute("id", type + "-modeling-element");
+
+    elem.addEventListener("reload-current-modeling-page", function() {
+      this.reloadModelingElement(type);
+    }.bind(this));
+
     return elem;
   }
 
@@ -138,25 +143,6 @@ class CaeModeling extends PolymerElement {
 
   ready() {
     super.ready();
-
-    // the following line is commented, should only be visible while debugging
-    // this.displayCurrentRoomName();
-  }
-
-  /**
-   * Displays the currently used room name.
-   * maybe this is not really needed in the final CAE, but for development it is helpful
-   */
-  displayCurrentRoomName() {
-    const element = this.shadowRoot.querySelector('#currentRoom');
-    element.removeAttribute("style");
-    let spaceHTML = "";
-    if (Common.getYjsRoomName()) {
-      spaceHTML = `<span style="font-weight: bold;">Current Space:</span> ${Common.getYjsRoomName()}`;
-    } else {
-      spaceHTML = "Please enter a space!";
-    }
-    element.innerHTML = spaceHTML;
   }
 }
 

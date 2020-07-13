@@ -8,6 +8,7 @@ import ModelDifferencing from "../model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";
 import ModelValidator from "../model-differencing/model-validator";
 import Difference from "../model-differencing/difference";
+import MetamodelUploader from "../util/metamodel-uploader";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -33,16 +34,16 @@ export class CommitDetails extends LitElement {
           width: 2.5em;
           height: 2em;
         }
-        paper-button {
+        .paper-button-blue {
           color: rgb(240,248,255);
           background: rgb(30,144,255);
           height: 2.5em;
         }
-        paper-button:hover {
+        .paper-button-blue:hover {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
         }
-        paper-button[disabled] {
+        .paper-button-blue[disabled] {
           background: #e1e1e1;
         }
         /*
@@ -52,6 +53,9 @@ export class CommitDetails extends LitElement {
         input[type=number]::-webkit-inner-spin-button {
           opacity: 1
         }
+        .undo-icon:hover {
+          color: #7c7c7c;
+        }
       </style>
       
       <h3>Commit Details</h3>
@@ -59,8 +63,9 @@ export class CommitDetails extends LitElement {
       <!-- div for main content -->
       <div style="height: 500px; display: flex; flex-direction: column">
         <!-- div for selecting all changes -->
-        <div id="div-select-all" style="padding-left: 0.5em; margin-top: 1em; margin-bottom: 1em">
+        <div id="div-select-all" style="display: flex; padding-left: 0.5em; margin-top: 1em; margin-bottom: 1em; margin-right: 1em">
           <paper-checkbox @change=${this._onCheckboxSelectAllChanged} id="checkbox-select-all" aria-checked="false">Select all changes</paper-checkbox>
+          <iron-icon id="undo-changes-button" icon="undo" class="undo-icon" @click=${this._onUndoChangesClicked} style="margin-left: auto"></iron-icon>
         </div>
         <div class="separator"></div>
         <!-- div for displaying changes -->
@@ -88,7 +93,7 @@ export class CommitDetails extends LitElement {
           <div style="margin-top: 0.5em">
             <input id="input-commit-message" class="input" placeholder="Enter commit message" style="margin-left: 0"
               @input="${(e) => this._onCommitMessageInputChanged(e.target.value)}"/>
-            <paper-button id="button-commit" @click="${this._onCommitClicked}"
+            <paper-button id="button-commit" @click="${this._onCommitClicked}" class="paper-button-blue"
                         style="margin-top: 0.5em" disabled="true">Commit</paper-button>
           </div>
         </div>
@@ -109,6 +114,16 @@ export class CommitDetails extends LitElement {
           <p>
             The changes are committed and pushed to GitHub. This may take some time.
           </p>
+        </div>
+      </paper-dialog>
+      
+      <!-- Confirmation dialog for undo changes -->
+      <paper-dialog id="dialog-undo-confirmation" modal>
+        <h2>Undo changes</h2>
+        <p>Are you sure that you want to undo the changes since the last commit?</p>
+        <div class="buttons">
+          <paper-button dialog-dismiss>No</paper-button>
+          <paper-button @click=${this._onConfirmUndoChangesClicked} dialog-confirm>Yes</paper-button>
         </div>
       </paper-dialog>
       
@@ -705,6 +720,27 @@ export class CommitDetails extends LitElement {
         }
       }
     }
+  }
+
+  /**
+   * Shows the confirmation dialog for undoing all the changes since the last commit.
+   * @private
+   */
+  _onUndoChangesClicked() {
+    this.shadowRoot.getElementById("dialog-undo-confirmation").open();
+  }
+
+  /**
+   * Gets called when the user confirmed, that every change since the last commit should be undone
+   * @private
+   */
+  _onConfirmUndoChangesClicked() {
+    const previousModel = this.versionedModel.commits[0].model;
+    this.y.share.data.set("model", previousModel);
+    this.y.share.data.set("wireframe", previousModel.wireframe);
+
+    // reload modeling page
+    this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
   }
 
   getCheckboxSelectAllElement() {

@@ -106,6 +106,12 @@ class MicroserviceModeling extends PolymerElement {
     this.reloadCaeRoom();
 
     new SyncMetaSwitchHelper(this.shadowRoot);
+
+    // listener for reloading of current modeling page
+    // this is used, when the changes since the last commit should be undone
+    this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
+      this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
+    }.bind(this));
   }
 
   reloadCaeRoom() {
