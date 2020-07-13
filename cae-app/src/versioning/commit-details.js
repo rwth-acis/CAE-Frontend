@@ -348,7 +348,14 @@ export class CommitDetails extends LitElement {
 
       if(response.ok) {
         // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
-        this.differencesUncommitedChanges = this.differencesUncommitedChanges.filter(diff => !this.selectedDifferences.includes(diff));
+        const diffUncommitedChangesToDelete = [];
+        for(const diff of this.differencesUncommitedChanges) {
+          const matches = this.selectedDifferences.filter(d => Difference.equals(diff, d));
+          if(matches.length > 0) {
+            diffUncommitedChangesToDelete.push(diff);
+          }
+        }
+        this.differencesUncommitedChanges = this.differencesUncommitedChanges.filter(diff => !diffUncommitedChangesToDelete.includes(diff));
 
         // every selected difference was commited, thus now there should not be any selected difference
         this.selectedDifferences = [];
@@ -590,6 +597,16 @@ export class CommitDetails extends LitElement {
     // clear all elements
     while (changesListElement.firstChild) changesListElement.removeChild(changesListElement.firstChild);
 
+    // for all selected differences, check if they are still element of this.differences
+    const toDelete = [];
+    for(const selectedDiff of this.selectedDifferences) {
+      const matches = this.differences.filter(diff => Difference.equals(selectedDiff, diff));
+      if(matches.length == 0) {
+        toDelete.push(selectedDiff);
+      }
+    }
+    this.selectedDifferences = this.selectedDifferences.filter(diff => !toDelete.includes(diff));
+
     this.differenceElements = [];
     // read elements
     for(let i in this.differences) {
@@ -611,7 +628,7 @@ export class CommitDetails extends LitElement {
             this.getCheckboxSelectAllElement().checked = true;
           }
         } else {
-          this.selectedDifferences = this.selectedDifferences.filter(diff => diff != difference);
+          this.selectedDifferences = this.selectedDifferences.filter(diff => !Difference.equals(diff, difference));
           // since at least one checkbox is not checked, the checkbox to select all changes should also not be checked
           this.getCheckboxSelectAllElement().checked = false;
         }
