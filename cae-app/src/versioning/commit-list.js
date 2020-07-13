@@ -93,6 +93,12 @@ export class CommitList extends LitElement {
    * @private
    */
   _onCommitLeftClicked(commit) {
+    if(commit.commitType == 1) {
+      // this commit is not a commit which belongs to changes of the model
+      // it is a commit which got created by the Live Code Editor
+      return;
+    }
+
     // only do something, if the commit that got selected was not selected before
     if(commit.id == this.selectedCommitId) return;
 
