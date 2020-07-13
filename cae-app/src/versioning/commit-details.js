@@ -203,7 +203,16 @@ export class CommitDetails extends LitElement {
       currentWireframe: {
         type: String
       },
+      /**
+       * This references the Yjs instance of the currently shown canvas.
+       */
       y: {
+        type: Object
+      },
+      /**
+       * Reference to the Yjs instance used for the actual modeling process.
+       */
+      mainY: {
         type: Object
       }
     };
@@ -382,6 +391,10 @@ export class CommitDetails extends LitElement {
 
         // reload commit list
         this.sendReloadCommitListEvent();
+
+        // notify everyone in the Yjs room about the new commit
+        // this allows to reload the versioning widget for the other users
+        this.y.share.versioning_widget.set("COMMIT_CREATED", true);
       } else {
         console.log(response.status);
         if(response.status == "403") {
@@ -404,6 +417,10 @@ export class CommitDetails extends LitElement {
     this.selectedCommit = this.commits[0];
 
     this.selectedDifferences = [];
+
+    if(this.mainY) {
+      this.reloadUncommitedChanges(this.mainY);
+    }
 
     // check if there exists a commit with a version tag
     // if there exists one, then get the currently latest version tag
@@ -433,10 +450,12 @@ export class CommitDetails extends LitElement {
         },
         share: { // specify the shared content
           data: 'Map',
-          canvas: 'Map'
+          canvas: 'Map',
+          versioning_widget: 'Map'
         }
       }).then(function(y) {
         this.y = y;
+        this.mainY = y;
         // wait until a model is available
         // because there was the bug, that the model sometimes was not available yet
         const waitForModel = function() {
@@ -457,22 +476,19 @@ export class CommitDetails extends LitElement {
             y.share.data.observe(event => {
               // model might have changed
 
-              // update this.differencesUncommitedChanges
-              this.updateDifferencesUncommitedChanges(y.share.data.get("model"));
-
-              // check if the currently selected commit is the one for "uncommited changes"
-              if(this.selectedCommit.message == null) {
-                // the currently selected commit is the one for "uncommited changes"
-                // since the differences might have changed, we need to update the changes list
-                this.setDifferencesToDifferencesUncommitedChanges();
-                this.updateChangesListElement();
-              } else {
-                // the currently selected commit is not the one for "uncommited changes"
-                // thus, we do not need to update the changes list
-              }
+              this.reloadUncommitedChanges(y);
 
               // maybe the wireframe changed too (does not matter if one exists or not)
               this.currentWireframe = y.share.data.get("wireframe");
+            });
+
+            y.share.versioning_widget.observe(event => {
+              if(event.name == "COMMIT_CREATED") {
+                // a user (the local one or a remote user) has created a new commit
+                // thus, the commit list needs to be reloaded
+                // when this event gets fired, also the commit details get reloaded.
+                this.dispatchEvent(new CustomEvent("reload-commit-list"));
+              }
             });
           } else {
             // model not available yet
@@ -482,6 +498,22 @@ export class CommitDetails extends LitElement {
         }.bind(this);
         waitForModel();
       }.bind(this));
+    }
+  }
+
+  reloadUncommitedChanges(y) {
+    // update this.differencesUncommitedChanges
+    this.updateDifferencesUncommitedChanges(y.share.data.get("model"));
+
+    // check if the currently selected commit is the one for "uncommited changes"
+    if(this.selectedCommit.message == null) {
+      // the currently selected commit is the one for "uncommited changes"
+      // since the differences might have changed, we need to update the changes list
+      this.setDifferencesToDifferencesUncommitedChanges();
+      this.updateChangesListElement();
+    } else {
+      // the currently selected commit is not the one for "uncommited changes"
+      // thus, we do not need to update the changes list
     }
   }
 
@@ -544,7 +576,8 @@ export class CommitDetails extends LitElement {
       },
       share: { // specify the shared content
         data: 'Map',
-        canvas: 'Map'
+        canvas: 'Map',
+        versioning_widget: 'Map'
       }
     }).then(function(y) {
       this.y = y;
