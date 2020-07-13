@@ -49,7 +49,7 @@ export class CommitList extends LitElement {
                 </paper-menu-button>-->
                 ${!this.isApplication() ? html`
                   <a title="View commit on GitHub" style="text-decoration: none; margin-left: 0.5em; margin-right: 0.5em; margin-top: auto; margin-bottom: auto" 
-                      href=${this.getCommitGitHubURL(commit)} target="_blank">
+                      href=${CommitList.getCommitGitHubURL(commit)} target="_blank">
                     <img style="width: 1.5em; height: 1.5em" src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
                   </a>
                 ` : html``}
@@ -93,12 +93,6 @@ export class CommitList extends LitElement {
    * @private
    */
   _onCommitLeftClicked(commit) {
-    if(commit.commitType == 1) {
-      // this commit is not a commit which belongs to changes of the model
-      // it is a commit which got created by the Live Code Editor
-      return;
-    }
-
     // only do something, if the commit that got selected was not selected before
     if(commit.id == this.selectedCommitId) return;
 
@@ -110,17 +104,19 @@ export class CommitList extends LitElement {
       parent.caeRoom = Common.getYjsRoomNameForVersionedModel(this.versionedModel.id);
       this.dispatchEvent(new CustomEvent("show-main-canvas"));
     } else {
-      // change the model which is shown in the canvas
-      // we want to show the model at a previous stage/commit
-      const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
-      parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id);
-      MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, commit.model,
-        this.versionedModel.id, commit.id).then(
-        (_ => {
-          // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
-          this.dispatchEvent(new CustomEvent("show-commit-canvas"));
-        }).bind(this)
-      );
+      if(commit.commitType == 0) { // only for commits that belong to model changes
+        // change the model which is shown in the canvas
+        // we want to show the model at a previous stage/commit
+        const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
+        parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id);
+        MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, commit.model,
+          this.versionedModel.id, commit.id).then(
+          (_ => {
+            // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
+            this.dispatchEvent(new CustomEvent("show-commit-canvas"));
+          }).bind(this)
+        );
+      }
     }
 
     const event = new CustomEvent("commit-selected", {
@@ -179,7 +175,7 @@ export class CommitList extends LitElement {
     return Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId()) == "application";
   }
 
-  getCommitGitHubURL(commit) {
+  static getCommitGitHubURL(commit) {
     return "https://github.com/" + Static.GitHubOrg + "/" + Common.getGitHubRepoName() + "/commit/" + commit.sha;
   }
 

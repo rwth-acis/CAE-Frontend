@@ -9,6 +9,7 @@ import SemVer from "../util/sem-ver";
 import ModelValidator from "../model-differencing/model-validator";
 import Difference from "../model-differencing/difference";
 import MetamodelUploader from "../util/metamodel-uploader";
+import {CommitList} from "./commit-list";
 
 export class CommitDetails extends LitElement {
   render() {
@@ -569,6 +570,26 @@ export class CommitDetails extends LitElement {
   _onCommitSelected(commit) {
     //console.log("commit changed", commit);
     this.selectedCommit = commit;
+
+    if(commit.commitType == 1) {
+      this.hideUIForCommiting();
+
+      const changesListElement = this.getChangesListElement();
+
+      // clear all elements
+      while (changesListElement.firstChild) changesListElement.removeChild(changesListElement.firstChild);
+
+      const commitDetailsCodeCommit = document.createElement("p");
+      commitDetailsCodeCommit.innerHTML = "This commit belongs to code changes made with the " +
+        "Live Code Editor. View them on <a href='" + CommitList.getCommitGitHubURL(commit) +
+        "' style='text-decoration: none' target='_blank'>GitHub</a>.";
+      commitDetailsCodeCommit.style = "margin-left: 0.5em; margin-right: 0.5em";
+      changesListElement.appendChild(commitDetailsCodeCommit);
+
+      // when the commit is a commit made by the live code editor, then
+      // we do not need to calculate model difference etc.
+      return;
+    }
 
     // reset checkbox to select all changes
     this.getCheckboxSelectAllElement().checked = false;
