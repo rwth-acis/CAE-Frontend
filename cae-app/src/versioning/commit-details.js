@@ -690,14 +690,17 @@ export class CommitDetails extends LitElement {
     while (changesListElement.firstChild) changesListElement.removeChild(changesListElement.firstChild);
 
     // for all selected differences, check if they are still element of this.differences
-    const toDelete = [];
+    const selectedDifferencesUpdated = [];
     for(const selectedDiff of this.selectedDifferences) {
       const matches = this.differences.filter(diff => Difference.equals(selectedDiff, diff));
-      if(matches.length == 0) {
-        toDelete.push(selectedDiff);
+      if(matches.length > 0) {
+        // use the one from matches array i.e. the one from this.differences and NOT the one from
+        // this.selectedDifferences, because the one from this.differences is updated (got changes from canvas)
+        // and this.selectedDifferences not
+        selectedDifferencesUpdated.push(matches[0]);
       }
     }
-    this.selectedDifferences = this.selectedDifferences.filter(diff => !toDelete.includes(diff));
+    this.selectedDifferences = selectedDifferencesUpdated;
 
     this.differenceElements = [];
     // read elements
