@@ -400,6 +400,13 @@ export class CommitDetails extends LitElement {
         console.log(response.status);
         if(response.status == "403") {
           this.showToast("You are not allowed to commit to this component!");
+        } else if(response.status == "500") {
+          response.text().then(error => {
+            if(error.startsWith("Model not valid")) {
+              const errorMessage = error.split("Model not valid: ")[1];
+              this.showWarningToast(errorMessage);
+            }
+          });
         }
       }
     });
