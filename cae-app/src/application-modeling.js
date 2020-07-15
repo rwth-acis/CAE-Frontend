@@ -3,6 +3,7 @@ import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
 import Common from './util/common.js';
 import Static from "./static.js";
 import './deployment-widget/deployment-widget.js';
+import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
 
 /**
  * @customElement
@@ -48,12 +49,14 @@ class ApplicationModeling extends PolymerElement {
       }
     </style>
     <div class="maincontainer">
-      <div class="innercontainerfirst">
+      <div id="div-canvas" class="innercontainerfirst">
         <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
-        <versioning-element id="versioning-element"></versioning-element>
+        <div id="div-pb">
+          <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
+        </div>
+        <versioning-element id="versioning-widget"></versioning-element>
       </div>
       <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <div>
@@ -84,10 +87,12 @@ class ApplicationModeling extends PolymerElement {
 
     this.reloadCaeRoom();
 
+    new SyncMetaSwitchHelper(this.shadowRoot);
+
     // in the beginning, the deployment widget is always disabled
     // if there exist at least one real commit (so not only the "uncommited changes" one), then
     // the deployment widget should be enabled
-    this.shadowRoot.getElementById("versioning-element").addEventListener("versioned-model-loaded", function(event) {
+    this.shadowRoot.getElementById("versioning-widget").addEventListener("versioned-model-loaded", function(event) {
       if(event.detail.versionedModel.commits.length > 1) {
         this.shadowRoot.getElementById("deployment-widget").enableWidget();
       }

@@ -18,6 +18,7 @@ import Static from "../static";
  * - There must exist an iFrame used for the main Canvas whose id is "Canvas".
  * - This Canvas iFrame must be element of a div with the id "div-canvas". This div then also gets used
  * for the second Canvas.
+ * - There must exist an iFrame with the id "Property Browser" inside a div with the id "div-pb".
  */
 export default class SyncMetaSwitchHelper {
 
@@ -32,9 +33,12 @@ export default class SyncMetaSwitchHelper {
       } else {
         // first, remove second canvas
         this.removeSecondCanvas();
+        this.removePropertyBrowser();
 
         // now show main canvas again
         this.showMainCanvas();
+        this.addNewPropertyBrowser();
+        parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
       }
 
     }.bind(this));
@@ -44,16 +48,21 @@ export default class SyncMetaSwitchHelper {
         // currently, main canvas is shown
         // hide main canvas and add second canvas used for the specific commit
         this.hideMainCanvas();
+        this.removePropertyBrowser();
         // since parent.caeRoom already got changed by the versioning widget, this new
         // canvas will use a different Yjs room than the main canvas
         this.addSecondCanvas();
+        this.addNewPropertyBrowser();
       } else {
         // main canvas is not shown, thus another commit is shown currently
         // i.e. a second canvas is shown
         // remove the second canvas and add a new one (otherwise, the used Yjs room will not changed)
         this.removeSecondCanvas();
+        this.removePropertyBrowser();
         this.addSecondCanvas();
+        this.addNewPropertyBrowser();
       }
+      parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
     }.bind(this));
   }
 
@@ -70,6 +79,13 @@ export default class SyncMetaSwitchHelper {
    */
   hideMainCanvas() {
     this.getMainCanvasIFrame().style.setProperty("display", "none");
+  }
+
+  /*
+   * Removes the current Property Browser iFrame.
+   */
+  removePropertyBrowser() {
+    this.getPropertyBrowserIFrame().remove();
   }
 
   /**
@@ -93,6 +109,16 @@ export default class SyncMetaSwitchHelper {
   }
 
   /**
+   * Adds a new Property Browser to the Property Browser div.
+   */
+  addNewPropertyBrowser() {
+    const newPB = document.createElement("iframe");
+    newPB.setAttribute("id", "Property Browser");
+    newPB.setAttribute("src", Static.WebhostURL + "/syncmeta/attribute.html");
+    this.getPropertyBrowserDiv().appendChild(newPB);
+  }
+
+  /**
    * Removes the second Canvas.
    * This can be used, when the main modeling Canvas should be shown again.
    */
@@ -110,11 +136,29 @@ export default class SyncMetaSwitchHelper {
   }
 
   /**
+   * Returns the HTML Element of the iFrame used for the main modeling Property Browser.
+   * This is the Property Browser which gets used for the actual modeling of the component.
+   * @returns {HTMLElement} HTML Element of the iFrame used for the main modeling Property Browser.
+   */
+  getPropertyBrowserIFrame() {
+    return this.shadowRoot.getElementById("Property Browser");
+  }
+
+  /**
    * Returns the HTML Element of the div where the Canvas iFrames are added to.
    * @returns {HTMLElement} Returns the HTML Element of the div where the Canvas iFrames are added to.
    */
   getCanvasDiv() {
     return this.shadowRoot.getElementById("div-canvas");
   }
+
+  /**
+   * Returns the HTML Element of the div where the Property Browser iFrames are added to.
+   * @returns {HTMLElement} Returns the HTML Element of the div where the Property Browser iFrames are added to.
+   */
+  getPropertyBrowserDiv() {
+    return this.shadowRoot.getElementById("div-pb");
+  }
+
 
 }

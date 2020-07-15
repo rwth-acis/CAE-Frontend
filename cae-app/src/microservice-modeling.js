@@ -68,7 +68,9 @@ class MicroserviceModeling extends PolymerElement {
         <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>      
       </div>
       <div class="innercontainerfirst">
-        <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
+        <div id="div-pb">
+          <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
+        </div>
         <iframe id="Metadata Widget" src="{{Static.WebhostURL}}/cae-frontend/swaggerWidget/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">

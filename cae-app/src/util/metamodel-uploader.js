@@ -103,6 +103,7 @@ export default class MetamodelUploader {
       // set if view only mode should be activated
       console.log("Setting view_only in Yjs room to: " + viewOnly);
       y.share.widgetConfig.set('view_only', viewOnly);
+      y.share.widgetConfig.set('view_only_property_browser', viewOnly);
 
       // metamodel can be set everytime
       // it does not matter if it is already existing

@@ -79,7 +79,7 @@ class FrontendModeling extends PolymerElement {
               <iframe id="User Activity" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
             </div>    
           </div>
-          <div style="flex: 1">
+          <div id="div-pb" style="flex: 1">
             <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
           </div>
         </div>
