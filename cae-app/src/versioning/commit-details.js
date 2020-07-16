@@ -334,14 +334,25 @@ export class CommitDetails extends LitElement {
       body.versionTag = this.getEnteredVersion();
     }
 
-    // add wireframe to model
-    body.model.wireframe = this.currentWireframe;
+    // depending on the type of component which is currently opened, we need to send different extra information
+    // as the wireframe for frontend components and metadata information for microservices
+    if(this.isFrontendComponent()) {
+      // add wireframe to model
+      body.model.wireframe = this.currentWireframe;
 
-    // restrict the wireframe to the nodes that are selected in the commit
-    const success = ModelDifferencing.restrictWireframeToModel(body.model);
-    if(!success) {
-      this.showWarningToast("Wireframe is not valid when applying the selected changes!");
-      return;
+      // restrict the wireframe to the nodes that are selected in the commit
+      const success = ModelDifferencing.restrictWireframeToModel(body.model);
+      if(!success) {
+        this.showWarningToast("Wireframe is not valid when applying the selected changes!");
+        return;
+      }
+    } else if(this.isMicroserviceComponent()) {
+      // add metadataDocString to the model
+      let metadataDocString = this.y.share.data.get('metadataDocString');
+      if (!metadataDocString)
+        metadataDocString = "";
+
+      body.model["metadataDoc"] = metadataDocString;
     }
 
     // add type of component, because the Model Persistence Service then adds it as an attribute to the model
@@ -1047,6 +1058,22 @@ export class CommitDetails extends LitElement {
     const toastElement = this.shadowRoot.getElementById("warning-toast");
     toastElement.text = text;
     toastElement.show();
+  }
+
+  /**
+   * Whether this versioning element is used in the modeling space of a frontend component.
+   * @returns {boolean} Whether this versioning element is used in the modeling space of a frontend component.
+   */
+  isFrontendComponent() {
+    return Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId()) == "frontend";
+  }
+
+  /**
+   * Whether this versioning element is used in the modeling space of a microservice.
+   * @returns {boolean} Whether this versioning element is used in the modeling space of a microservice.
+   */
+  isMicroserviceComponent() {
+    return Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId()) == "microservice";
   }
 }
 
