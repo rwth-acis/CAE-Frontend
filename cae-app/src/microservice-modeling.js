@@ -77,7 +77,7 @@ class MicroserviceModeling extends PolymerElement {
         <iframe id="Palette" src="{{Static.WebhostURL}}/syncmeta/palette.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <iframe id="User Activity" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
+        <iframe id="User Activity" scrolling="no" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
     <div class="secondcontainer">

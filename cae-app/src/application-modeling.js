@@ -73,7 +73,7 @@ class ApplicationModeling extends PolymerElement {
         -->
       </div>
       <div class="innercontainerfirst">
-        <iframe id="User Activity" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
+        <iframe id="User Activity" scrolling="no" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
     `;
