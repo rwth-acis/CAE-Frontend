@@ -540,7 +540,12 @@ var loadModel = function(y) {
   if (y.share.data.get('model')) {
       console.log('[Swagger Widget] Saved model exists');
       var data = y.share.data.get('model');
-      loadedModel = localStorage.getItem("versionedModelId");
+
+      var modelingInfo = JSON.parse(localStorage.getItem("modelingInfo"));
+      var componentName = modelingInfo.microservice.name;
+
+      loadedModel = componentName;
+
       // special case if model was only saved in the space (not loaded from db)
       if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
           loadedModel = null;

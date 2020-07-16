@@ -486,7 +486,8 @@ class ProjectInfo extends LitElement {
     // update modeling info
     const modelingInfo = Common.getModelingInfo();
     const content = {
-      "versionedModelId": component.versionedModelId
+      "versionedModelId": component.versionedModelId,
+      "name": component.name
     };
     if(component.type == "frontend") {
       modelingInfo.frontend = content;
@@ -534,7 +535,8 @@ class ProjectInfo extends LitElement {
     const modelingInfo = Common.getModelingInfo();
     modelingInfo.application = {
       "versionedModelId": this.applicationComponent.versionedModelId,
-      "projectId": this.getProjectId()
+      "projectId": this.getProjectId(),
+      "name": this.applicationComponent.name
     };
     Common.storeModelingInfo(modelingInfo);
 
@@ -601,7 +603,8 @@ class ProjectInfo extends LitElement {
       const modelingInfo = Common.getModelingInfo();
       modelingInfo.application = {
         "versionedModelId": this.applicationComponent.versionedModelId,
-        "projectId": this.getProjectId()
+        "projectId": this.getProjectId(),
+        "name": this.applicationComponent.name
       };
       Common.storeModelingInfo(modelingInfo);
 
