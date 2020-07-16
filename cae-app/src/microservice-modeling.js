@@ -60,7 +60,7 @@ class MicroserviceModeling extends PolymerElement {
         flex: 2;
       }
       .innercontainersecond:nth-of-type(3) {
-        flex: 1;
+        flex: 2;
       }
     </style>
     <div class="firstcontainer">
