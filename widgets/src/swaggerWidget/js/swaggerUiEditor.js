@@ -37,7 +37,7 @@ var client,
     versionedModelId = -1;
     iwcClient = null,
     currentComponentName = null,
-    editor,
+    editor = null,
     swaggerStatus = null;
 
 var iwcHandler = function(y, intent) {
