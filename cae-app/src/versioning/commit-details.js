@@ -334,6 +334,7 @@ export class CommitDetails extends LitElement {
       body.versionTag = this.getEnteredVersion();
     }
 
+    let metadataDocString = "";
     // depending on the type of component which is currently opened, we need to send different extra information
     // as the wireframe for frontend components and metadata information for microservices
     if(this.isFrontendComponent()) {
@@ -348,11 +349,12 @@ export class CommitDetails extends LitElement {
       }
     } else if(this.isMicroserviceComponent()) {
       // add metadataDocString to the model
-      let metadataDocString = this.y.share.data.get('metadataDocString');
+      metadataDocString = this.y.share.data.get('metadataDocString');
       if (!metadataDocString)
         metadataDocString = "";
 
       body.model["metadataDoc"] = metadataDocString;
+      // besides this, there is another request to /CAE/docs (see below commit request at the end of this method)
     }
 
     // add type of component, because the Model Persistence Service then adds it as an attribute to the model
@@ -421,6 +423,17 @@ export class CommitDetails extends LitElement {
         }
       }
     });
+
+    if(this.isMicroserviceComponent()) {
+      const version = (this.latestVersionTag != undefined) ?
+        this.latestVersionTag.major + "." + this.latestVersionTag.minor + "." + this.latestVersionTag.patch : "0.0.1";
+      console.log(version);
+      fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
+        method: "POST",
+        headers: Auth.getAuthHeader(), // send headers at least for content type
+        body: JSON.stringify(metadataDocString)
+      });
+    }
   }
 
   /**
