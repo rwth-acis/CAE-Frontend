@@ -1,5 +1,4 @@
-
-import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {LitElement, html} from "lit-element";
 import Common from './util/common.js';
 import Static from "./static.js";
 import './deployment-widget/deployment-widget.js';
@@ -9,8 +8,8 @@ import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
  * @customElement
  * @polymer
  */
-class ApplicationModeling extends PolymerElement {
-  static get template() {
+class ApplicationModeling extends LitElement {
+  render() {
     return html`
     <style>
       iframe {
@@ -50,19 +49,19 @@ class ApplicationModeling extends PolymerElement {
     </style>
     <div class="maincontainer">
       <div id="div-canvas" class="innercontainerfirst">
-        <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
+        <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
         <div id="div-pb">
-          <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
+          <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
         </div>
         <versioning-element id="versioning-widget"></versioning-element>
       </div>
       <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <div>
-          <iframe id="Frontend Component Select Widget" src="{{Static.WebhostURL}}/cae-frontend/frontendComponentSelectWidget/widget.html"
+          <iframe id="Frontend Component Select Widget" src="${Static.WebhostURL}/cae-frontend/frontendComponentSelectWidget/widget.html"
               style="height: 250px"></iframe>
-          <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"
+          <iframe id="Microservice Select Widget" src="${Static.WebhostURL}/cae-frontend/microserviceSelectWidget/widget.html"
               style="height: 250px"></iframe>
         </div>
         <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
@@ -73,37 +72,38 @@ class ApplicationModeling extends PolymerElement {
         -->
       </div>
       <div class="innercontainerfirst">
-        <iframe id="User Activity" scrolling="no" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
+        <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
     `;
   }
 
-  static get properties() {}
+  constructor() {
+    super();
 
-  ready() {
-    super.ready();
-    parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
+    this.requestUpdate().then(_ => {
+      parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
 
-    this.reloadCaeRoom();
+      this.reloadCaeRoom();
 
-    new SyncMetaSwitchHelper(this.shadowRoot);
+      new SyncMetaSwitchHelper(this.shadowRoot);
 
-    // in the beginning, the deployment widget is always disabled
-    // if there exist at least one real commit (so not only the "uncommited changes" one), then
-    // the deployment widget should be enabled
-    this.shadowRoot.getElementById("versioning-widget").addEventListener("versioned-model-loaded", function(event) {
-      if(event.detail.versionedModel.commits.length > 1) {
-        this.shadowRoot.getElementById("deployment-widget").enableWidget();
-      }
-    }.bind(this));
+      // in the beginning, the deployment widget is always disabled
+      // if there exist at least one real commit (so not only the "uncommited changes" one), then
+      // the deployment widget should be enabled
+      this.shadowRoot.getElementById("versioning-widget").addEventListener("versioned-model-loaded", function(event) {
+        if(event.detail.versionedModel.commits.length > 1) {
+          this.shadowRoot.getElementById("deployment-widget").enableWidget();
+        }
+      }.bind(this));
 
 
-    // listener for reloading of current modeling page
-    // this is used, when the changes since the last commit should be undone
-    this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
-      this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
-    }.bind(this));
+      // listener for reloading of current modeling page
+      // this is used, when the changes since the last commit should be undone
+      this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
+        this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
+      }.bind(this));
+    });
   }
 
   reloadCaeRoom() {

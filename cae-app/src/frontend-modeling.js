@@ -1,4 +1,4 @@
-import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {LitElement, html} from "lit-element";
 import Common from './util/common.js';
 import Static from './static.js';
 import './versioning/versioning-element.js';
@@ -8,9 +8,9 @@ import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
  * @customElement
  * @polymer
  */
-class FrontendModeling extends PolymerElement {
+class FrontendModeling extends LitElement {
   
-  static get template() {
+  render() {
     return html`
       <style>
         iframe {
@@ -68,59 +68,60 @@ class FrontendModeling extends PolymerElement {
       </style>
       <div class="maincontainer">
         <div id="div-canvas" class="innercontainersecond">
-          <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
+          <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
         </div>
         <div class="innercontainersecond" style="display:flex;flex-flow:column;">
           <div style="display:flex;flex-flow:row;flex:2;">
             <div>
-              <iframe id="Palette" src="{{Static.WebhostURL}}/syncmeta/palette.html"> </iframe>
+              <iframe id="Palette" src="${Static.WebhostURL}/syncmeta/palette.html"> </iframe>
             </div>
             <div>
-              <iframe id="User Activity" scrolling="no" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
+              <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
             </div>    
           </div>
           <div id="div-pb" style="flex: 1">
-            <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html"> </iframe>
+            <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html"> </iframe>
           </div>
         </div>
         <div class="innercontainersecond">
-          <iframe id="Wireframe Editor" src="{{Static.WebhostURL}}/wireframe/index.html"> </iframe>
+          <iframe id="Wireframe Editor" src="${Static.WebhostURL}/wireframe/index.html"> </iframe>
         </div>
       </div>
       <div class="maincontainer">
         <div class="innercontainerfirst">
-          <iframe id="Live Code Editor" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
+          <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
           <versioning-element id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
-            <iframe id="Live Preview" src="{{Static.WebhostURL}}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"> </iframe>
+            <iframe id="Live Preview" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"> </iframe>
           </div>
           <div style="flex:1">
-            <iframe id="Requirements Bazaar Widget" src="{{Static.WebhostURL}}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+            <iframe id="Requirements Bazaar Widget" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
           </div>
         </div>
       </div>
     `;
   }
 
-  static get properties() {}
+  constructor() {
+    super();
 
-  ready() {
-    super.ready();
-    parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
+    this.requestUpdate().then(_ => {
+      parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
 
-    this.reloadCaeRoom();
+      this.reloadCaeRoom();
 
-    new SyncMetaSwitchHelper(this.shadowRoot);
+      new SyncMetaSwitchHelper(this.shadowRoot);
 
-    // listener for reloading of current modeling page
-    // this is used, when the changes since the last commit should be undone
-    this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
-      this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
-    }.bind(this));
+      // listener for reloading of current modeling page
+      // this is used, when the changes since the last commit should be undone
+      this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
+        this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
+      }.bind(this));
+    });
   }
 
   reloadCaeRoom() {
