@@ -2,6 +2,8 @@ import {LitElement, html} from "lit-element";
 import Common from './util/common.js';
 import Static from "./static.js";
 import './deployment-widget/deployment-widget.js';
+import './select-widgets/frontend-component-select-widget/frontend-component-select-widget.js';
+import './select-widgets/microservice-select-widget/microservice-select-widget.js';
 import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
 
 /**
@@ -68,9 +70,9 @@ class ApplicationModeling extends LitElement {
               <paper-tab @click=${(e) => this._onTabSelected(0)}>Frontend Components</paper-tab>
               <paper-tab @click=${(e) => this._onTabSelected(1)}>Microservices</paper-tab>
             </paper-tabs>
-            <div id="swagger-combo-content" style="flex: 1; height: 250px">
-              <iframe id="Frontend Component Select Widget" src="${Static.WebhostURL}/cae-frontend/frontendComponentSelectWidget/widget.html" style="width: 100%; height: 100%"></iframe>
-              <iframe id="Microservice Select Widget" src="${Static.WebhostURL}/cae-frontend/microserviceSelectWidget/widget.html" style="width: 100%; height: 100%"> </iframe>
+            <div style="flex: 1; height: 250px">
+              <frontend-component-select-widget id="Frontend Component Select Widget" style="width: 100%; height: 100%"></frontend-component-select-widget>
+              <microservice-select-widget id="Microservice Select Widget" style="width: 100%; height: 100%"></microservice-select-widget>
             </div>
           </div>
         </div>
