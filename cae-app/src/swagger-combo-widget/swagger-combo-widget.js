@@ -12,13 +12,15 @@ export class SwaggerComboWidget extends LitElement {
         }
       </style>
       
-      <paper-tabs selected="0">
-        <paper-tab @click=${(e) => this._onTabSelected(0)}>Metadata Editor</paper-tab>
-        <paper-tab @click=${(e) => this._onTabSelected(1)}>Open API Viewer</paper-tab>
-      </paper-tabs>
-      <div id="swagger-combo-content" style="height: 100%">
-        <iframe id="Metadata Widget" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/widget.html" style="width: 100%; height: 100%"></iframe>
-        <iframe id="Open API viewer" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/swaggerUiEditor.html" style="width: 100%; height: 100%"> </iframe>
+      <div style="height: 600px; display: flex; flex-flow: column">
+        <paper-tabs selected="0">
+          <paper-tab @click=${(e) => this._onTabSelected(0)}>Metadata Editor</paper-tab>
+          <paper-tab @click=${(e) => this._onTabSelected(1)}>Open API Viewer</paper-tab>
+        </paper-tabs>
+        <div id="swagger-combo-content" style="flex: 1">
+          <iframe id="Metadata Widget" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/widget.html" style="width: 100%; height: 100%"></iframe>
+          <iframe id="Open API viewer" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/swaggerUiEditor.html" style="width: 100%; height: 100%"> </iframe>
+        </div>
       </div>
     `
   }

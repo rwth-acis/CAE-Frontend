@@ -86,11 +86,6 @@ class FrontendModeling extends PolymerElement {
         <div class="innercontainersecond">
           <iframe id="Wireframe Editor" src="{{Static.WebhostURL}}/wireframe/index.html"> </iframe>
         </div>
-        <!--
-        <div class="innercontainersecond">
-          <iframe id="Requirements Bazaar Widget" src="{{Static.WebhostURL}}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
-        </div>
-        -->
       </div>
       <div class="maincontainer">
         <div class="innercontainerfirst">
