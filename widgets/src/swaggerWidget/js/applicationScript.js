@@ -33,7 +33,8 @@
  // global variables
 var client,
     feedbackTimeout,
-    loadedModel = null,
+    componentName = null,
+    versionedModelId = -1;
     loadedSwaggerDoc = null,
     iwcClient = null,
     selectedNodeId = null,
@@ -540,16 +541,20 @@ var loadModel = function(y) {
   if (y.share.data.get('model')) {
       console.log('[Swagger Widget] Saved model exists');
       var data = y.share.data.get('model');
-      loadedModel = data.attributes.label.value.value;
+
+      var modelingInfo = JSON.parse(localStorage.getItem("modelingInfo"));
+      componentName = modelingInfo.microservice.name;
+      versionedModelId = localStorage.getItem("versionedModelId");
+
       // special case if model was only saved in the space (not loaded from db)
-      if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-          loadedModel = null;
+      if (componentName.toUpperCase() == "Model attributes".toUpperCase()) {
+          componentName = null;
           feedback("Model was not loaded from database until now..");
       } else {
-          $("#name").val(loadedModel);
+          $("#name").val(componentName);
       }
   } else {
-      loadedModel = null;
+      componentName = null;
   }
 
   // retrieve current model from the space and store it
@@ -559,7 +564,7 @@ var loadModel = function(y) {
     var data = y.share.data.get('metadataDoc');
     console.log(data);
     loadedSwaggerDoc = data;
-    if(loadedSwaggerDoc.componentId === loadedModel) {
+    if(loadedSwaggerDoc.componentId === versionedModelId) {
       console.log("[Swagger Widget] Shared metadata have some component id");
       loadDivs(loadedSwaggerDoc, y);
     } else {
@@ -572,11 +577,11 @@ var loadModel = function(y) {
   }
 
   console.log("[Swagger Widget] Load model");
-  if (loadedModel && !loadedSwaggerDoc) {
-    console.log("[Swagger Widget] Load metadata for model " + loadedModel);
+  if (componentName && !loadedSwaggerDoc) {
+    console.log("[Swagger Widget] Load metadata for model " + componentName);
     // first, clean the current model
     y.share.data.set('metadataDoc', null);
-    client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {}, false,
+    client.sendRequest("GET", "docs/component/" + versionedModelId, "", "application/json", {}, false,
         function(data, type) {
             console.log("[Swagger Widget] Metadata doc loaded!");
             console.log(data);

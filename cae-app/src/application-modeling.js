@@ -1,7 +1,9 @@
 
 import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
-import Common from './common.js';
-import Static from './static.js';
+import Common from './util/common.js';
+import Static from "./static.js";
+import './deployment-widget/deployment-widget.js';
+import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
 
 /**
  * @customElement
@@ -46,32 +48,32 @@ class ApplicationModeling extends PolymerElement {
         flex-flow:column;
       }
     </style>
-    <p>Application Modeling</p>
     <div class="maincontainer">
-      <div class="innercontainerfirst">
-        <iframe id="Canvas" src="{WEBHOST}/syncmeta/widget.html"> </iframe>
+      <div id="div-canvas" class="innercontainerfirst">
+        <iframe id="Canvas" src="{{Static.WebhostURL}}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <iframe id="Property Browser" src="{WEBHOST}/syncmeta/attribute.html"> </iframe>
-        <iframe id="Application Persistence Widget" src="{WEBHOST}/cae-frontend/applicationPersistenceWidget/widget.html"> </iframe>
-      </div>
-      <div class="innercontainerfirst">
-        <div style="display:flex;flex-flow:row;flex:1;">
-          <div>
-            <iframe id="Frontend Component Select Widget" src="{WEBHOST}/cae-frontend/frontendComponentSelectWidget/widget.html"> </iframe>
-          </div>
-          <div>
-            <iframe id="Microservice Select Widget" src="{WEBHOST}/cae-frontend/microserviceSelectWidget/widget.html"> </iframe>
-          </div>
+        <div id="div-pb">
+          <iframe id="Property Browser" src="{{Static.WebhostURL}}/syncmeta/attribute.html" style="height:150px"> </iframe>
         </div>
+        <versioning-element id="versioning-widget"></versioning-element>
+      </div>
+      <div class="innercontainerfirst" style="display: flex; flex-flow: column">
+        <div>
+          <iframe id="Frontend Component Select Widget" src="{{Static.WebhostURL}}/cae-frontend/frontendComponentSelectWidget/widget.html"
+              style="height: 250px"></iframe>
+          <iframe id="Microservice Select Widget" src="{{Static.WebhostURL}}/cae-frontend/microserviceSelectWidget/widget.html"
+              style="height: 250px"></iframe>
+        </div>
+        <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
         <!--
         <div style="flex:1;">
-          <iframe id="Import Tool" src="{WEBHOST}/syncmeta/debug.html"> </iframe>
+          <iframe id="Import Tool" src="{{Static.WebhostURL}}/syncmeta/debug.html"> </iframe>
         </div>
         -->
       </div>
       <div class="innercontainerfirst">
-        <iframe id="User Activity" src="{WEBHOST}/syncmeta/activity.html"> </iframe>
+        <iframe id="User Activity" scrolling="no" src="{{Static.WebhostURL}}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
     `;
@@ -82,8 +84,33 @@ class ApplicationModeling extends PolymerElement {
   ready() {
     super.ready();
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
-    parent.caeSpace = Static.ApplicationSpaceId;
-    Common.setCaeSpace(parent.caeSpace);
+
+    this.reloadCaeRoom();
+
+    new SyncMetaSwitchHelper(this.shadowRoot);
+
+    // in the beginning, the deployment widget is always disabled
+    // if there exist at least one real commit (so not only the "uncommited changes" one), then
+    // the deployment widget should be enabled
+    this.shadowRoot.getElementById("versioning-widget").addEventListener("versioned-model-loaded", function(event) {
+      if(event.detail.versionedModel.commits.length > 1) {
+        this.shadowRoot.getElementById("deployment-widget").enableWidget();
+      }
+    }.bind(this));
+
+
+    // listener for reloading of current modeling page
+    // this is used, when the changes since the last commit should be undone
+    this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
+      this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
+    }.bind(this));
+  }
+
+  reloadCaeRoom() {
+    // load the current Yjs room name from localStorage into
+    // parent.caeRoom variable (used by modeling/SyncMeta widget)
+    const modelingInfo = Common.getModelingInfo();
+    Common.setCaeRoom(modelingInfo.application.versionedModelId);
   }
 }
 

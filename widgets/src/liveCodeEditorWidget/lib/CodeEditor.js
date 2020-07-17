@@ -119,6 +119,24 @@ class CodeEditor{
       this.workspace.push().always( () =>{
         $("#publishButton").show();
         $("#publishSpinner").hide();
+
+        //when the commit(s) is/are pushed, then the versioning widget needs to
+        //get notified, that a new commit got created and the widget should be reloaded
+        Y({
+          db: {
+            name: "memory" // store the shared data in memory
+          },
+          connector: {
+            name: "websockets-client", // use the websockets connector
+            room: "versionedModel-" + localStorage.versionedModelId,
+            url: config.Yjs.websockets_server
+          },
+          share: { // specify the shared content
+            versioning_widget: 'Map'
+          }
+        }).then(function(y) {
+          y.share.versioning_widget.set("COMMIT_CREATED", true);
+        });
       });
 
       e.preventDefault();
@@ -289,7 +307,7 @@ class CodeEditor{
     editor.getSession().setMode("ace/mode/xml");
     editor.getSession().setFoldStyle('manual');
     editor.setTheme("ace/theme/chrome");
-    editor.setFontSize(25);
+    editor.setFontSize(15);
     return editor;
   }
 

@@ -37,63 +37,63 @@
        console.log(intent);
      };
 
-     client = new Las2peerWidgetLibrary("@@caehost/CAE/models", iwcCallback, '*');
+     client = new Las2peerWidgetLibrary("@@caehost/project-management/projects", iwcCallback, '*');
 
      getServices()
  });
 
- function createNode(name) {
-   lastName = name;
-   var time = new Date().getTime();
-   var data = JSON.stringify({selectedToolName: "Frontend Component", name: name});
-   var intent = new IWC.Intent("FRONTEND_COMPONENT_SELECT_WIDGET", "Canvas", "ACTION_DATA", data, false);
-   intent.extras = {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time}
-   client.iwcClient.publish(intent);
- }
+function createNode(name, versionedModelId) {
+  lastName = name;
+  var time = new Date().getTime();
+  var data = JSON.stringify({
+    selectedToolName: "Frontend Component",
+    name: name,
+    defaultAttributeValues: {
+      "93641f72fb49c4f74264a781": versionedModelId,
+      "93641f72fb49c4f74264a782": "TODO",
+    }
+  });
+  var intent = new IWC.Intent("FRONTEND_COMPONENT_SELECT_WIDGET", "Canvas", "ACTION_DATA", data, false);
+  intent.extras = {"payload":{"data":{"data":data,"type":"ToolSelectOperation"}, "sender":null, "type":"NonOTOperation"}, "time":time}
+  client.iwcClient.publish(intent);
+}
 
 
 /**
  *
- * Calls the persistence service first for a list of services,
- * then retrieves all services and adds all frontend components
+ * Calls the project-management service first for a list of components,
+ * then retrieves all components and adds all frontend components
  * to the frontend component table.
  *
  */
 var getServices = function() {
-  client.sendRequest("GET", "", "", "application/json", {}, false,
-  function(data, type) {
-      $.each(data, function(index, value) {
-        client.sendRequest("GET", value, "", "application/json", {}, false,
-        function(data, type) {
-          // add table rows
-          var name = data.attributes.label.value.value;
-          var type;
-          var version;
-          $.each(data.attributes.attributes, function(index, value) {
-            if(value.name == "version"){
-              version = value.value.value;
-            }
-            if(value.name == "type"){
-              type = value.value.value;
-            }
-          });
-          if(type == "frontend-component"){
-          $("#frontendComponentTable").append("<tr><td>" + name +
-            "</td><td>" + version + "</td></tr>");
-          // make table rows "clickable"
-          $("#frontendComponentTable").find("tr").click(function() {
-            // get the name
-            var name = $(this).find("td").get(0).innerHTML;
-            createNode(name);
-          });
-          }
-        }, function(error) {
-          console.log(error);
-          $("#frontendComponentTable").html(error);
-        })
-      });
+  const modelingInfo = JSON.parse(localStorage.getItem("modelingInfo"));
+  const currentProjectId = modelingInfo.application.projectId;
+
+  client.sendRequest("GET", currentProjectId + "/components", "", "application/json", {}, false, function(data, type) {
+    const projectComponents = JSON.parse(data);
+    const projectFrontendComponents = projectComponents.filter(component => component.type == "frontend");
+
+    $.each(projectFrontendComponents, function(index, value) {
+      // add table rows
+      var name = value.name;
+      var version = "TODO";
+
+      $("#frontendComponentTable").append("<tr id='" + index + "'><td>" + name +
+        "</td><td>" + version + "</td></tr>");
+    });
+
+    // make table rows "clickable"
+    $("#frontendComponentTable").find("tr").click(function() {
+      // get the versioned model id
+      var index = $(this).attr("id");
+      var versionedModelId = projectFrontendComponents[index].versionedModelId;
+      var name = projectFrontendComponents[index].name;
+      createNode(name,"" + versionedModelId);
+    });
+
   }, function(error) {
     console.log(error);
     $("#frontendComponentTable").html(error);
-  })
+  });
 };

@@ -139,7 +139,8 @@ class ContentProvider extends EventEmitter{
       content : encodedContent,
       traces,
       filename,
-      commitMessage
+      commitMessage,
+      versionedModelId: localStorage.versionedModelId
     };
     return $.ajax({
       type: 'PUT',
