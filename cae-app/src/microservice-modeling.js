@@ -88,15 +88,15 @@ class MicroserviceModeling extends LitElement {
         </div>
         <div class="innercontainersecond">
           <div style="height: 600px; display: flex; flex-flow: column">
-        <paper-tabs selected="0">
-          <paper-tab @click=${(e) => this._onTabSelected(0)}>Metadata Editor</paper-tab>
-          <paper-tab @click=${(e) => this._onTabSelected(1)}>Open API Viewer</paper-tab>
-        </paper-tabs>
-        <div id="swagger-combo-content" style="flex: 1">
-          <iframe id="Metadata Widget" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/widget.html" style="width: 100%; height: 100%"></iframe>
-          <iframe id="Open API viewer" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/swaggerUiEditor.html" style="width: 100%; height: 100%"> </iframe>
-        </div>
-      </div>
+            <paper-tabs selected="0">
+              <paper-tab @click=${(e) => this._onTabSelected(0)}>Metadata Editor</paper-tab>
+              <paper-tab @click=${(e) => this._onTabSelected(1)}>Open API Viewer</paper-tab>
+            </paper-tabs>
+            <div id="swagger-combo-content" style="flex: 1">
+              <iframe id="Metadata Widget" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/widget.html" style="width: 100%; height: 100%"></iframe>
+              <iframe id="Open API viewer" src="${Static.WebhostURL}/cae-frontend/swaggerWidget/swaggerUiEditor.html" style="width: 100%; height: 100%"> </iframe>
+            </div>
+          </div>
         </div>
       </div>
       <div class="maincontainer">
@@ -131,8 +131,6 @@ class MicroserviceModeling extends LitElement {
         this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
       }.bind(this));
 
-      // this is only required for the microservice modeling page
-      // used for the tab menu for swagger widgets
       this._onTabSelected(0);
     });
   }

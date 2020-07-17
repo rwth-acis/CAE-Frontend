@@ -46,6 +46,10 @@ class ApplicationModeling extends LitElement {
         display:flex;
         flex-flow:column;
       }
+     
+      paper-tabs {
+        --paper-tabs-selection-bar-color: rgb(30,144,255);
+      }
     </style>
     <div class="maincontainer">
       <div id="div-canvas" class="innercontainerfirst">
@@ -59,11 +63,18 @@ class ApplicationModeling extends LitElement {
       </div>
       <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <div>
-          <iframe id="Frontend Component Select Widget" src="${Static.WebhostURL}/cae-frontend/frontendComponentSelectWidget/widget.html"
-              style="height: 250px"></iframe>
-          <iframe id="Microservice Select Widget" src="${Static.WebhostURL}/cae-frontend/microserviceSelectWidget/widget.html"
-              style="height: 250px"></iframe>
+          <div>
+            <paper-tabs selected="0">
+              <paper-tab @click=${(e) => this._onTabSelected(0)}>Frontend Components</paper-tab>
+              <paper-tab @click=${(e) => this._onTabSelected(1)}>Microservices</paper-tab>
+            </paper-tabs>
+            <div id="swagger-combo-content" style="flex: 1; height: 250px">
+              <iframe id="Frontend Component Select Widget" src="${Static.WebhostURL}/cae-frontend/frontendComponentSelectWidget/widget.html" style="width: 100%; height: 100%"></iframe>
+              <iframe id="Microservice Select Widget" src="${Static.WebhostURL}/cae-frontend/microserviceSelectWidget/widget.html" style="width: 100%; height: 100%"> </iframe>
+            </div>
+          </div>
         </div>
+        <iframe id="Requirements Bazaar Widget" style="max-height: 250px" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
         <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
         <!--
         <div style="flex:1;">
@@ -103,6 +114,8 @@ class ApplicationModeling extends LitElement {
       this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
         this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
       }.bind(this));
+
+      this._onTabSelected(0);
     });
   }
 
@@ -111,6 +124,29 @@ class ApplicationModeling extends LitElement {
     // parent.caeRoom variable (used by modeling/SyncMeta widget)
     const modelingInfo = Common.getModelingInfo();
     Common.setCaeRoom(modelingInfo.application.versionedModelId);
+  }
+
+  /**
+   * Gets called when the selected tab for the select-widgets has changed.
+   * @param index 0 or 1, depending on the tab.
+   * @private
+   */
+  _onTabSelected(index) {
+    if(index == 0) {
+      this.getFrontendComponentSelectWidget().removeAttribute("hidden");
+      this.getMicroserviceSelectWidget().hidden = true;
+    } else {
+      this.getFrontendComponentSelectWidget().hidden = true;
+      this.getMicroserviceSelectWidget().removeAttribute("hidden");
+    }
+  }
+
+  getFrontendComponentSelectWidget() {
+    return this.shadowRoot.getElementById("Frontend Component Select Widget");
+  }
+
+  getMicroserviceSelectWidget() {
+    return this.shadowRoot.getElementById("Microservice Select Widget");
   }
 }
 
