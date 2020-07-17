@@ -61,7 +61,7 @@ export class ComponentSelectWidget extends LitElement {
     });
   }
 
-  createNode(name, versionedModelId) {
+  createNode(name, versionedModelId, selectedTag) {
     const time = new Date().getTime();
 
     let data;
@@ -71,7 +71,7 @@ export class ComponentSelectWidget extends LitElement {
         name: name,
         defaultAttributeValues: {
           "93641f72fb49c4f74264a781": versionedModelId,
-          "93641f72fb49c4f74264a782": "TODO",
+          "93641f72fb49c4f74264a782": selectedTag,
         }
       });
     } else {
@@ -80,7 +80,7 @@ export class ComponentSelectWidget extends LitElement {
         name: name,
         defaultAttributeValues: {
           "6a4e681cd6b9d6b21e765c46": versionedModelId,
-          "6a4e681cd6b9d6b21e765c47": "TODO",
+          "6a4e681cd6b9d6b21e765c47": selectedTag,
         }
       });
     }
@@ -107,41 +107,101 @@ export class ComponentSelectWidget extends LitElement {
       const projectComponents = JSON.parse(data);
       const componentsByType = projectComponents.filter(c => c.type == this.componentType);
 
-      let index = 0;
       for(const component of componentsByType) {
-        console.log("frontendComponent:");
-        console.log(component);
         // add table rows
         const name = component.name;
         const version = "TODO";
+        const versionedModelId = component.versionedModelId;
+        this.getVersionTagsByVersionedModel(versionedModelId).then(versionTags => {
+          const row = document.createElement("tr");
+          row.style = "display: flex";
 
-        const row = document.createElement("tr");
-        row.id = "" + index;
+          /*
+           * NAME
+           */
+          const tdName = document.createElement("td");
+          tdName.style = "flex: 1; display: flex";
 
-        const tdName = document.createElement("td");
-        tdName.innerText = name;
+          const pName = document.createElement("p");
+          pName.innerText = name;
+          pName.style = "margin-top: auto; margin-bottom: auto";
 
-        const tdVersion = document.createElement("td");
-        tdVersion.innerText = version;
+          tdName.appendChild(pName);
 
-        row.appendChild(tdName);
-        row.appendChild(tdVersion);
+          /*
+           * VERSION
+           */
+          const tdVersion = document.createElement("td");
+          tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
 
-        // make row "clickable"
-        const i = index;
-        row.addEventListener("click", function() {
-          const versionedModelId = componentsByType[i].versionedModelId;
-          this.createNode(name, "" + versionedModelId);
-        }.bind(this));
+          const paperDropdownMenu = document.createElement("paper-dropdown-menu");
+          paperDropdownMenu.setAttribute("label", "Select Version");
+          paperDropdownMenu.style = "width: 5em";
 
-        this.getTable().appendChild(row);
+          const paperListbox = document.createElement("paper-listbox");
+          paperListbox.setAttribute("slot", "dropdown-content");
+          paperListbox.setAttribute("selected", "0");
 
-        index++;
+          const latest = document.createElement("paper-item");
+          const latestVersionValue = "Latest";
+          latest.innerText = latestVersionValue;
+          paperListbox.appendChild(latest);
+
+          for(const versionTag of versionTags) {
+            const item = document.createElement("paper-item");
+            item.innerText = versionTag;
+            paperListbox.appendChild(item);
+          }
+
+          paperDropdownMenu.appendChild(paperListbox);
+
+          tdVersion.appendChild(paperDropdownMenu);
+
+          row.appendChild(tdName);
+          row.appendChild(tdVersion);
+
+          // make row "clickable"
+          row.addEventListener("click", function() {
+            let selected = paperListbox.selected;
+            let selectedTag;
+            if(selected == 0) {
+              // Version Tag "Latest" got selected
+              selectedTag = latestVersionValue;
+            } else {
+              // the selected version tag is element of the versionTags array
+              selected--;
+              selectedTag = versionTags[selected];
+            }
+            this.createNode(name, "" + versionedModelId, selectedTag);
+          }.bind(this));
+
+          this.getTable().appendChild(row);
+        });
       }
     }.bind(this), function(error) {
       console.log(error);
     });
   };
+
+  getVersionTagsByVersionedModel(versionedModelId) {
+    return new Promise((resolve, reject) => {
+      fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + versionedModelId, {
+        method: "GET"
+      }).then(response => {
+        if(response.ok) {
+          response.json().then(data => {
+            const versionTags = [];
+            for(const commit of data.commits) {
+              if(commit.versionTag) versionTags.push(commit.versionTag);
+            }
+            resolve(versionTags);
+          });
+        } else {
+          reject();
+        }
+      });
+    });
+  }
 
   getTable() {
     return this.shadowRoot.getElementById("componentTable");
