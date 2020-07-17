@@ -2,8 +2,7 @@ import {LitElement, html} from "lit-element";
 import Common from './util/common.js';
 import Static from "./static.js";
 import './deployment-widget/deployment-widget.js';
-import './select-widgets/frontend-component-select-widget/frontend-component-select-widget.js';
-import './select-widgets/microservice-select-widget/microservice-select-widget.js';
+import './select-widget/component-select-widget.js';
 import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
 
 /**
@@ -71,8 +70,8 @@ class ApplicationModeling extends LitElement {
               <paper-tab @click=${(e) => this._onTabSelected(1)}>Microservices</paper-tab>
             </paper-tabs>
             <div style="flex: 1; height: 250px">
-              <frontend-component-select-widget id="Frontend Component Select Widget" style="width: 100%; height: 100%"></frontend-component-select-widget>
-              <microservice-select-widget id="Microservice Select Widget" style="width: 100%; height: 100%"></microservice-select-widget>
+              <component-select-widget componentType="frontend" id="Frontend Component Select Widget" style="width: 100%; height: 100%"></component-select-widget>
+              <component-select-widget componentType="microservice" id="Microservice Select Widget" style="width: 100%; height: 100%"></component-select-widget>
             </div>
           </div>
         </div>
