@@ -12,6 +12,9 @@ class MicroserviceModeling extends LitElement {
   render() {
     return html`
       <style>
+        :host {
+          font-family: Roboto;
+        }
         iframe {
           width: 100%;
           height: 100%;
@@ -107,7 +110,8 @@ class MicroserviceModeling extends LitElement {
           <versioning-element id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
-          <div style="flex:1">
+          <div style="flex:1; display: flex; flex-flow: column">
+            <h3>Requirements Bazaar</h3>
             <iframe id="Requirements Bazaar Widget" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
           </div>
         </div>

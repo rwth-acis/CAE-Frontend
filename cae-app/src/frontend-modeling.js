@@ -13,6 +13,9 @@ class FrontendModeling extends LitElement {
   render() {
     return html`
       <style>
+        :host {
+          font-family: Roboto;
+        }
         iframe {
           width: 100%;
           height: 100%;
@@ -96,10 +99,18 @@ class FrontendModeling extends LitElement {
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
-            <iframe id="Live Preview" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"> </iframe>
+            <div style="display: flex; flex-flow: column">
+              <h3>Live Preview</h3>
+              <iframe id="Live Preview" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"
+                  style="flex: 1"></iframe>
+            </div>
           </div>
           <div style="flex:1">
-            <iframe id="Requirements Bazaar Widget" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+            <div style="display: flex; flex-flow: column; height: 100%">
+              <h3>Requirements Bazaar</h3>
+              <iframe id="Requirements Bazaar Widget" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"
+                  style="flex: 1"></iframe>
+            </div>
           </div>
         </div>
       </div>

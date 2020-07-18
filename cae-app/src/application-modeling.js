@@ -13,6 +13,9 @@ class ApplicationModeling extends LitElement {
   render() {
     return html`
     <style>
+      :host {
+          font-family: Roboto;
+      }
       iframe {
         width: 100%;
         height: 100%;
@@ -75,7 +78,10 @@ class ApplicationModeling extends LitElement {
             </div>
           </div>
         </div>
-        <iframe id="Requirements Bazaar Widget" style="max-height: 250px" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+        <div style="display: flex; flex-flow: column">
+          <h3>Requirements Bazaar</h3>
+          <iframe id="Requirements Bazaar Widget" style="max-height: 250px" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+        </div>
         <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
         <!--
         <div style="flex:1;">
