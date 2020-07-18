@@ -840,11 +840,11 @@ export class CommitDetails extends LitElement {
    */
   _onConfirmUndoChangesClicked() {
     const previousModel = this.versionedModel.commits[0].model;
-    this.y.share.data.set("model", previousModel);
-    this.y.share.data.set("wireframe", previousModel.wireframe);
+    this.mainY.share.data.set("model", previousModel);
+    this.mainY.share.data.set("wireframe", previousModel.wireframe);
 
-    // reload modeling page
-    this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
+    this.mainY.share.canvas.set('ReloadWidgetOperation', 'import');
+    this.dispatchEvent(new CustomEvent("reload-wireframe"));
   }
 
   getCheckboxSelectAllElement() {

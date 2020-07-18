@@ -83,7 +83,7 @@ class FrontendModeling extends LitElement {
             <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html"> </iframe>
           </div>
         </div>
-        <div class="innercontainersecond">
+        <div id="div-wireframe" class="innercontainersecond">
           <iframe id="Wireframe Editor" src="${Static.WebhostURL}/wireframe/index.html"> </iframe>
         </div>
       </div>
@@ -92,7 +92,7 @@ class FrontendModeling extends LitElement {
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
-          <versioning-element id="versioning-widget"></versioning-element>
+          <versioning-element @reload-wireframe=${(e) => this._reloadWireframe()} id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
@@ -129,6 +129,19 @@ class FrontendModeling extends LitElement {
     // parent.caeRoom variable (used by modeling/SyncMeta widget)
     const modelingInfo = Common.getModelingInfo();
     Common.setCaeRoom(modelingInfo.frontend.versionedModelId);
+  }
+
+  _reloadWireframe() {
+    const divWireframe = this.shadowRoot.getElementById("div-wireframe");
+    this.shadowRoot.getElementById("Wireframe Editor").remove();
+
+    const wireframe = document.createElement("iframe");
+    wireframe.id = "Wireframe Editor";
+    wireframe.src = Static.WebhostURL + "/wireframe/index.html";
+    divWireframe.appendChild(wireframe);
+
+    // reload caeFrames (otherwise the other widgets will not be able to find the wireframe anymore)
+    parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
   }
 }
 
