@@ -125,7 +125,7 @@ class FrontendModeling extends LitElement {
 
       this.reloadCaeRoom();
 
-      new SyncMetaSwitchHelper(this.shadowRoot);
+      new SyncMetaSwitchHelper(this.shadowRoot, true);
 
       // listener for reloading of current modeling page
       // this is used, when the changes since the last commit should be undone

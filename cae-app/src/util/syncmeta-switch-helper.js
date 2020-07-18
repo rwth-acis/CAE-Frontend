@@ -22,55 +22,63 @@ import Static from "../static";
  */
 export default class SyncMetaSwitchHelper {
 
-  constructor(shadowRoot) {
+  constructor(shadowRoot, isFrontend) {
+    if(!isFrontend) isFrontend = false;
     this.shadowRoot = shadowRoot;
 
     const versioningWidget = this.shadowRoot.getElementById("versioning-widget");
     versioningWidget.addEventListener("show-main-canvas", function() {
-      // check if main canvas is already shown
-      if(this.isMainCanvasShown()) {
+      // check if main modeling widgets are already shown
+      if(this.isMainModelingShown()) {
         // nothing to do
       } else {
         // first, remove second canvas
         this.removeSecondCanvas();
         this.removePropertyBrowser();
+        if(isFrontend) this.removeWireframe();
 
         // now show main canvas again
         this.showMainCanvas();
         this.addNewPropertyBrowser();
+        if(isFrontend) this.addNewWireframe();
         parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
       }
 
     }.bind(this));
 
     versioningWidget.addEventListener("show-commit-canvas", function() {
-      if(this.isMainCanvasShown()) {
-        // currently, main canvas is shown
+      if(this.isMainModelingShown()) {
+        // currently, main modeling widgets are shown
         // hide main canvas and add second canvas used for the specific commit
         this.hideMainCanvas();
         this.removePropertyBrowser();
+        if(isFrontend) this.removeWireframe();
         // since parent.caeRoom already got changed by the versioning widget, this new
         // canvas will use a different Yjs room than the main canvas
         this.addSecondCanvas();
         this.addNewPropertyBrowser();
+        if(isFrontend) this.addNewWireframe();
       } else {
         // main canvas is not shown, thus another commit is shown currently
         // i.e. a second canvas is shown
         // remove the second canvas and add a new one (otherwise, the used Yjs room will not changed)
         this.removeSecondCanvas();
         this.removePropertyBrowser();
+        if(isFrontend) this.removeWireframe();
         this.addSecondCanvas();
         this.addNewPropertyBrowser();
+        if(isFrontend) this.addNewWireframe();
       }
       parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
     }.bind(this));
   }
 
   /**
-   * Whether the main modeling Canvas is shown.
-   * @returns {boolean} Whether the main modeling Canvas is shown.
+   * Whether the main modeling widgets are shown.
+   * To determine this, we only check if the main modeling Canvas is shown.
+   * @returns {boolean} Whether the main modeling widgets are shown.
    */
-  isMainCanvasShown() {
+  isMainModelingShown() {
     return this.getMainCanvasIFrame().style.getPropertyValue("display") != "none";
   }
 
@@ -86,6 +94,13 @@ export default class SyncMetaSwitchHelper {
    */
   removePropertyBrowser() {
     this.getPropertyBrowserIFrame().remove();
+  }
+
+  /**
+   * Removes the current Wireframe Editor iFrame.
+   */
+  removeWireframe() {
+    this.getWireframeIFrame().remove();
   }
 
   /**
@@ -119,6 +134,16 @@ export default class SyncMetaSwitchHelper {
   }
 
   /**
+   * Adds a new Wireframe Editor to the Wireframe div.
+   */
+  addNewWireframe() {
+    const newWireframe = document.createElement("iframe");
+    newWireframe.setAttribute("id", "Wireframe Editor");
+    newWireframe.setAttribute("src", Static.WebhostURL + "/wireframe/index.html");
+    this.getWireframeDiv().appendChild(newWireframe);
+  }
+
+  /**
    * Removes the second Canvas.
    * This can be used, when the main modeling Canvas should be shown again.
    */
@@ -145,6 +170,14 @@ export default class SyncMetaSwitchHelper {
   }
 
   /**
+   * Returns the HTML Element of the iFrame used for the Wireframe Editor.
+   * @returns {*}
+   */
+  getWireframeIFrame() {
+    return this.shadowRoot.getElementById("Wireframe Editor");
+  }
+
+  /**
    * Returns the HTML Element of the div where the Canvas iFrames are added to.
    * @returns {HTMLElement} Returns the HTML Element of the div where the Canvas iFrames are added to.
    */
@@ -158,6 +191,14 @@ export default class SyncMetaSwitchHelper {
    */
   getPropertyBrowserDiv() {
     return this.shadowRoot.getElementById("div-pb");
+  }
+
+  /**
+   * Returns the HTML Element of the div where the Wireframe iFrames are added to.
+   * @returns {*} Returns the HTML Element of the div where the Wireframe iFrames are added to.
+   */
+  getWireframeDiv() {
+    return this.shadowRoot.getElementById("div-wireframe");
   }
 
 
