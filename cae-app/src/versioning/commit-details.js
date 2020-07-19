@@ -10,6 +10,7 @@ import ModelValidator from "../model-differencing/model-validator";
 import Difference from "../model-differencing/difference";
 import MetamodelUploader from "../util/metamodel-uploader";
 import {CommitList} from "./commit-list";
+import("yjs/dist/y");
 
 export class CommitDetails extends LitElement {
   render() {

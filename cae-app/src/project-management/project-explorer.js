@@ -7,6 +7,7 @@ import '@polymer/paper-spinner/paper-spinner-lite.js';
 import Auth from "../util/auth";
 import Static from "../static";
 import Common from "../util/common";
+import("yjs/dist/y");
 
 /**
  * PolymerElement for management of projects.

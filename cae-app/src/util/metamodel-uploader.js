@@ -3,6 +3,7 @@ import microservice_vls from '../vls/microservice_vls.js';
 import application_vls from '../vls/application_vls.js';
 import Static from "../static";
 import Common from "./common";
+import("yjs/dist/y");
 
 /**
  * Helper class for uploading the (meta)-models for the components.
