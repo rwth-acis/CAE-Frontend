@@ -133,31 +133,35 @@ class ProjectInfo extends LitElement {
               ${this.currentlyShownComponents.map(component => html`
                 <div style="display: flex">
                   <div style="width: 100%">
-                      <p>${component.name}</p>
+                      <p>${component.dependencyId ? component.component.name : component.name}</p>
                   </div>
                   <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
-                    <!-- Since dependencies are not yet supported, we dont need this yet 
-                    ${component.type == "dependency" ? html`<span class="label">Dependency</span>` : html``}
-                    ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}-->
+                    <!-- Labels for dependencies and external dependencies -->
+                    ${component.dependencyId ? html`<span class="label" style="margin-right: 0.5em">Dependency</span>` : html``}
+                    ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
                     <!-- Link to open modeling space -->
-                    <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}" icon="icons:exit-to-app" class="edit-icon"></iron-icon>
+                    <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}"
+                      icon="icons:exit-to-app" class="edit-icon" style="margin-top: auto; margin-bottom: auto"></iron-icon>
                     <!-- Link to Requirements Bazaar -->
-                    ${component.reqBazCategoryId && component.reqBazCategoryId != -1 ? html`
-                      <a title="Open in Requirements Bazaar" style="text-decoration: none" target="_blank"
-                          href="https://requirements-bazaar.org/projects/${component.reqBazProjectId}/categories/${component.reqBazCategoryId}">
+                    ${this.hasRequirementsBazaarURL(component) ? html`
+                      <a title="Open in Requirements Bazaar" style="text-decoration: none; margin-top: auto; margin-bottom: auto" 
+                          target="_blank"
+                          href=${this.getRequirementsBazaarURL(component)}>
                           <svg width="24px" height="24px" class="reqbaz-img">
                             <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
                           </svg>
                       </a>
                     ` : html``}
                     <!-- Link to GitHub -->
-                    <a title="View component on GitHub" href=${this.getComponentGitHubURL(component)} target="_blank">
+                    <a title="View component on GitHub" href=${this.getComponentGitHubURL(component)} target="_blank" 
+                        style="margin-top: auto; margin-bottom: auto">
                       <svg width="24px" height="24px" class="github-img">
                         <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
                       </svg>
                     </a>
                     ${this.editingAllowed ? html`
-                      <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon" icon="delete" style="margin-left: 0.5em"></iron-icon>
+                      <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon"
+                           icon="delete" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
                     ` : html``}
                   </div>
                 </div>
@@ -309,7 +313,7 @@ class ProjectInfo extends LitElement {
       </paper-dialog>
       
       <!-- Dialog for adding components to a project. -->
-      <paper-dialog id="dialog-add-component">
+      <paper-dialog id="dialog-add-component" modal>
         <div>
           <h4>Create New Component:</h4>
           <div style="display: flex; align-items: center">
@@ -328,20 +332,12 @@ class ProjectInfo extends LitElement {
           <div class="separator"></div>
         </div>
         <div>
-          <h4 class="disabled">Include Dependency:</h4>
+          <h4>Include Dependency:</h4>
           <div style="display: flex; align-items: center">
-            <!-- Search for Component -->
-            <input class="input" placeholder="Search Component"></input>
-            <!-- Select Component version -->
-            <paper-dropdown-menu label="Select Version" style="min-width: 5em; margin-left: 0.5em">
-              <paper-listbox slot="dropdown-content" selected="0">
-                <paper-item>0.0.1</paper-item>
-                <paper-item>0.0.2</paper-item>
-                <paper-item>0.1.0</paper-item>
-              </paper-listbox>
-            </paper-dropdown-menu>
-            <!-- Button for adding component -->
-            <paper-button class="paper-button-blue" disabled="true">Add</paper-button>
+            <p style="max-width: 400px; margin-top: 0">You can search for existing components from other CAE projects 
+            and include them to this project. Note: Components that are included as a dependency cannot be edited.
+            </p>
+            <paper-button class="paper-button-blue" style="margin-bottom: 1em" @click=${this._onSearchDependencyClicked}>Search components</paper-button>
           </div>
           <div class="separator"></div>
         </div>
@@ -365,6 +361,21 @@ class ProjectInfo extends LitElement {
         </div>
         <div class="buttons">
           <paper-button dialog-dismiss>Close</paper-button>
+        </div>
+      </paper-dialog>
+      
+      <!-- Dialog for searching components to include them as a dependency -->
+      <paper-dialog id="dialog-search-components" modal>
+        <div>
+          <h4>Include Dependency</h4>
+          <paper-input id="dialog-search-components-input" placeholder="Search component"></paper-input>
+          <div id="dialog-search-components-results" style="height: 250px; overflow-y: scroll">
+          
+          </div>
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Close</paper-button>
+          <paper-button>Include as dependency</paper-button>
         </div>
       </paper-dialog>
       
@@ -637,6 +648,15 @@ class ProjectInfo extends LitElement {
   }
 
   /**
+   * Returns the dialog which gets used to search for dependencies to include them
+   * in a project.
+   * @returns {HTMLElement} Dialog
+   */
+  getSearchComponentsDialog() {
+    return this.shadowRoot.getElementById("dialog-search-components");
+  }
+
+  /**
    * Gets called by the parent element (ProjectManagement page)
    * when the user selects a project in the project explorer.
    * @param project Project that got selected in the explorer.
@@ -713,40 +733,59 @@ class ProjectInfo extends LitElement {
           }
         }
       ).then(data => {
-        // clear current components
-        this.applicationComponent = undefined;
-        this.frontendComponents = [];
-        this.microserviceComponents = [];
+        fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/dependencies", {
+          method: "GET"
+        }).then(response2 => {
+          if(response2.ok) {
+            response2.json().then(data2 => {
+              // clear current components
+              this.applicationComponent = undefined;
+              this.frontendComponents = [];
+              this.microserviceComponents = [];
 
-        // data is a JSONArray containing both frontend and microservice components
-        for(let i in data) {
-          const component = data[i];
-          if (component.type == "frontend") {
-            this.frontendComponents.push(component);
-          } else if (component.type == "microservice") {
-            this.microserviceComponents.push(component);
-          } else if(component.type == "application") {
-            this.applicationComponent = component;
-          }
-        }
+              // data is a JSONArray containing both frontend and microservice components
+              for(let i in data) {
+                const component = data[i];
+                if (component.type == "frontend") {
+                  this.frontendComponents.push(component);
+                } else if (component.type == "microservice") {
+                  this.microserviceComponents.push(component);
+                } else if(component.type == "application") {
+                  this.applicationComponent = component;
+                }
+              }
 
-        resolveLoading();
+              // data2 is a JSONArray containing both frontend and microservice DEPENDENCIES
+              for(let i in data2) {
+                const dependency = data2[i];
+                console.log(dependency);
+                if(dependency.component.type == "frontend") {
+                  this.frontendComponents.push(dependency);
+                } else if(dependency.component.type == "microservice") {
+                  this.microserviceComponents.push(dependency);
+                }
+              }
 
-        // check which component tab is currently shown
-        const componentTabs = this.shadowRoot.getElementById("component-tabs");
-        if(this.componentTabSelected == 0) {
-          this.currentlyShownComponents = this.frontendComponents;
-          // since we show the frontend components, also the frontend tab should be shown
-          if(componentTabs != null) {
-            componentTabs.selected = 0;
+              resolveLoading();
+
+              // check which component tab is currently shown
+              const componentTabs = this.shadowRoot.getElementById("component-tabs");
+              if(this.componentTabSelected == 0) {
+                this.currentlyShownComponents = this.frontendComponents;
+                // since we show the frontend components, also the frontend tab should be shown
+                if(componentTabs != null) {
+                  componentTabs.selected = 0;
+                }
+              } else {
+                this.currentlyShownComponents = this.microserviceComponents;
+                // since we show the microservice components, also the microservice tab should be shown
+                if(componentTabs != null) {
+                  componentTabs.selected = 1;
+                }
+              }
+            });
           }
-        } else {
-          this.currentlyShownComponents = this.microserviceComponents;
-          // since we show the microservice components, also the microservice tab should be shown
-          if(componentTabs != null) {
-            componentTabs.selected = 1;
-          }
-        }
+        });
       });
     });
   }
@@ -1049,6 +1088,95 @@ class ProjectInfo extends LitElement {
     });
   }
 
+  _onSearchDependencyClicked() {
+    // close "add component" dialog
+    this.getAddComponentDialog().close();
+    // open dialog for searching components
+    this.getSearchComponentsDialog().open();
+
+    const searchResultDiv = this.shadowRoot.getElementById("dialog-search-components-results");
+
+    let selectedComponentHTML;
+    let selectedComponent;
+
+
+    // search for components
+    fetch(Static.ProjectManagementServiceURL + "/components", {
+      method: "GET"
+    }).then(response => {
+      if(response.ok) {
+        response.json().then(data => {
+          // filter out components with type "application"
+          data = data.filter(component => component.type != "application");
+
+          for(const component of data) {
+            const componentOuterDiv = document.createElement("div");
+            componentOuterDiv.style = "display: flex";
+            componentOuterDiv.addEventListener("mouseover", function() {
+              componentOuterDiv.style.background = "#eeeeee";
+            });
+            componentOuterDiv.addEventListener("mouseleave", function() {
+              if(componentOuterDiv != selectedComponentHTML) {
+                componentOuterDiv.style.removeProperty("background");
+              }
+            });
+            componentOuterDiv.addEventListener("click", function() {
+              if(selectedComponentHTML) selectedComponentHTML.style.removeProperty("background");
+              selectedComponentHTML = componentOuterDiv;
+              selectedComponent = component;
+              componentOuterDiv.style.setProperty("background", "#eeeeee");
+            });
+
+            const p = document.createElement("p");
+            p.innerText = component.name;
+            componentOuterDiv.appendChild(p);
+
+            searchResultDiv.appendChild(componentOuterDiv);
+
+            const separator = document.createElement("div");
+            separator.class = "separator";
+            searchResultDiv.appendChild(separator);
+          }
+        });
+      }
+    });
+
+    const searchInputField = this.shadowRoot.getElementById("dialog-search-components-input");
+    searchInputField.addEventListener("input", function(e) {
+      const searchValue = searchInputField.value;
+      console.log(searchValue);
+      for(const child of searchResultDiv.children) {
+        console.log(child);
+        if(child.getElementsByTagName("p").length > 0) {
+          if (child.getElementsByTagName("p")[0].innerText.toLowerCase().includes(searchValue.toLowerCase())) {
+            child.style.setProperty("display", "flex");
+          } else {
+            child.style.setProperty("display", "none");
+          }
+        }
+      }
+    });
+
+    this.getSearchComponentsDialog().getElementsByTagName("paper-button")[1].addEventListener("click", function() {
+      if(selectedComponent) {
+        // close dialog
+        this.getSearchComponentsDialog().close();
+
+        // add component as dependency to project
+        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/dependencies/" + selectedComponent.id, {
+          method: "POST",
+          headers: Auth.getAuthHeader()
+        }).then(response => {
+          if(response.ok) {
+            this.showToast("Added component as a dependency!");
+            // just reload components list
+            this.loadComponents();
+          }
+        });
+      }
+    }.bind(this));
+  }
+
   /**
    * Gets called when the user clicks on the delete button at the bottom
    * in the project info.
@@ -1121,6 +1249,28 @@ class ProjectInfo extends LitElement {
     let type = component.type;
     if(type == "frontend") type = "frontendComponent";
     return "https://github.com/" + Static.GitHubOrg + "/" + type + "-" + component.versionedModelId;
+  }
+
+  hasRequirementsBazaarURL(component) {
+    if(component.dependencyId) {
+      return component.component.reqBazCategoryId && component.component.reqBazCategoryId != -1;
+    } else {
+      return component.reqBazCategoryId && component.reqBazCategoryId != -1;
+    }
+  }
+
+  getRequirementsBazaarURL(component) {
+    let reqBazProjectId;
+    let reqBazCategoryId;
+    if(component.dependencyId) {
+      reqBazProjectId = component.component.reqBazProjectId;
+      reqBazCategoryId = component.component.reqBazCategoryId;
+    } else {
+      reqBazProjectId = component.reqBazProjectId;
+      reqBazCategoryId = component.reqBazCategoryId;
+    }
+
+    return "https://requirements-bazaar.org/projects/" + reqBazProjectId + "/categories/" + reqBazCategoryId;
   }
 
   /**
