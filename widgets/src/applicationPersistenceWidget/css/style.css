@@ -1,0 +1,10 @@
+#main-content {
+margin-top:20px;
+width:100%;
+}
+textarea#deploy-status{
+  height:200px;
+  background-color:#000000;
+  color:#ffffff;
+  display:none;
+}
