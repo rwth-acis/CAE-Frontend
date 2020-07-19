@@ -160,7 +160,7 @@ class ProjectInfo extends LitElement {
                       </svg>
                     </a>
                     ${this.editingAllowed ? html`
-                      <iron-icon @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon"
+                      <iron-icon title="Delete from project" @click="${() => this._removeComponentFromProjectClicked(component)}" class="edit-icon"
                            icon="delete" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
                     ` : html``}
                   </div>
@@ -396,6 +396,18 @@ class ProjectInfo extends LitElement {
         </div>
       </paper-dialog>
       
+      <!-- Dialog: Are you sure to delete the dependency? -->
+      <paper-dialog id="dialog-delete-dependency" modal>
+        <h4>Delete Dependency</h4>
+        <div>
+        Are you sure that you want to delete the dependency?
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button @click=${this._removeDependencyFromProject} dialog-confirm autofocus>Yes</paper-button>
+        </div>
+      </paper-dialog>
+      
       <!-- Dialog: Are you sure to delete the project? -->
       <paper-dialog id="dialog-delete-project" modal>
         <h4>Delete Project</h4>
@@ -463,6 +475,12 @@ class ProjectInfo extends LitElement {
        * dialogs "Yes" button.
         */
       componentToDelete: {
+        type: Object
+      },
+      /**
+       * The same as componentToDelete, but for dependencies of the project.
+       */
+      dependencyToDelete: {
         type: Object
       }
     }
@@ -758,7 +776,6 @@ class ProjectInfo extends LitElement {
               // data2 is a JSONArray containing both frontend and microservice DEPENDENCIES
               for(let i in data2) {
                 const dependency = data2[i];
-                console.log(dependency);
                 if(dependency.component.type == "frontend") {
                   this.frontendComponents.push(dependency);
                 } else if(dependency.component.type == "microservice") {
@@ -796,13 +813,17 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProjectClicked(component) {
-    this.componentToDelete = component;
-
     const projectId = this.getProjectId();
     const componentId = component.id;
 
-    // first show dialog and ensure that the user really want to delete the component
-    this.shadowRoot.getElementById("dialog-delete-component").open();
+    if(!component.dependencyId) {
+      this.componentToDelete = component;
+      // first show dialog and ensure that the user really want to delete the component
+      this.shadowRoot.getElementById("dialog-delete-component").open();
+    } else {
+      this.dependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-dependency").open();
+    }
   }
 
   /**
@@ -826,27 +847,54 @@ class ProjectInfo extends LitElement {
 
         // check if the component which got deleted is currently opened (in the menu)
         // because then the menu and the modelingInfo in localStorage need to be updated
-        const modelingInfo = Common.getModelingInfo();
-        if(this.componentToDelete.type == "frontend") {
-          if(modelingInfo.frontend != null) {
-            if(modelingInfo.frontend.versionedModelId == this.componentToDelete.versionedModelId) {
-              modelingInfo.frontend = null;
-              Common.storeModelingInfo(modelingInfo);
-              this.updateMenu("frontend");
-            }
-          }
-        }
-        if(this.componentToDelete.type == "microservice") {
-          if(modelingInfo.microservice != null) {
-            if(modelingInfo.microservice.versionedModelId == this.componentToDelete.versionedModelId) {
-              modelingInfo.microservice = null;
-              Common.storeModelingInfo(modelingInfo);
-              this.updateMenu("microservice");
-            }
-          }
-        }
+        this.closeComponent(this.componentToDelete);
       }
     });
+  }
+
+  /**
+   * Gets called when the user clicks "Yes" in the "Are you sure that you want to delete the dependency?"
+   * button in the delete dialog.
+   * @private
+   */
+  _removeDependencyFromProject() {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/dependencies/" + this.dependencyToDelete.component.id, {
+      method: "DELETE",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        this.showToast("Removed dependency from project!");
+
+        // just reload components list
+        this.loadComponents();
+
+        // check if the dependency which got deleted is currently opened (in the menu)
+        // because then the menu and the modelingInfo in localStorage need to be updated
+        this.closeComponent(this.dependencyToDelete.component);
+      }
+    });
+  }
+
+  closeComponent(component) {
+    const modelingInfo = Common.getModelingInfo();
+    if(component.type == "frontend") {
+      if(modelingInfo.frontend != null) {
+        if(modelingInfo.frontend.versionedModelId == component.versionedModelId) {
+          modelingInfo.frontend = null;
+          Common.storeModelingInfo(modelingInfo);
+          this.updateMenu("frontend");
+        }
+      }
+    }
+    if(component.type == "microservice") {
+      if(modelingInfo.microservice != null) {
+        if(modelingInfo.microservice.versionedModelId == component.versionedModelId) {
+          modelingInfo.microservice = null;
+          Common.storeModelingInfo(modelingInfo);
+          this.updateMenu("microservice");
+        }
+      }
+    }
   }
 
   /**
