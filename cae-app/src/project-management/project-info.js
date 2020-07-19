@@ -1294,6 +1294,7 @@ class ProjectInfo extends LitElement {
   }
 
   getComponentGitHubURL(component) {
+    if(component.dependencyId) component = component.component;
     let type = component.type;
     if(type == "frontend") type = "frontendComponent";
     return "https://github.com/" + Static.GitHubOrg + "/" + type + "-" + component.versionedModelId;
