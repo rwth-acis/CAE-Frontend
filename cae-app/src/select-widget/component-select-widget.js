@@ -191,7 +191,9 @@ export class ComponentSelectWidget extends LitElement {
         if(response.ok) {
           response.json().then(data => {
             const versionTags = [];
-            for(const commit of data.commits) {
+            // start with i = 1, otherwise the commit for "uncommited changes" is included
+            for(let i = 1; i < data.commits.length; i++) {
+              const commit = data.commits[i];
               if(commit.versionTag) versionTags.push(commit.versionTag);
             }
             resolve(versionTags);
