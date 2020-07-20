@@ -104,80 +104,87 @@ export class ComponentSelectWidget extends LitElement {
     const currentProjectId = modelingInfo.application.projectId;
 
     this.client.sendRequest("GET", currentProjectId + "/components", "", "application/json", {}, false, function(data, type) {
-      const projectComponents = JSON.parse(data);
-      const componentsByType = projectComponents.filter(c => c.type == this.componentType);
+      let projectComponents = JSON.parse(data);
 
-      for(const component of componentsByType) {
-        // add table rows
-        const name = component.name;
-        const version = "TODO";
-        const versionedModelId = component.versionedModelId;
-        this.getVersionTagsByVersionedModel(versionedModelId).then(versionTags => {
-          const row = document.createElement("tr");
-          row.style = "display: flex";
+      this.client.sendRequest("GET", currentProjectId + "/dependencies", "", "application/json", {}, false, function(data2, type2) {
+        const projectDependencies = JSON.parse(data2);
+        const dependencyComponents = projectDependencies.map(dependency => dependency.component);
 
-          /*
-           * NAME
-           */
-          const tdName = document.createElement("td");
-          tdName.style = "flex: 1; display: flex";
+        projectComponents = projectComponents.concat(dependencyComponents);
 
-          const pName = document.createElement("p");
-          pName.innerText = name;
-          pName.style = "margin-top: auto; margin-bottom: auto";
+        const componentsByType = projectComponents.filter(c => c.type == this.componentType);
 
-          tdName.appendChild(pName);
+        for(const component of componentsByType) {
+          // add table rows
+          const name = component.name;
+          const versionedModelId = component.versionedModelId;
+          this.getVersionTagsByVersionedModel(versionedModelId).then(versionTags => {
+            const row = document.createElement("tr");
+            row.style = "display: flex";
 
-          /*
-           * VERSION
-           */
-          const tdVersion = document.createElement("td");
-          tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
+            /*
+             * NAME
+             */
+            const tdName = document.createElement("td");
+            tdName.style = "flex: 1; display: flex";
 
-          const paperDropdownMenu = document.createElement("paper-dropdown-menu");
-          paperDropdownMenu.setAttribute("label", "Select Version");
-          paperDropdownMenu.style = "width: 5em";
+            const pName = document.createElement("p");
+            pName.innerText = name;
+            pName.style = "margin-top: auto; margin-bottom: auto";
 
-          const paperListbox = document.createElement("paper-listbox");
-          paperListbox.setAttribute("slot", "dropdown-content");
-          paperListbox.setAttribute("selected", "0");
+            tdName.appendChild(pName);
 
-          const latest = document.createElement("paper-item");
-          const latestVersionValue = "Latest";
-          latest.innerText = latestVersionValue;
-          paperListbox.appendChild(latest);
+            /*
+             * VERSION
+             */
+            const tdVersion = document.createElement("td");
+            tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
 
-          for(const versionTag of versionTags) {
-            const item = document.createElement("paper-item");
-            item.innerText = versionTag;
-            paperListbox.appendChild(item);
-          }
+            const paperDropdownMenu = document.createElement("paper-dropdown-menu");
+            paperDropdownMenu.setAttribute("label", "Select Version");
+            paperDropdownMenu.style = "width: 5em";
 
-          paperDropdownMenu.appendChild(paperListbox);
+            const paperListbox = document.createElement("paper-listbox");
+            paperListbox.setAttribute("slot", "dropdown-content");
+            paperListbox.setAttribute("selected", "0");
 
-          tdVersion.appendChild(paperDropdownMenu);
+            const latest = document.createElement("paper-item");
+            const latestVersionValue = "Latest";
+            latest.innerText = latestVersionValue;
+            paperListbox.appendChild(latest);
 
-          row.appendChild(tdName);
-          row.appendChild(tdVersion);
-
-          // make row "clickable"
-          row.addEventListener("click", function() {
-            let selected = paperListbox.selected;
-            let selectedTag;
-            if(selected == 0) {
-              // Version Tag "Latest" got selected
-              selectedTag = latestVersionValue;
-            } else {
-              // the selected version tag is element of the versionTags array
-              selected--;
-              selectedTag = versionTags[selected];
+            for(const versionTag of versionTags) {
+              const item = document.createElement("paper-item");
+              item.innerText = versionTag;
+              paperListbox.appendChild(item);
             }
-            this.createNode(name, "" + versionedModelId, selectedTag);
-          }.bind(this));
 
-          this.getTable().appendChild(row);
-        });
-      }
+            paperDropdownMenu.appendChild(paperListbox);
+
+            tdVersion.appendChild(paperDropdownMenu);
+
+            row.appendChild(tdName);
+            row.appendChild(tdVersion);
+
+            // make row "clickable"
+            row.addEventListener("click", function() {
+              let selected = paperListbox.selected;
+              let selectedTag;
+              if(selected == 0) {
+                // Version Tag "Latest" got selected
+                selectedTag = latestVersionValue;
+              } else {
+                // the selected version tag is element of the versionTags array
+                selected--;
+                selectedTag = versionTags[selected];
+              }
+              this.createNode(name, "" + versionedModelId, selectedTag);
+            }.bind(this));
+
+            this.getTable().appendChild(row);
+          });
+        }
+      }.bind(this));
     }.bind(this), function(error) {
       console.log(error);
     });
