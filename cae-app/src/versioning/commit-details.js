@@ -523,6 +523,12 @@ export class CommitDetails extends LitElement {
                 this.dispatchEvent(new CustomEvent("reload-commit-list"));
               }
             });
+
+            y.share.canvas.observe(event => {
+              if(event.name == "ReloadWidgetOperation") {
+                this.dispatchEvent(new CustomEvent("reload-wireframe"));
+              }
+            });
           } else {
             // model not available yet
             console.log("Waiting for model...");
@@ -845,7 +851,7 @@ export class CommitDetails extends LitElement {
     this.mainY.share.data.set("wireframe", previousModel.wireframe);
 
     this.mainY.share.canvas.set('ReloadWidgetOperation', 'import');
-    this.dispatchEvent(new CustomEvent("reload-wireframe"));
+    // Wireframe widget gets reloaded by observer waiting for ReloadWidgetOperation
   }
 
   getCheckboxSelectAllElement() {
