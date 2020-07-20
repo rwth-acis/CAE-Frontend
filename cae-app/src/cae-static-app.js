@@ -193,13 +193,13 @@ class CaeStaticApp extends PolymerElement {
     this.getNotificationElement().addEventListener('reload-users-projects', _ => projectManagement.getProjectExplorer().showProjects(false));
 
     // load notifications every x seconds (currently set to every 10 seconds)
-    window.setInterval(() => {
+    window.setInterval(function() {
       if(Auth.isAccessTokenAvailable()) {
         this.loadUsersNotifications();
       } else {
         this.handleLogout();
       }
-    }, 10000);
+    }.bind(this), 10000);
 
     // check if information on modelingInfo is stored
     if(Common.getModelingInfo() == undefined) {
@@ -290,6 +290,9 @@ class CaeStaticApp extends PolymerElement {
 
     // remove userInfo from localStorage
     Common.removeUserInfoFromStorage();
+
+    // redirect to landing page (because there the login-hint is shown)
+    this.set("route.path", "/");
   }
 
   loadCurrentUser() {
