@@ -196,6 +196,8 @@ class CaeStaticApp extends PolymerElement {
     window.setInterval(() => {
       if(Auth.isAccessTokenAvailable()) {
         this.loadUsersNotifications();
+      } else {
+        this.handleLogout();
       }
     }, 10000);
 
