@@ -512,31 +512,11 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onComponentClicked(component) {
-    // update modeling info
-    const modelingInfo = Common.getModelingInfo();
-    const content = {
-      "versionedModelId": component.versionedModelId,
-      "name": component.name
-    };
-    if(component.type == "frontend") {
-      modelingInfo.frontend = content;
-    } else {
-      modelingInfo.microservice = content;
-    }
-    Common.storeModelingInfo(modelingInfo);
-
-    // set this versioned model as the currently opened one
-    Common.setVersionedModelId(component.versionedModelId);
-
-    // set GitHub repo name in localStorage
-    const repoPrefix = component.type == "frontend" ? "frontendComponent" : component.type;
-    Common.setGitHubRepoName(repoPrefix + "-" + component.versionedModelId);
+    // update information on currently opened component in localStorage
+    this.updateCurrentlyOpenedComponent(component);
 
     // show spinner
     this.openLoadingDialog();
-
-    // store information for requirements bazaar widget
-    Common.storeRequirementsBazaarProject(component.reqBazProjectId, component.reqBazCategoryId);
 
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
@@ -555,31 +535,99 @@ class ProjectInfo extends LitElement {
   }
 
   /**
+   * Gets called when a new component gets opened.
+   * Updates the modeling info stored in localStorage.
+   * @param component Component that gets opened.
+   */
+  updateModelingInfoComponentOpened(component) {
+    const modelingInfo = Common.getModelingInfo();
+    const content = {
+      "versionedModelId": component.versionedModelId,
+      "name": component.name,
+      "projectId": this.getProjectId()
+    };
+    if(component.type == "frontend") {
+      modelingInfo.frontend = content;
+    } else if(component.type == "microservice") {
+      modelingInfo.microservice = content;
+    } else {
+      modelingInfo.application = content;
+    }
+    Common.storeModelingInfo(modelingInfo);
+  }
+
+  /**
+   * Stores the versioned model id of the given component
+   * as the currently openend versioned model id in localStorage.
+   * @param component Component that gets opened.
+   */
+  updateCurrentlyOpenedVersionedModelId(component) {
+    Common.setVersionedModelId(component.versionedModelId);
+  }
+
+  /**
+   * Stores the GitHub repo name of the given component
+   * as the GitHub repo name of the currently opened component
+   * in localStorage.
+   * @param component Component that gets opened.
+   */
+  updateCurrentlyOpenedGitHubRepoName(component) {
+    let repoPrefix;
+    if(component.type == "frontend") {
+      repoPrefix = "frontendComponent-";
+    } else if(component.type == "microservice") {
+      repoPrefix = "microservice-";
+    } else {
+      repoPrefix = "application-";
+    }
+
+    Common.setGitHubRepoName(repoPrefix + "-" + component.versionedModelId);
+  }
+
+  /**
+   * Stores the information needed for the Requirements Bazaar widget to work.
+   * Gets called when the information changes, i.e. when a new component gets opened.
+   * @param component Component that gets opened.
+   */
+  updateCurrentlyOpenedReqBazConfig(component) {
+    Common.storeRequirementsBazaarProject(component.reqBazProjectId, component.reqBazCategoryId);
+  }
+
+  /**
+   * Gets called when a new component gets opened and the information
+   * on the currently opened component in localStorage should be updated.
+   * @param component
+   */
+  updateCurrentlyOpenedComponent(component) {
+    if(component.dependencyId) {
+      // component is a dependency
+      component = component.component;
+    }
+
+    // update modeling info
+    this.updateModelingInfoComponentOpened(component);
+
+    // set this versioned model as the currently opened one
+    this.updateCurrentlyOpenedVersionedModelId(component);
+
+    // set GitHub repo name in localStorage
+    this.updateCurrentlyOpenedGitHubRepoName(component);
+
+    // store information for requirements bazaar widget
+    this.updateCurrentlyOpenedReqBazConfig(component);
+  }
+
+  /**
    * Gets called when the user wants to open the
    * application modeling page of a project.
    * @private
    */
   _onOpenApplicationModelingClicked() {
-    // update modeling info
-    const modelingInfo = Common.getModelingInfo();
-    modelingInfo.application = {
-      "versionedModelId": this.applicationComponent.versionedModelId,
-      "projectId": this.getProjectId(),
-      "name": this.applicationComponent.name
-    };
-    Common.storeModelingInfo(modelingInfo);
-
-    // set this versioned model as the currently opened one
-    Common.setVersionedModelId(this.applicationComponent.versionedModelId);
-
-    // set GitHub repo name in localStorage
-    Common.setGitHubRepoName("application-" + this.applicationComponent.versionedModelId);
+    // update information on currently opened component in localStorage
+    this.updateCurrentlyOpenedComponent(this.applicationComponent);
 
     // show spinner
     this.openLoadingDialog();
-
-    // store information for requirements bazaar widget
-    Common.storeRequirementsBazaarProject(this.applicationComponent.reqBazProjectId, this.applicationComponent.reqBazCategoryId);
 
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
