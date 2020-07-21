@@ -11,6 +11,10 @@ import './notifications/notification-element.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
+import("yjs/dist/y");
+import("y-memory/dist/y-memory");
+import("y-map/dist/y-map");
+import("y-websockets-client/dist/y-websockets-client");
 
 /**
  * CaeStaticApp is the main PolymerElement of the CAE.

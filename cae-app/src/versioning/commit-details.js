@@ -485,7 +485,8 @@ export class CommitDetails extends LitElement {
           data: 'Map',
           canvas: 'Map',
           versioning_widget: 'Map'
-        }
+        },
+        sourceDir: "/node_modules"
       }).then(function(y) {
         this.y = y;
         this.mainY = y;
@@ -651,7 +652,8 @@ export class CommitDetails extends LitElement {
         data: 'Map',
         canvas: 'Map',
         versioning_widget: 'Map'
-      }
+      },
+      sourceDir: "/node_modules"
     }).then(function(y) {
       this.y = y;
 

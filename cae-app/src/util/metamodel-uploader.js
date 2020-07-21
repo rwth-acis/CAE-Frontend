@@ -99,7 +99,7 @@ export default class MetamodelUploader {
         widgetConfig: 'Map'
       },
       type:["Text","Map"],
-      sourceDir: '/bower_components'
+      sourceDir: "/node_modules"
     }).then(function(y) {
       // set if view only mode should be activated
       console.log("Setting view_only in Yjs room to: " + viewOnly);

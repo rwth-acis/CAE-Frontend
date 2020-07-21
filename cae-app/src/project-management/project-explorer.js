@@ -7,7 +7,6 @@ import '@polymer/paper-spinner/paper-spinner-lite.js';
 import Auth from "../util/auth";
 import Static from "../static";
 import Common from "../util/common";
-import("yjs/dist/y");
 
 /**
  * PolymerElement for management of projects.
@@ -457,7 +456,8 @@ class ProjectExplorer extends LitElement {
           userList: 'Map', // used to get full name of users
           join: 'Map' // used to get currently online users
         },
-        type:["Map"]
+        type:["Map"],
+        sourceDir: "/node_modules"
       }).then(function(y) {
         //y.share.data.set('metamodel', vls);
         //console.log(component.name);
