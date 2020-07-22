@@ -101,16 +101,16 @@ export class CommitList extends LitElement {
     // check if the commit is the one for "uncommited changes"
     if(commit.message == null) {
       // show the main modeling in the main Yjs room again
-      parent.caeRoom = Common.getYjsRoomNameForVersionedModel(this.versionedModel.id, this.isDependency());
+      parent.caeRoom = Common.getYjsRoomNameForVersionedModel(this.versionedModel.id, Common.isCurrentComponentDependency());
       this.dispatchEvent(new CustomEvent("show-main-canvas"));
     } else {
       if(commit.commitType == 0) { // only for commits that belong to model changes
         // change the model which is shown in the canvas
         // we want to show the model at a previous stage/commit
         const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
-        parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id, this.isDependency());
+        parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id, Common.isCurrentComponentDependency());
         MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, commit.model,
-          this.versionedModel.id, commit.id, this.isDependency()).then(
+          this.versionedModel.id, commit.id, Common.isCurrentComponentDependency()).then(
           (_ => {
             // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
             this.dispatchEvent(new CustomEvent("show-commit-canvas"));
@@ -173,13 +173,6 @@ export class CommitList extends LitElement {
    */
   isApplication() {
     return Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId()) == "application";
-  }
-
-  isDependency() {
-    const type = Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId());
-    if(type == "frontend") return Common.getModelingInfo().frontend.isDependency;
-    else if(type == "microservice") return Common.getModelingInfo().microservice.isDependency;
-    else return Common.getModelingInfo().application.isDependency;
   }
 
   static getCommitGitHubURL(commit) {

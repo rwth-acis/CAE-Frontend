@@ -158,6 +158,13 @@ export default class Common {
     if(modelingInfo.application != null) if(modelingInfo.application.versionedModelId == versionedModelId) return "application";
   }
 
+  static isCurrentComponentDependency() {
+    const type = Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId());
+    if(type == "frontend") return Common.getModelingInfo().frontend.isDependency;
+    else if(type == "microservice") return Common.getModelingInfo().microservice.isDependency;
+    else return Common.getModelingInfo().application.isDependency;
+  }
+
   /**
    * Stores the id of the currently used versioned model into localStorage.
    * @param versionedModelId Id of the versioned model which should be stored.
