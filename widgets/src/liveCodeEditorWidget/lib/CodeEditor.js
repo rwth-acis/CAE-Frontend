@@ -11,6 +11,20 @@ import config from "./config.js";
 
 let Range = ace.require('ace/range').Range
 
+
+// private yjs instance
+let _y;
+
+function _initYjs(yjsRoomName){
+  return new Y({db:{name:"memory"},connector:{
+      name:"websockets-client",
+      room: yjsRoomName,
+      url : config.Yjs.websockets_server
+    },
+    sourceDir: config.CodeEditorWidget.bower_components,
+    share:{'widgetConfig':'Map'}, types : ['Map']});
+}
+
 /**
 *  The main class of the editor. An abstraction of the ace editor that also supports unprotected & protected segments and synchronizes them with the source code
 */
@@ -27,6 +41,17 @@ class CodeEditor{
     //create needed data structures
     this.workspace = new Workspace(this);
     this.editor = this.createAceEditor(editorId);
+    _initYjs(parent.caeRoom).then(y => {
+      _y = y;
+
+      // check if view only mode is enabled
+      if(_y.share.widgetConfig.get("view_only")) {
+        // code should not be editable
+        this.editor.setReadOnly(true);
+        // also disable button for pushing commits
+        $("#publishButton").prop("disabled", true);
+      }
+    });
     this.segmentManager = this.createSegmentManager();
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
     this.commandDecorator = new CommandDecorator(this.editor, this.segmentManager, this.traceHighlighter);
