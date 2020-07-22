@@ -58,6 +58,7 @@ function loadConnectedProject() {
   var storageEntryString = localStorage.getItem(localStorageKey);
   if (storageEntryString) {
     var storageEntry = JSON.parse(storageEntryString);
+    storageEntry = storageEntry[localStorage.getItem("versionedModelId")];
     selectedProjectId = storageEntry.selectedProjectId;
     selectedCategoryId = storageEntry.selectedCategoryId;
   }

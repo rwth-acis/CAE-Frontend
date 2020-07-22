@@ -95,11 +95,21 @@ export default class Common {
    * @param selectedProjectId Id of the selected Requirements Bazaar project
    * @param selectedCategoryId Id of the selected Requirements Bazaar category
    */
-  static storeRequirementsBazaarProject(selectedProjectId, selectedCategoryId) {
-    localStorage.setItem(this.KEY_REQ_BAZ_WIDGET, JSON.stringify({
+  static storeRequirementsBazaarProject(versionedModelId, selectedProjectId, selectedCategoryId) {
+    const content = {
       selectedProjectId: selectedProjectId,
       selectedCategoryId: selectedCategoryId
-    }));
+    };
+
+    if(!localStorage.getItem(this.KEY_REQ_BAZ_WIDGET)) {
+      let item = {};
+      item[versionedModelId] = content;
+      localStorage.setItem(this.KEY_REQ_BAZ_WIDGET, JSON.stringify(item));
+    } else {
+      const item = JSON.parse(localStorage.getItem(this.KEY_REQ_BAZ_WIDGET));
+      item[versionedModelId] = content;
+      localStorage.setItem(this.KEY_REQ_BAZ_WIDGET, JSON.stringify(item));
+    }
   }
 
   /**

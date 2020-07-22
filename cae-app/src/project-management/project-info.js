@@ -593,7 +593,7 @@ class ProjectInfo extends LitElement {
    * @param component Component that gets opened.
    */
   updateCurrentlyOpenedReqBazConfig(component) {
-    Common.storeRequirementsBazaarProject(component.reqBazProjectId, component.reqBazCategoryId);
+    Common.storeRequirementsBazaarProject(component.versionedModelId, component.reqBazProjectId, component.reqBazCategoryId);
   }
 
   /**
