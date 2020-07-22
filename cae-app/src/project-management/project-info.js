@@ -520,10 +520,11 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      this.updateMenu(component.type);
+      const componentType = component.dependencyId ? component.component.type : component.type;
+      this.updateMenu(componentType);
 
       this.closeLoadingDialog();
-      if(component.type == "frontend") {
+      if(componentType == "frontend") {
         this.changeView("cae-modeling/frontend-modeling");
       } else {
         this.changeView("cae-modeling/microservice-modeling");
@@ -538,13 +539,15 @@ class ProjectInfo extends LitElement {
    * Gets called when a new component gets opened.
    * Updates the modeling info stored in localStorage.
    * @param component Component that gets opened.
+   * @param isDependency Whether the component that gets opened is a dependency of the project.
    */
-  updateModelingInfoComponentOpened(component) {
+  updateModelingInfoComponentOpened(component, isDependency) {
     const modelingInfo = Common.getModelingInfo();
     const content = {
       "versionedModelId": component.versionedModelId,
       "name": component.name,
-      "projectId": this.getProjectId()
+      "projectId": this.getProjectId(),
+      "isDependency": isDependency
     };
     if(component.type == "frontend") {
       modelingInfo.frontend = content;
@@ -581,7 +584,7 @@ class ProjectInfo extends LitElement {
       repoPrefix = "application-";
     }
 
-    Common.setGitHubRepoName(repoPrefix + "-" + component.versionedModelId);
+    Common.setGitHubRepoName(repoPrefix + component.versionedModelId);
   }
 
   /**
@@ -599,13 +602,15 @@ class ProjectInfo extends LitElement {
    * @param component
    */
   updateCurrentlyOpenedComponent(component) {
+    let isDependency = false;
     if(component.dependencyId) {
       // component is a dependency
       component = component.component;
+      isDependency = true;
     }
 
     // update modeling info
-    this.updateModelingInfoComponentOpened(component);
+    this.updateModelingInfoComponentOpened(component, isDependency);
 
     // set this versioned model as the currently opened one
     this.updateCurrentlyOpenedVersionedModelId(component);
@@ -631,7 +636,8 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
-      this.updateMenu(this.applicationComponent.type);
+      const componentType = this.applicationComponent.dependencyId ? this.applicationComponent.component.type : this.applicationComponent.type;
+      this.updateMenu(componentType);
 
       // close dialog
       this.closeLoadingDialog();
@@ -685,7 +691,8 @@ class ProjectInfo extends LitElement {
       };
       Common.storeModelingInfo(modelingInfo);
 
-      this.updateMenu(this.applicationComponent.type);
+      const componentType = this.applicationComponent.dependencyId ? this.applicationComponent.component.type : this.applicationComponent.type;
+      this.updateMenu(componentType);
     }, _ => {
       // failed
     });

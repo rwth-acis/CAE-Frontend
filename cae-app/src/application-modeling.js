@@ -130,7 +130,7 @@ class ApplicationModeling extends LitElement {
     // load the current Yjs room name from localStorage into
     // parent.caeRoom variable (used by modeling/SyncMeta widget)
     const modelingInfo = Common.getModelingInfo();
-    Common.setCaeRoom(modelingInfo.application.versionedModelId);
+    Common.setCaeRoom(modelingInfo.application.versionedModelId, modelingInfo.application.isDependency);
   }
 
   /**

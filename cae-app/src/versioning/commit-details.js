@@ -477,7 +477,7 @@ export class CommitDetails extends LitElement {
         },
         connector: {
           name: "websockets-client", // use the websockets connector
-          room: Common.getYjsRoomNameForVersionedModel(versionedModel.id),
+          room: Common.getYjsRoomNameForVersionedModel(versionedModel.id, this.isDependency()),
           options: { resource: Static.YjsResourcePath},
           url: Static.YjsAddress
         },
@@ -539,6 +539,13 @@ export class CommitDetails extends LitElement {
         waitForModel();
       }.bind(this));
     }
+  }
+
+  isDependency() {
+    const type = Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId());
+    if(type == "frontend") return Common.getModelingInfo().frontend.isDependency;
+    else if(type == "microservice") return Common.getModelingInfo().microservice.isDependency;
+    else return Common.getModelingInfo().application.isDependency;
   }
 
   reloadUncommitedChanges(y) {

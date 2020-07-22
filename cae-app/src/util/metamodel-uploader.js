@@ -32,6 +32,12 @@ export default class MetamodelUploader {
    * @returns {*|Promise<unknown>|Promise}
    */
   static uploadMetamodelAndModelForComponent(component) {
+    let isDependency = false;
+    if(component.dependencyId) {
+      // component is a dependency
+      component = component.component;
+      isDependency = true;
+    }
     // get the correct VLS depending on the type of the given component
     const metamodel = this.getMetamodelByType(component.type);
 
@@ -48,8 +54,10 @@ export default class MetamodelUploader {
       }).then(data => {
         // get model of latest commit from database
         const model = data.commits[0].model;
+        let viewOnly = false;
+        if(isDependency) viewOnly = true;
         this.uploadMetamodelAndModelInYjsRoom(metamodel, model,
-          Common.getYjsRoomNameForVersionedModel(component.versionedModelId), resolve, false);
+          Common.getYjsRoomNameForVersionedModel(component.versionedModelId), resolve, viewOnly, isDependency);
       });
     });
   }
@@ -63,14 +71,14 @@ export default class MetamodelUploader {
    * @param commitId
    * @returns {Promise<unknown>}
    */
-  static uploadMetamodelAndModelForSpecificCommit(componentType, model, versionedModelId, commitId) {
+  static uploadMetamodelAndModelForSpecificCommit(componentType, model, versionedModelId, commitId, isDependency) {
     // get the correct VLS depending on the given component type
     const metamodel = this.getMetamodelByType(componentType);
 
     // load versioned model
     return new Promise((resolve, reject) => {
       this.uploadMetamodelAndModelInYjsRoom(metamodel, model,
-        Common.getYjsRoomNameForSpecificCommit(versionedModelId, commitId), resolve, true);
+        Common.getYjsRoomNameForSpecificCommit(versionedModelId, commitId), resolve, true, isDependency);
     });
   }
 
@@ -82,7 +90,11 @@ export default class MetamodelUploader {
    * @param yjsRoomName
    * @param resolve
    */
-  static uploadMetamodelAndModelInYjsRoom(metamodel, model, yjsRoomName, resolve, viewOnly) {
+  static uploadMetamodelAndModelInYjsRoom(metamodel, model, yjsRoomName, resolve, viewOnly, isDependency) {
+    if(isDependency) {
+      // if the component is a dependency, then the Yjs room should be a different one
+      yjsRoomName += "-dependency";
+    }
     console.log("Uploading metamodel and model into Yjs room: " + yjsRoomName);
     Y({
       db: {

@@ -139,7 +139,7 @@ class FrontendModeling extends LitElement {
     // load the current Yjs room name from localStorage into
     // parent.caeRoom variable (used by modeling/SyncMeta widget)
     const modelingInfo = Common.getModelingInfo();
-    Common.setCaeRoom(modelingInfo.frontend.versionedModelId);
+    Common.setCaeRoom(modelingInfo.frontend.versionedModelId, modelingInfo.frontend.isDependency);
   }
 
   _reloadWireframe() {

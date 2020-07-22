@@ -143,7 +143,7 @@ class MicroserviceModeling extends LitElement {
     // load the current Yjs room name from localStorage into
     // parent.caeRoom variable (used by modeling/SyncMeta widget)
     const modelingInfo = Common.getModelingInfo();
-    Common.setCaeRoom(modelingInfo.microservice.versionedModelId);
+    Common.setCaeRoom(modelingInfo.microservice.versionedModelId, modelingInfo.microservice.isDependency);
   }
 
   /**

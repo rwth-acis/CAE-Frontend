@@ -57,8 +57,10 @@ export default class Common {
    * @param versionedModelId Id of the versioned model
    * @returns {string} Name of the Yjs room for the specific versioned model.
    */
-  static getYjsRoomNameForVersionedModel(versionedModelId) {
-    return "versionedModel-" + versionedModelId;
+  static getYjsRoomNameForVersionedModel(versionedModelId, isDependency) {
+    let name =  "versionedModel-" + versionedModelId;
+    if(isDependency) name = name + "-dependency";
+    return name;
   }
 
   /**
@@ -71,8 +73,10 @@ export default class Common {
    * @param commitId Id of the commit, whose model version should be shown in the Yjs room.
    * @returns {string} Name of the Yjs room for the specific commit of the versioned model.
    */
-  static getYjsRoomNameForSpecificCommit(versionedModelId, commitId) {
-    return "versionedModel-" + versionedModelId + "-" + commitId;
+  static getYjsRoomNameForSpecificCommit(versionedModelId, commitId, isDependency) {
+    let name = "versionedModel-" + versionedModelId + "-" + commitId;
+    if(isDependency) name = name + "-dependency";
+    return name;
   }
 
   /**
@@ -81,8 +85,8 @@ export default class Common {
    * to the localStorage by calling storeYjsRoomName.
    * @param versionedModelId Id of the versioned model
    */
-  static setCaeRoom(versionedModelId) {
-    parent.caeRoom = this.getYjsRoomNameForVersionedModel(versionedModelId);
+  static setCaeRoom(versionedModelId, isDependency) {
+    parent.caeRoom = this.getYjsRoomNameForVersionedModel(versionedModelId, isDependency);
   }
 
   /**
