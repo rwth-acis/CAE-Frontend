@@ -127,6 +127,11 @@ class FrontendModeling extends LitElement {
 
       new SyncMetaSwitchHelper(this.shadowRoot, true);
 
+      if(Common.isCurrentComponentDependency()) {
+        // hide palette widget
+        this.shadowRoot.getElementById("Palette").style.display = "none";
+      }
+
       // listener for reloading of current modeling page
       // this is used, when the changes since the last commit should be undone
       this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
