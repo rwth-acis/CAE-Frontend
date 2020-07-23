@@ -134,15 +134,17 @@ class ProjectInfo extends LitElement {
               ${this.currentlyShownComponents.map(component => html`
                 <div style="display: flex">
                   <div style="width: 100%">
-                      <p>${component.dependencyId ? component.component.name : component.name}</p>
+                      <p>${this.getComponentName(component)}</p>
                   </div>
                   <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
                     <!-- Labels for dependencies and external dependencies -->
                     ${component.dependencyId ? html`<span class="label" style="margin-right: 0.5em">Dependency</span>` : html``}
-                    ${component.type == "external_dependency" ? html`<span class="label">External Dependency</span>` : html``}
+                    ${component.externalDependencyId ? html`<span class="label" style="margin-right: 0.5em; white-space: nowrap;">External Dependency</span>` : html``}
                     <!-- Link to open modeling space -->
-                    <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}"
-                      icon="icons:exit-to-app" class="edit-icon" style="margin-top: auto; margin-bottom: auto"></iron-icon>
+                    ${component.externalDependencyId ? html`` : html`
+                      <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}"
+                        icon="icons:exit-to-app" class="edit-icon" style="margin-top: auto; margin-bottom: auto"></iron-icon>
+                    `}
                     <!-- Link to Requirements Bazaar -->
                     ${this.hasRequirementsBazaarURL(component) ? html`
                       <a title="Open in Requirements Bazaar" style="text-decoration: none; margin-top: auto; margin-bottom: auto" 
@@ -386,7 +388,7 @@ class ProjectInfo extends LitElement {
         </div>
         <div class="buttons">
           <paper-button dialog-dismiss>Close</paper-button>
-          <paper-button dialog-confirm>Include as external dependency</paper-button>
+          <paper-button>Include as external dependency</paper-button>
         </div>
       </paper-dialog>
       
@@ -419,6 +421,18 @@ class ProjectInfo extends LitElement {
         </div>
       </paper-dialog>
       
+       <!-- Dialog: Are you sure to delete the external dependency? -->
+      <paper-dialog id="dialog-delete-external-dependency" modal>
+        <h4>Delete External Dependency</h4>
+        <div>
+        Are you sure that you want to delete the external dependency?
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Cancel</paper-button>
+          <paper-button @click=${this._removeExternalDependencyFromProject} dialog-confirm autofocus>Yes</paper-button>
+        </div>
+      </paper-dialog>
+      
       <!-- Dialog: Are you sure to delete the project? -->
       <paper-dialog id="dialog-delete-project" modal>
         <h4>Delete Project</h4>
@@ -433,6 +447,15 @@ class ProjectInfo extends LitElement {
       
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
+      
+      <!-- Generic Warning-Toast (see showWarningToast method for more information) -->
+      <custom-style><style is="custom-style">
+        #warning-toast {
+          --paper-toast-background-color: red;
+          --paper-toast-color: white;
+        }
+      </style></custom-style>
+      <paper-toast id="warning-toast" text="Will be changed later."></paper-toast>
     `;
   }
 
@@ -492,6 +515,9 @@ class ProjectInfo extends LitElement {
        * The same as componentToDelete, but for dependencies of the project.
        */
       dependencyToDelete: {
+        type: Object
+      },
+      externalDependencyToDelete: {
         type: Object
       }
     }
@@ -846,7 +872,7 @@ class ProjectInfo extends LitElement {
   loadComponents() {
     return new Promise((resolveLoading, rejectLoading) => {
       const projectId = this.getProjectId();
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
+      fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId, {
         method: "GET"
       }).then(response => {
           if(response.ok) {
@@ -856,58 +882,62 @@ class ProjectInfo extends LitElement {
           }
         }
       ).then(data => {
-        fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/dependencies", {
-          method: "GET"
-        }).then(response2 => {
-          if(response2.ok) {
-            response2.json().then(data2 => {
-              // clear current components
-              this.applicationComponent = undefined;
-              this.frontendComponents = [];
-              this.microserviceComponents = [];
+        const components = data.components;
+        const dependencies = data.dependencies;
+        const externalDependencies = data.externalDependencies;
 
-              // data is a JSONArray containing both frontend and microservice components
-              for(let i in data) {
-                const component = data[i];
-                if (component.type == "frontend") {
-                  this.frontendComponents.push(component);
-                } else if (component.type == "microservice") {
-                  this.microserviceComponents.push(component);
-                } else if(component.type == "application") {
-                  this.applicationComponent = component;
-                }
-              }
+        // clear current components
+        this.applicationComponent = undefined;
+        this.frontendComponents = [];
+        this.microserviceComponents = [];
 
-              // data2 is a JSONArray containing both frontend and microservice DEPENDENCIES
-              for(let i in data2) {
-                const dependency = data2[i];
-                if(dependency.component.type == "frontend") {
-                  this.frontendComponents.push(dependency);
-                } else if(dependency.component.type == "microservice") {
-                  this.microserviceComponents.push(dependency);
-                }
-              }
-
-              resolveLoading();
-
-              // check which component tab is currently shown
-              const componentTabs = this.shadowRoot.getElementById("component-tabs");
-              if(this.componentTabSelected == 0) {
-                this.currentlyShownComponents = this.frontendComponents;
-                // since we show the frontend components, also the frontend tab should be shown
-                if(componentTabs != null) {
-                  componentTabs.selected = 0;
-                }
-              } else {
-                this.currentlyShownComponents = this.microserviceComponents;
-                // since we show the microservice components, also the microservice tab should be shown
-                if(componentTabs != null) {
-                  componentTabs.selected = 1;
-                }
-              }
-            });
+        // components is a JSONArray containing both frontend components and microservices
+        for(let i in components) {
+          const component = components[i];
+          if (component.type == "frontend") {
+            this.frontendComponents.push(component);
+          } else if (component.type == "microservice") {
+            this.microserviceComponents.push(component);
+          } else if(component.type == "application") {
+            this.applicationComponent = component;
           }
-        });
+        }
+
+        // dependencies is a JSONArray containing both frontend component and microservice DEPENDENCIES
+        for(let i in dependencies) {
+          const dependency = dependencies[i];
+          if(dependency.component.type == "frontend") {
+            this.frontendComponents.push(dependency);
+          } else if(dependency.component.type == "microservice") {
+            this.microserviceComponents.push(dependency);
+          }
+        }
+
+        // external dependencies
+        for(let i in externalDependencies) {
+          const externalDependency = externalDependencies[i];
+          // Note: Currently every external dependency is a microservice
+          // TODO: later, when external dependencies can also be frontend components, this method needs to be updated
+          this.microserviceComponents.push(externalDependency);
+        }
+
+        resolveLoading();
+
+        // check which component tab is currently shown
+        const componentTabs = this.shadowRoot.getElementById("component-tabs");
+        if(this.componentTabSelected == 0) {
+          this.currentlyShownComponents = this.frontendComponents;
+          // since we show the frontend components, also the frontend tab should be shown
+          if(componentTabs != null) {
+            componentTabs.selected = 0;
+          }
+        } else {
+          this.currentlyShownComponents = this.microserviceComponents;
+          // since we show the microservice components, also the microservice tab should be shown
+          if(componentTabs != null) {
+            componentTabs.selected = 1;
+          }
+        }
       });
     });
   }
@@ -918,16 +948,16 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProjectClicked(component) {
-    const projectId = this.getProjectId();
-    const componentId = component.id;
-
-    if(!component.dependencyId) {
+    if(component.externalDependencyId) {
+      this.externalDependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-external-dependency").open();
+    } else if(component.dependencyId) {
+      this.dependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-dependency").open();
+    } else {
       this.componentToDelete = component;
       // first show dialog and ensure that the user really want to delete the component
       this.shadowRoot.getElementById("dialog-delete-component").open();
-    } else {
-      this.dependencyToDelete = component;
-      this.shadowRoot.getElementById("dialog-delete-dependency").open();
     }
   }
 
@@ -976,6 +1006,20 @@ class ProjectInfo extends LitElement {
         // check if the dependency which got deleted is currently opened (in the menu)
         // because then the menu and the modelingInfo in localStorage need to be updated
         this.closeComponent(this.dependencyToDelete.component);
+      }
+    });
+  }
+
+  _removeExternalDependencyFromProject() {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies/" + this.externalDependencyToDelete.externalDependencyId, {
+      method: "DELETE",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        this.showToast("Removed external dependency from project!");
+
+        // just reload components list
+        this.loadComponents();
       }
     });
   }
@@ -1337,24 +1381,44 @@ class ProjectInfo extends LitElement {
 
     const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
     const iconCheck = this.shadowRoot.getElementById("dialog-add-external-dependency-icon-check");
+    let validURL = false;
+    let enteredURL;
     inputGitHubURL.addEventListener("input", function (e) {
-      const enteredURL = inputGitHubURL.value;
+      enteredURL = inputGitHubURL.value;
+
 
       if(GitHubHelper.validGitHubRepoURL(enteredURL)) {
-        fetch(enteredURL, {method: "GET"}).then(response => {
-          if(response.ok) {
-           console.log("ok");
-          } else {
-            console.log("not ok");
-          }
-        });
-
         iconCheck.style.color = "#0F9D58";
+        validURL = true;
       } else {
         iconCheck.style.color = "#dbdbdb";
+        validURL = false;
       }
-
     });
+
+    this.getAddExternalDependencyDialog().getElementsByTagName("paper-button")[1].addEventListener("click", function() {
+      if(validURL) {
+        // close dialog
+        this.getAddExternalDependencyDialog().close();
+
+        // add as external dependency to project
+        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies", {
+          method: "POST",
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({
+            gitHubURL: enteredURL
+          })
+        }).then(response => {
+          if(response.ok) {
+            this.showToast("Added external dependency to project!");
+            // just reload components list
+            this.loadComponents();
+          }
+        });
+      } else {
+        this.showWarningToast("Entered URL is not valid!");
+      }
+    }.bind(this));
   }
 
   /**
@@ -1426,10 +1490,23 @@ class ProjectInfo extends LitElement {
   }
 
   getComponentGitHubURL(component) {
+    if(component.externalDependencyId) return component.gitHubURL;
     if(component.dependencyId) component = component.component;
     let type = component.type;
     if(type == "frontend") type = "frontendComponent";
     return "https://github.com/" + Static.GitHubOrg + "/" + type + "-" + component.versionedModelId;
+  }
+
+  /**
+   * Returns the name of the component. This is different for the different types of components.
+   * Note: Also dependencies are "components" here.
+   * @param component
+   * @returns {*}
+   */
+  getComponentName(component) {
+    if(component.dependencyId) return component.component.name;
+    if(component.externalDependencyId) return component.gitHubURL.split(".com/")[1];
+    return component.name;
   }
 
   hasRequirementsBazaarURL(component) {
@@ -1477,6 +1554,19 @@ class ProjectInfo extends LitElement {
    */
   showToast(text) {
     const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
+  }
+
+  /**
+   * Since the project-info page uses lots of toast messages,
+   * it is helpful to have this method for displaying warning toast messages.
+   * It allows to have one single paper-toast item in the html which
+   * gets used for different message texts.
+   * @param text Text to display in the toast.
+   */
+  showWarningToast(text) {
+    const toastElement = this.shadowRoot.getElementById("warning-toast");
     toastElement.text = text;
     toastElement.show();
   }
