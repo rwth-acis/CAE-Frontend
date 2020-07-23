@@ -49,12 +49,22 @@ export class VersioningElement extends LitElement {
       },
       versionedModelId: {
         type: Number
+      },
+      /**
+       * This property may be used to disabled the commit functionality of the
+       * versioning widget.
+       */
+      committingDisabled: {
+        type: Boolean
       }
     };
   }
 
   constructor() {
     super();
+
+    // default: committing should be enabled
+    this.committingDisabled = false;
 
     // load versioned model id from localStorage
     this.versionedModelId = Common.getVersionedModelId();
@@ -76,7 +86,7 @@ export class VersioningElement extends LitElement {
     }).then(data => {
       // data contains the versioned model
       this.versionedModel = data;
-      this.getCommitListElement().setVersionedModel(data);
+      this.getCommitListElement().setVersionedModel(data, this.committingDisabled);
       this.getCommitDetailsElement().setVersionedModel(data);
 
       // also notify parent elements (e.g. application-modeling needs to know whether commits exist or not)

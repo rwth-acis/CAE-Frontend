@@ -34,39 +34,45 @@ export class CommitList extends LitElement {
         <!-- list commits -->
         ${this.versionedModel ? html`
         ${this.versionedModel.commits.map(commit => html`
-          <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
             <!-- check if commit is the commit for uncommited changes -->
             ${commit.message ? html`
               <!-- standard commit -->
-              <div style="display: flex; padding-top: 0.5em">
-                <!-- commit message -->
-                <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
-                <!-- button for context menu -->
-                <!--<paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
-                  <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
-                  <p slot="dropdown-content" style="padding-left: 4px; padding-right: 4px"
-                    @click=${() => this._onResetModelToCommitClicked(commit)}>Reset model to this commit</p>
-                </paper-menu-button>-->
-                ${!this.isApplication() ? html`
-                  <a title="View commit on GitHub" style="text-decoration: none; margin-left: 0.5em; margin-right: 0.5em; margin-top: auto; margin-bottom: auto" 
-                      href=${CommitList.getCommitGitHubURL(commit)} target="_blank">
-                    <img style="width: 1.5em; height: 1.5em" src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
-                  </a>
-                ` : html``}
-              </div>
-              <!-- version tag -->
-              ${commit.versionTag ? html`
-                <div style="margin-top: 8px; margin-bottom: 4px">
-                  <span class="label">${commit.versionTag}</span>
+              <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
+                <div style="display: flex; padding-top: 0.5em">
+                  <!-- commit message -->
+                  <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
+                  <!-- button for context menu -->
+                  <!--<paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
+                    <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
+                    <p slot="dropdown-content" style="padding-left: 4px; padding-right: 4px"
+                      @click=${() => this._onResetModelToCommitClicked(commit)}>Reset model to this commit</p>
+                  </paper-menu-button>-->
+                  ${!this.isApplication() ? html`
+                    <a title="View commit on GitHub" style="text-decoration: none; margin-left: 0.5em; margin-right: 0.5em; margin-top: auto; margin-bottom: auto" 
+                        href=${CommitList.getCommitGitHubURL(commit)} target="_blank">
+                      <img style="width: 1.5em; height: 1.5em" src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                    </a>
+                  ` : html``}
                 </div>
-              ` : html``}
-              <!-- timestamp -->
-              <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${this.beautifyTimestamp(commit.timestamp)}</p>
+                <!-- version tag -->
+                ${commit.versionTag ? html`
+                  <div style="margin-top: 8px; margin-bottom: 4px">
+                    <span class="label">${commit.versionTag}</span>
+                  </div>
+                ` : html``}
+                <!-- timestamp -->
+                <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${this.beautifyTimestamp(commit.timestamp)}</p>
+              </div>
             ` : html`
               <!-- commit for uncommited changes -->
-              <div style="display: flex" @click=${() => this._onCommitLeftClicked(commit)}>
-                <p>Uncommited changes</p>
-              </div>
+              <!-- this commit should not be shown if committing is disabled -->
+              ${this.committingDisabled ? html`` : html`
+                <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
+                  <div style="display: flex" @click=${() => this._onCommitLeftClicked(commit)}>
+                    <p>Uncommited changes</p>
+                  </div>
+                </div>
+              `}
             `}
           </div>
           <div class="separator"></div>
@@ -83,8 +89,18 @@ export class CommitList extends LitElement {
       },
       selectedCommitId: {
         type: Number
+      },
+      committingDisabled: {
+        type: Boolean
       }
     };
+  }
+
+  constructor() {
+    super();
+
+    // default: committing should be enabled
+    this.committingDisabled = false;
   }
 
   /**
@@ -141,10 +157,12 @@ export class CommitList extends LitElement {
   /**
    * Gets called by versioning-element after the versioned model got loaded from API.
    * @param versionedModel
+   * @param committingDisabled This is set to true, if committing should be disabled.
    */
-  setVersionedModel(versionedModel) {
+  setVersionedModel(versionedModel, committingDisabled) {
     console.log("Commit-List: Received versioned model from versioning-element.");
     this.versionedModel = versionedModel;
+    this.committingDisabled = committingDisabled;
 
     // hide loading spinner
     this.getSpinner().style.display = "none";
