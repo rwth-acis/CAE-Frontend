@@ -33,7 +33,7 @@ export default class MetamodelUploader {
    */
   static uploadMetamodelAndModelForComponent(component) {
     let isDependency = false;
-    if(component.dependencyId) {
+    if(component.hasOwnProperty("dependencyId")) {
       // component is a dependency
       component = component.component;
       isDependency = true;
