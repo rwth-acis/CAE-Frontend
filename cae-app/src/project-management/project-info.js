@@ -512,22 +512,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onComponentClicked(component) {
-    // check if user is member of the project
-    // therefore, we can just check if user is allowed to edit the project
-    // if the user is not allowed, then the user is no member of the project
-    if(!this.editingAllowed) {
-      // user is no member of the project; thus, the user should not be able to edit the component when it is opened
-      // but the user should still be able to view the component in the modeling space
-      // now we can make use of the way how dependency components are handled in the CAE, because when the user opens
-      // a dependency component, then it is not editable. We therefore edit the given component and let it look like
-      // a dependency component, then the component will be displayed but not editable
-      // IMPORTANT: this trick needs to be done before updateCurrentlyOpenedComponent() is called, otherwise
-      // it is not stored in localStorage, that the component should be handled as a dependency
-      component = {
-        "component": component,
-        "dependencyId": -1
-      };
-    }
+    component = this.restrictAccess(component);
 
     // update information on currently opened component in localStorage
     this.updateCurrentlyOpenedComponent(component);
@@ -550,6 +535,34 @@ class ProjectInfo extends LitElement {
       this.closeLoadingDialog();
       this.showToast("Error while opening component!");
     });
+  }
+
+  /**
+   * Checks if user is allowed to edit the given component.
+   * If not, then it creates a "fake"-dependency component and returns it.
+   * This then allows to view the component without the possibility for the user to edit it,
+   * because this also happens for real dependency components.
+   * @param component
+   * @returns {*|{dependencyId: number, component: *}}
+   */
+  restrictAccess(component) {
+    // check if user is member of the project
+    // therefore, we can just check if user is allowed to edit the project
+    // if the user is not allowed, then the user is no member of the project
+    if(!this.editingAllowed) {
+      // user is no member of the project; thus, the user should not be able to edit the component when it is opened
+      // but the user should still be able to view the component in the modeling space
+      // now we can make use of the way how dependency components are handled in the CAE, because when the user opens
+      // a dependency component, then it is not editable. We therefore edit the given component and let it look like
+      // a dependency component, then the component will be displayed but not editable
+      // IMPORTANT: this trick needs to be done before updateCurrentlyOpenedComponent() is called, otherwise
+      // it is not stored in localStorage, that the component should be handled as a dependency
+      return component = {
+        "component": component,
+        "dependencyId": -1
+      };
+    }
+    return component;
   }
 
   /**
@@ -645,15 +658,17 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onOpenApplicationModelingClicked() {
+    const component = this.restrictAccess(this.applicationComponent);
+
     // update information on currently opened component in localStorage
-    this.updateCurrentlyOpenedComponent(this.applicationComponent);
+    this.updateCurrentlyOpenedComponent(component);
 
     // show spinner
     this.openLoadingDialog();
 
     // upload metamodel for application component
-    MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
-      const componentType = this.applicationComponent.dependencyId ? this.applicationComponent.component.type : this.applicationComponent.type;
+    MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
+      const componentType = component.dependencyId ? component.component.type : component.type;
       this.updateMenu(componentType);
 
       // close dialog
@@ -698,17 +713,15 @@ class ProjectInfo extends LitElement {
    */
   uploadMetamodelAndModelForApplicationSilent() {
     console.log("Silent upload of (meta)model for application component started...");
-    MetamodelUploader.uploadMetamodelAndModelForComponent(this.applicationComponent).then(_ => {
-      // success
-      const modelingInfo = Common.getModelingInfo();
-      modelingInfo.application = {
-        "versionedModelId": this.applicationComponent.versionedModelId,
-        "projectId": this.getProjectId(),
-        "name": this.applicationComponent.name
-      };
-      Common.storeModelingInfo(modelingInfo);
+    const component = this.restrictAccess(this.applicationComponent);
 
-      const componentType = this.applicationComponent.dependencyId ? this.applicationComponent.component.type : this.applicationComponent.type;
+    // update information on currently opened component in localStorage
+    // (even if the component does not really get opened, but only loaded)
+    this.updateCurrentlyOpenedComponent(component);
+
+    MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
+      // success
+      const componentType = component.dependencyId ? component.component.type : component.type;
       this.updateMenu(componentType);
     }, _ => {
       // failed
