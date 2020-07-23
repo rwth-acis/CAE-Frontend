@@ -216,6 +216,9 @@ export class CommitDetails extends LitElement {
        */
       mainY: {
         type: Object
+      },
+      committingDisabled: {
+        type: Boolean
       }
     };
   }
@@ -229,6 +232,8 @@ export class CommitDetails extends LitElement {
     this.latestVersionTag = undefined;
     this.currentWireframe = undefined;
     this.selectedDifference = undefined;
+    // default: committing is enabled
+    this.committingDisabled = false;
   }
 
   /**
@@ -440,9 +445,17 @@ export class CommitDetails extends LitElement {
   /**
    * Gets called by versioning-element after the versioned model got loaded from API.
    * @param versionedModel
+   * @param committingDisabled
    */
-  setVersionedModel(versionedModel) {
+  setVersionedModel(versionedModel, committingDisabled) {
     this.versionedModel = versionedModel;
+    this.committingDisabled = committingDisabled;
+
+    if(this.committingDisabled) {
+      // if user should not be able to commit, then the commit UI can be hidden
+      this.hideUIForCommiting();
+    }
+
     console.log("Commit-Details: Received versioned model from versioning-element.");
 
     this.commits = versionedModel.commits;
