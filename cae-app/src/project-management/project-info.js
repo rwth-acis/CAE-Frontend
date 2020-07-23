@@ -12,6 +12,7 @@ import Auth from "../util/auth";
 import Static from "../static";
 import Common from "../util/common";
 import MetamodelUploader from "../util/metamodel-uploader";
+import GitHubHelper from "../util/github-helper";
 
 /**
  * PolymerElement for management of project components and users.
@@ -337,25 +338,18 @@ class ProjectInfo extends LitElement {
             <p style="max-width: 400px; margin-top: 0">You can search for existing components from other CAE projects 
             and include them to this project. Note: Components that are included as a dependency cannot be edited.
             </p>
-            <paper-button class="paper-button-blue" style="margin-bottom: 1em" @click=${this._onSearchDependencyClicked}>Search components</paper-button>
+            <paper-button class="paper-button-blue" style="margin-bottom: 1em; margin-left: auto" @click=${this._onSearchDependencyClicked}>Search components</paper-button>
           </div>
           <div class="separator"></div>
         </div>
         <div>
-          <h4 class="disabled">Include External Dependency:</h4>
+          <h4>Include External Dependency:</h4>
           <div style="display: flex; align-items: center">
-            <!-- Enter GitHub URL of external component -->
-            <input class="input" placeholder="Enter GitHub URL"></input>
-            <!-- Select Component version -->
-            <paper-dropdown-menu label="Select Version" style="min-width: 5em; margin-left: 0.5em">
-              <paper-listbox slot="dropdown-content" selected="0">
-                <paper-item>0.0.1</paper-item>
-                <paper-item>0.0.2</paper-item>
-                <paper-item>0.1.0</paper-item>
-              </paper-listbox>
-            </paper-dropdown-menu>
-            <!-- Button for adding component -->
-            <paper-button class="paper-button-blue" disabled="true">Add</paper-button>
+            <p style="max-width: 400px; margin-top: 0">It is also possible to include external dependencies from 
+            GitHub. Currently only <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservices are supported.
+            For more information on external dependencies please have a look at the <a href=${Static.ExternalDependenciesWiki} target="_blank">CAE wiki</a>.
+            </p>
+            <paper-button class="paper-button-blue" style="margin-bottom: 1em; margin-left: auto" @click=${this._onAddExternalDependencyClicked}>Ext. dependencies</paper-button>
           </div>
           <div class="separator"></div>
         </div>
@@ -376,6 +370,23 @@ class ProjectInfo extends LitElement {
         <div class="buttons">
           <paper-button dialog-dismiss>Close</paper-button>
           <paper-button>Include as dependency</paper-button>
+        </div>
+      </paper-dialog>
+      
+      <!-- Dialog for adding external dependencies -->
+      <paper-dialog id="dialog-add-external-dependency" modal>
+        <div>
+          <h4>Include External Dependency</h4>
+          <p style="max-width: 500px; margin-bottom: 0">Please enter a GitHub URL which leads to a <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservice.
+          For more information please have a look at the <a href=${Static.ExternalDependenciesWiki} target="_blank">CAE wiki</a>.</p>
+          <div style="display: flex">
+            <paper-input id="dialog-add-external-dependency-input" placeholder="Enter GitHub URL" style="flex: 1;"></paper-input>
+            <iron-icon id="dialog-add-external-dependency-icon-check" style="margin-bottom: 10px; margin-top: auto; color: #dbdbdb" icon="check"></iron-icon>
+          </div>
+        </div>
+        <div class="buttons">
+          <paper-button dialog-dismiss>Close</paper-button>
+          <paper-button dialog-confirm>Include as external dependency</paper-button>
         </div>
       </paper-dialog>
       
@@ -757,6 +768,15 @@ class ProjectInfo extends LitElement {
    */
   getSearchComponentsDialog() {
     return this.shadowRoot.getElementById("dialog-search-components");
+  }
+
+  /**
+   * Returns the dialog which gets used to enter the URL for an external dependency which should be
+   * added to the project.
+   * @returns {HTMLElement} Dialog
+   */
+  getAddExternalDependencyDialog() {
+    return this.shadowRoot.getElementById("dialog-add-external-dependency");
   }
 
   /**
@@ -1277,7 +1297,6 @@ class ProjectInfo extends LitElement {
     const searchInputField = this.shadowRoot.getElementById("dialog-search-components-input");
     searchInputField.addEventListener("input", function(e) {
       const searchValue = searchInputField.value;
-      console.log(searchValue);
       for(const child of searchResultDiv.children) {
         console.log(child);
         if(child.getElementsByTagName("p").length > 0) {
@@ -1308,6 +1327,34 @@ class ProjectInfo extends LitElement {
         });
       }
     }.bind(this));
+  }
+
+  _onAddExternalDependencyClicked() {
+    // close "add component" dialog
+    this.getAddComponentDialog().close();
+    // open dialog for adding external dependencies
+    this.getAddExternalDependencyDialog().open();
+
+    const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
+    const iconCheck = this.shadowRoot.getElementById("dialog-add-external-dependency-icon-check");
+    inputGitHubURL.addEventListener("input", function (e) {
+      const enteredURL = inputGitHubURL.value;
+
+      if(GitHubHelper.validGitHubRepoURL(enteredURL)) {
+        fetch(enteredURL, {method: "GET"}).then(response => {
+          if(response.ok) {
+           console.log("ok");
+          } else {
+            console.log("not ok");
+          }
+        });
+
+        iconCheck.style.color = "#0F9D58";
+      } else {
+        iconCheck.style.color = "#dbdbdb";
+      }
+
+    });
   }
 
   /**
