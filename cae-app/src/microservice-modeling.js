@@ -132,6 +132,8 @@ class MicroserviceModeling extends LitElement {
       if(Common.isCurrentComponentDependency()) {
         // hide palette widget
         this.shadowRoot.getElementById("Palette").style.display = "none";
+        // disable committing in versioning widget
+        this.shadowRoot.getElementById("versioning-widget").committingDisabled = true;
       }
 
       // listener for reloading of current modeling page

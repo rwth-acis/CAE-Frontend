@@ -106,6 +106,11 @@ class ApplicationModeling extends LitElement {
 
       new SyncMetaSwitchHelper(this.shadowRoot);
 
+      if(Common.isCurrentComponentDependency()) {
+        // disable committing in versioning widget
+        this.shadowRoot.getElementById("versioning-widget").committingDisabled = true;
+      }
+
       // in the beginning, the deployment widget is always disabled
       // if there exist at least one real commit (so not only the "uncommited changes" one), then
       // the deployment widget should be enabled
