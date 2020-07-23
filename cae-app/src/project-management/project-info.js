@@ -1413,6 +1413,8 @@ class ProjectInfo extends LitElement {
             this.showToast("Added external dependency to project!");
             // just reload components list
             this.loadComponents();
+          } else {
+            this.showWarningToast("Adding external dependency failed!");
           }
         });
       } else {
