@@ -1293,6 +1293,9 @@ class ProjectInfo extends LitElement {
 
     const searchResultDiv = this.shadowRoot.getElementById("dialog-search-components-results");
 
+    // clear searchResultDiv first
+    while(searchResultDiv.firstChild) searchResultDiv.removeChild(searchResultDiv.firstChild);
+
     let selectedComponentHTML;
     let selectedComponent;
 
