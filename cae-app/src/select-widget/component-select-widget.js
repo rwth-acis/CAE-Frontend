@@ -104,87 +104,83 @@ export class ComponentSelectWidget extends LitElement {
     const currentProjectId = modelingInfo.application.projectId;
 
     this.client.sendRequest("GET", currentProjectId + "/components", "", "application/json", {}, false, function(data, type) {
-      let projectComponents = JSON.parse(data);
+      const projectComponents = JSON.parse(data);
 
-      this.client.sendRequest("GET", currentProjectId + "/dependencies", "", "application/json", {}, false, function(data2, type2) {
-        const projectDependencies = JSON.parse(data2);
-        const dependencyComponents = projectDependencies.map(dependency => dependency.component);
+      const components = projectComponents.components;
+      const dependencyComponents = projectComponents.dependencies.map(dependency => dependency.component);
 
-        projectComponents = projectComponents.concat(dependencyComponents);
+      const componentsByType = components.concat(dependencyComponents).filter(c => c.type == this.componentType);
 
-        const componentsByType = projectComponents.filter(c => c.type == this.componentType);
+      for(const component of componentsByType) {
+        // add table rows
+        const name = component.name;
+        const versionedModelId = component.versionedModelId;
+        this.getVersionTagsByVersionedModel(versionedModelId).then(versionTags => {
+          const row = document.createElement("tr");
+          row.style = "display: flex";
 
-        for(const component of componentsByType) {
-          // add table rows
-          const name = component.name;
-          const versionedModelId = component.versionedModelId;
-          this.getVersionTagsByVersionedModel(versionedModelId).then(versionTags => {
-            const row = document.createElement("tr");
-            row.style = "display: flex";
+          /*
+           * NAME
+           */
+          const tdName = document.createElement("td");
+          tdName.style = "flex: 1; display: flex";
 
-            /*
-             * NAME
-             */
-            const tdName = document.createElement("td");
-            tdName.style = "flex: 1; display: flex";
+          const pName = document.createElement("p");
+          pName.innerText = name;
+          pName.style = "margin-top: auto; margin-bottom: auto";
 
-            const pName = document.createElement("p");
-            pName.innerText = name;
-            pName.style = "margin-top: auto; margin-bottom: auto";
+          tdName.appendChild(pName);
 
-            tdName.appendChild(pName);
+          /*
+           * VERSION
+           */
+          const tdVersion = document.createElement("td");
+          tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
 
-            /*
-             * VERSION
-             */
-            const tdVersion = document.createElement("td");
-            tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
+          const paperDropdownMenu = document.createElement("paper-dropdown-menu");
+          paperDropdownMenu.setAttribute("label", "Select Version");
+          paperDropdownMenu.style = "width: 5em";
 
-            const paperDropdownMenu = document.createElement("paper-dropdown-menu");
-            paperDropdownMenu.setAttribute("label", "Select Version");
-            paperDropdownMenu.style = "width: 5em";
+          const paperListbox = document.createElement("paper-listbox");
+          paperListbox.setAttribute("slot", "dropdown-content");
+          paperListbox.setAttribute("selected", "0");
 
-            const paperListbox = document.createElement("paper-listbox");
-            paperListbox.setAttribute("slot", "dropdown-content");
-            paperListbox.setAttribute("selected", "0");
+          const latest = document.createElement("paper-item");
+          const latestVersionValue = "Latest";
+          latest.innerText = latestVersionValue;
+          paperListbox.appendChild(latest);
 
-            const latest = document.createElement("paper-item");
-            const latestVersionValue = "Latest";
-            latest.innerText = latestVersionValue;
-            paperListbox.appendChild(latest);
+          for (const versionTag of versionTags) {
+            const item = document.createElement("paper-item");
+            item.innerText = versionTag;
+            paperListbox.appendChild(item);
+          }
 
-            for(const versionTag of versionTags) {
-              const item = document.createElement("paper-item");
-              item.innerText = versionTag;
-              paperListbox.appendChild(item);
+          paperDropdownMenu.appendChild(paperListbox);
+
+          tdVersion.appendChild(paperDropdownMenu);
+
+          row.appendChild(tdName);
+          row.appendChild(tdVersion);
+
+          // make row "clickable"
+          row.addEventListener("click", function () {
+            let selected = paperListbox.selected;
+            let selectedTag;
+            if (selected == 0) {
+              // Version Tag "Latest" got selected
+              selectedTag = latestVersionValue;
+            } else {
+              // the selected version tag is element of the versionTags array
+              selected--;
+              selectedTag = versionTags[selected];
             }
+            this.createNode(name, "" + versionedModelId, selectedTag);
+          }.bind(this));
 
-            paperDropdownMenu.appendChild(paperListbox);
-
-            tdVersion.appendChild(paperDropdownMenu);
-
-            row.appendChild(tdName);
-            row.appendChild(tdVersion);
-
-            // make row "clickable"
-            row.addEventListener("click", function() {
-              let selected = paperListbox.selected;
-              let selectedTag;
-              if(selected == 0) {
-                // Version Tag "Latest" got selected
-                selectedTag = latestVersionValue;
-              } else {
-                // the selected version tag is element of the versionTags array
-                selected--;
-                selectedTag = versionTags[selected];
-              }
-              this.createNode(name, "" + versionedModelId, selectedTag);
-            }.bind(this));
-
-            this.getTable().appendChild(row);
-          });
-        }
-      }.bind(this));
+          this.getTable().appendChild(row);
+        });
+      }
     }.bind(this), function(error) {
       console.log(error);
     });
