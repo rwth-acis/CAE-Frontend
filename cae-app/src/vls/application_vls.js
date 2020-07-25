@@ -190,6 +190,31 @@ export default {
                 "customShape": "",
                 "customAnchors": ""
             }
+        },
+        "a5ae5050e89283adgd9502332": {
+            "label": "External Dependency",
+            "attributes": {
+                "73641ffrfb50c4fab263a137": {
+                    "key": "label",
+                    "value": "string"
+                },
+                "73641ffrfb50c4fab263a138": {
+                    "key": "gitHubURL",
+                    "value": "string"
+                },
+                "73641ffrfb50c4fab263a139": {
+                    "key": "version",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "rounded_rectangle",
+                "color": "",
+                "defaultWidth": 200,
+                "defaultHeight": 100,
+                "customShape": "",
+                "customAnchors": ""
+            }
         }
     },
     "edges": {
