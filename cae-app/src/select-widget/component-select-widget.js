@@ -115,71 +115,71 @@ export class ComponentSelectWidget extends LitElement {
         // add table rows
         const name = component.name;
         const versionedModelId = component.versionedModelId;
-        this.getVersionTagsByVersionedModel(versionedModelId).then(versionTags => {
-          const row = document.createElement("tr");
-          row.style = "display: flex";
+        const versionTags = component.versions;
 
-          /*
-           * NAME
-           */
-          const tdName = document.createElement("td");
-          tdName.style = "flex: 1; display: flex";
+        const row = document.createElement("tr");
+        row.style = "display: flex";
 
-          const pName = document.createElement("p");
-          pName.innerText = name;
-          pName.style = "margin-top: auto; margin-bottom: auto";
+        /*
+         * NAME
+         */
+        const tdName = document.createElement("td");
+        tdName.style = "flex: 1; display: flex";
 
-          tdName.appendChild(pName);
+        const pName = document.createElement("p");
+        pName.innerText = name;
+        pName.style = "margin-top: auto; margin-bottom: auto";
 
-          /*
-           * VERSION
-           */
-          const tdVersion = document.createElement("td");
-          tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
+        tdName.appendChild(pName);
 
-          const paperDropdownMenu = document.createElement("paper-dropdown-menu");
-          paperDropdownMenu.setAttribute("label", "Select Version");
-          paperDropdownMenu.style = "width: 5em";
+        /*
+         * VERSION
+         */
+        const tdVersion = document.createElement("td");
+        tdVersion.style = "padding: 0; margin-left: auto; margin-right: 0.5em";
 
-          const paperListbox = document.createElement("paper-listbox");
-          paperListbox.setAttribute("slot", "dropdown-content");
-          paperListbox.setAttribute("selected", "0");
+        const paperDropdownMenu = document.createElement("paper-dropdown-menu");
+        paperDropdownMenu.setAttribute("label", "Select Version");
+        paperDropdownMenu.style = "width: 5em";
 
-          const latest = document.createElement("paper-item");
-          const latestVersionValue = "Latest";
-          latest.innerText = latestVersionValue;
-          paperListbox.appendChild(latest);
+        const paperListbox = document.createElement("paper-listbox");
+        paperListbox.setAttribute("slot", "dropdown-content");
+        paperListbox.setAttribute("selected", "0");
 
-          for (const versionTag of versionTags) {
-            const item = document.createElement("paper-item");
-            item.innerText = versionTag;
-            paperListbox.appendChild(item);
+        const latest = document.createElement("paper-item");
+        const latestVersionValue = "Latest";
+        latest.innerText = latestVersionValue;
+        paperListbox.appendChild(latest);
+
+        for (const versionTag of versionTags) {
+          const item = document.createElement("paper-item");
+          item.innerText = versionTag;
+          paperListbox.appendChild(item);
+        }
+
+        paperDropdownMenu.appendChild(paperListbox);
+
+        tdVersion.appendChild(paperDropdownMenu);
+
+        row.appendChild(tdName);
+        row.appendChild(tdVersion);
+
+        // make row "clickable"
+        row.addEventListener("click", function () {
+          let selected = paperListbox.selected;
+          let selectedTag;
+          if (selected == 0) {
+            // Version Tag "Latest" got selected
+            selectedTag = latestVersionValue;
+          } else {
+            // the selected version tag is element of the versionTags array
+            selected--;
+            selectedTag = versionTags[selected];
           }
+          this.createNode(name, "" + versionedModelId, selectedTag);
+        }.bind(this));
 
-          paperDropdownMenu.appendChild(paperListbox);
-
-          tdVersion.appendChild(paperDropdownMenu);
-
-          row.appendChild(tdName);
-          row.appendChild(tdVersion);
-
-          // make row "clickable"
-          row.addEventListener("click", function () {
-            let selected = paperListbox.selected;
-            let selectedTag;
-            if (selected == 0) {
-              // Version Tag "Latest" got selected
-              selectedTag = latestVersionValue;
-            } else {
-              // the selected version tag is element of the versionTags array
-              selected--;
-              selectedTag = versionTags[selected];
-            }
-            this.createNode(name, "" + versionedModelId, selectedTag);
-          }.bind(this));
-
-          this.getTable().appendChild(row);
-        });
+        this.getTable().appendChild(row);
       }
     }.bind(this), function(error) {
       console.log(error);
