@@ -20,25 +20,27 @@ export default class SemVer {
   }
 
   /**
+   * Creates an object for the semantic version number.
+   * @param major
+   * @param minor
+   * @param patch
+   * @returns {{patch: *, major: *, minor: *}}
+   */
+  static getObject(major, minor, patch) {
+    return {
+      major,
+      minor,
+      patch
+    }
+  }
+
+  /**
    * Whether the given version number is of Semantic Version format.
    * @param versionNumber Version number to check.
    * @returns {boolean} Whether the given version number is of Semantic Version format.
    */
   static isSemanticVersionNumber(versionNumber) {
     return /^\d+\.\d+\.\d+$/.test(versionNumber);
-  }
-
-  /**
-   * Whether the second version number is greater or equal than the first one.
-   * @param number1 Object with major, minor, patch attributes.
-   * @param number2 Object with major, minor, patch attributes.
-   * @returns {boolean} Whether the second version number is greater or equal than the first one.
-   */
-  static greaterEqual(number1, number2) {
-    if(number2.major > number1.major) return true;
-    if(number2.major == number1.major && number2.minor > number1.minor) return true;
-    if(number2.major == number1.major && number2.minor == number1.minor && number2.patch >= number1.patch) return true;
-    return false;
   }
 
   /**

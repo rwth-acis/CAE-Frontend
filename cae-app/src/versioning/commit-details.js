@@ -954,13 +954,27 @@ export class CommitDetails extends LitElement {
       initMajor = this.latestVersionTag.major;
       initMinor = this.latestVersionTag.minor;
       initPatch = this.latestVersionTag.patch;
+
+      // set these values as the minimum for the input fields
+      // and set the max, so that every number can be increase by 1 only
+      this.getVersionNumberInput(1).min = initMajor;
+      this.getVersionNumberInput(1).max = parseInt(initMajor) + 1;
+      this.getVersionNumberInput(2).min = initMinor;
+      this.getVersionNumberInput(2).max = parseInt(initMinor) + 1;
+      this.getVersionNumberInput(3).min = initPatch;
+      this.getVersionNumberInput(3).max = parseInt(initPatch) + 1;
+    } else {
+      // no commit before got tagged with a version
+      // the inital version tag should always be 0.1.0
+      this.getVersionNumberInput(1).min = 0;
+      this.getVersionNumberInput(1).max = 0;
+      this.getVersionNumberInput(2).min = 1;
+      this.getVersionNumberInput(2).max = 1;
+      this.getVersionNumberInput(3).min = 0;
+      this.getVersionNumberInput(3).max = 0;
     }
     // put initial number into input fields
     this.setEnteredVersion(initMajor,initMinor,initPatch);
-    // set these initial values as the minimum for the input fields
-    this.getVersionNumberInput(1).min = initMinor;
-    this.getVersionNumberInput(2).min = initMinor;
-    this.getVersionNumberInput(3).min = initPatch;
   }
 
   _onVersionInputChanged(event, field) {
@@ -971,42 +985,44 @@ export class CommitDetails extends LitElement {
     // be 0, because 0.2.0 > 0.1.2. Thus the minimum of the second input field needs to be updated from 2 to 0.
     const currentVersionTag = SemVer.extractSemanticVersionParts(this.getEnteredVersion());
 
-    // update minimum values of input fields
+    if(!this.latestVersionTag) this.latestVersionTag = SemVer.getObject(0, 1, 0);
 
-    // set minimum for major part
-    if(this.latestVersionTag) {
-      if(currentVersionTag.major > this.latestVersionTag.major) {
+    if(field == 1) {
+      if (currentVersionTag.major > this.latestVersionTag.major) {
+        // major part got increased, set others to 0
+        this.setEnteredVersion(currentVersionTag.major, 0, 0);
+        // update min/max values
+        this.getVersionNumberInput(2).min = 0;
+        this.getVersionNumberInput(2).max = 0;
+        this.getVersionNumberInput(3).min = 0;
+        this.getVersionNumberInput(3).max = 0;
+      } else {
+        // major part is equals to the major part of the latestVersionTag again
+        this.setEnteredVersion(this.latestVersionTag.major, this.latestVersionTag.minor, this.latestVersionTag.patch);
         this.getVersionNumberInput(1).min = this.latestVersionTag.major;
-        this.getVersionNumberInput(2).min = "0";
-        this.getVersionNumberInput(3).min = "0";
-      } else if(currentVersionTag.major == this.latestVersionTag.major) {
-        this.getVersionNumberInput(1).min = this.latestVersionTag.major;
-        if(currentVersionTag.minor > this.latestVersionTag.minor) {
-          this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
-          this.getVersionNumberInput(3).min = "0";
-        } else if(currentVersionTag.minor == this.latestVersionTag.minor) {
-          this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
-          this.getVersionNumberInput(3).min = this.latestVersionTag.patch;
-        }
+        this.getVersionNumberInput(1).max = parseInt(this.latestVersionTag.major) + 1;
+        this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+        this.getVersionNumberInput(2).max = parseInt(this.latestVersionTag.minor) + 1;
+        this.getVersionNumberInput(3).min = this.latestVersionTag.patch;
+        this.getVersionNumberInput(3).max = parseInt(this.latestVersionTag.patch) + 1;
       }
-
-      // reset colors
-      this.getVersionNumberInput(1).style.removeProperty("background");
-      this.getVersionNumberInput(2).style.removeProperty("background");
-      this.getVersionNumberInput(3).style.removeProperty("background");
-
-      // check if the new version tag is lower than the previous one
-      this.getCommitButton().disabled = this.getCommitMessageInput().value == "";
-      if(!SemVer.greaterEqual(this.latestVersionTag, currentVersionTag)) {
-        console.log("current is not greater equal last version tag");
-        if(currentVersionTag.major < this.latestVersionTag.major) {
-          this.getVersionNumberInput(1).style.setProperty("background", "rgba(239,57,67,0.59)");
-        } else if(currentVersionTag.minor < this.latestVersionTag.minor) {
-          this.getVersionNumberInput(2).style.setProperty("background", "rgba(239,57,67,0.59)");
-        } else if(currentVersionTag.patch < this.latestVersionTag.patch) {
-          this.getVersionNumberInput(3).style.setProperty("background", "rgba(239,57,67,0.59)");
-        }
-        this.getCommitButton().disabled = true;
+    } else if(field == 2) {
+      if(currentVersionTag.minor > this.latestVersionTag.minor) {
+        // minor got increased
+        this.setEnteredVersion(currentVersionTag.major, currentVersionTag.minor, 0);
+        this.getVersionNumberInput(1).min = this.latestVersionTag.major;
+        this.getVersionNumberInput(1).max = parseInt(this.latestVersionTag.major) + 1;
+        this.getVersionNumberInput(3).min = 0;
+        this.getVersionNumberInput(3).max = 0;
+      } else {
+        // minor part is equals to the minor part of the latestVersionTag again
+        this.setEnteredVersion(this.latestVersionTag.major, this.latestVersionTag.minor, this.latestVersionTag.patch);
+        this.getVersionNumberInput(1).min = this.latestVersionTag.major;
+        this.getVersionNumberInput(1).max = parseInt(this.latestVersionTag.major) + 1;
+        this.getVersionNumberInput(2).min = this.latestVersionTag.minor;
+        this.getVersionNumberInput(2).max = parseInt(this.latestVersionTag.minor) + 1;
+        this.getVersionNumberInput(3).min = this.latestVersionTag.patch;
+        this.getVersionNumberInput(3).max = parseInt(this.latestVersionTag.patch) + 1;
       }
     }
   }
