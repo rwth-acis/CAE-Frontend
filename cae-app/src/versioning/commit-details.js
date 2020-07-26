@@ -367,6 +367,9 @@ export class CommitDetails extends LitElement {
     // and the Code Generation Service can use it
     body.componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
 
+    // also add component name, which also gets added as an attribute to the model by the Model Persistence Service
+    body.componentName = Common.getComponentNameByVersionedModelId(this.versionedModel.id);
+
     // disable button so that it is not possible to click the button twice (or more often)
     this.getCommitButton().disabled = true;
 

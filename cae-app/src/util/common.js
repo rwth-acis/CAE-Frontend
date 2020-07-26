@@ -168,6 +168,12 @@ export default class Common {
     if(modelingInfo.application != null) if(modelingInfo.application.versionedModelId == versionedModelId) return "application";
   }
 
+  static getComponentNameByVersionedModelId(versionedModelId) {
+    const modelingInfo = this.getModelingInfo();
+    const componentType = Common.getComponentTypeByVersionedModelId(versionedModelId);
+    return modelingInfo[componentType].name;
+  }
+
   static isCurrentComponentDependency() {
     const type = Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId());
     if(type == "frontend") return Common.getModelingInfo().frontend.isDependency;
