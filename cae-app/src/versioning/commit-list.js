@@ -176,12 +176,17 @@ export class CommitList extends LitElement {
    */
   beautifyTimestamp(originalTimestamp) {
     if(originalTimestamp == null) return null;
-    const year = originalTimestamp.split("-")[0];
-    const month = originalTimestamp.split("-")[1];
-    const day = originalTimestamp.split("-")[2].split(" ")[0];
 
-    const time = originalTimestamp.split(" ")[1].substring(0,5);
+    originalTimestamp.replace(" ", "T");
+    const date = new Date(originalTimestamp + " UTC");
 
+    const year = date.getFullYear();
+    const month = date.getMonth() < 10 ? "0" + (date.getMonth()+1) : (date.getMonth()+1);
+    const day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+    const hours = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+    const minutes = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+
+    const time = hours + ":" + minutes;
     return day + "." + month + "." + year + " " + time;
   }
 
