@@ -103,11 +103,11 @@ class MicroserviceModeling extends LitElement {
         </div>
       </div>
       <div class="maincontainer">
-        <div class="innercontainerfirst">
+        <div id="div-code-editor" class="innercontainerfirst">
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/MicroserviceEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
-          <versioning-element id="versioning-widget"></versioning-element>
+          <versioning-element @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
           <div style="flex:1; display: flex; flex-flow: column">
@@ -166,6 +166,16 @@ class MicroserviceModeling extends LitElement {
       this.getMetadataWidget().hidden = true;
       this.getOpenAPIViewer().removeAttribute("hidden");
     }
+  }
+
+  _reloadCodeEditor() {
+    const divCodeEditor = this.shadowRoot.getElementById("div-code-editor");
+    this.shadowRoot.getElementById("Live Code Editor").remove();
+
+    const codeEditor = document.createElement("iframe");
+    codeEditor.id = "Live Code Editor";
+    codeEditor.src = Static.WebhostURL + "/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html";
+    divCodeEditor.appendChild(codeEditor);
   }
 
   getMetadataWidget() {

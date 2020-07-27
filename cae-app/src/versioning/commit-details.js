@@ -538,6 +538,8 @@ export class CommitDetails extends LitElement {
                 // thus, the commit list needs to be reloaded
                 // when this event gets fired, also the commit details get reloaded.
                 this.dispatchEvent(new CustomEvent("reload-commit-list"));
+                // also reload the live code editor
+                this.dispatchEvent(new CustomEvent("reload-code-editor"));
               }
             });
 

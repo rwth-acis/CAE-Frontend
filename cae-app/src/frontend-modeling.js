@@ -91,11 +91,12 @@ class FrontendModeling extends LitElement {
         </div>
       </div>
       <div class="maincontainer">
-        <div class="innercontainerfirst">
+        <div id="div-code-editor" class="innercontainerfirst">
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
         <div class="innercontainerfirst">
-          <versioning-element @reload-wireframe=${(e) => this._reloadWireframe()} id="versioning-widget"></versioning-element>
+          <versioning-element @reload-wireframe=${(e) => this._reloadWireframe()} 
+              @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
           <div style="display:flex;flex-flow:row;flex:1">
@@ -160,6 +161,16 @@ class FrontendModeling extends LitElement {
 
     // reload caeFrames (otherwise the other widgets will not be able to find the wireframe anymore)
     parent.caeFrames = this.shadowRoot.querySelectorAll("iframe");
+  }
+
+  _reloadCodeEditor() {
+    const divCodeEditor = this.shadowRoot.getElementById("div-code-editor");
+    this.shadowRoot.getElementById("Live Code Editor").remove();
+
+    const codeEditor = document.createElement("iframe");
+    codeEditor.id = "Live Code Editor";
+    codeEditor.src = Static.WebhostURL + "/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html";
+    divCodeEditor.appendChild(codeEditor);
   }
 }
 
