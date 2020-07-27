@@ -58,7 +58,7 @@ export default class NodeDifference extends Difference {
     const attributes = this.getAttributes();
     for(const [key, value] of Object.entries(attributes)) {
       // only show those attributes that are set to something
-      if(value != "") {
+      if(value.toString() != "") {
         const p = document.createElement("p");
         // set key as class, this will then be used to highlight the attribute which got edited (if its a node-update)
         p.setAttribute("class", key);
