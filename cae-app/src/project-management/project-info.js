@@ -899,9 +899,11 @@ class ProjectInfo extends LitElement {
         // external dependencies
         for(let i in externalDependencies) {
           const externalDependency = externalDependencies[i];
-          // Note: Currently every external dependency is a microservice
-          // TODO: later, when external dependencies can also be frontend components, this method needs to be updated
-          this.microserviceComponents.push(externalDependency);
+          if(externalDependency.type == "frontend") {
+            this.frontendComponents.push(externalDependency);
+          } else if(externalDependency.type == "microservice") {
+            this.microserviceComponents.push(externalDependency);
+          }
         }
 
         resolveLoading();
