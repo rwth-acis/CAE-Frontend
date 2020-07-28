@@ -263,12 +263,14 @@ class ProjectInfo extends LitElement {
               </div>
             </div>
             <div style="margin-left: 1em; margin-right: 1em; margin-bottom: 0.5em">
+              ${this.editingAllowed ? html`
               <div class="separator"></div>
               <h4>Danger Zone</h4>
               <div style="display: flex">
                 <p>Delete this project. Please note that a project cannot be restored after deletion.</p>
                 <paper-button @click=${this._onDeleteProjectClicked} class="button-danger" style="margin-top: auto; margin-bottom: auto; margin-left: auto">Delete</paper-button>
               </div>
+              ` : html``}
             </div>
           ` :
       html`
