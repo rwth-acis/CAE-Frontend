@@ -87,13 +87,14 @@ export class ComponentSelectWidget extends LitElement {
     this.publishToolSelectIntent(senderWidgetName, data);
   }
 
-  createNodeExtDependency(name, gitHubURL, selectedTag) {
+  createNodeExtDependency(name, gitHubURL, selectedTag, type) {
     const data = JSON.stringify({
       selectedToolName: "External Dependency",
       name: name,
       defaultAttributeValues: {
         "73641ffrfb50c4fab263a138": gitHubURL,
-        "73641ffrfb50c4fab263a139": selectedTag
+        "73641ffrfb50c4fab263a139": selectedTag,
+        "73641ffrfb50c4fab263a140": type
       }
     });
 
@@ -154,8 +155,9 @@ export class ComponentSelectWidget extends LitElement {
         const gitHubURL = extDependency.gitHubURL;
         const name = gitHubURL.split(".com/")[1];
         const versionTags = extDependency.versions;
+        const type = extDependency.type;
 
-        const row = this.createTableRow(name, versionTags, this.createNodeExtDependency.bind(this), gitHubURL);
+        const row = this.createTableRow(name, versionTags, this.createNodeExtDependency.bind(this), gitHubURL, type);
         this.getTable().appendChild(row);
       }
     }.bind(this), function(error) {
@@ -169,7 +171,7 @@ export class ComponentSelectWidget extends LitElement {
    * @param versionTags List containing the version tags which are selectable. Note: Tag "Latest" gets added by this method.
    * @return HTML element of the table row.
    */
-  createTableRow(name, versionTags, createNodeFunction, createNodeParam) {
+  createTableRow(name, versionTags, createNodeFunction, createNodeParam, extDependencyType) {
     const row = document.createElement("tr");
     row.style = "display: flex";
 
@@ -229,7 +231,7 @@ export class ComponentSelectWidget extends LitElement {
         selected--;
         selectedTag = versionTags[selected];
       }
-      createNodeFunction(name, createNodeParam, selectedTag);
+      createNodeFunction(name, createNodeParam, selectedTag, extDependencyType);
     }.bind(this));
 
     return row;

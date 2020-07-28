@@ -205,7 +205,11 @@ export default {
                 "73641ffrfb50c4fab263a139": {
                     "key": "version",
                     "value": "string"
-                }
+                },
+                "73641ffrfb50c4fab263a140": {
+                    "key": "type",
+                    "value": "string"
+                },
             },
             "shape": {
                 "shape": "rounded_rectangle",
