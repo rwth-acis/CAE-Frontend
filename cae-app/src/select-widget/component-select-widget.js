@@ -135,6 +135,7 @@ export class ComponentSelectWidget extends LitElement {
       // this only works for components and dependencies, but not for external dependencies, because they do not
       // contain a type attribute
       const componentsByType = components.concat(dependencyComponents).filter(c => c.type == this.componentType);
+      const externalDependenciesByType = externalDependencies.filter(d => d.type == this.componentType);
 
       // display components and dependencies
       for(const component of componentsByType) {
@@ -149,15 +150,13 @@ export class ComponentSelectWidget extends LitElement {
 
       // display external dependencies
       // currently, external dependencies can only be microservices
-      if(this.componentType == "microservice") {
-        for(const extDependency of externalDependencies) {
-          const gitHubURL = extDependency.gitHubURL;
-          const name = gitHubURL.split(".com/")[1];
-          const versionTags = extDependency.versions;
+      for(const extDependency of externalDependenciesByType) {
+        const gitHubURL = extDependency.gitHubURL;
+        const name = gitHubURL.split(".com/")[1];
+        const versionTags = extDependency.versions;
 
-          const row = this.createTableRow(name, versionTags, this.createNodeExtDependency.bind(this), gitHubURL);
-          this.getTable().appendChild(row);
-        }
+        const row = this.createTableRow(name, versionTags, this.createNodeExtDependency.bind(this), gitHubURL);
+        this.getTable().appendChild(row);
       }
     }.bind(this), function(error) {
       console.log(error);
