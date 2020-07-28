@@ -381,6 +381,12 @@ class ProjectInfo extends LitElement {
           <h4>Include External Dependency</h4>
           <p style="max-width: 500px; margin-bottom: 0">Please enter a GitHub URL which leads to a <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservice.
           For more information please have a look at the <a href=${Static.ExternalDependenciesWiki} target="_blank">CAE wiki</a>.</p>
+          <paper-dropdown-menu label="Select Type" style="min-width: 15em">
+            <paper-listbox id="dialog-add-external-dependency-dropdown-type" slot="dropdown-content" selected="0">
+              <paper-item>Frontend Component</paper-item>
+              <paper-item>las2peer service</paper-item>
+            </paper-listbox>
+          </paper-dropdown-menu>
           <div style="display: flex">
             <paper-input id="dialog-add-external-dependency-input" placeholder="Enter GitHub URL" style="flex: 1;"></paper-input>
             <iron-icon id="dialog-add-external-dependency-icon-check" style="margin-bottom: 10px; margin-top: auto; color: #dbdbdb" icon="check"></iron-icon>
@@ -461,71 +467,48 @@ class ProjectInfo extends LitElement {
 
   static get properties() {
     return {
-      userList: {
-        type: Array
-      },
-      roleList: {
-        type: Array
-      },
-      selectedProject: {
-        type: Object
-      },
-      editingUser: {
-        type: Object
-      },
-      editingRole: {
-        type: String
-      },
-      componentTabSelected: {
-        type: Number
-      },
-      frontendComponents: {
-        type: Array
-      },
-      microserviceComponents: {
-        type: Array
-      },
-      applicationComponent: {
-        type: Object
-      },
-      currentlyShownComponents: {
-        type: Array
-      },
+      userList: { type: Array },
+      roleList: { type: Array },
+      selectedProject: { type: Object },
+      editingUser: { type: Object },
+      editingRole: { type: String },
+      componentTabSelected: { type: Number },
+      frontendComponents: { type: Array },
+      microserviceComponents: { type: Array },
+      applicationComponent: { type: Object },
+      currentlyShownComponents: { type: Array },
       /**
        * Tells if the logged in user is allowed to edit the currently selected project.
        */
-      editingAllowed: {
-        type: Boolean
-      },
+      editingAllowed: { type: Boolean },
       /*
        * List of the projects where the current user is member of.
        */
-      usersProjects: {
-        type: Array
-      },
+      usersProjects: { type: Array },
       /**
        * Gets set before the "Are you sure that you want to delete...?" dialog
        * appears. Then this attribute gets used in the click event of the
        * dialogs "Yes" button.
         */
-      componentToDelete: {
-        type: Object
-      },
+      componentToDelete: { type: Object },
       /**
        * The same as componentToDelete, but for dependencies of the project.
        */
-      dependencyToDelete: {
-        type: Object
-      },
-      externalDependencyToDelete: {
-        type: Object
-      }
+      dependencyToDelete: { type: Object },
+      externalDependencyToDelete: { type: Object },
+      validURL: { type: Boolean },
+      enteredURL: { type: String }
     }
   }
 
   constructor() {
     super();
     this.resetProjectInfo();
+
+    this.requestUpdate().then(_ => {
+      this.getAddExternalDependencyDialog().getElementsByTagName("paper-button")[1]
+        .addEventListener("click", this.addExternalDependencyClicked.bind(this));
+    });
   }
 
   resetProjectInfo() {
@@ -1384,46 +1367,57 @@ class ProjectInfo extends LitElement {
 
     const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
     const iconCheck = this.shadowRoot.getElementById("dialog-add-external-dependency-icon-check");
-    let validURL = false;
-    let enteredURL;
+    this.validURL = false;
     inputGitHubURL.addEventListener("input", function (e) {
-      enteredURL = inputGitHubURL.value;
+      this.enteredURL = inputGitHubURL.value;
 
-
-      if(GitHubHelper.validGitHubRepoURL(enteredURL)) {
+      if(GitHubHelper.validGitHubRepoURL(this.enteredURL)) {
         iconCheck.style.color = "#0F9D58";
-        validURL = true;
+        this.validURL = true;
       } else {
         iconCheck.style.color = "#dbdbdb";
-        validURL = false;
-      }
-    });
-
-    this.getAddExternalDependencyDialog().getElementsByTagName("paper-button")[1].addEventListener("click", function() {
-      if(validURL) {
-        // close dialog
-        this.getAddExternalDependencyDialog().close();
-
-        // add as external dependency to project
-        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies", {
-          method: "POST",
-          headers: Auth.getAuthHeader(),
-          body: JSON.stringify({
-            gitHubURL: enteredURL
-          })
-        }).then(response => {
-          if(response.ok) {
-            this.showToast("Added external dependency to project!");
-            // just reload components list
-            this.loadComponents();
-          } else {
-            this.showWarningToast("Adding external dependency failed!");
-          }
-        });
-      } else {
-        this.showWarningToast("Entered URL is not valid!");
+        this.validURL = false;
       }
     }.bind(this));
+  }
+
+  addExternalDependencyClicked() {
+    if(this.validURL) {
+      // close dialog
+      this.getAddExternalDependencyDialog().close();
+
+      let type;
+      const selected = this.shadowRoot.getElementById("dialog-add-external-dependency-dropdown-type").selected;
+      if(selected == 0) {
+        type = "frontend";
+      } else {
+        type = "microservice";
+      }
+
+      // add as external dependency to project
+      fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies", {
+        method: "POST",
+        headers: Auth.getAuthHeader(),
+        body: JSON.stringify({
+          gitHubURL: this.enteredURL,
+          type: type
+        })
+      }).then(response => {
+        if(response.ok) {
+          this.showToast("Added external dependency to project!");
+          // just reload components list
+          this.loadComponents();
+
+          // clear dialog input
+          const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
+          inputGitHubURL.value = "";
+        } else {
+          this.showWarningToast("Adding external dependency failed!");
+        }
+      });
+    } else {
+      this.showWarningToast("Entered URL is not valid!");
+    }
   }
 
   /**
