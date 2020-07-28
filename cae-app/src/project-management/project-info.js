@@ -348,7 +348,8 @@ class ProjectInfo extends LitElement {
           <h4>Include External Dependency:</h4>
           <div style="display: flex; align-items: center">
             <p style="max-width: 400px; margin-top: 0">It is also possible to include external dependencies from 
-            GitHub. Currently only <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservices are supported.
+            GitHub. Currently the CAE supports frontend Web widgets and 
+            <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservices.
             For more information on external dependencies please have a look at the <a href=${Static.ExternalDependenciesWiki} target="_blank">CAE wiki</a>.
             </p>
             <paper-button class="paper-button-blue" style="margin-bottom: 1em; margin-left: auto" @click=${this._onAddExternalDependencyClicked}>Ext. dependencies</paper-button>
@@ -379,7 +380,8 @@ class ProjectInfo extends LitElement {
       <paper-dialog id="dialog-add-external-dependency" modal>
         <div>
           <h4>Include External Dependency</h4>
-          <p style="max-width: 500px; margin-bottom: 0">Please enter a GitHub URL which leads to a <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservice.
+          <p style="max-width: 500px; margin-bottom: 0">Please choose a type and enter a GitHub URL which leads to a frontend Web widget or a
+          <a href=${Static.las2peerURL} target="_blank">las2peer</a> microservice.
           For more information please have a look at the <a href=${Static.ExternalDependenciesWiki} target="_blank">CAE wiki</a>.</p>
           <paper-dropdown-menu label="Select Type" style="min-width: 15em">
             <paper-listbox id="dialog-add-external-dependency-dropdown-type" slot="dropdown-content" selected="0">
