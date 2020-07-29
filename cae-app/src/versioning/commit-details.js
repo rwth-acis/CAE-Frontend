@@ -92,12 +92,14 @@ export class CommitDetails extends LitElement {
             </div>
           </div>
           <!-- div for commit message and commit button -->
-          <div style="margin-top: 0.5em">
+          <div id="div-commit-message-button" style="margin-top: 0.5em">
             <input id="input-commit-message" class="input" placeholder="Enter commit message" style="margin-left: 0"
               @input="${(e) => this._onCommitMessageInputChanged(e.target.value)}"/>
             <paper-button id="button-commit" @click="${this._onCommitClicked}" class="paper-button-blue"
                         style="margin-top: 0.5em" disabled="true">Commit</paper-button>
           </div>
+          <paper-button id="button-set-tag" @click=${this._onSetTagClicked} class="paper-button-blue"
+              style="display: none; margin-top: 0.5em">Set Tag</paper-button>
         </div>
       </div>
       
@@ -266,6 +268,10 @@ export class CommitDetails extends LitElement {
   showUIForCommiting() {
     this.shadowRoot.getElementById("div-select-all").style.removeProperty("display");
     this.shadowRoot.getElementById("div-commit-settings").style.removeProperty("display");
+    this.shadowRoot.getElementById("new-version-checkbox").style.removeProperty("display");
+    this.shadowRoot.getElementById("version-number-div").style.setProperty("display", "none");
+    this.shadowRoot.getElementById("div-commit-message-button").style.removeProperty("display");
+    this.shadowRoot.getElementById("button-set-tag").style.setProperty("display", "none");
   }
 
   /**
@@ -443,6 +449,51 @@ export class CommitDetails extends LitElement {
         body: JSON.stringify(metadataDocString)
       });
     }
+  }
+
+  _onSetTagClicked() {
+    // get tag
+    if(this.latestVersionTag != undefined) {
+      if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
+        this.showWarningToast("You need to increase the version number in order to commit!");
+        return;
+      }
+    }
+
+    // disable button
+    this.shadowRoot.getElementById("button-set-tag").setAttribute("disabled", "true");
+
+    const versionedModelId = this.versionedModel.id;
+    let repositoryName = "";
+    const type = Common.getComponentTypeByVersionedModelId(this.versionedModel.id)
+    if(type == "frontend") repositoryName = "frontendComponent-";
+    else if(type == "microservice") repositoryName = "microservice-";
+    else {
+      console.error("Type of versioned model needs to be 'frontend' or 'microservice'.");
+      return;
+    }
+    repositoryName += versionedModelId;
+
+    fetch(Static.CodeGenServiceURL + "/" + repositoryName + "/tags", {
+      method: "POST",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        tag: this.getEnteredVersion(),
+        commitSha: this.selectedCommit.sha,
+        versionedModelId
+      })
+    }).then(response => {
+      // enable button again
+      this.shadowRoot.getElementById("button-set-tag").removeAttribute("disabled");
+      if(response.ok) {
+        console.log("Set tag successfully!");
+
+        // reload commits
+        this.sendReloadCommitListEvent();
+      } else {
+        this.showWarningToast("Error occured while setting tag.");
+      }
+    });
   }
 
   /**
@@ -629,6 +680,7 @@ export class CommitDetails extends LitElement {
     this.selectedCommit = commit;
 
     if(commit.commitType == 1) {
+      // this is a "code-commit" and not a "model-commit"
       this.hideUIForCommiting();
 
       const changesListElement = this.getChangesListElement();
@@ -640,6 +692,28 @@ export class CommitDetails extends LitElement {
       commitDetailsCodeCommit.innerHTML = "This commit belongs to code changes made with the " +
         "Live Code Editor. View them on <a href='" + CommitList.getCommitGitHubURL(commit) +
         "' style='text-decoration: none' target='_blank'>GitHub</a>.";
+
+      // check if no commit after this one is already tagged
+      let noTagAfter = false;
+      for(const c of this.versionedModel.commits) {
+        if(c.sha == commit.sha) {
+          noTagAfter = true;
+          break;
+        }
+        if(c.versionTag) {
+          break;
+        }
+      }
+      if(noTagAfter && commit.versionTag == undefined) {
+        this.showUIForCommiting();
+        this.shadowRoot.getElementById("div-select-all").style.setProperty("display", "none");
+        this.shadowRoot.getElementById("new-version-checkbox").style.setProperty("display", "none");
+        this.shadowRoot.getElementById("version-number-div").style.removeProperty("display");
+        this.shadowRoot.getElementById("div-commit-message-button").style.setProperty("display", "none");
+        this.shadowRoot.getElementById("button-set-tag").style.removeProperty("display");
+        this.setInitVersionNumber();
+      }
+
       commitDetailsCodeCommit.style = "margin-left: 0.5em; margin-right: 0.5em";
       changesListElement.appendChild(commitDetailsCodeCommit);
 
