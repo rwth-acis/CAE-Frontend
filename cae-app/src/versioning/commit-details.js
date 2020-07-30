@@ -324,7 +324,9 @@ export class CommitDetails extends LitElement {
     }
 
     // check if version tag got increased (if a version tag got entered)
+    let newVersion = false;
     if(this.getNewVersionCheckBox().checked) {
+      newVersion = true;
       if(this.latestVersionTag != undefined) {
         if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
           this.showWarningToast("You need to increase the version number in order to commit!");
@@ -381,6 +383,11 @@ export class CommitDetails extends LitElement {
 
     // show dialog
     this.openLoadingDialog();
+
+    let version = "0.0.0";
+    if(this.latestVersionTag != undefined) version = SemVer.objectToString(this.latestVersionTag);
+    if(newVersion) version = this.getEnteredVersion();
+    body.metadataVersion = version;
 
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
@@ -440,9 +447,8 @@ export class CommitDetails extends LitElement {
     });
 
     if(this.isMicroserviceComponent()) {
-      const version = (this.latestVersionTag != undefined) ?
-        this.latestVersionTag.major + "." + this.latestVersionTag.minor + "." + this.latestVersionTag.patch : "0.0.1";
       console.log(version);
+      metadataDocString.info.version = version;
       fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
         method: "POST",
         headers: Auth.getAuthHeader(), // send headers at least for content type

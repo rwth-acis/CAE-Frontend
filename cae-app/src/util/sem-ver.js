@@ -19,6 +19,10 @@ export default class SemVer {
     };
   }
 
+  static objectToString(versionTag) {
+    return versionTag.major + "." + versionTag.minor + "." + versionTag.patch;
+  }
+
   /**
    * Creates an object for the semantic version number.
    * @param major
