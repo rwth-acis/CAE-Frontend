@@ -23,7 +23,7 @@ class ApplicationModeling extends LitElement {
 
       .maincontainer { 
         display: flex;
-        height: 500px;
+        height: 600px;
         flex-flow: row wrap;
       }
 
@@ -40,7 +40,7 @@ class ApplicationModeling extends LitElement {
       }
 
       .innercontainerfirst:nth-of-type(2) {
-        flex: 2;
+        flex: 1;
         display: flex;
         flex-flow: column;
       }
@@ -60,12 +60,6 @@ class ApplicationModeling extends LitElement {
         <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <div id="div-pb">
-          <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
-        </div>
-        <versioning-element id="versioning-widget"></versioning-element>
-      </div>
-      <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <div>
           <div>
             <paper-tabs selected="0">
@@ -78,16 +72,13 @@ class ApplicationModeling extends LitElement {
             </div>
           </div>
         </div>
-        <div style="display: flex; flex-flow: column">
-          <h3>Requirements Bazaar</h3>
-          <iframe id="Requirements Bazaar Widget" style="max-height: 250px" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
+        <div id="div-pb">
+          <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
         </div>
         <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
-        <!--
-        <div style="flex:1;">
-          <iframe id="Import Tool" src="{{Static.WebhostURL}}/syncmeta/debug.html"> </iframe>
-        </div>
-        -->
+      </div>
+      <div class="innercontainerfirst" style="display: flex; flex-flow: column">
+        <versioning-element id="versioning-widget"></versioning-element>
       </div>
       <div class="innercontainerfirst">
         <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>

@@ -5,11 +5,11 @@ import MetamodelUploader from "./util/metamodel-uploader";
 import './frontend-modeling.js';
 import './microservice-modeling.js';
 import './application-modeling.js';
+import './requirements-bazaar-widget/requirements-bazaar-widget.js';
 
 /**
  * PolymerElement for the modeling page of the CAE.
- * TODO: Update Documentation when functionality of this element is final.
- * This element will contain the modeling with the three different
+ * This element contains the modeling with the three different
  * sub-pages (frontend-modeling, microservice-modeling and application-modeling)
  * for modeling.
  * @customElement
@@ -33,39 +33,92 @@ class CaeModeling extends PolymerElement {
         paper-button:hover{
           color: rgb(240,248,255);
           background: rgb(65,105,225);
+        }     
+        .reqbaz-img {
+          background: #447500;
         }
-        #yjsroomcontainer {
-          display: flex;
-          margin: 5px;
-          flex: 1;
-          align-items: center;
+        .reqbaz-img:hover {
+          background: #65ab00;
         }
-        .loader {
-          border: 5px solid #f3f3f3; /* Light grey */
-          border-top: 5px solid #3498db; /* Blue */
-          border-radius: 50%;
-          width: 30px;
-          height: 30px;
-          animation: spin 2s linear infinite;
-          display:none;
+        #main {
+          transition: all .5s linear;
         }
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        #side-menu {
+          
+        }
+        #side-menu-content {
+          border-left: thin solid #e1e1e1;
+          transition: width 0.5s;
         }
       </style>
       
-      <p id="currentRoom" style="display: none">Current Space: Test</p>
-      
       <app-location route="{{route}}"></app-location>
       <app-route route="{{route}}" pattern="/cae-modeling/:page" data="{{routeData}}"></app-route>
-      <iron-pages id="iron-pages" selected="[[page]]" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
-        <div name="404"><p>Could not find page.</p></div>
-        <div name="frontend-modeling" id="frontend-modeling"></div>
-        <div name="microservice-modeling" id="microservice-modeling"></div>
-        <div name="application-modeling" id="application-modeling"></div>
-      </iron-pages>
+      <div style="display: flex">
+        <div id="main" style="flex: 1">
+          <iron-pages id="iron-pages" selected="[[page]]" style="flex: 1" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
+            <div name="404"><p>Could not find page.</p></div>
+            <div name="frontend-modeling" id="frontend-modeling"></div>
+            <div name="microservice-modeling" id="microservice-modeling"></div>
+            <div name="application-modeling" id="application-modeling"></div>
+          </iron-pages>
+        </div>
+        
+        <paper-card id="side-menu" style="display: flex; margin-top: 0.5em; margin-left: 0.2em">
+          <div style="width: 35px; display: flex">
+            <svg id="req-baz-icon" width="24px" height="24px" class="reqbaz-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
+              <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
+            </svg>
+          </div>
+          <div id="side-menu-content" style="width: 0px">
+            <!-- Gets added by JavaScript -->
+          </div>
+        </paper-card>
+      </div>
     `;
+  }
+
+  ready() {
+    super.ready();
+
+    let menuOpen = false;
+
+    this.reloadMenuContent();
+
+    this.shadowRoot.getElementById("req-baz-icon").addEventListener("click", _ => {
+      if(!menuOpen) this.openSideMenu();
+      else this.closeSideMenu();
+      menuOpen = !menuOpen;
+    });
+  }
+
+  reloadMenuContent() {
+    // clear menu content
+    while(this.getSideMenuContentElement().firstChild) this.getSideMenuContentElement().removeChild(this.getSideMenuContentElement().firstChild);
+
+    // add Requirements Bazaar widget
+    const reqBazWidget = document.createElement("requirements-bazaar-widget");
+    reqBazWidget.setAttribute("id", "req-baz-widget");
+    reqBazWidget.style.setProperty("display", "none");
+    this.getSideMenuContentElement().appendChild(reqBazWidget);
+  }
+
+  openSideMenu() {
+    this.shadowRoot.getElementById("req-baz-widget").style.removeProperty("display");
+    this.getSideMenuContentElement().style.width = "300px";
+  }
+
+  closeSideMenu() {
+    this.getSideMenuContentElement().style.width = "0px";
+    this.shadowRoot.getElementById("req-baz-widget").style.setProperty("display", "none");
+  }
+
+  getSideMenuElement() {
+    return this.shadowRoot.getElementById("side-menu");
+  }
+
+  getSideMenuContentElement() {
+    return this.shadowRoot.getElementById("side-menu-content");
   }
 
   static get properties() {
@@ -139,10 +192,10 @@ class CaeModeling extends PolymerElement {
     this.removeModelingElement(type);
     let div = this.shadowRoot.getElementById(type + "-modeling");
     div.appendChild(this.createNewModelingElement(type));
-  }
 
-  ready() {
-    super.ready();
+    // also reload the content of the menu (e.g. requirements bazaar widget needs to adapt to different component)
+    this.reloadMenuContent();
+    this.closeSideMenu();
   }
 }
 

@@ -109,12 +109,6 @@ class MicroserviceModeling extends LitElement {
         <div class="innercontainerfirst">
           <versioning-element @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
-        <div class="innercontainerfirst">
-          <div style="flex:1; display: flex; flex-flow: column">
-            <h3>Requirements Bazaar</h3>
-            <iframe id="Requirements Bazaar Widget" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"> </iframe>
-          </div>
-        </div>
       </div>
     `;
   }

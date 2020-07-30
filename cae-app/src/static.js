@@ -25,3 +25,6 @@ Static.GitHubOrg = "{GIT_ORGANIZATION}";
 // the following links are not edited through the docker container
 Static.las2peerURL = "https://las2peer.org";
 Static.ExternalDependenciesWiki = "https://github.com/rwth-acis/CAE/wiki/External-Dependencies";
+
+Static.ReqBazBackend = "https://requirements-bazaar.org/bazaar";
+Static.ReqBazFrontend = "https://requirements-bazaar.org";

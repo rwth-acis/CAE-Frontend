@@ -106,13 +106,6 @@ class FrontendModeling extends LitElement {
                   style="flex: 1"></iframe>
             </div>
           </div>
-          <div style="flex:1">
-            <div style="display: flex; flex-flow: column; height: 100%">
-              <h3>Requirements Bazaar</h3>
-              <iframe id="Requirements Bazaar Widget" src="${Static.WebhostURL}/cae-frontend/requirementsBazaarWidget/index.html"
-                  style="flex: 1"></iframe>
-            </div>
-          </div>
         </div>
       </div>
     `;
