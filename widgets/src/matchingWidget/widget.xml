@@ -76,16 +76,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <!-- Inter Widget Communication library import-->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/iwc.js"></script>
   <!-- style information -->
-  <link rel="stylesheet" href="@@host/metadataWidget/css/style.css">
+  <link rel="stylesheet" href="@@host/matchingWidget/css/style.css">
   <!-- import the client library -->
   <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/rwth-acis/InterwidgetCommunication/las2peerWidgetLibrary.js"></script>
   <!-- import yjs -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/yjs/y.js"></script>
+  <script type="text/javascript" src="@@host/matchingWidget/js/yjs/y.js"></script>
   <!-- import application script -->
-  <script type="text/javascript" src="@@host/metadataWidget/js/applicationScript.js"></script>
+  <script type="text/javascript" src="@@host/matchingWidget/js/applicationScript.js"></script>
 
   <!-- JSON REF -->
-  <script src="@@host/metadataWidget/lib/json-refs-standalone.js"> </script>
+  <script src="@@host/matchingWidget/lib/json-refs-standalone.js"> </script>
 
   
   <!-- Additional widget specific imports -->

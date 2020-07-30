@@ -536,7 +536,7 @@ var init = function() {
             data: 'Map',
             text: "Text"
         },
-        sourceDir: '@@host/metadataWidget/js'
+        sourceDir: '@@host/matchingWidget/js'
     }).then(function(y) {
 
         try {
