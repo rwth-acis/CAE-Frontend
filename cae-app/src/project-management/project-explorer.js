@@ -23,7 +23,7 @@ class ProjectExplorer extends LitElement {
           width: 100%;
           margin-top: 1em;
         }
-        paper-button {
+        .paper-button-blue {
           color: rgb(240,248,255);
           background: rgb(30,144,255);
           max-height: 50px;
@@ -32,11 +32,11 @@ class ProjectExplorer extends LitElement {
           margin-top: 0.5em;
           margin-bottom: 0.5em;
         }
-        paper-button:hover {
+        .paper-button-blue:hover {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
         }
-        paper-button[disabled] {
+        .paper-button-blue[disabled] {
           background: #e1e1e1;
         }
         .explorer-top-menu {
@@ -101,7 +101,7 @@ class ProjectExplorer extends LitElement {
       </style>
       <div class="main">
         <div class="explorer-top-menu">
-          <paper-button class="button-create-project" @click="${this._onCreateProjectButtonClicked}">Create Project</paper-button>
+          <paper-button class="button-create-project paper-button-blue" @click="${this._onCreateProjectButtonClicked}">Create Project</paper-button>
           <input class="input-search-project" @input="${(e) => this._onSearchInputChanged(e.target.value)}" 
               placeholder="Search Projects"></input>
         </div>
@@ -141,9 +141,9 @@ class ProjectExplorer extends LitElement {
         <paper-input id="input-project-name" @input="${(e) => this._onInputProjectNameChanged(e.target.value)}" 
             placeholder="Project Name"></paper-input>
         
-        <div>
-          <paper-button @click="${this._closeCreateProjectDialogClicked}">Cancel</paper-button>
-          <paper-button id="dialog-button-create" @click="${this._createProject}">Create</paper-button>
+        <div class="buttons">
+          <paper-button @click="${this._closeCreateProjectDialogClicked}" dialog-dismiss>Cancel</paper-button>
+          <paper-button id="dialog-button-create" @click="${this._createProject}" dialog-confirm>Create</paper-button>
         </div>
       </paper-dialog>
       
