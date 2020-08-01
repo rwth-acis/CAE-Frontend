@@ -8,6 +8,7 @@ import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import './notifications/notification-element.js';
+import './settings/settings-element.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
@@ -100,6 +101,7 @@ class CaeStaticApp extends PolymerElement {
         <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <notification-element id="notification-element" name="notifications"></notification-element>
+        <settings-element id="settings-element" name="settings"></settings-element>
         <p name="404">Not found!</p>
       </iron-pages>
       
@@ -170,6 +172,15 @@ class CaeStaticApp extends PolymerElement {
     projectManagement.addEventListener('change-view', (event) => {
       this.set("route.path", event.detail.view);
     });
+
+    const settingsElement = this.shadowRoot.getElementById("settings-element");
+    settingsElement.addEventListener('change-view', (event) => {
+      console.log("route changing");
+      console.log(this.get("route"));
+      this.set("route.path", "settings");
+      this.set("route.__queryParams", "");
+    });
+
     // update-menu event gets fired from project-info when selecting/entering components
     projectManagement.addEventListener('update-menu', (event) => {
       // get type of the component that got selected/entered in project-info
@@ -356,12 +367,7 @@ class CaeStaticApp extends PolymerElement {
    * @private
    */
   _onSettingsButtonClicked() {
-    // open settings dialog
-    this.getSettingsDialog().open();
-
-    // put currently stored github username into input field
-    const gitHubUsername = Common.getUsersGitHubUsername();
-    this.getSettingsGitHubUsernameInput().value = gitHubUsername;
+    this.set("route.path", "settings");
   }
 
   /**

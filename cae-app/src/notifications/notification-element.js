@@ -3,7 +3,9 @@ import '@polymer/iron-icon/iron-icon.js';
 import Static from "../static";
 import Auth from "../util/auth";
 
-// TODO: class description when everything is ready
+/**
+ * LitElement used to display invitations to projects.
+ */
 class NotificationElement extends LitElement {
   render() {
     return html`
