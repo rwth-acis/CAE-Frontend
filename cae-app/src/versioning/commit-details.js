@@ -638,6 +638,10 @@ export class CommitDetails extends LitElement {
    * @param currentModelFromYjsRoom Current state of the model given from Yjs room.
    */
   updateDifferencesUncommitedChanges(currentModelFromYjsRoom) {
+    if(!currentModelFromYjsRoom) {
+      console.error("Called updateDifferencesUncommitedChanges with empty model.");
+      return;
+    }
     // get last real commit (do not take "uncommited changes" commit)
     // lastCommit might be undefined
     let lastCommit = this.getLastCommit(this.commits);

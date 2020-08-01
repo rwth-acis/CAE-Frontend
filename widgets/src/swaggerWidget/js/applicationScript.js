@@ -268,25 +268,13 @@ var init = function() {
             url: '@@yjsserver'
         },
         share: { // specify the shared content
-            users: 'Map',
-            undo: 'Array',
-            redo: 'Array',
-            join: 'Map',
-            canvas: 'Map',
-            nodes: 'Map',
-            edges: 'Map',
-            userList: 'Map',
-            select: 'Map',
-            views: 'Map',
             data: 'Map',
-            text: "Text",
             swaggerDescription: "Text",
-            swaggerVersion: "Text",
             swaggerTermsOfService: "Text",
             swaggerMapNodes: 'Map',
             swaggerMapSchema: 'Map',
             swaggerMapNodeSchema: 'Map',
-            swagger: 'Map',
+            swagger: 'Map'
         },
         sourceDir: '@@host/swaggerWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
@@ -294,7 +282,6 @@ var init = function() {
 
         //yjs text binding
         y.share.swaggerDescription.bind(document.querySelector('#description'));
-        y.share.swaggerVersion.bind(document.querySelector('#version'));
         y.share.swaggerTermsOfService.bind(document.querySelector('#termsOfService'));
 
         console.log("[swaggerWidget] Get shared y");
@@ -359,11 +346,6 @@ var init = function() {
           saveMapNode(y);
         });
 
-        $("#version").on('input', function() {
-          console.log("Version - Saving node properties and description");
-          saveMapNode(y);
-        });
-
         $("#termsOfService").on('input', function() {
           console.log("Version - Saving node properties and description");
           saveMapNode(y);
@@ -411,7 +393,6 @@ var storeDoc = function(y) {
     var componentId = $("#name").val();
     
     var description = $("#description").val();
-    var version = $("#version").val();
     var termsOfService = $("#termsOfService").val();
 
     // process schemas
@@ -444,7 +425,7 @@ var storeDoc = function(y) {
     var infoNode = `{
         "info": {
           "description": "${description}",
-          "version": "${version}",
+          "version": "",
           "termsOfService": "${termsOfService}"
         },
         "definitions": ${JSON.stringify(schemasJson)}, 
@@ -473,11 +454,9 @@ var loadDivs = function(data, y) {
       var jsonSwaggerInputDoc = JSON.parse(data.docInput);
       if (jsonSwaggerInputDoc.info) {
         var description = jsonSwaggerInputDoc.info.description;
-        var version = jsonSwaggerInputDoc.info.version;
         var terms = jsonSwaggerInputDoc.info.termsOfService;
 
         $("#description").val((description) ? description : "");
-        $("#version").val((version) ? version : "");
         $("#termsOfService").val((terms) ? terms : "");
       }
 
@@ -513,7 +492,6 @@ var clearDivs = function(y) {
   console.log("[SWAGGER WIDGET] Clear divs");
   $("#name").val("");
   $("#description").val("");
-  $("#version").val("");
   $("#termsOfService").val("");
 
   nodeMetadataList.map = {};
