@@ -282,15 +282,14 @@ class ProjectInfo extends LitElement {
       </div>
       
       <!-- Dialog for editing a user in a project. -->
-      <paper-dialog id="dialog-edit-user">
+      <paper-dialog id="dialog-edit-user" modal>
         <h2>Edit User: ${this.editingUser ? html`${this.editingUser.loginName}` : html``}</h2>
         
         <paper-dropdown-menu label="Select Role">
-          <paper-listbox slot="dropdown-content" selected="1">
-            <paper-item>Frontend Modeler</paper-item>
-            <paper-item>Application Modeler</paper-item>
-            <paper-item>Backend Modeler</paper-item>
-            <paper-item>Software Engineer</paper-item>
+          <paper-listbox id="listbox-select-role" slot="dropdown-content" selected=${this.editingUser ? this.getRoleIndex(this.editingUser.roleId) : undefined}>
+            ${this.selectedProject ? html`${this.selectedProject.roles.map(role => html`
+              <paper-item>${role.name}</paper-item>
+            `)}` : html``}
           </paper-listbox>
         </paper-dropdown-menu>
         
@@ -300,12 +299,12 @@ class ProjectInfo extends LitElement {
         
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button dialog-confirm>Save</paper-button>
+          <paper-button @click=${this._onSaveUserClicked} dialog-confirm>Save</paper-button>
         </div>
       </paper-dialog>
       
       <!-- Dialog for editing a role in a project. -->
-      <paper-dialog id="dialog-edit-role">
+      <paper-dialog id="dialog-edit-role" modal>
         <h2>Edit Role: ${this.editingRole ? html`${this.editingRole.name}` : html``}</h2>
         <div style="align-items: center">
           <paper-button class="button-danger" @click="${this._removeRoleFromProjectClicked}">Remove From Project</paper-button>
@@ -1223,6 +1222,62 @@ class ProjectInfo extends LitElement {
     for(let i in this.roleList) {
       const role = this.roleList[i];
       if (role.id == roleId) return role;
+    }
+  }
+
+  /**
+   * Returns the index of the role with the given id in the roles array of the currently selected project.
+   * @param roleId Id of the role to search for.
+   * @returns {number} Index of the role with the given id in the roles array of the currently selected project.
+   */
+  getRoleIndex(roleId) {
+    let index = 0;
+    for(const role of this.selectedProject.roles) {
+      if(role.id == roleId) break;
+      index++;
+    }
+    return index;
+  }
+
+  /**
+   * Gets called when the "save" button in the edit user dialog gets clicked.
+   * @private
+   */
+  _onSaveUserClicked() {
+    // first, we check if something changed
+    // currently, only the role can be edited in the "edit-user-dialog"
+    // thus, we only check if the role has changed
+    // get selected role from input
+    const selected = this.shadowRoot.getElementById("listbox-select-role").selected;
+
+    // get corresponding role
+    let index = 0;
+    let selectedRole;
+    for(const role of this.selectedProject.roles) {
+      if(index == selected) {
+        selectedRole = role;
+        break;
+      }
+      index++;
+    }
+    if(!selectedRole) return;
+
+    if(selectedRole.id != this.editingUser.roleId) {
+      // role of user has changed
+      // update in database
+      fetch(Static.ProjectManagementServiceURL + "/projects/"
+        + this.getProjectId() + "/users/" + this.editingUser.id + "/role/" + selectedRole.id, {
+        method: "PUT",
+        headers: Auth.getAuthHeader()
+      }).then(response => {
+        if(response.ok) {
+          // update users role locally
+          const user = this.selectedProject.users.filter(u => u.id == this.editingUser.id)[0];
+          user.roleId = selectedRole.id;
+          this.requestUpdate();
+          this.showToast("Updated user successfully!");
+        }
+      });
     }
   }
 
