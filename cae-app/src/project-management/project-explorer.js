@@ -320,7 +320,7 @@ class ProjectExplorer extends LitElement {
    */
   _onSearchInputChanged(searchInput) {
     if(searchInput) {
-      this.listedProjects = this.listedProjects.filter(project => {
+      this.listedProjects = this.projects.filter(project => {
         return project.name.toLowerCase().includes(searchInput.toLowerCase());
       });
     } else {
