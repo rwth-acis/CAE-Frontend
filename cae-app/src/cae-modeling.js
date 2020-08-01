@@ -6,6 +6,7 @@ import './frontend-modeling.js';
 import './microservice-modeling.js';
 import './application-modeling.js';
 import './requirements-bazaar-widget/requirements-bazaar-widget.js';
+import './github-projects-widget/github-projects-widget.js';
 
 /**
  * PolymerElement for the modeling page of the CAE.
@@ -50,6 +51,9 @@ class CaeModeling extends PolymerElement {
           border-left: thin solid #e1e1e1;
           transition: width 0.5s;
         }
+        #btn-close-side-menu:hover {
+          color: #7c7c7c;
+        }
       </style>
       
       <app-location route="{{route}}"></app-location>
@@ -65,9 +69,13 @@ class CaeModeling extends PolymerElement {
         </div>
         
         <paper-card id="side-menu" style="display: flex; margin-top: 0.5em; margin-left: 0.2em">
-          <div style="width: 35px; display: flex">
+          <div style="width: 35px; display: flex; flex-flow: column">
+            <iron-icon id="btn-close-side-menu" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em; display: none" icon="icons:chevron-right"></iron-icon>
             <svg id="req-baz-icon" width="24px" height="24px" class="reqbaz-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
               <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
+            </svg>
+            <svg id="github-projects-icon" width="24px" height="24px" class="github-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
+              <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
             </svg>
           </div>
           <div id="side-menu-content" style="width: 0px">
@@ -78,18 +86,47 @@ class CaeModeling extends PolymerElement {
     `;
   }
 
+  static get properties() {
+    return {
+      page: {
+        type: String,
+        observer: '_subpageChanged'
+      },
+      menuOpen: {
+        type: Boolean
+      }
+    };
+  }
+
   ready() {
     super.ready();
 
-    let menuOpen = false;
+    this.menuOpen = false;
 
     this.reloadMenuContent();
 
     this.shadowRoot.getElementById("req-baz-icon").addEventListener("click", _ => {
-      if(!menuOpen) this.openSideMenu();
-      else this.closeSideMenu();
-      menuOpen = !menuOpen;
+      this.handleMenuItemClick("req-baz");
     });
+
+    this.shadowRoot.getElementById("github-projects-icon").addEventListener("click", _ => {
+      this.handleMenuItemClick("github-projects");
+    });
+
+    this.getButtonCloseSideMenuElement().addEventListener("click", _ => {
+      this.closeSideMenu();
+    });
+  }
+
+  /**
+   * Gets called whenever one of the side menu items gets clicked.
+   */
+  handleMenuItemClick(menuItem) {
+    if(!this.menuOpen)  {
+      this.openSideMenu(menuItem);
+    } else {
+      this.displayMenuItemContent(menuItem);
+    }
   }
 
   reloadMenuContent() {
@@ -101,16 +138,46 @@ class CaeModeling extends PolymerElement {
     reqBazWidget.setAttribute("id", "req-baz-widget");
     reqBazWidget.style.setProperty("display", "none");
     this.getSideMenuContentElement().appendChild(reqBazWidget);
+
+    // add GitHub projects widget
+    const gitHubProjectsWidget = document.createElement("github-projects-widget");
+    gitHubProjectsWidget.setAttribute("id", "github-projects-widget");
+    gitHubProjectsWidget.style.setProperty("display", "none");
+    this.getSideMenuContentElement().appendChild(gitHubProjectsWidget);
   }
 
-  openSideMenu() {
-    this.shadowRoot.getElementById("req-baz-widget").style.removeProperty("display");
+  openSideMenu(menuItem) {
+    this.menuOpen = true;
+
+    // show correct menu item
+    this.displayMenuItemContent(menuItem);
+
+    // show button for closing side menu
+    this.getButtonCloseSideMenuElement().style.removeProperty("display");
+
+    // open menu by changing the size of the menu content element
     this.getSideMenuContentElement().style.width = "300px";
   }
 
+  displayMenuItemContent(menuItem) {
+    if(menuItem == "req-baz") {
+      this.shadowRoot.getElementById("req-baz-widget").style.removeProperty("display");
+      this.shadowRoot.getElementById("github-projects-widget").style.setProperty("display", "none");
+    } else if(menuItem == "github-projects") {
+      this.shadowRoot.getElementById("github-projects-widget").style.removeProperty("display");
+      this.shadowRoot.getElementById("req-baz-widget").style.setProperty("display", "none");
+    }
+  }
+
   closeSideMenu() {
+    this.menuOpen = false;
+
+    // hide button for closing side menu
+    this.getButtonCloseSideMenuElement().style.setProperty("display", "none");
+
     this.getSideMenuContentElement().style.width = "0px";
     this.shadowRoot.getElementById("req-baz-widget").style.setProperty("display", "none");
+    this.shadowRoot.getElementById("github-projects-widget").style.setProperty("display", "none");
   }
 
   getSideMenuElement() {
@@ -121,13 +188,8 @@ class CaeModeling extends PolymerElement {
     return this.shadowRoot.getElementById("side-menu-content");
   }
 
-  static get properties() {
-    return {
-      page:{
-        type: String,
-        observer: '_subpageChanged'
-      }
-    };
+  getButtonCloseSideMenuElement() {
+    return this.shadowRoot.getElementById("btn-close-side-menu");
   }
 
   static get observers(){
