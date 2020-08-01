@@ -1,5 +1,6 @@
 import {LitElement, html} from "lit-element";
 import Static from "../static";
+import Common from "../util/common";
 
 /**
  * Widget used to select frontend components or microservices which should be added to the application mashup.
@@ -231,7 +232,9 @@ export class ComponentSelectWidget extends LitElement {
         selected--;
         selectedTag = versionTags[selected];
       }
-      createNodeFunction(name, createNodeParam, selectedTag, extDependencyType);
+      if(!Common.isCurrentComponentDependency()) {
+        createNodeFunction(name, createNodeParam, selectedTag, extDependencyType);
+      }
     }.bind(this));
 
     return row;
