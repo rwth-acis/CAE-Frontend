@@ -8,16 +8,28 @@ export class GitHubProjectsWidget extends LitElement {
   render() {
     return html`
       <style>
+        a {
+          text-decoration: none;
+          color: rgb(30,144,255)
+        }
+        a:hover {
+          color: rgb(65,105,225);
+        }
       </style>
       
-      <p>GitHub Projects Widget</p>
-      <p>This is not yet implemented.</p>
+      <div id="main" style="margin-left: 0.5em; margin-right: 0.5em">
+        <h3 style="margin-top: 0.5em; margin-bottom: 0.5em">GitHub Projects - 
+          <a href=${this.gitHubProjectHtmlUrl} target="_blank">${this.projectName}</a>
+        </h3>
+      </div>
     `;
   }
 
   static get properties() {
     return {
       gitHubProjectId: { type: Number },
+      gitHubProjectHtmlUrl: { type: String },
+      projectName: { type: String },
       accessToken: { type: String }
     }
   }
@@ -26,7 +38,10 @@ export class GitHubProjectsWidget extends LitElement {
     super();
 
     const componentType = Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId());
-    this.gitHubProjectId = Common.getModelingInfo()[componentType].gitHubProjectId;
+    const modelingInfo = Common.getModelingInfo()[componentType];
+    this.gitHubProjectId = modelingInfo.gitHubProjectId;
+    this.gitHubProjectHtmlUrl = modelingInfo.gitHubProjectHtmlUrl;
+    this.projectName = modelingInfo.projectName;
 
     this.accessToken = Common.getUserInfo().gitHubAccessToken;
 

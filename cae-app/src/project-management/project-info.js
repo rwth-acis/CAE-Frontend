@@ -601,7 +601,9 @@ class ProjectInfo extends LitElement {
       "name": component.name,
       "projectId": this.getProjectId(),
       "isDependency": isDependency,
-      "gitHubProjectId": this.selectedProject.gitHubProjectId
+      "gitHubProjectId": this.selectedProject.gitHubProjectId,
+      "gitHubProjectHtmlUrl": this.selectedProject.gitHubProjectHtmlUrl,
+      "projectName": this.selectedProject.name
     };
     if(component.type == "frontend") {
       modelingInfo.frontend = content;
