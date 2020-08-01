@@ -801,6 +801,12 @@ class ProjectInfo extends LitElement {
   _onProjectSelected(project) {
     this.selectedProject = project;
 
+    // clear input fields for username and role
+    const inputUsername = this.shadowRoot.getElementById("input-username");
+    if(inputUsername) inputUsername.value = "";
+    const inputRole = this.shadowRoot.getElementById("input-role");
+    if(inputRole) inputRole.value = "";
+
     // set users of the project
     this.userList = project.users;
 
