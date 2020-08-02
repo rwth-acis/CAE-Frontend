@@ -50,6 +50,12 @@ class ApplicationModeling extends LitElement {
         display:flex;
         flex-flow:column;
       }
+      
+      .innercontainersecond {
+        padding: 5px;
+        margin: 5px;
+        flex: 1;
+      }
      
       paper-tabs {
         --paper-tabs-selection-bar-color: rgb(30,144,255);
@@ -82,6 +88,11 @@ class ApplicationModeling extends LitElement {
       </div>
       <div class="innercontainerfirst">
         <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
+      </div>
+    </div>
+    <div class="maincontainer" style="height: 500px">
+      <div class="innercontainersecond">
+        <iframe id="Matching Widget" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
       </div>
     </div>
     `;

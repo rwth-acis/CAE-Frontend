@@ -123,11 +123,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 <body>
 
 <!-- container for actual page content -->
-<div class="container" id="mainContent">
+<div class="container" id="mainContent" style="display: flex">
 
   <div class="panel panel-primary form-group">
     <div class="panel-heading"><h3 class="panel-title">Selected component endpoints</h3></div>
-    <div class="panel-body">
+    <div class="panel-body" style="overflow: auto; height: 400px">
       <h4>Selected Node: <span class="label label-primary" id="metadataComponent">None</span></h4>
       <table class="scrolltable table table-striped" id="metadataTable">
         <thead>
@@ -144,9 +144,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     </div>
   </div>
 
-  <div class="panel panel-primary form-group">
+  <div class="panel panel-primary form-group" style="margin-left: 0.5em">
     <div class="panel-heading"><h3 class="panel-title">Other component matching endpoints</h3></div>
-    <div class="panel-body">
+    <div class="panel-body" style="overflow: auto; height: 400px">
       <table class="scrolltable table table-striped" id="metadataMatchTable">
         <thead>
         <tr>
@@ -162,7 +162,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       </table>
 
       <h3>Legend:</h3>
-      <div style="display: flex">
+      <div>
         <p><span class="label label-legend label-default">Non schema</span></p>
         <p><span class="label label-legend label-danger">Schemas properties name matches</span></p>
         <p><span class="label label-legend label-warning">Schemas properties type matches</span></p>
