@@ -56,7 +56,7 @@ class SettingsElement extends LitElement {
   }
 
   _onConnectGitHubClicked() {
-    window.open("https://github.com/login/oauth/authorize?client_id=75bce794e40b079d9aa7&scope=repo,read:org;user", '_blank');
+    window.open("https://github.com/login/oauth/authorize?client_id=" + Static.GitHubOAuthClientId + "&scope=write:org", '_blank');
   }
 
   static get properties() {

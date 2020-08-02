@@ -15,6 +15,12 @@ check_if_exists "$YJS" "YJS"
 check_if_exists "$YJS_RESOURCE_PATH" "YJS_RESOURCE_PATH"
 check_if_exists "$DEPLOYMENT_URL" "DEPLOYMENT_URL"
 check_if_exists "$GIT_ORGANIZATION" "GIT_ORGANIZATION"
+check_if_exists "$GITHUB_OAUTH_CLIENTID" "GITHUB_OAUTH_CLIENTID"
+
+if [ "$ENV_VARIABLE_NOT_SET" = true ] ; then
+    echo "Missing environment variables, exiting..."
+    exit 1
+fi
 
 sed -i "s={WEBHOST}=$WEBHOST=g" src/static.js
 sed -i "s={CAE_BACKEND_URL}=$CAE_BACKEND_URL=g" src/static.js
@@ -25,3 +31,4 @@ sed -i "s={DEPLOYMENT_URL}=$DEPLOYMENT_URL=g" src/static.js
 sed -i "s={GIT_ORGANIZATION}=$GIT_ORGANIZATION=g" src/static.js
 sed -i "s={REQBAZ_BACKEND}=$REQBAZ_BACKEND=g" src/static.js
 sed -i "s={REQBAZ_FRONTEND}=$REQBAZ_FRONTEND=g" src/static.js
+sed -i "s={GITHUB_OAUTH_CLIENTID}=$GITHUB_OAUTH_CLIENTID=g" src/static.js
