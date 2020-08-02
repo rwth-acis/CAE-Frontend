@@ -23,3 +23,5 @@ sed -i "s={YJS_ADDRESS}=$YJS=g" src/static.js
 sed -i "s={YJS_RESOURCE_PATH}=$YJS_RESOURCE_PATH=g" src/static.js
 sed -i "s={DEPLOYMENT_URL}=$DEPLOYMENT_URL=g" src/static.js
 sed -i "s={GIT_ORGANIZATION}=$GIT_ORGANIZATION=g" src/static.js
+sed -i "s={REQBAZ_BACKEND}=$REQBAZ_BACKEND=g" src/static.js
+sed -i "s={REQBAZ_FRONTEND}=$REQBAZ_FRONTEND=g" src/static.js
