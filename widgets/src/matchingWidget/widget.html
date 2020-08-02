@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     }
 
     .compare-red {
-      background-color: maroon; 
+      background-color: maroon;
     }
 
     .compare-orange {
@@ -112,7 +112,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
     .label-legend {
       color: black;
+      font-size: 13px;
       font-weight: normal;
+      margin-right: 0.5em;
     }
 
   </style>
@@ -120,57 +122,55 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 </head>
 <body>
 
-  <!-- container for actual page content -->
-  <div class="container" id="mainContent">
+<!-- container for actual page content -->
+<div class="container" id="mainContent">
 
-    <div class="panel panel-primary form-group">
-      <div class="panel-heading"><h3 class="panel-title">Selected component endpoints</h3></div>
-      <div class="panel-body">
-        <h4>Selected Node: <span class="label label-primary" id="metadataComponent">None</span></h4>
-        <table class="scrolltable table table-striped" id="metadataTable">
-            <thead>
-                <tr>
-                    <th>Component Name</th>
-                    <th>Endpoint Name</th>
-                    <th>Operation</th>
-                    <th>Parameters</th>
-                    <th>Produces</th>
-                </tr>
-            </thead>
-            <tbody id="componentMetadataTable"></tbody>
-        </table>
-      </div>
+  <div class="panel panel-primary form-group">
+    <div class="panel-heading"><h3 class="panel-title">Selected component endpoints</h3></div>
+    <div class="panel-body">
+      <h4>Selected Node: <span class="label label-primary" id="metadataComponent">None</span></h4>
+      <table class="scrolltable table table-striped" id="metadataTable">
+        <thead>
+        <tr>
+          <th>Component Name</th>
+          <th>Endpoint Name</th>
+          <th>Operation</th>
+          <th>Parameters</th>
+          <th>Produces</th>
+        </tr>
+        </thead>
+        <tbody id="componentMetadataTable"></tbody>
+      </table>
     </div>
+  </div>
 
-    <div class="panel panel-success form-group">
-      <div class="panel-heading"><h5 class="panel-title">Legend</h5></div>
-      <div class="panel-body">
-        <h3><span class="label label-legend label-default">Non schema</span></h3>
-        <h3><span class="label label-legend label-danger">Schemas properties name matches</span></h3>
-        <h3><span class="label label-legend label-warning">Schemas properties type matches</span></h3>
-        <h3><span class="label label-legend label-success">Schemas properties name & type matches</span></h3>
-      </div>
-    </div>
+  <div class="panel panel-primary form-group">
+    <div class="panel-heading"><h3 class="panel-title">Other component matching endpoints</h3></div>
+    <div class="panel-body">
+      <table class="scrolltable table table-striped" id="metadataMatchTable">
+        <thead>
+        <tr>
+          <th>Component Name</th>
+          <th>Endpoint Name</th>
+          <th>Operation</th>
+          <th>Parameters</th>
+          <th>Produces</th>
+          <th>Level</th>
+        </tr>
+        </thead>
+        <tbody id="componentMetadataMatchTable"></tbody>
+      </table>
 
-    <div class="panel panel-primary form-group">
-      <div class="panel-heading"><h3 class="panel-title">Other component matching endpoints</h3></div>
-      <div class="panel-body">
-          <table class="scrolltable table table-striped" id="metadataMatchTable">
-            <thead>
-                <tr>
-                    <th>Component Name</th>
-                    <th>Endpoint Name</th>
-                    <th>Operation</th>
-                    <th>Parameters</th>
-                    <th>Produces</th>
-                    <th>Level</th>
-                </tr>
-            </thead>
-            <tbody id="componentMetadataMatchTable"></tbody>
-        </table>
+      <h3>Legend:</h3>
+      <div style="display: flex">
+        <p><span class="label label-legend label-default">Non schema</span></p>
+        <p><span class="label label-legend label-danger">Schemas properties name matches</span></p>
+        <p><span class="label label-legend label-warning">Schemas properties type matches</span></p>
+        <p><span class="label label-legend label-success">Schemas properties name & type matches</span></p>
       </div>
     </div>
   </div>
+</div>
 
 </body>
 </html>

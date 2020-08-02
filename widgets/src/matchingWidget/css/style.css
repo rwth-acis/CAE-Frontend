@@ -1,8 +1,3 @@
-.container {
-    overflow-y: scroll;
-    overflow-x: scroll;
-}
-
 #mainContent {
     max-height: 500px;
     width:100%;
