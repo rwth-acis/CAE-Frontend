@@ -27,16 +27,18 @@ export class DeploymentWidget extends LitElement {
         }
       </style>
       
-      <div style="display: flex; margin-left: 4px; margin-right: 4px;">
-        <paper-button id="deploy-model" @click=${this._onDeployButtonClicked} class="paper-button-blue">Deploy</paper-button>
-        <a id="open-deployment" target="_blank" href=${Static.DeploymentURL} style="margin-left: auto; margin-top: auto; margin-bottom: auto">Open deployment</a>
-      </div>
+      <div>
+        <div style="display: flex; margin-left: 4px; margin-right: 4px; margin-top: 4px;">
+          <paper-button id="deploy-model" @click=${this._onDeployButtonClicked} class="paper-button-blue">Deploy</paper-button>
+          <a id="open-deployment" target="_blank" href=${Static.DeploymentURL} style="margin-left: auto; margin-top: auto; margin-bottom: auto">Open deployment</a>
+        </div>
       
-      <div class="form-group" style="margin-left: 4px; margin-right: 4px; margin-top: 4px">
-        <input type="text" class="form-control" id="status" style="width: 100%" placeholder="Status..">
-        <br>
-        <textarea id="deploy-status" style="width: 100%; min-height: 200px;" class="form-control" readonly></textarea>
-    </div>
+        <div class="form-group" style="margin-left: 4px; margin-right: 4px; margin-top: 4px; height: 150px">
+          <input type="text" class="form-control" id="status" style="width: 100%" placeholder="Status..">
+          <br>
+          <textarea id="deploy-status" style="width: 100%;" class="form-control" readonly></textarea>
+        </div>
+      </div>
     `;
   }
 

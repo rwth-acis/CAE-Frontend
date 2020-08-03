@@ -66,22 +66,22 @@ class ApplicationModeling extends LitElement {
         <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <div>
+        <div style="height: 250px">
           <div>
             <paper-tabs selected="0">
               <paper-tab @click=${(e) => this._onTabSelected(0)}>Frontend Components</paper-tab>
               <paper-tab @click=${(e) => this._onTabSelected(1)}>Microservices</paper-tab>
             </paper-tabs>
-            <div style="flex: 1; height: 250px">
+            <div>
               <component-select-widget componentType="frontend" id="Frontend Component Select Widget" style="width: 100%; height: 100%"></component-select-widget>
               <component-select-widget componentType="microservice" id="Microservice Select Widget" style="width: 100%; height: 100%"></component-select-widget>
             </div>
           </div>
         </div>
-        <div id="div-pb">
+        <div id="div-pb" style="height: 150px">
           <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
-        </div>
-        <deployment-widget id="deployment-widget" style="flex: 1"></deployment-widget>
+        </div style="height: 200px">
+        <deployment-widget id="deployment-widget"></deployment-widget>
       </div>
       <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <versioning-element id="versioning-widget"></versioning-element>
