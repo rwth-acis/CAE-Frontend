@@ -253,7 +253,7 @@ var addTableRowHandler = function(y) {
         $("#componentMetadataMatchTable").html("");
 
         // get component name, endpoint name, operation name
-        var componentName = $(this).find(".doc_id").html();
+        var componentName = $(this).find(".doc_id").attr("versionedmodelid");
         var endpointName = $(this).find(".doc_property").html();
         var operationType = $(this).find(".doc_operation").html();
 
@@ -469,7 +469,7 @@ var addTableRowHandler = function(y) {
                                                         var parametersString = componentOperationConsumesString.join(' , ');
 
                                                         $("#componentMetadataMatchTable").append("<tr>" +
-                                                            "<td class='doc_id'>" + componentValue.componentId + "</td>" + 
+                                                            "<td class='doc_id'>" + componentDocObject.info.title + "</td>" +
                                                             "<td class='doc_property'>" + componentDocProperty + "</td>" +
                                                             "<td class='doc_operation'>" + componentDocOperation + "</td>" +
                                                             "<td class='doc_parameters'>" + parametersString  + "</td>" +
@@ -593,7 +593,7 @@ var processData = function(value) {
                     var parametersString = parametersList.join(' , ');
 
                     $("#componentMetadataTable").append("<tr class='clickable-row'>" +
-                        "<td class='doc_id'>" + value.componentId + "</td>" + 
+                        "<td class='doc_id' versionedmodelid='" + value.versionedModelId + "'>" + docObject.info.title + "</td>" +
                         "<td class='doc_property'>" + docProperty + "</td>" +
                         "<td class='doc_operation'>" + docOperation + "</td>" +
                         "<td class='doc_parameters'>" + parametersString  + "</td>" +
