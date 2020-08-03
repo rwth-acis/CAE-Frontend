@@ -13,6 +13,7 @@ import Static from "../static";
 import Common from "../util/common";
 import MetamodelUploader from "../util/metamodel-uploader";
 import GitHubHelper from "../util/github-helper";
+import WidgetAccessEditor from "../util/role-based-access-management/widget-access-editor";
 
 /**
  * PolymerElement for management of project components and users.
@@ -308,11 +309,14 @@ class ProjectInfo extends LitElement {
         <h2>Edit Role: ${this.editingRole ? html`${this.editingRole.name}` : html``}</h2>
         <div style="align-items: center">
           <paper-button class="button-danger" @click="${this._removeRoleFromProjectClicked}">Remove From Project</paper-button>
+          <div id="dialog-edit-role-widgets" style="margin-top: 1em">
+            <!-- Gets replaced by JavaScript -->
+          </div>
         </div>
         
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button dialog-confirm>Save</paper-button>
+          <paper-button @click=${this._saveRoleClicked} dialog-confirm>Save</paper-button>
         </div>
       </paper-dialog>
       
@@ -500,7 +504,8 @@ class ProjectInfo extends LitElement {
       dependencyToDelete: { type: Object },
       externalDependencyToDelete: { type: Object },
       validURL: { type: Boolean },
-      enteredURL: { type: String }
+      enteredURL: { type: String },
+      roleWidgetAccessEditor: { type: Object }
     }
   }
 
@@ -762,6 +767,35 @@ class ProjectInfo extends LitElement {
   _roleEditButtonClicked(role) {
     this.editingRole = role;
     this.shadowRoot.getElementById("dialog-edit-role").open();
+
+    const divWidgets = this.shadowRoot.getElementById("dialog-edit-role-widgets");
+    while(divWidgets.firstChild) divWidgets.removeChild(divWidgets.firstChild);
+
+    const editor = new WidgetAccessEditor(JSON.parse(role.widgetConfig));
+    divWidgets.appendChild(editor.getHTMLElement());
+    this.roleWidgetAccessEditor = editor;
+  }
+
+  /**
+   * Gets called when the user clicks "save" in the "edit role" dialog.
+   * Sends the updated widget config of the role to the Project Management Service.
+   * @private
+   */
+  _saveRoleClicked() {
+    // get widget access editor
+    const editor = this.roleWidgetAccessEditor;
+    const widgetConfig = JSON.stringify(editor.getWidgetConfig());
+
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/roles/" + this.editingRole.id, {
+      method: "PUT",
+      headers: Auth.getAuthHeader(),
+      body: widgetConfig
+    }).then(response => {
+      if(response.ok) {
+        this.showToast("Updated role successfully!");
+        this.editingRole.widgetConfig = widgetConfig;
+      }
+    });
   }
 
   _onAddComponentClicked() {
