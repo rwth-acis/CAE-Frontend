@@ -21,7 +21,7 @@ Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
 Static.DeploymentURL = "{DEPLOYMENT_URL}";
 // name of the GitHub organization where the source code is hosted
 Static.GitHubOrg = "{GIT_ORGANIZATION}";
-Static.GitHubOAuthClientId = "{GITHUB_OAUTH_CLIENT_ID}";
+Static.GitHubOAuthClientId = "{GITHUB_OAUTH_CLIENTID}";
 
 // the following links are not edited through the docker container
 Static.las2peerURL = "https://las2peer.org";
