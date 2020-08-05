@@ -137,9 +137,9 @@ export class GitHubProjectsWidget extends LitElement {
 
     this.columnCards = {};
 
-    // load cards (and reload them every 5 seconds)
+    // load cards (and reload them every 10 seconds)
     this.loadCards();
-    setInterval(this.loadCards.bind(this), 5000);
+    setInterval(this.loadCards.bind(this), 10000);
   }
 
   /**
