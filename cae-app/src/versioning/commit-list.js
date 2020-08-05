@@ -25,7 +25,7 @@ export class CommitList extends LitElement {
           background: #eeeeee;
         }
       </style>
-      <h3>Commits</h3>
+      <h3>Commit List</h3>
       <div class="separator"></div>
       <div style="overflow: scroll; height: 500px">
         <div id="spinner-commit-list" style="display: flex; width: 100%">
