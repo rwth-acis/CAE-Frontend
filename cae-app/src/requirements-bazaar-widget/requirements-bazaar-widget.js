@@ -250,6 +250,10 @@ export class RequirementsBazaarWidget extends LitElement {
     return url;
   }
 
+  clearIntervals() {
+    clearInterval(this.refreshRequirementsIntervalHandle);
+  }
+
   getNotConnectedElement() {
     return this.shadowRoot.getElementById("not-connected");
   }

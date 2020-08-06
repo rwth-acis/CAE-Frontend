@@ -103,8 +103,6 @@ class CaeModeling extends PolymerElement {
 
     this.menuOpen = false;
 
-    this.reloadMenuContent();
-
     this.shadowRoot.getElementById("req-baz-icon").addEventListener("click", _ => {
       this.handleMenuItemClick("req-baz");
     });
@@ -129,21 +127,14 @@ class CaeModeling extends PolymerElement {
     }
   }
 
-  reloadMenuContent() {
-    // clear menu content
-    while(this.getSideMenuContentElement().firstChild) this.getSideMenuContentElement().removeChild(this.getSideMenuContentElement().firstChild);
-
-    // add Requirements Bazaar widget
-    const reqBazWidget = document.createElement("requirements-bazaar-widget");
-    reqBazWidget.setAttribute("id", "req-baz-widget");
-    reqBazWidget.style.setProperty("display", "none");
-    this.getSideMenuContentElement().appendChild(reqBazWidget);
-
-    // add GitHub projects widget
-    const gitHubProjectsWidget = document.createElement("github-projects-widget");
-    gitHubProjectsWidget.setAttribute("id", "github-projects-widget");
-    gitHubProjectsWidget.style.setProperty("display", "none");
-    this.getSideMenuContentElement().appendChild(gitHubProjectsWidget);
+  clearMenuContent() {
+    while(this.getSideMenuContentElement().firstChild) {
+      // check if method for clearing intervals exists
+      if(typeof this.getSideMenuContentElement().firstChild.clearIntervals === "function") {
+        this.getSideMenuContentElement().firstChild.clearIntervals();
+      }
+      this.getSideMenuContentElement().removeChild(this.getSideMenuContentElement().firstChild);
+    }
   }
 
   openSideMenu(menuItem) {
@@ -160,12 +151,17 @@ class CaeModeling extends PolymerElement {
   }
 
   displayMenuItemContent(menuItem) {
+    this.clearMenuContent();
     if(menuItem == "req-baz") {
-      this.shadowRoot.getElementById("req-baz-widget").style.removeProperty("display");
-      this.shadowRoot.getElementById("github-projects-widget").style.setProperty("display", "none");
+      // add Requirements Bazaar widget
+      const reqBazWidget = document.createElement("requirements-bazaar-widget");
+      reqBazWidget.setAttribute("id", "req-baz-widget");
+      this.getSideMenuContentElement().appendChild(reqBazWidget);
     } else if(menuItem == "github-projects") {
-      this.shadowRoot.getElementById("github-projects-widget").style.removeProperty("display");
-      this.shadowRoot.getElementById("req-baz-widget").style.setProperty("display", "none");
+      // add GitHub projects widget
+      const gitHubProjectsWidget = document.createElement("github-projects-widget");
+      gitHubProjectsWidget.setAttribute("id", "github-projects-widget");
+      this.getSideMenuContentElement().appendChild(gitHubProjectsWidget);
     }
   }
 
@@ -176,12 +172,7 @@ class CaeModeling extends PolymerElement {
     this.getButtonCloseSideMenuElement().style.setProperty("display", "none");
 
     this.getSideMenuContentElement().style.width = "0px";
-    this.shadowRoot.getElementById("req-baz-widget").style.setProperty("display", "none");
-    this.shadowRoot.getElementById("github-projects-widget").style.setProperty("display", "none");
-  }
-
-  getSideMenuElement() {
-    return this.shadowRoot.getElementById("side-menu");
+    this.clearMenuContent();
   }
 
   getSideMenuContentElement() {
@@ -255,8 +246,8 @@ class CaeModeling extends PolymerElement {
     let div = this.shadowRoot.getElementById(type + "-modeling");
     div.appendChild(this.createNewModelingElement(type));
 
-    // also reload the content of the menu (e.g. requirements bazaar widget needs to adapt to different component)
-    this.reloadMenuContent();
+    // also clear the content of the menu
+    this.clearMenuContent();
     this.closeSideMenu();
   }
 }
