@@ -7,6 +7,8 @@ import './microservice-modeling.js';
 import './application-modeling.js';
 import './requirements-bazaar-widget/requirements-bazaar-widget.js';
 import './github-projects-widget/github-projects-widget.js';
+import WidgetAccessEditor from "./util/role-based-access-management/widget-access-editor";
+import WidgetConfigHelper from "./util/role-based-access-management/widget-config-helper";
 
 /**
  * PolymerElement for the modeling page of the CAE.
@@ -44,14 +46,17 @@ class CaeModeling extends PolymerElement {
         #main {
           transition: all .5s linear;
         }
-        #side-menu {
-          
-        }
         #side-menu-content {
           border-left: thin solid #e1e1e1;
           transition: width 0.5s;
         }
         #btn-close-side-menu:hover {
+          color: #7c7c7c;
+        }
+        .icon {
+          color: #000000;
+        }
+        .icon:hover {
           color: #7c7c7c;
         }
       </style>
@@ -77,6 +82,7 @@ class CaeModeling extends PolymerElement {
             <svg id="github-projects-icon" width="24px" height="24px" class="github-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
               <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
             </svg>
+            <iron-icon id="btn-widget-config" class="icon" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em" icon="icons:extension"></iron-icon>
           </div>
           <div id="side-menu-content" style="width: 0px">
             <!-- Gets added by JavaScript -->
@@ -109,6 +115,10 @@ class CaeModeling extends PolymerElement {
 
     this.shadowRoot.getElementById("github-projects-icon").addEventListener("click", _ => {
       this.handleMenuItemClick("github-projects");
+    });
+
+    this.shadowRoot.getElementById("btn-widget-config").addEventListener("click", _ => {
+      this.handleMenuItemClick("widget-config")
     });
 
     this.getButtonCloseSideMenuElement().addEventListener("click", _ => {
@@ -162,6 +172,22 @@ class CaeModeling extends PolymerElement {
       const gitHubProjectsWidget = document.createElement("github-projects-widget");
       gitHubProjectsWidget.setAttribute("id", "github-projects-widget");
       this.getSideMenuContentElement().appendChild(gitHubProjectsWidget);
+    } else if(menuItem == "widget-config") {
+      const widgetConfig = JSON.parse(Common.getCurrentlyOpenedModelingInfo().widgetConfig);
+      // now we need to remove the view from the widget config, which are not relevant
+      // we only want to have the currently opened view displayed in the access editor
+      // => for more information see the documentation of the removeNotOpenedViewsFromConfig method
+      WidgetConfigHelper.removeNotOpenedViewsFromConfig(widgetConfig);
+      const editor = new WidgetAccessEditor(widgetConfig);
+
+      // get HTML element of the editor and add some margin
+      const editorHTML = editor.getHTMLElement();
+      editorHTML.style.setProperty("margin-left", "0.5em");
+      editorHTML.style.setProperty("margin-right", "0.5em");
+      for(const elem of editorHTML.getElementsByTagName("h3")) elem.style.setProperty("margin-top", "0.5em");
+
+      // add the editor HTML element to the side menu
+      this.getSideMenuContentElement().appendChild(editorHTML);
     }
   }
 

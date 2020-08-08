@@ -185,6 +185,14 @@ export default class Common {
     return JSON.parse(localStorage.getItem(this.KEY_MODELING_INFO));
   }
 
+  /**
+   * Loads the modeling info of the currently opened component type from localStorage.
+   * @returns {*} Modeling info of the currently opened component type from localStorage.
+   */
+  static getCurrentlyOpenedModelingInfo() {
+    return Common.getModelingInfo()[Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId())];
+  }
+
   static getComponentTypeByVersionedModelId(versionedModelId) {
     const modelingInfo = this.getModelingInfo();
     if(modelingInfo.frontend != null) if(modelingInfo.frontend.versionedModelId == versionedModelId) return "frontend";
