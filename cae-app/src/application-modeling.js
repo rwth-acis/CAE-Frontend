@@ -60,13 +60,22 @@ class ApplicationModeling extends LitElement {
       paper-tabs {
         --paper-tabs-selection-bar-color: rgb(30,144,255);
       }
+      
+      .bordered {
+        border-width: 2px;
+        border-style: inset;
+      }
+      .full-width {
+        width: 100%;
+      }
     </style>
     <div class="maincontainer">
       <div id="div-canvas" class="innercontainerfirst">
         <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
-        <div style="height: 250px">
+        <!-- Component select widget -->
+        <div style="height: 250px" class="bordered full-width">
           <div>
             <paper-tabs selected="0">
               <paper-tab @click=${(e) => this._onTabSelected(0)}>Frontend Components</paper-tab>
@@ -78,10 +87,12 @@ class ApplicationModeling extends LitElement {
             </div>
           </div>
         </div>
+        <!-- Property Browser -->
         <div id="div-pb" style="height: 150px">
           <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
         </div style="height: 200px">
-        <deployment-widget id="deployment-widget"></deployment-widget>
+        <!-- Deployment widget -->
+        <deployment-widget id="deployment-widget" class="bordered full-width"></deployment-widget>
       </div>
       <div class="innercontainerfirst" style="display: flex; flex-flow: column">
         <versioning-element id="versioning-widget"></versioning-element>
