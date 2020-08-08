@@ -608,7 +608,8 @@ class ProjectInfo extends LitElement {
       "isDependency": isDependency,
       "gitHubProjectId": this.selectedProject.gitHubProjectId,
       "gitHubProjectHtmlUrl": this.selectedProject.gitHubProjectHtmlUrl,
-      "projectName": this.selectedProject.name
+      "projectName": this.selectedProject.name,
+      "widgetConfig": this.getUsersRole().widgetConfig
     };
     if(component.type == "frontend") {
       modelingInfo.frontend = content;
@@ -618,6 +619,24 @@ class ProjectInfo extends LitElement {
       modelingInfo.application = content;
     }
     Common.storeModelingInfo(modelingInfo);
+  }
+
+  /**
+   * Returns the role object of the current user.
+   * @returns {*|undefined}
+   */
+  getUsersRole() {
+    // get id of current user
+    const userId = Common.getUserInfo().id;
+    // get id of users role
+    let usersRoleId;
+    for(const user of this.selectedProject.users) {
+      if(user.id == userId)  {
+        usersRoleId = user.roleId;
+        break;
+      }
+    }
+    return this.getRoleById(usersRoleId);
   }
 
   /**
