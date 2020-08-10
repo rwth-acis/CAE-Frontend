@@ -3,6 +3,7 @@ import Common from './util/common.js';
 import Static from './static.js';
 import './versioning/versioning-element.js';
 import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
+import WidgetConfigHelper from "./util/role-based-access-management/widget-config-helper";
 
 /**
  * @customElement
@@ -133,7 +134,13 @@ class FrontendModeling extends LitElement {
       this.shadowRoot.getElementById("versioning-widget").addEventListener("reload-current-modeling-page", function() {
         this.dispatchEvent(new CustomEvent("reload-current-modeling-page"));
       }.bind(this));
+
+      this.updateWidgetConfig();
     });
+  }
+
+  updateWidgetConfig() {
+    WidgetConfigHelper.updateWidgetConfig(this.shadowRoot);
   }
 
   reloadCaeRoom() {

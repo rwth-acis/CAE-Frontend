@@ -4,6 +4,7 @@ import Static from "./static.js";
 import './deployment-widget/deployment-widget.js';
 import './select-widget/component-select-widget.js';
 import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
+import WidgetConfigHelper from "./util/role-based-access-management/widget-config-helper";
 
 /**
  * @customElement
@@ -70,12 +71,12 @@ class ApplicationModeling extends LitElement {
       }
     </style>
     <div class="maincontainer">
-      <div id="div-canvas" class="innercontainerfirst">
+      <div id="div-canvas" class="innercontainerfirst widget" widgetconfigname="Modeling incl. Select">
         <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
       </div>
       <div class="innercontainerfirst">
         <!-- Component select widget -->
-        <div style="height: 250px" class="bordered full-width">
+        <div style="height: 250px" class="bordered full-width widget" widgetconfigname="Modeling incl. Select">
           <div>
             <paper-tabs selected="0">
               <paper-tab @click=${(e) => this._onTabSelected(0)}>Frontend Components</paper-tab>
@@ -88,21 +89,21 @@ class ApplicationModeling extends LitElement {
           </div>
         </div>
         <!-- Property Browser -->
-        <div id="div-pb" style="height: 150px">
+        <div id="div-pb" style="height: 150px" class="widget" widgetconfigname="Modeling incl. Select">
           <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
         </div style="height: 200px">
         <!-- Deployment widget -->
-        <deployment-widget id="deployment-widget" class="bordered full-width"></deployment-widget>
+        <deployment-widget id="deployment-widget" class="bordered full-width widget" widgetconfigname="Deployment"></deployment-widget>
       </div>
-      <div class="innercontainerfirst" style="display: flex; flex-flow: column">
+      <div class="innercontainerfirst widget" style="display: flex; flex-flow: column" widgetconfigname="Versioning">
         <versioning-element id="versioning-widget"></versioning-element>
       </div>
-      <div class="innercontainerfirst">
+      <div class="innercontainerfirst widget" widgetconfigname="Modeling incl. Select">
         <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
     <div class="maincontainer" style="height: 500px">
-      <div class="innercontainersecond">
+      <div class="innercontainersecond widget" widgetconfigname="Matching">
         <iframe id="Matching Widget" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
       </div>
     </div>
@@ -141,7 +142,13 @@ class ApplicationModeling extends LitElement {
       }.bind(this));
 
       this._onTabSelected(0);
+
+      this.updateWidgetConfig();
     });
+  }
+
+  updateWidgetConfig() {
+    WidgetConfigHelper.updateWidgetConfig(this.shadowRoot);
   }
 
   reloadCaeRoom() {

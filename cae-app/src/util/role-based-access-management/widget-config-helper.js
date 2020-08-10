@@ -27,4 +27,37 @@ export default class WidgetConfigHelper {
       delete widgetConfig["Microservice Modeling"];
     }
   }
+
+  static getCurrentlyOpenedWidgets(widgetConfig) {
+    WidgetConfigHelper.removeNotOpenedViewsFromConfig(widgetConfig);
+    let widgets;
+    for(const element of Object.values(widgetConfig)) {
+      widgets = element.widgets;
+      break;
+    }
+    return widgets;
+  }
+
+  static updateWidgetConfig(shadowRoot) {
+    // load widget config
+    const widgetConfig = JSON.parse(Common.getCurrentlyOpenedModelingInfo().widgetConfig);
+    const widgets = WidgetConfigHelper.getCurrentlyOpenedWidgets(widgetConfig);
+
+    // widget should be disabled
+    const allWidgets = shadowRoot.querySelectorAll(".widget");
+
+    for(const [widgetKey, widgetValue] of Object.entries(widgets)) {
+      allWidgets.forEach(function(widget) {
+        if(widget.getAttribute("widgetconfigname") == widgetKey) {
+          if(!widgetValue.enabled) {
+            widget.setAttribute("hidden", "true");
+            //widget.style.setProperty("display", "none");
+          } else {
+            widget.removeAttribute("hidden");
+            //widget.style.removeProperty("display");
+          }
+        }
+      });
+    }
+  }
 }

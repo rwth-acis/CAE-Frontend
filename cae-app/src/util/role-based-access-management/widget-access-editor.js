@@ -4,7 +4,7 @@
  */
 export default class WidgetAccessEditor {
 
-  constructor(config) {
+  constructor(config, changeListener) {
     this.config = config;
 
     this.editor = document.createElement("div");
@@ -50,9 +50,8 @@ export default class WidgetAccessEditor {
           checkbox.setAttribute("checked", true);
         }
         checkbox.addEventListener("change", _ => {
-          //this.config.views[viewName].
           widgetValue.enabled = checkbox.checked;
-          console.log(this.config);
+          if(changeListener) changeListener();
         });
         checkboxes.appendChild(checkbox);
         firstCheckbox = false;

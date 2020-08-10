@@ -100,6 +100,9 @@ class CaeModeling extends PolymerElement {
       },
       menuOpen: {
         type: Boolean
+      },
+      currentModelingElement: {
+        type: Object
       }
     };
   }
@@ -178,7 +181,15 @@ class CaeModeling extends PolymerElement {
       // we only want to have the currently opened view displayed in the access editor
       // => for more information see the documentation of the removeNotOpenedViewsFromConfig method
       WidgetConfigHelper.removeNotOpenedViewsFromConfig(widgetConfig);
-      const editor = new WidgetAccessEditor(widgetConfig);
+      const editor = new WidgetAccessEditor(widgetConfig, function() {
+        // gets called when a checkbox changed
+        // store updated widget config in localStorage
+        const modelingInfo = Common.getModelingInfo();
+        modelingInfo[Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId())].widgetConfig = JSON.stringify(widgetConfig);
+        Common.storeModelingInfo(modelingInfo);
+
+        this.currentModelingElement.updateWidgetConfig();
+      }.bind(this));
 
       // get HTML element of the editor and add some margin
       const editorHTML = editor.getHTMLElement();
@@ -270,7 +281,9 @@ class CaeModeling extends PolymerElement {
   reloadModelingElement(type) {
     this.removeModelingElement(type);
     let div = this.shadowRoot.getElementById(type + "-modeling");
-    div.appendChild(this.createNewModelingElement(type));
+    const modelingElement = this.createNewModelingElement(type);
+    div.appendChild(modelingElement);
+    this.currentModelingElement = modelingElement;
 
     // also clear the content of the menu
     this.clearMenuContent();

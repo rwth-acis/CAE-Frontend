@@ -2,6 +2,7 @@ import {LitElement, html} from "lit-element";
 import Common from './util/common.js';
 import Static from "./static.js";
 import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
+import WidgetConfigHelper from "./util/role-based-access-management/widget-config-helper";
 import('./versioning/versioning-element.js');
 
 /**
@@ -73,10 +74,10 @@ class MicroserviceModeling extends LitElement {
         }
       </style>
       <div class="maincontainer">
-        <div id="div-canvas" class="innercontainersecond">
+        <div id="div-canvas" class="innercontainersecond widget" widgetconfigname="Modeling">
           <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
         </div>
-        <div class="innercontainersecond" style="display:flex;flex-flow:column;">
+        <div class="innercontainersecond widget" style="display:flex;flex-flow:column;" widgetconfigname="Modeling">
           <div style="display:flex;flex-flow:row;flex:2;">
             <div>
               <iframe id="Palette" src="${Static.WebhostURL}/syncmeta/palette.html"> </iframe>
@@ -137,7 +138,13 @@ class MicroserviceModeling extends LitElement {
       }.bind(this));
 
       this._onTabSelected(0);
+
+      this.updateWidgetConfig();
     });
+  }
+
+  updateWidgetConfig() {
+    WidgetConfigHelper.updateWidgetConfig(this.shadowRoot);
   }
 
   reloadCaeRoom() {
