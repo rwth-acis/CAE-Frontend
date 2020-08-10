@@ -3,8 +3,6 @@ import microservice_vls from '../vls/microservice_vls.js';
 import application_vls from '../vls/application_vls.js';
 import Static from "../static";
 import Common from "./common";
-import("yjs/dist/y");
-
 /**
  * Helper class for uploading the (meta)-models for the components.
  * When the user wants to model a component, then the SyncMeta widgets as the
@@ -110,8 +108,7 @@ export default class MetamodelUploader {
         data: 'Map',
         widgetConfig: 'Map'
       },
-      type:["Text","Map"],
-      sourceDir: "/node_modules"
+      type:["Text","Map"]
     }).then(function(y) {
       // set if view only mode should be activated
       console.log("Setting view_only in Yjs room to: " + viewOnly);

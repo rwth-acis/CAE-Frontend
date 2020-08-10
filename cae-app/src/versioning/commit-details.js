@@ -10,7 +10,6 @@ import ModelValidator from "../model-differencing/model-validator";
 import Difference from "../model-differencing/difference";
 import MetamodelUploader from "../util/metamodel-uploader";
 import {CommitList} from "./commit-list";
-import("yjs/dist/y");
 
 export class CommitDetails extends LitElement {
   render() {
@@ -558,8 +557,7 @@ export class CommitDetails extends LitElement {
           data: 'Map',
           canvas: 'Map',
           versioning_widget: 'Map'
-        },
-        sourceDir: "/node_modules"
+        }
       }).then(function(y) {
         this.y = y;
         this.mainY = y;
@@ -754,8 +752,7 @@ export class CommitDetails extends LitElement {
         data: 'Map',
         canvas: 'Map',
         versioning_widget: 'Map'
-      },
-      sourceDir: "/node_modules"
+      }
     }).then(function(y) {
       this.y = y;
 

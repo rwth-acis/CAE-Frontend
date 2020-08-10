@@ -456,8 +456,7 @@ class ProjectExplorer extends LitElement {
           userList: 'Map', // used to get full name of users
           join: 'Map' // used to get currently online users
         },
-        type:["Map"],
-        sourceDir: "/node_modules"
+        type:["Map"]
       }).then(function(y) {
         //y.share.data.set('metamodel', vls);
         //console.log(component.name);
