@@ -178,7 +178,7 @@ export class CommitList extends LitElement {
     if(originalTimestamp == null) return null;
 
     originalTimestamp.replace(" ", "T");
-    const date = new Date(originalTimestamp + " UTC");
+    const date = new Date(originalTimestamp + "Z");
 
     const year = date.getFullYear();
     const month = date.getMonth() < 10 ? "0" + (date.getMonth()+1) : (date.getMonth()+1);
