@@ -37,10 +37,10 @@ export class CommitList extends LitElement {
             <!-- check if commit is the commit for uncommited changes -->
             ${commit.message ? html`
               <!-- standard commit -->
-              <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
+              <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} @click=${() => this._onCommitLeftClicked(commit)} style="padding-bottom: 1em">
                 <div style="display: flex; padding-top: 0.5em">
                   <!-- commit message -->
-                  <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto" @click=${() => this._onCommitLeftClicked(commit)}>${commit.message}</p>
+                  <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto">${commit.message}</p>
                   <!-- button for context menu -->
                   <!--<paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
                     <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
@@ -61,7 +61,7 @@ export class CommitList extends LitElement {
                   </div>
                 ` : html``}
                 <!-- timestamp -->
-                <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0" @click=${() => this._onCommitLeftClicked(commit)}>${this.beautifyTimestamp(commit.timestamp)}</p>
+                <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0">${this.beautifyTimestamp(commit.timestamp)}</p>
               </div>
             ` : html`
               <!-- commit for uncommited changes -->
