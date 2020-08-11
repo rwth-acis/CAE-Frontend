@@ -120,19 +120,53 @@ export class CommitList extends LitElement {
       parent.caeRoom = Common.getYjsRoomNameForVersionedModel(this.versionedModel.id, Common.isCurrentComponentDependency());
       this.dispatchEvent(new CustomEvent("show-main-canvas"));
     } else {
-      if(commit.commitType == 0) { // only for commits that belong to model changes
-        // change the model which is shown in the canvas
-        // we want to show the model at a previous stage/commit
-        const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
-        parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id, Common.isCurrentComponentDependency());
-        MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, commit.model,
-          this.versionedModel.id, commit.id, Common.isCurrentComponentDependency()).then(
-          (_ => {
-            // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
-            this.dispatchEvent(new CustomEvent("show-commit-canvas"));
-          }).bind(this)
-        );
+      // we want to show the model at a previous stage/commit
+      // check if it is a "model commit" or a "code commit"
+      // because "code commits" do not contain a model (then we need to get a previous one)
+      let model;
+      if(commit.commitType == 0) {
+        // commit is a "model commit"
+        // thus the commit itself contains a model we can display
+        model = commit.model;
+      } else if(commit.commitType == 1) {
+        // commit is a "code commit"
+        // thus the commit itself does not contain a model, so we need to get the previous model
+        let reachedCommit = false;
+        for(const c of this.versionedModel.commits) {
+          if(!reachedCommit) {
+            if(c.id == commit.id) reachedCommit = true;
+          } else {
+            if(c.commitType == 0) {
+              // this is a previous commit which is a model commit
+              // use the model of this commit
+              model = c.model;
+              break;
+            }
+          }
+        }
+      } else {
+        console.error("Commit type is neither 0 or 1.");
+        return;
       }
+
+      if(!model) {
+        console.error("No model found to display.");
+        return;
+      }
+
+      // change the model which is shown in the canvas
+      const componentType = Common.getComponentTypeByVersionedModelId(this.versionedModel.id);
+      // therefore change the Yjs room which is used first
+      parent.caeRoom = Common.getYjsRoomNameForSpecificCommit(this.versionedModel.id, commit.id, Common.isCurrentComponentDependency());
+
+      // upload model and metamodel for the commit
+      MetamodelUploader.uploadMetamodelAndModelForSpecificCommit(componentType, model,
+        this.versionedModel.id, commit.id, Common.isCurrentComponentDependency()).then(
+        (_ => {
+          // try to hide the canvas and show a new one (which then uses the newly set caeRoom)
+          this.dispatchEvent(new CustomEvent("show-commit-canvas"));
+        }).bind(this)
+      );
     }
 
     const event = new CustomEvent("commit-selected", {
