@@ -18,6 +18,21 @@ export class CommitList extends LitElement {
           padding: 0.1em 0.2em;
           border-radius: 3px;
         }
+        .label-commit-type {
+          margin-top: auto;
+          margin-bottom: auto;
+          padding: 0.1em 0.2em;
+          border-radius: 3px;
+          margin-right: 2px;
+        }
+        .label-code-commit {
+          color: #1E90FF;
+          border: 1px solid #1E90FF;
+        }
+        .label-model-commit {
+          color: #00cf20;
+          border: 1px solid #00cf20;
+        }
         .commit:hover {
           background: #eeeeee;
         }
@@ -40,7 +55,12 @@ export class CommitList extends LitElement {
               <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} @click=${() => this._onCommitLeftClicked(commit)} style="padding-bottom: 1em">
                 <div style="display: flex; padding-top: 0.5em">
                   <!-- commit message -->
-                  <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto">${commit.message}</p>
+                  <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto">
+                    ${commit.commitType == 0 ? 
+                      html`<span class="label-commit-type label-model-commit">Model</span>` : 
+                      html`<span class="label-commit-type label-code-commit">Code</span>`
+                    }
+                    ${commit.message}</p>
                   <!-- button for context menu -->
                   <!--<paper-menu-button vertical-align="bottom" style="margin-left: auto; padding-left: 0; padding-right: 0">
                     <paper-icon-button slot="dropdown-trigger" icon="more-vert" style="padding-left: 0; padding-right: 0"></paper-icon-button>
