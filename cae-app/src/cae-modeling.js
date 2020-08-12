@@ -82,7 +82,10 @@ class CaeModeling extends PolymerElement {
             <svg id="github-projects-icon" width="24px" height="24px" class="github-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
               <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
             </svg>
-            <iron-icon id="btn-widget-config" class="icon" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em" icon="icons:extension"></iron-icon>
+            <!-- only show widget config menu item in non-dependency mode -->
+            ${Common.isCurrentComponentDependency() ? html`` : html`
+              <iron-icon id="btn-widget-config" class="icon" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em" icon="icons:extension"></iron-icon>
+            `}         
           </div>
           <div id="side-menu-content" style="width: 0px">
             <!-- Gets added by JavaScript -->
@@ -120,9 +123,12 @@ class CaeModeling extends PolymerElement {
       this.handleMenuItemClick("github-projects");
     });
 
-    this.shadowRoot.getElementById("btn-widget-config").addEventListener("click", _ => {
-      this.handleMenuItemClick("widget-config")
-    });
+    // widget config menu item is only visible, if not in dependency mode
+    if(!Common.isCurrentComponentDependency()) {
+      this.shadowRoot.getElementById("btn-widget-config").addEventListener("click", _ => {
+        this.handleMenuItemClick("widget-config")
+      });
+    }
 
     this.getButtonCloseSideMenuElement().addEventListener("click", _ => {
       this.closeSideMenu();

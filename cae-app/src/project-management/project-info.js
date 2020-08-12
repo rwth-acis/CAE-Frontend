@@ -601,6 +601,13 @@ class ProjectInfo extends LitElement {
    */
   updateModelingInfoComponentOpened(component, isDependency) {
     const modelingInfo = Common.getModelingInfo();
+
+    // we need to load the widget config of the role that the current user has assigned
+    // special case: when the user opens a component from a project, where the user is not member of,
+    // then we currently hide the widget config functionality
+    // TODO: maybe automatically use the widgetConfig of the default role in the project
+    const widgetConfig = this.editingAllowed ? this.getUsersRole().widgetConfig : undefined;
+
     const content = {
       "versionedModelId": component.versionedModelId,
       "name": component.name,
@@ -609,7 +616,7 @@ class ProjectInfo extends LitElement {
       "gitHubProjectId": this.selectedProject.gitHubProjectId,
       "gitHubProjectHtmlUrl": this.selectedProject.gitHubProjectHtmlUrl,
       "projectName": this.selectedProject.name,
-      "widgetConfig": this.getUsersRole().widgetConfig
+      "widgetConfig": widgetConfig
     };
     if(component.type == "frontend") {
       modelingInfo.frontend = content;

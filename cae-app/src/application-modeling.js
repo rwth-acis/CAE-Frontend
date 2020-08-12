@@ -143,7 +143,9 @@ class ApplicationModeling extends LitElement {
 
       this._onTabSelected(0);
 
-      this.updateWidgetConfig();
+      if(!Common.isCurrentComponentDependency()) {
+        this.updateWidgetConfig();
+      }
     });
   }
 
