@@ -83,9 +83,7 @@ class CaeModeling extends PolymerElement {
               <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>
             </svg>
             <!-- only show widget config menu item in non-dependency mode -->
-            ${Common.isCurrentComponentDependency() ? html`` : html`
-              <iron-icon id="btn-widget-config" class="icon" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em" icon="icons:extension"></iron-icon>
-            `}         
+            <iron-icon id="btn-widget-config" class="icon" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em" icon="icons:extension"></iron-icon>
           </div>
           <div id="side-menu-content" style="width: 0px">
             <!-- Gets added by JavaScript -->
@@ -123,12 +121,9 @@ class CaeModeling extends PolymerElement {
       this.handleMenuItemClick("github-projects");
     });
 
-    // widget config menu item is only visible, if not in dependency mode
-    if(!Common.isCurrentComponentDependency()) {
-      this.shadowRoot.getElementById("btn-widget-config").addEventListener("click", _ => {
+    this.shadowRoot.getElementById("btn-widget-config").addEventListener("click", _ => {
         this.handleMenuItemClick("widget-config")
-      });
-    }
+    });
 
     this.getButtonCloseSideMenuElement().addEventListener("click", _ => {
       this.closeSideMenu();
@@ -294,6 +289,14 @@ class CaeModeling extends PolymerElement {
     // also clear the content of the menu
     this.clearMenuContent();
     this.closeSideMenu();
+
+    // check if we are in dependency mode
+    if(Common.isCurrentComponentDependency()) {
+      // dependency mode -> hide widget config editor
+      this.shadowRoot.getElementById("btn-widget-config").style.setProperty("display", "none");
+    } else {
+      this.shadowRoot.getElementById("btn-widget-config").style.removeProperty("display");
+    }
   }
 }
 
