@@ -56,6 +56,9 @@ class NotificationElement extends LitElement {
           <p>You do not have any open project invitations.</p>
         `}
       </div>
+      
+       <!-- Generic Toast (see showToast method for more information) -->
+      <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
 
@@ -82,6 +85,9 @@ class NotificationElement extends LitElement {
     }).then(response => {
       if(response.ok) {
         this.reloadNotifications();
+
+        // notify user that invitation got declined successfully
+        this.showToast("Successfully declined project invitation!");
       }
     })
   }
@@ -93,6 +99,9 @@ class NotificationElement extends LitElement {
     }).then(response => {
       if(response.ok) {
         this.reloadNotifications();
+
+        // notify user that invitation got accepted successfully
+        this.showToast("Successfully accepted project invitation!");
 
         // user accepted invitation
         // thus, the project list of projects, where the user is a member of, changes
@@ -106,6 +115,17 @@ class NotificationElement extends LitElement {
   reloadNotifications() {
     let event = new CustomEvent("reload-notifications");
     this.dispatchEvent(event);
+  }
+
+  /**
+   * This method allows to have one single paper-toast item in the html which
+   * gets used for different message texts.
+   * @param text Text to display in the toast.
+   */
+  showToast(text) {
+    const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
   }
 }
 
