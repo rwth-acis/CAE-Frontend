@@ -688,7 +688,7 @@ export class CommitDetails extends LitElement {
     this.selectedCommit = commit;
 
     if(commit.commitType == 1) {
-      // this is a "code-commit" and not a "model-commit"
+      // this is an "auto-commit" and not a "manual-commit"
       this.hideUIForCommiting();
 
       const changesListElement = this.getChangesListElement();

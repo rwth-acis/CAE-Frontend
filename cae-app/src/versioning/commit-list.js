@@ -25,11 +25,11 @@ export class CommitList extends LitElement {
           border-radius: 3px;
           margin-right: 2px;
         }
-        .label-code-commit {
+        .label-auto-commit {
           color: #1E90FF;
           border: 1px solid #1E90FF;
         }
-        .label-model-commit {
+        .label-manual-commit {
           color: #00cf20;
           border: 1px solid #00cf20;
         }
@@ -57,8 +57,8 @@ export class CommitList extends LitElement {
                   <!-- commit message -->
                   <p style="width: 100%; margin-left: 4px; margin-right: 0; margin-top: auto; margin-bottom: auto">
                     ${commit.commitType == 0 ? 
-                      html`<span class="label-commit-type label-model-commit">Model</span>` : 
-                      html`<span class="label-commit-type label-code-commit">Code</span>`
+                      html`<span class="label-commit-type label-manual-commit">Manual</span>` : 
+                      html`<span class="label-commit-type label-auto-commit">Auto</span>`
                     }
                     ${commit.message}</p>
                   <!-- button for context menu -->
@@ -141,15 +141,15 @@ export class CommitList extends LitElement {
       this.dispatchEvent(new CustomEvent("show-main-canvas"));
     } else {
       // we want to show the model at a previous stage/commit
-      // check if it is a "model commit" or a "code commit"
-      // because "code commits" do not contain a model (then we need to get a previous one)
+      // check if it is a "manual commit" or an "auto commit"
+      // because "auto commits" do not contain a model (then we need to get a previous one)
       let model;
       if(commit.commitType == 0) {
-        // commit is a "model commit"
+        // commit is a "manual commit"
         // thus the commit itself contains a model we can display
         model = commit.model;
       } else if(commit.commitType == 1) {
-        // commit is a "code commit"
+        // commit is an "auto commit"
         // thus the commit itself does not contain a model, so we need to get the previous model
         let reachedCommit = false;
         for(const c of this.versionedModel.commits) {
@@ -157,7 +157,7 @@ export class CommitList extends LitElement {
             if(c.id == commit.id) reachedCommit = true;
           } else {
             if(c.commitType == 0) {
-              // this is a previous commit which is a model commit
+              // this is a previous commit which is a manual commit
               // use the model of this commit
               model = c.model;
               break;
