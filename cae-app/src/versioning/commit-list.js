@@ -40,7 +40,7 @@ export class CommitList extends LitElement {
           background: #eeeeee;
         }
       </style>
-      <h3>Commit List</h3>
+      <h3 style="margin-left: 4px">Commit List</h3>
       <div class="separator"></div>
       <div style="overflow: scroll; height: 500px">
         <div id="spinner-commit-list" style="display: flex; width: 100%">
@@ -55,7 +55,7 @@ export class CommitList extends LitElement {
               <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} @click=${() => this._onCommitLeftClicked(commit)} style="padding-bottom: 1em">
                 <div style="display: flex; padding-top: 0.5em">
                   <!-- commit message -->
-                  <p style="width: 100%; margin-right: 0; margin-top: auto; margin-bottom: auto">
+                  <p style="width: 100%; margin-left: 4px; margin-right: 0; margin-top: auto; margin-bottom: auto">
                     ${commit.commitType == 0 ? 
                       html`<span class="label-commit-type label-model-commit">Model</span>` : 
                       html`<span class="label-commit-type label-code-commit">Code</span>`
@@ -76,12 +76,12 @@ export class CommitList extends LitElement {
                 </div>
                 <!-- version tag -->
                 ${commit.versionTag ? html`
-                  <div style="margin-top: 8px; margin-bottom: 4px">
+                  <div style="margin-top: 8px; margin-bottom: 4px; margin-left: 4px">
                     <span class="label">${commit.versionTag}</span>
                   </div>
                 ` : html``}
                 <!-- timestamp -->
-                <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0">${this.beautifyTimestamp(commit.timestamp)}</p>
+                <p style="color: #aeaeae; margin-top: 4px; margin-bottom: 0; margin-left: 4px">${this.beautifyTimestamp(commit.timestamp)}</p>
               </div>
             ` : html`
               <!-- commit for uncommited changes -->
@@ -89,7 +89,7 @@ export class CommitList extends LitElement {
               ${this.committingDisabled ? html`` : html`
                 <div class=${this.selectedCommitId == commit.id ? "commit-selected" : "commit"} style="padding-bottom: 1em">
                   <div style="display: flex" @click=${() => this._onCommitLeftClicked(commit)}>
-                    <p>Uncommited changes</p>
+                    <p style="margin-left: 4px;">Uncommited changes</p>
                   </div>
                 </div>
               `}

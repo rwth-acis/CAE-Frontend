@@ -11,6 +11,11 @@ export class VersioningElement extends LitElement {
         :host {
           font-family: Roboto;
         }
+        .bordered {
+          border-width: 2px;
+          border-style: solid;
+          border-color: #dddddd;
+        }
       </style>
       
       <custom-style>
@@ -27,7 +32,7 @@ export class VersioningElement extends LitElement {
         </style>
       </custom-style>
       
-      <div class="container flex-horizontal-with-ratios">
+      <div class="container flex-horizontal-with-ratios bordered">
         <div class="flex-commit-list">
           <commit-list id="commit-list" @show-commit-canvas=${(e) => this.dispatchEvent(new CustomEvent("show-commit-canvas"))} 
               @show-main-canvas=${(e) => this.dispatchEvent(new CustomEvent("show-main-canvas"))}

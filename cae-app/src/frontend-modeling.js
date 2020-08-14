@@ -69,6 +69,11 @@ class FrontendModeling extends LitElement {
         .innercontainersecond:nth-of-type(3) {
           flex: 4;
         }
+        .bordered {
+          border-width: 2px;
+          border-style: solid;
+          border-color: #dddddd;
+        }
       </style>
       <div class="maincontainer">
         <div id="div-canvas" class="innercontainersecond">
@@ -100,10 +105,10 @@ class FrontendModeling extends LitElement {
               @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
         <div class="innercontainerfirst">
-          <div style="display:flex;flex-flow:row;flex:1">
-            <div style="display: flex; flex-flow: column">
+          <div style="display:flex;flex-flow:row;flex:1" class="bordered">
+            <div style="display: flex; flex-flow: column; margin-left: 4px">
               <h3>Live Preview</h3>
-              <iframe id="Live Preview" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"
+              <iframe id="Live Preview" style="border-style: none" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/LivePreviewWidget.html"
                   style="flex: 1"></iframe>
             </div>
           </div>

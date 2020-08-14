@@ -103,7 +103,7 @@ class MicroserviceModeling extends LitElement {
           </div>
         </div>
       </div>
-      <div class="maincontainer">
+      <div class="maincontainer" style="margin-top: 1em">
         <div id="div-code-editor" class="innercontainerfirst">
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/MicroserviceEditorWidget.html"> </iframe>
         </div>

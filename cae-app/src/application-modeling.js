@@ -30,6 +30,7 @@ class ApplicationModeling extends LitElement {
 
       .innercontainerfirst {
         margin: 5px;
+        padding: 5px;
         flex: 1;
         display: flex;
       }
@@ -102,7 +103,7 @@ class ApplicationModeling extends LitElement {
         <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
       </div>
     </div>
-    <div class="maincontainer" style="height: 500px">
+    <div class="maincontainer" style="height: 500px; margin-top: 1em">
       <div class="innercontainersecond widget" widgetconfigname="Matching">
         <iframe id="Matching Widget" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
       </div>
