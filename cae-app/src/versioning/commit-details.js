@@ -297,9 +297,14 @@ export class CommitDetails extends LitElement {
   _onCommitClicked() {
     // check if at least one change got selected
     if(this.selectedDifferences.length == 0) {
-      // no difference selected, commiting is not possible
-      this.showWarningToast("You need to select at least one change to commit!");
-      return;
+      // no difference selected, committing should only be possible if this is not the first commit
+      // then empty commits may be used to create version tags
+      // but the first commit needs to be a commit containing model changes
+      if(this.versionedModel.commits.length <= 1) {
+        // this is the first commit, it should not be empty
+        this.showWarningToast("You need to select at least one change to commit!");
+        return;
+      }
     }
 
     const currentModel = this.y.share.data.get("model");
