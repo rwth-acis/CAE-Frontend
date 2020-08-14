@@ -97,8 +97,6 @@ export class CommitDetails extends LitElement {
             <paper-button id="button-commit" @click="${this._onCommitClicked}" class="paper-button-blue"
                         style="margin-top: 0.5em" disabled="true">Commit</paper-button>
           </div>
-          <paper-button id="button-set-tag" @click=${this._onSetTagClicked} class="paper-button-blue"
-              style="display: none; margin-top: 0.5em">Set Tag</paper-button>
         </div>
       </div>
       
@@ -461,51 +459,6 @@ export class CommitDetails extends LitElement {
     }
   }
 
-  _onSetTagClicked() {
-    // get tag
-    if(this.latestVersionTag != undefined) {
-      if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
-        this.showWarningToast("You need to increase the version number in order to commit!");
-        return;
-      }
-    }
-
-    // disable button
-    this.shadowRoot.getElementById("button-set-tag").setAttribute("disabled", "true");
-
-    const versionedModelId = this.versionedModel.id;
-    let repositoryName = "";
-    const type = Common.getComponentTypeByVersionedModelId(this.versionedModel.id)
-    if(type == "frontend") repositoryName = "frontendComponent-";
-    else if(type == "microservice") repositoryName = "microservice-";
-    else {
-      console.error("Type of versioned model needs to be 'frontend' or 'microservice'.");
-      return;
-    }
-    repositoryName += versionedModelId;
-
-    fetch(Static.CodeGenServiceURL + "/" + repositoryName + "/tags", {
-      method: "POST",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        tag: this.getEnteredVersion(),
-        commitSha: this.selectedCommit.sha,
-        versionedModelId
-      })
-    }).then(response => {
-      // enable button again
-      this.shadowRoot.getElementById("button-set-tag").removeAttribute("disabled");
-      if(response.ok) {
-        console.log("Set tag successfully!");
-
-        // reload commits
-        this.sendReloadCommitListEvent();
-      } else {
-        this.showWarningToast("Error occured while setting tag.");
-      }
-    });
-  }
-
   /**
    * Gets called by versioning-element after the versioned model got loaded from API.
    * @param versionedModel
@@ -706,8 +659,12 @@ export class CommitDetails extends LitElement {
         "Live Code Editor. View them on <a href='" + CommitList.getCommitGitHubURL(commit) +
         "' style='text-decoration: none' target='_blank'>GitHub</a>.";
 
+      // The following lines are commented, because they got removed since it is possibile to create
+      // empty manual commits now, which can be tagged with a version. Thus, it is not necessary anymore, to
+      // tag auto commits with a version tag.
+      // If at some point, this is wanted again, then the following lines just need to be uncommented again.
       // check if no commit after this one is already tagged
-      let noTagAfter = false;
+      /*let noTagAfter = false;
       for(const c of this.versionedModel.commits) {
         if(c.sha == commit.sha) {
           noTagAfter = true;
@@ -725,7 +682,7 @@ export class CommitDetails extends LitElement {
         this.shadowRoot.getElementById("div-commit-message-button").style.setProperty("display", "none");
         this.shadowRoot.getElementById("button-set-tag").style.removeProperty("display");
         this.setInitVersionNumber();
-      }
+      }*/
 
       commitDetailsCodeCommit.style = "margin-left: 0.5em; margin-right: 0.5em";
       changesListElement.appendChild(commitDetailsCodeCommit);
