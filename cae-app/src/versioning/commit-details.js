@@ -268,7 +268,6 @@ export class CommitDetails extends LitElement {
     this.shadowRoot.getElementById("new-version-checkbox").style.removeProperty("display");
     this.shadowRoot.getElementById("version-number-div").style.setProperty("display", "none");
     this.shadowRoot.getElementById("div-commit-message-button").style.removeProperty("display");
-    this.shadowRoot.getElementById("button-set-tag").style.setProperty("display", "none");
   }
 
   /**
@@ -449,7 +448,6 @@ export class CommitDetails extends LitElement {
     });
 
     if(this.isMicroserviceComponent()) {
-      console.log(version);
       metadataDocString.info.version = version;
       fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
         method: "POST",
