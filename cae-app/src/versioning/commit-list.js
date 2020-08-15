@@ -214,7 +214,8 @@ export class CommitList extends LitElement {
     while(list.firstChild) list.removeChild(list.firstChild);
 
     for(const segment of this.commitSegments) {
-      list.appendChild(this.getCommitSegmentHTML(segment));
+      const html = this.getCommitSegmentHTML(segment);
+      if(html) list.appendChild(html);
     }
 
     // hide loading spinner
