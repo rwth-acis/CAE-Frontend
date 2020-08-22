@@ -843,10 +843,6 @@ export class CommitDetails extends LitElement {
         }
       }.bind(this));
       diffHTMLElement.addEventListener("click", function(event) {
-        if(event.path[0].tagName == "IRON-ICON") {
-          // user clicked on expand/collapse button
-          return;
-        }
         if(this.selectedDifference) {
           // currently, there's another element selected
           // remove background color from that (just remove it from all)
