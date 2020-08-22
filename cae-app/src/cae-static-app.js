@@ -73,11 +73,11 @@ class CaeStaticApp extends PolymerElement {
         <div style="width: 100%; height: 100%; display: flex">
           <a href="/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
           <div class="vl"></div>
-          <a id="menu-frontend-modeling" style="margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
+          <a id="menu-frontend-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
           <div class="vl"></div>
-          <a id="menu-microservice-modeling" style="margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
+          <a id="menu-microservice-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
           <div class="vl"></div>
-          <a id="menu-application-modeling" style="margin-top: auto; margin-bottom: auto">Application Mashup</a>
+          <a id="menu-application-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Application Mashup</a>
           
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
