@@ -121,7 +121,8 @@ export default class Difference {
       color : "yellow",
       label: "Selected in versioning system",
       userId: Common.getUserInfo().sub,
-      remote: false
+      remote: false,
+      moveCanvasToEntity: key
     });
   }
 

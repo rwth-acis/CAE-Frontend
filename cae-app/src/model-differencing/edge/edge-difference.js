@@ -55,7 +55,8 @@ export default class EdgeDifference extends Difference {
       color : "yellow",
       label: "Selected in versioning system",
       userId: Common.getUserInfo().sub,
-      remote: false
+      remote: false,
+      moveCanvasToEntity: key // canvas should only move once to the edge (and not to the nodes)
     });
   }
 
