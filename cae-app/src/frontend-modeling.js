@@ -27,48 +27,28 @@ class FrontendModeling extends LitElement {
           height: 600px;
           flex-flow: row wrap;
         }
-
-        .innercontainerfirst {
-          padding: 5px;
+        
+        .flex-item {
+          flex: 1 1 0%;
           margin: 5px;
-          flex: 1;
+        }
+        
+        #div-canvas {
+          flex: 5 1 0%;
+        }
+        
+        #div-wireframe {
+          flex: 4 1 0%;
+        }
+        
+        #versioning-widget {
+          flex: 2 1 0%;
+        }
+        
+        #div-code-editor {
+          flex: 2 1 0%;
         }
 
-        .innercontainerfirst:nth-of-type(1) {
-          flex: 3;
-          display: flex;
-          flex-flow: column;
-        }
-
-        .innercontainerfirst:nth-of-type(2) {
-          flex: 3;
-          display: flex;
-          flex-flow: column;
-        }
-
-        .innercontainerfirst:nth-of-type(3) {
-          flex: 2;
-          display: flex;  
-          flex-flow: column;
-        }
-
-        .innercontainersecond {
-          padding: 5px;
-          margin: 5px;
-          flex: 1;
-        }
-
-        .innercontainersecond:nth-of-type(1) {
-          flex: 4;
-        }
-
-        .innercontainersecond:nth-of-type(2) {
-          flex: 2;
-        }
-
-        .innercontainersecond:nth-of-type(3) {
-          flex: 4;
-        }
         .bordered {
           border-width: 2px;
           border-style: solid;
@@ -76,35 +56,33 @@ class FrontendModeling extends LitElement {
         }
       </style>
       <div class="maincontainer">
-        <div id="div-canvas" class="innercontainersecond">
+        <div id="div-canvas" style="min-width: 450px; height: 600px" class="flex-item widget" widgetconfigname="Modeling">
           <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
         </div>
-        <div class="innercontainersecond" style="display:flex;flex-flow:column;">
-          <div style="display:flex;flex-flow:row;flex:2;">
-            <div>
+        <div class="flex-item widget-config-container" style="display:flex; flex-flow:column; min-width: 250px; height: 600px">
+          <div class="widget-config-container" style="display:flex;flex-flow:row;flex:2;">
+            <div class="widget" widgetconfigname="Modeling">
               <iframe id="Palette" src="${Static.WebhostURL}/syncmeta/palette.html"> </iframe>
             </div>
-            <div>
+            <div class="widget" widgetconfigname="Modeling">
               <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
             </div>    
           </div>
-          <div id="div-pb" style="flex: 1">
+          <div id="div-pb" class="widget" widgetconfigname="Modeling" style="flex: 1">
             <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html"> </iframe>
           </div>
         </div>
-        <div id="div-wireframe" class="innercontainersecond">
+        <div id="div-wireframe" style="min-width: 450px; height: 600px" class="flex-item widget" widgetconfigname="Wireframe">
           <iframe id="Wireframe Editor" src="${Static.WebhostURL}/wireframe/index.html"> </iframe>
         </div>
-      </div>
-      <div class="maincontainer">
-        <div id="div-code-editor" class="innercontainerfirst">
+        <div id="div-code-editor" style="min-width: 400px;" class="flex-item widget" widgetconfigname="Code Editor">
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
-        <div class="innercontainerfirst">
+        <div id="versioning-widget" class="flex-item widget" style="min-width: 300px; max-width: 700px" widgetconfigname="Versioning">
           <versioning-element @reload-wireframe=${(e) => this._reloadWireframe()} 
               @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
-        <div class="innercontainerfirst">
+        <div class="flex-item widget" style="height: 600px" widgetconfigname="Live Preview">
           <div style="display:flex;flex-flow:row;flex:1" class="bordered">
             <div style="display: flex; flex-flow: column; margin-left: 4px">
               <h3>Live Preview</h3>

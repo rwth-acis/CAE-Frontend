@@ -23,8 +23,7 @@ export class ComponentSelectWidget extends LitElement {
           background-color: #ccc;
         }
         #main-content {
-          width:100%;
-          height: 100%;
+          height: inherit;
           overflow-y: auto;
         }
       </style>

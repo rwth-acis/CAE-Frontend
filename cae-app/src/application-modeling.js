@@ -17,96 +17,74 @@ class ApplicationModeling extends LitElement {
       :host {
           font-family: Roboto;
       }
-      iframe {
-        width: 100%;
-        height: 100%;
-      }
 
       .maincontainer { 
         display: flex;
         height: 600px;
         flex-flow: row wrap;
       }
-
-      .innercontainerfirst {
+      
+      .flex-item {
+        flex: 1 1 0%;
         margin: 5px;
-        padding: 5px;
-        flex: 1;
-        display: flex;
-      }
-
-      .innercontainerfirst:nth-of-type(1) {
-        flex: 3;
-        display: flex;
-        flex-flow: column;
-      }
-
-      .innercontainerfirst:nth-of-type(2) {
-        flex: 1;
-        display: flex;
-        flex-flow: column;
-      }
-
-      .innercontainerfirst:nth-of-type(3) {
-        flex:2;
-        display:flex;
-        flex-flow:column;
       }
       
-      .innercontainersecond {
-        padding: 5px;
-        margin: 5px;
-        flex: 1;
+      #div-canvas {
+        flex: 3 1 0%;
+        min-width: 300px;
+      }
+      
+      #versioning-widget {
+        flex: 2 1 0%;
+      }
+      
+      #triple-div {
+        flex: 2 1 0%;
       }
      
       paper-tabs {
         --paper-tabs-selection-bar-color: rgb(30,144,255);
       }
       
-      .bordered {
-        border-width: 2px;
-        border-style: inset;
-      }
       .full-width {
         width: 100%;
       }
+      .bordered {
+        border-width: 2px;
+        border-style: solid;
+        border-color: #dddddd;
+      }
     </style>
     <div class="maincontainer">
-      <div id="div-canvas" class="innercontainerfirst widget" widgetconfigname="Modeling incl. Select">
-        <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
+      <div id="div-canvas" class="widget flex-item" widgetconfigname="Modeling incl. Select">
+        <iframe id="Canvas" class="bordered" style="width: 100%; height: 100%" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
       </div>
-      <div class="innercontainerfirst">
+      <div id="triple-div" class="flex-item widget-config-container" style="display: flex; flex-direction: column; height: 600px">
         <!-- Component select widget -->
-        <div style="height: 250px" class="bordered full-width widget" widgetconfigname="Modeling incl. Select">
+        <div id="comp-select" style="margin-bottom: 5px; flex: 1 1 0%; overflow-y: auto" class="bordered full-width widget" widgetconfigname="Modeling incl. Select">
           <div>
             <paper-tabs selected="0">
               <paper-tab @click=${(e) => this._onTabSelected(0)}>Frontend Components</paper-tab>
               <paper-tab @click=${(e) => this._onTabSelected(1)}>Microservices</paper-tab>
             </paper-tabs>
             <div>
-              <component-select-widget componentType="frontend" id="Frontend Component Select Widget" style="width: 100%; height: 100%"></component-select-widget>
-              <component-select-widget componentType="microservice" id="Microservice Select Widget" style="width: 100%; height: 100%"></component-select-widget>
+              <component-select-widget componentType="frontend" id="Frontend Component Select Widget" style="height: inherit"></component-select-widget>
+              <component-select-widget componentType="microservice" id="Microservice Select Widget" style="height: inherit"></component-select-widget>
             </div>
           </div>
         </div>
         <!-- Property Browser -->
-        <div id="div-pb" style="height: 150px" class="widget" widgetconfigname="Modeling incl. Select">
-          <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html" style="height:150px"> </iframe>
-        </div style="height: 200px">
+        <div id="div-pb" style="margin-bottom: 10px; flex: 1 1 0%;" class="widget" widgetconfigname="Modeling incl. Select">
+          <iframe id="Property Browser" class="bordered" style="width: 100%; height: 100%" src="${Static.WebhostURL}/syncmeta/attribute.html"> </iframe>
+        </div>
         <!-- Deployment widget -->
-        <deployment-widget id="deployment-widget" class="bordered full-width widget" widgetconfigname="Deployment"></deployment-widget>
+        <div id="div-deploy" class="bordered full-width widget" style="flex: 1 1 0%;" widgetconfigname="Deployment">
+          <deployment-widget id="deployment-widget"></deployment-widget>
+        </div>
       </div>
-      <div class="innercontainerfirst widget" style="display: flex; flex-flow: column" widgetconfigname="Versioning">
-        <versioning-element id="versioning-widget"></versioning-element>
-      </div>
-      <div class="innercontainerfirst widget" widgetconfigname="Modeling incl. Select">
-        <iframe id="User Activity" scrolling="no" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
-      </div>
-    </div>
-    <div class="maincontainer" style="height: 500px; margin-top: 1em">
-      <div class="innercontainersecond widget" widgetconfigname="Matching">
-        <iframe id="Matching Widget" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
-      </div>
+      <versioning-element id="versioning-widget" class="widget flex-item" widgetconfigname="Versioning"></versioning-element>
+      <iframe id="UserActivity" scrolling="no" class="bordered widget flex-item" widgetconfigname="Modeling incl. Select" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
+      <iframe id="Matching Widget" class="widget bordered" style="padding: 5px; width: auto; height: 100%" widgetconfigname="Matching" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
     </div>
     `;
   }

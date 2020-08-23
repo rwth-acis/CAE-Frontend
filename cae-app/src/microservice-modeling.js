@@ -26,58 +26,42 @@ class MicroserviceModeling extends LitElement {
           height: 600px;
           flex-flow: row wrap;
         }
-
-        .innercontainerfirst {
-          padding: 5px;
+        
+        .flex-item {
+          flex: 1 1 0%;
           margin: 5px;
-          flex: 1;
         }
-
-        .innercontainerfirst:nth-of-type(1) {
-          flex: 3;
-          display: flex;
-          flex-flow: column;
+        
+        #div-canvas {
+          flex: 5 1 0%;
         }
-
-        .innercontainerfirst:nth-of-type(2) {
-          flex: 3;
-          display: flex;
-          flex-flow: column;
+        
+        #versioning-widget {
+          flex: 2 1 0%;
         }
-
-        .innercontainerfirst:nth-of-type(3) {
-          flex: 2;
-          display: flex;  
-          flex-flow: column;
+        
+        #swagger-combo {
+          flex: 2 1 0%;
         }
-
-        .innercontainersecond {
-          padding: 5px;
-          margin: 5px;
-          flex: 1;
-        }
-
-        .innercontainersecond:nth-of-type(1) {
-          flex: 4;
-        }
-
-        .innercontainersecond:nth-of-type(2) {
-          flex: 2;
-        }
-
-        .innercontainersecond:nth-of-type(3) {
-          flex: 4;
+        
+        #div-code-editor {
+          flex: 2 1 0%;
         }
         
         paper-tabs {
           --paper-tabs-selection-bar-color: rgb(30,144,255);
         }
+        
+        .flex-column {
+          display: flex;
+          flex-flow: column;
+        }
       </style>
       <div class="maincontainer">
-        <div id="div-canvas" class="innercontainersecond widget" widgetconfigname="Modeling">
+        <div id="div-canvas" style="min-width: 450px;" class="flex-item widget" widgetconfigname="Modeling">
           <iframe id="Canvas" src="${Static.WebhostURL}/syncmeta/widget.html"> </iframe>
         </div>
-        <div class="innercontainersecond widget" style="display:flex;flex-flow:column;" widgetconfigname="Modeling">
+        <div class="widget flex-item flex-column" style="min-width: 250px;" widgetconfigname="Modeling">
           <div style="display:flex;flex-flow:row;flex:2;">
             <div>
               <iframe id="Palette" src="${Static.WebhostURL}/syncmeta/palette.html"> </iframe>
@@ -90,7 +74,7 @@ class MicroserviceModeling extends LitElement {
             <iframe id="Property Browser" src="${Static.WebhostURL}/syncmeta/attribute.html"> </iframe>
           </div>
         </div>
-        <div class="innercontainersecond">
+        <div id="swagger-combo" style="min-width: 450px" class="flex-item widget" widgetconfigname="Swagger Editor">
           <div style="height: 600px; display: flex; flex-flow: column">
             <paper-tabs selected="0">
               <paper-tab @click=${(e) => this._onTabSelected(0)}>Metadata Editor</paper-tab>
@@ -102,12 +86,10 @@ class MicroserviceModeling extends LitElement {
             </div>
           </div>
         </div>
-      </div>
-      <div class="maincontainer" style="margin-top: 1em">
-        <div id="div-code-editor" class="innercontainerfirst">
+        <div class="flex-item widget" widgetconfigname="Code Editor" style="min-width: 400px;" id="div-code-editor">
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/MicroserviceEditorWidget.html"> </iframe>
         </div>
-        <div class="innercontainerfirst">
+        <div style="min-width: 300px; max-width: 700px" class="flex-item widget" widgetconfigname="Versioning">
           <versioning-element @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
       </div>
