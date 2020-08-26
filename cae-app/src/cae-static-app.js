@@ -191,6 +191,9 @@ class CaeStaticApp extends PolymerElement {
       // frontend component is already opened, then the cae room needs to be updated
       this.reloadCaeRoom(componentType);
 
+      // underline the menu item
+      this.underlineMenuItem("menu-" + componentType + "-modeling");
+
       this.updateMenu();
     });
 
