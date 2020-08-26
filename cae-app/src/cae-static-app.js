@@ -71,7 +71,7 @@ class CaeStaticApp extends PolymerElement {
       
       <paper-card id="cae-statusbar">
         <div style="width: 100%; height: 100%; display: flex">
-          <a href="/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
+          <a id="menu-project-management" href="/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
           <div class="vl"></div>
           <a id="menu-frontend-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
           <div class="vl"></div>
@@ -163,6 +163,11 @@ class CaeStaticApp extends PolymerElement {
     if(!Auth.isAccessTokenAvailable()) {
       this.getCaeStatusbar().setAttribute("hidden", "");
     }
+
+    const menuItemProjectManagement = this.shadowRoot.getElementById("menu-project-management");
+    menuItemProjectManagement.addEventListener("click", _ => {
+      this.underlineMenuItem("menu-project-management");
+    });
 
     const projectManagement = this.shadowRoot.getElementById("project-management");
     projectManagement.addEventListener('change-view', (event) => {
@@ -456,6 +461,7 @@ class CaeStaticApp extends PolymerElement {
   hideMenuItem(menuItem) {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.setProperty("color", "#e6e6e6");
+    menuElement.style.removeProperty("text-decoration"); // remove underline
     menuElement.removeAttribute("href");
   }
 
@@ -498,6 +504,9 @@ class CaeStaticApp extends PolymerElement {
       const versionedModelId = modelingInfo[menuItemComponentType].versionedModelId;
       Common.setVersionedModelId(versionedModelId);
 
+      // underline selected menu item
+      this.underlineMenuItem("menu-" + menuItemComponentType + "-modeling");
+
       // update GitHub repo name in localStorage
       const repoPrefix = menuItemComponentType == "frontend" ? "frontendComponent" : menuItemComponentType;
       Common.setGitHubRepoName(repoPrefix + "-" + versionedModelId);
@@ -509,6 +518,22 @@ class CaeStaticApp extends PolymerElement {
       // component is not opened
       // show toast message
       this.showToast("You need to open a component of the given type first.");
+    }
+  }
+
+  underlineMenuItem(underlineMenuItem) {
+    const menuItems = ["menu-frontend-modeling", "menu-microservice-modeling", "menu-application-modeling", "menu-project-management"];
+    // iterate through all the menu items, because we need to check if another item is currently underlined
+    // if this is the case, we will remove the underline property from that menu item
+    for(const menuItem of menuItems) {
+      const menuElement = this.shadowRoot.getElementById(menuItem);
+      if(menuItem == underlineMenuItem) {
+        // this item should be underlined
+        menuElement.style.setProperty("text-decoration", "underline");
+      } else {
+        // remove underline property (because maybe it is set)
+        menuElement.style.removeProperty("text-decoration");
+      }
     }
   }
 
