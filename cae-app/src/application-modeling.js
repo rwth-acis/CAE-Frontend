@@ -84,7 +84,7 @@ class ApplicationModeling extends LitElement {
       </div>
       <versioning-element id="versioning-widget" class="widget flex-item" widgetconfigname="Versioning"></versioning-element>
       <iframe id="UserActivity" scrolling="no" class="bordered widget flex-item" widgetconfigname="Modeling incl. Select" src="${Static.WebhostURL}/syncmeta/activity.html"> </iframe>
-      <iframe id="Matching Widget" class="widget bordered" style="padding: 5px; width: auto; height: 100%" widgetconfigname="Matching" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
+      <iframe id="Matching Widget" class="widget bordered flex-item" style="padding: 5px; min-width: 800px; height: 100%" widgetconfigname="Matching" scrolling="no" src="${Static.WebhostURL}/cae-frontend/matchingWidget/widget.html"> </iframe>
     </div>
     `;
   }
