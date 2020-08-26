@@ -462,6 +462,7 @@ class CaeStaticApp extends PolymerElement {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.setProperty("color", "#e6e6e6");
     menuElement.style.removeProperty("text-decoration"); // remove underline
+    menuElement.style.setProperty("cursor", "not-allowed"); // show "not-allowed" cursor, because menu item cannot be opened
     menuElement.removeAttribute("href");
   }
 
@@ -484,6 +485,7 @@ class CaeStaticApp extends PolymerElement {
   showMenuItem(menuItem) {
     const menuElement = this.shadowRoot.getElementById("menu-" + menuItem + "-modeling");
     menuElement.style.removeProperty("color");
+    menuElement.style.setProperty("cursor", "pointer");
   }
 
   setMenuItemClickListener(menuItem) {
