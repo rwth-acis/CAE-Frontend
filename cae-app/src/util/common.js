@@ -49,6 +49,14 @@ export default class Common {
   static KEY_GITHUB_REPO_NAME = "githubRepoName";
 
   /**
+   * Key used to store whether the dialog (which should verify that an updated
+   * semantic version number is justified) should be shown or not.
+   * Note: This might not be set to anything, then the dialog should always be displayed.
+   * @type {string}
+   */
+  static KEY_DISABLE_SEMVER_VERIFY_DIALOG = "disable_semver_verify_dialog";
+
+  /**
    * Creates the name for the Yjs room for a specific versioned model.
    * This then will be the main Yjs room used for modeling the versioned model.
    *
@@ -247,6 +255,22 @@ export default class Common {
    */
   static getGitHubRepoName() {
     return localStorage.getItem(this.KEY_GITHUB_REPO_NAME);
+  }
+
+  /**
+   * Returns true, when the semantic versioning update verification dialog is disabled; false otherwise.
+   * @returns {boolean} True, when the semantic versioning update verification dialog is disabled; false otherwise.
+   */
+  static semVerVerifyDialogDisabled() {
+    return localStorage.getItem(this.KEY_DISABLE_SEMVER_VERIFY_DIALOG) == "true";
+  }
+
+  /**
+   * Stores the information, that the dialog to verify that a version update is justified, should be disabled
+   * and never shown again.
+   */
+  static disableSemVerVerifyDialog() {
+    localStorage.setItem(this.KEY_DISABLE_SEMVER_VERIFY_DIALOG, "true");
   }
 }
 

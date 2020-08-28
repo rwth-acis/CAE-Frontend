@@ -59,4 +59,18 @@ export default class SemVer {
     if(number2.major == number1.major && number2.minor == number1.minor && number2.patch > number1.patch) return true;
     return false;
   }
+
+  /**
+   * Given two version numbers (in object form) it either returns "MAJOR", "MINOR" or "PATCH", depending on
+   * which of these parts of the version number has been increased.
+   * Note: This method assumes that only one part of the version number got increased.
+   * @param previousVersionNumber Should be the "lower" one.
+   * @param newVersionNumber Should be the "higher" one.
+   * @returns {string} Either "MAJOR", "MINOR" or "PATCH".
+   */
+  static getChangedPart(previousVersionNumber, newVersionNumber) {
+    if(newVersionNumber.major > previousVersionNumber.major) return "MAJOR";
+    else if(newVersionNumber.minor > previousVersionNumber.minor) return "MINOR";
+    else return "PATCH";
+  }
 }

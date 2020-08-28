@@ -57,6 +57,14 @@ export class CommitDetails extends LitElement {
         .undo-icon:hover {
           color: #7c7c7c;
         }
+        .label {
+          color: #586069;
+          border: 1px solid #eaeaea;
+          margin-top: auto;
+          margin-bottom: auto;
+          padding: 0.1em 0.2em;
+          border-radius: 3px;
+        }
       </style>
       
       <h3>Commit Details</h3>
@@ -125,6 +133,26 @@ export class CommitDetails extends LitElement {
         <div class="buttons">
           <paper-button dialog-dismiss>No</paper-button>
           <paper-button @click=${this._onConfirmUndoChangesClicked} dialog-confirm>Yes</paper-button>
+        </div>
+      </paper-dialog>
+      
+      <paper-dialog id="dialog-semver-verify" modal>
+        <h2>Verify Update of Version</h2>
+        <p id="dialog-semver-verify-text" style="margin-bottom: 6px">You have increased the <span id="dialog-semver-verify-part">MAJOR</span> part of the semantic version number.</p>
+        <div style="display: flex; margin-top: 0">
+          <div style="margin: auto">
+            <span class="label" id="dialog-semver-prev-number">0.0.0</span>
+            ->
+            <span class="label" id="dialog-semver-new-number">0.0.0</span>
+          </div>
+        </div>
+        <p style="margin-top: 6px">Please verify that this is justified:</p>
+        <paper-checkbox @change=${this.dialogSemVerCheckBoxChanged} id="dialog-semver-checkbox" style="margin-top: 0.5em">TEXT REPLACED BY JAVASCRIPT</paper-checkbox>
+        <p>You can find more information about the semantic versioning format <a href="https://semver.org/" target="_blank">here</a>.</p>
+        <div class="buttons">
+          <paper-button @click=${this.dontShowSemVerVerifyDialogAgain}>Don't show again</paper-button>
+          <paper-button dialog-dismiss>Close</paper-button>
+          <paper-button id="dialog-semver-btn-commit" disabled="true" @click=${this.postCommit} dialog-confirm>Commit</paper-button>
         </div>
       </paper-dialog>
       
@@ -218,6 +246,12 @@ export class CommitDetails extends LitElement {
       },
       committingDisabled: {
         type: Boolean
+      },
+      /**
+       * Gets set in _onCommitClicked and then used in postCommit.
+       */
+      updatedModel: {
+        type: Object
       }
     };
   }
@@ -307,35 +341,54 @@ export class CommitDetails extends LitElement {
     const currentModel = this.y.share.data.get("model");
 
     // check if a previous model exists
-    let updatedModel;
+    this.updatedModel = undefined;
     if(this.versionedModel.commits.length > 1) {
       // previous model exists
       const previousModel = this.getLastCommit(this.versionedModel.commits).model;
       // create the updated model which should be stored into the database, by applying the currently selected differences
-      updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences, currentModel);
+      this.updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences, currentModel);
     } else {
       // there does not exist a previous model
-      updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences, currentModel);
+      this.updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences, currentModel);
     }
 
-    const modelValid = ModelValidator.edgesValid(updatedModel);
+    const modelValid = ModelValidator.edgesValid(this.updatedModel);
     if(!modelValid) {
       this.showWarningToast("Model is not valid when applying the selected changes!");
       return;
     }
 
     // check if version tag got increased (if a version tag got entered)
-    let newVersion = false;
     if(this.getNewVersionCheckBox().checked) {
-      newVersion = true;
       if(this.latestVersionTag != undefined) {
-        if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(this.getEnteredVersion()))) {
+        const enteredVersion = this.getEnteredVersion();
+        if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(enteredVersion))) {
           this.showWarningToast("You need to increase the version number in order to commit!");
           return;
         }
+
+        // there exists a previous version tag and the currently entered one is "higher" than the previous one
+        const changedPart = SemVer.getChangedPart(this.latestVersionTag, SemVer.extractSemanticVersionParts(enteredVersion));
+        if(!Common.semVerVerifyDialogDisabled()) {
+          this.openSemVerVerifyDialog(changedPart, SemVer.objectToString(this.latestVersionTag), enteredVersion);
+          return;
+        }
       }
+      // otherwise, if the new version is the initial one, we dont want to show the sem-ver verify dialog
     }
 
+    this.postCommit();
+  }
+
+  /**
+   * This method should be called to create a new commit.
+   * We decide two cases:
+   * 1. No dialog to verify that the version update is justified is shown:
+   *    -> Then this method gets called in _onCommitClicked.
+   * 2. The dialog to verify that the version update is justified is shown:
+   *    -> Then this method gets called by the click listener of the dialogs "Commit" button.
+   */
+  postCommit() {
     // get commit message
     const commitMessage = this.getCommitMessageInput().value;
 
@@ -343,7 +396,7 @@ export class CommitDetails extends LitElement {
       message: commitMessage
     };
 
-    body.model = updatedModel;
+    body.model = this.updatedModel;
 
     if(this.getNewVersionCheckBox().checked) {
       body.versionTag = this.getEnteredVersion();
@@ -387,6 +440,7 @@ export class CommitDetails extends LitElement {
 
     let version = "0.0.0";
     if(this.latestVersionTag != undefined) version = SemVer.objectToString(this.latestVersionTag);
+    const newVersion = this.getNewVersionCheckBox().checked;
     if(newVersion) version = this.getEnteredVersion();
     body.metadataVersion = version;
 
@@ -1111,6 +1165,44 @@ export class CommitDetails extends LitElement {
    */
   getCommitMessageInput() {
     return this.shadowRoot.getElementById("input-commit-message");
+  }
+
+  /*
+   * Opens the dialog which should verify that the change of version is justified.
+   */
+  openSemVerVerifyDialog(versionPart, previousVersionNumber, newVersionNumber) {
+    this.shadowRoot.getElementById("dialog-semver-verify").open();
+    this.shadowRoot.getElementById("dialog-semver-verify-part").innerText = versionPart;
+    this.shadowRoot.getElementById("dialog-semver-prev-number").innerText = previousVersionNumber;
+    this.shadowRoot.getElementById("dialog-semver-new-number").innerText = newVersionNumber;
+    let checkBoxText;
+    if(versionPart == "MAJOR") {
+      checkBoxText = "This update contains incompatible API changes.";
+    } else if(versionPart == "MINOR") {
+      checkBoxText = "This update only adds functionality which is backwards compatible.";
+    } else if(versionPart == "PATCH") {
+      checkBoxText = "This update only contains backwards compatible bug fixes.";
+    }
+    this.shadowRoot.getElementById("dialog-semver-checkbox").innerText = checkBoxText;
+    this.shadowRoot.getElementById("dialog-semver-checkbox").checked = false;
+    this.shadowRoot.getElementById("dialog-semver-btn-commit").disabled = true;
+  }
+
+  dontShowSemVerVerifyDialogAgain() {
+    Common.disableSemVerVerifyDialog();
+    this.shadowRoot.getElementById("dialog-semver-verify").close();
+  }
+
+  /**
+   * Gets called when the checkbox in the semver verify dialog gets changed.
+   */
+  dialogSemVerCheckBoxChanged() {
+    if(this.shadowRoot.getElementById("dialog-semver-checkbox").checked) {
+      // enable commit button
+      this.shadowRoot.getElementById("dialog-semver-btn-commit").disabled = false;
+    } else {
+      this.shadowRoot.getElementById("dialog-semver-btn-commit").disabled = true;
+    }
   }
 
   /**

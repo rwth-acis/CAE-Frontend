@@ -78,7 +78,7 @@ class FrontendModeling extends LitElement {
         <div id="div-code-editor" style="min-width: 400px;" class="flex-item widget" widgetconfigname="Code Editor">
           <iframe id="Live Code Editor" src="${Static.WebhostURL}/cae-frontend/liveCodeEditorWidget/FrontendEditorWidget.html"> </iframe>
         </div>
-        <div id="versioning-widget" class="flex-item widget" style="min-width: 300px; max-width: 700px" widgetconfigname="Versioning">
+        <div class="flex-item widget" style="min-width: 300px; max-width: 700px" widgetconfigname="Versioning">
           <versioning-element @reload-wireframe=${(e) => this._reloadWireframe()} 
               @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
         </div>
