@@ -176,8 +176,6 @@ class CaeStaticApp extends PolymerElement {
 
     const settingsElement = this.shadowRoot.getElementById("settings-element");
     settingsElement.addEventListener('change-view', (event) => {
-      console.log("route changing");
-      console.log(this.get("route"));
       this.set("route.path", "settings");
       this.set("route.__queryParams", "");
     });
@@ -379,6 +377,8 @@ class CaeStaticApp extends PolymerElement {
    */
   _onSettingsButtonClicked() {
     this.set("route.path", "settings");
+    // remove underline from previous menu item
+    this.underlineMenuItem("");
   }
 
   /**
@@ -435,6 +435,8 @@ class CaeStaticApp extends PolymerElement {
 
   _onNotificationsButtonClicked() {
     this.set("route.path", "notifications");
+    // remove underline from previous menu item
+    this.underlineMenuItem("");
   }
 
   getStatusBarElement() {
