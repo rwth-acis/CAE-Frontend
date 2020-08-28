@@ -551,7 +551,7 @@ class ProjectInfo extends LitElement {
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       const componentType = component.dependencyId ? component.component.type : component.type;
-      this.updateMenu(componentType);
+      this.updateMenu(componentType, false);
 
       this.closeLoadingDialog();
       if(componentType == "frontend") {
@@ -726,7 +726,7 @@ class ProjectInfo extends LitElement {
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       const componentType = component.dependencyId ? component.component.type : component.type;
-      this.updateMenu(componentType);
+      this.updateMenu(componentType, false);
 
       // close dialog
       this.closeLoadingDialog();
@@ -754,10 +754,11 @@ class ProjectInfo extends LitElement {
   /**
    * Fires an event which should notify the cae-static-app to update the menu.
    */
-  updateMenu(componentType) {
+  updateMenu(componentType, silent) {
     let event = new CustomEvent("update-menu", {
       detail: {
-        componentType: componentType
+        componentType: componentType,
+        silent: silent
       }
     });
     this.dispatchEvent(event);
@@ -779,7 +780,7 @@ class ProjectInfo extends LitElement {
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       // success
       const componentType = component.dependencyId ? component.component.type : component.type;
-      this.updateMenu(componentType);
+      this.updateMenu(componentType, true);
     }, _ => {
       // failed
     });
@@ -1088,7 +1089,7 @@ class ProjectInfo extends LitElement {
         if(modelingInfo.frontend.versionedModelId == component.versionedModelId) {
           modelingInfo.frontend = null;
           Common.storeModelingInfo(modelingInfo);
-          this.updateMenu("frontend");
+          this.updateMenu("frontend", true);
         }
       }
     }
@@ -1097,7 +1098,7 @@ class ProjectInfo extends LitElement {
         if(modelingInfo.microservice.versionedModelId == component.versionedModelId) {
           modelingInfo.microservice = null;
           Common.storeModelingInfo(modelingInfo);
-          this.updateMenu("microservice");
+          this.updateMenu("microservice", true);
         }
       }
     }
@@ -1582,7 +1583,7 @@ class ProjectInfo extends LitElement {
             if(component.versionedModelId == modelingInfo.frontend.versionedModelId) {
               modelingInfo.frontend = null;
               Common.storeModelingInfo(modelingInfo);
-              this.updateMenu("frontend");
+              this.updateMenu("frontend", true);
             }
           }
         }
@@ -1592,7 +1593,7 @@ class ProjectInfo extends LitElement {
             if(component.versionedModelId == modelingInfo.microservice.versionedModelId) {
               modelingInfo.microservice = null;
               Common.storeModelingInfo(modelingInfo);
-              this.updateMenu("microservice");
+              this.updateMenu("microservice", true);
             }
           }
         }
@@ -1600,7 +1601,7 @@ class ProjectInfo extends LitElement {
           if(this.applicationComponent.versionedModelId == modelingInfo.application.versionedModelId) {
             modelingInfo.application = null;
             Common.storeModelingInfo(modelingInfo);
-            this.updateMenu("application");
+            this.updateMenu("application", true);
           }
         }
 

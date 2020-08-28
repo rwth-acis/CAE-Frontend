@@ -186,13 +186,17 @@ class CaeStaticApp extends PolymerElement {
     projectManagement.addEventListener('update-menu', (event) => {
       // get type of the component that got selected/entered in project-info
       const componentType = event.detail.componentType;
+      // when the component gets opened silently, then the menu item is not opened and should not be underlined
+      const silent = event.detail.silent;
       // reload cae room for component type
       // because as an example when opening a frontend component while a
       // frontend component is already opened, then the cae room needs to be updated
       this.reloadCaeRoom(componentType);
 
       // underline the menu item
-      this.underlineMenuItem("menu-" + componentType + "-modeling");
+      if(!silent) {
+        this.underlineMenuItem("menu-" + componentType + "-modeling");
+      }
 
       this.updateMenu();
     });
@@ -264,6 +268,9 @@ class CaeStaticApp extends PolymerElement {
 
     this.storeEmptyModelingInfo();
     this.updateMenu();
+
+    // after login, project management is shown, thus this menu item should be underlined
+    this.underlineMenuItem("menu-project-management");
 
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
