@@ -89,12 +89,16 @@ export class CommitDetails extends LitElement {
             <paper-checkbox aria-checked="false" id="new-version-checkbox" @change="${this._onNewVersionCheckBoxChanged}">New version</paper-checkbox>
             <!-- div for entering version number -->
             <div id="version-number-div" style="display: none">
-              <div style="display: flex; height: 2em; margin-top: 0.5em">
+              <div id="semver-number-div" style="display: flex; height: 2em; margin-top: 0.5em">
                 <input id="input-version-number-1" @change=${(e) => this._onVersionInputChanged(e, 1)} type="number" step="1" min="0" value="0" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
                 <input id="input-version-number-2" @change=${(e) => this._onVersionInputChanged(e, 2)} type="number" step="1" min="0" value="0" class="input input-version-number"/>
                 <span style="margin-top: 0.85em">.</span>
                 <input id="input-version-number-3" @change=${(e) => this._onVersionInputChanged(e, 3)} type="number" step="1" min="0" value="0" class="input input-version-number"/>
+              </div>
+              <a id="a-different-version-format" @click=${this._onDifferentFormatClicked} href="">Different format</a>
+              <div>
+                <paper-input id="input-different-version-format" hidden="true" label="Version" style="margin-top: 0"></paper-input>
               </div>
             </div>
           </div>
@@ -252,6 +256,12 @@ export class CommitDetails extends LitElement {
        */
       updatedModel: {
         type: Object
+      },
+      /**
+       * Whether a different version format than the Semantic Versioning should be used.
+       */
+      differentVersionFormat: {
+        type: Boolean
       }
     };
   }
@@ -267,6 +277,7 @@ export class CommitDetails extends LitElement {
     this.selectedDifference = undefined;
     // default: committing is enabled
     this.committingDisabled = false;
+    this.differentVersionFormat = false;
   }
 
   /**
@@ -360,21 +371,37 @@ export class CommitDetails extends LitElement {
 
     // check if version tag got increased (if a version tag got entered)
     if(this.getNewVersionCheckBox().checked) {
-      if(this.latestVersionTag != undefined) {
-        const enteredVersion = this.getEnteredVersion();
-        if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(enteredVersion))) {
-          this.showWarningToast("You need to increase the version number in order to commit!");
-          return;
-        }
+      const enteredVersion = this.getEnteredVersion();
 
-        // there exists a previous version tag and the currently entered one is "higher" than the previous one
-        const changedPart = SemVer.getChangedPart(this.latestVersionTag, SemVer.extractSemanticVersionParts(enteredVersion));
-        if(!Common.semVerVerifyDialogDisabled()) {
-          this.openSemVerVerifyDialog(changedPart, SemVer.objectToString(this.latestVersionTag), enteredVersion);
+      if(!this.differentVersionFormat) {
+        // we are using the sem-ver format
+        if(this.latestVersionTag != undefined) {
+
+          // check if entered version is "higher" than previous one
+          if (!SemVer.greater(this.latestVersionTag, SemVer.extractSemanticVersionParts(enteredVersion))) {
+            this.showWarningToast("You need to increase the version number in order to commit!");
+            return;
+          }
+
+          // there exists a previous version tag and the currently entered one is "higher" than the previous one
+          // find out which part of the sem-ver number got changed, then display verify dialog
+          const changedPart = SemVer.getChangedPart(this.latestVersionTag, SemVer.extractSemanticVersionParts(enteredVersion));
+          if (!Common.semVerVerifyDialogDisabled()) {
+            this.openSemVerVerifyDialog(changedPart, SemVer.objectToString(this.latestVersionTag), enteredVersion);
+            return;
+          }
+        }
+        // otherwise, if the new version is the initial one, we dont want to show the sem-ver verify dialog
+      } else {
+        // user might use a different format than sem-ver
+        // we cannot check if the entered version is "higher" than the previous one
+        // and we cannot check which part got edited
+        // we can only check if the entered version is empty
+        if(!enteredVersion) {
+          this.showWarningToast("You need to enter a version tag!");
           return;
         }
       }
-      // otherwise, if the new version is the initial one, we dont want to show the sem-ver verify dialog
     }
 
     this.postCommit();
@@ -399,7 +426,7 @@ export class CommitDetails extends LitElement {
     body.model = this.updatedModel;
 
     if(this.getNewVersionCheckBox().checked) {
-      body.versionTag = this.getEnteredVersion();
+      body.versionTag = this.getEnteredVersion(); // automatically returns the correct version depending on whether sem-ver is used or not
     }
 
     let metadataDocString = "";
@@ -439,7 +466,13 @@ export class CommitDetails extends LitElement {
     this.openLoadingDialog();
 
     let version = "0.0.0";
-    if(this.latestVersionTag != undefined) version = SemVer.objectToString(this.latestVersionTag);
+    if(this.latestVersionTag != undefined) {
+      if(!this.differentVersionFormat) {
+        version = SemVer.objectToString(this.latestVersionTag);
+      } else {
+        version = this.latestVersionTag;
+      }
+    }
     const newVersion = this.getNewVersionCheckBox().checked;
     if(newVersion) version = this.getEnteredVersion();
     body.metadataVersion = version;
@@ -537,16 +570,30 @@ export class CommitDetails extends LitElement {
       this.reloadUncommitedChanges(this.mainY);
     }
 
+    // check if a previous commit has a version tag which does not match the semantic versioning format
+    if(!SemVer.allSemanticVersionTags(this.commits)) {
+      // at least one of the previous version tags does not match the sem-ver format
+      // thus, we disable the semantic versioning format input
+      this.differentVersionFormat = true;
+    }
+
     // check if there exists a commit with a version tag
     // if there exists one, then get the currently latest version tag
     this.latestVersionTag = undefined;
     for(const commit of this.commits) {
       const versionTag = commit.versionTag;
-      // check if it matches the Semantic Version format
-      if(SemVer.isSemanticVersionNumber(versionTag)) {
-        this.latestVersionTag = SemVer.extractSemanticVersionParts(versionTag);
-        break;
+      if(versionTag) {
+        // commit is tagged with a version
+        // check if it matches the Semantic Version format (then convert to object)
+        if(SemVer.isSemanticVersionNumber(versionTag)) {
+          this.latestVersionTag = SemVer.extractSemanticVersionParts(versionTag);
+          break;
+        } else {
+          this.latestVersionTag = versionTag;
+          break;
+        }
       }
+
     }
 
     // only setup Yjs if this is the first time when setVersionedModel is called
@@ -1000,8 +1047,18 @@ export class CommitDetails extends LitElement {
       // expand possibility to edit version tag
       this.getVersionNumberDiv().removeAttribute("style");
 
-      // reset version number
-      this.setInitVersionNumber();
+      // check if one of the previous commits does not match the sem-ver format
+      if(!SemVer.allSemanticVersionTags(this.commits)) {
+        // hide input for sem-ver format version number
+        this.shadowRoot.getElementById("semver-number-div").style.setProperty("display", "none");
+        // hide "a" element for show/hide other format version input field
+        this.shadowRoot.getElementById("a-different-version-format").style.setProperty("display", "none");
+        // show input field for version tag with different format
+        this.shadowRoot.getElementById("input-different-version-format").removeAttribute("hidden");
+      } else {
+        // reset version number
+        this.setInitVersionNumber();
+      }
     } else {
       // hide possibility to edit version tag
       this.getVersionNumberDiv().style.display = "none";
@@ -1034,6 +1091,8 @@ export class CommitDetails extends LitElement {
 
     // hide version number div
     this.getVersionNumberDiv().style.display = "none";
+
+    this.shadowRoot.getElementById("input-different-version-format").value = "";
   }
 
   setInitVersionNumber() {
@@ -1125,13 +1184,19 @@ export class CommitDetails extends LitElement {
 
   /**
    * Creates a semantic version number from the three input fields.
+   * If user selected to enter a different version format, then just the input of the
+   * corresponding input field gets returned.
    * @returns {string}
    */
   getEnteredVersion() {
-    const major = this.getVersionNumberInput(1).value;
-    const minor = this.getVersionNumberInput(2).value;
-    const patch = this.getVersionNumberInput(3).value;
-    return major + "." + minor + "." + patch;
+    if(!this.differentVersionFormat) {
+      const major = this.getVersionNumberInput(1).value;
+      const minor = this.getVersionNumberInput(2).value;
+      const patch = this.getVersionNumberInput(3).value;
+      return major + "." + minor + "." + patch;
+    } else {
+      return this.shadowRoot.getElementById("input-different-version-format").value;
+    }
   }
 
   /**
@@ -1203,6 +1268,21 @@ export class CommitDetails extends LitElement {
     } else {
       this.shadowRoot.getElementById("dialog-semver-btn-commit").disabled = true;
     }
+  }
+
+  _onDifferentFormatClicked() {
+    const differentFormatInputElement = this.shadowRoot.getElementById("input-different-version-format");
+    const differentFormatText = this.shadowRoot.getElementById("a-different-version-format");
+
+    if(this.differentVersionFormat) {
+      differentFormatInputElement.setAttribute("hidden", "true");
+      differentFormatText.innerText = "Different format";
+    } else {
+      differentFormatInputElement.removeAttribute("hidden");
+      differentFormatText.innerText = "Use Semantic Versioning";
+    }
+
+    this.differentVersionFormat = !this.differentVersionFormat;
   }
 
   /**

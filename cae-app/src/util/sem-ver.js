@@ -48,6 +48,25 @@ export default class SemVer {
   }
 
   /**
+   * Checks whether all the commit tags of the commits given in the list match the
+   * semantic versioning format.
+   * @param commitList
+   * @returns {boolean} Whether every commit tag of the commits in commitList matches the semantic versioning format.
+   */
+  static allSemanticVersionTags(commitList) {
+    let allSemVerTags = true;
+    for(const commit of commitList) {
+      if(commit.versionTag) {
+        if(!SemVer.isSemanticVersionNumber(commit.versionTag)) {
+          allSemVerTags = false;
+          break;
+        }
+      }
+    }
+    return allSemVerTags;
+  }
+
+  /**
    * Whether the second version number is greater than the first one.
    * @param number1 Object with major, minor, patch attributes.
    * @param number2 Object with major, minor, patch attributes.
