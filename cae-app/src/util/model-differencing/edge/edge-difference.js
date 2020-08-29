@@ -1,5 +1,5 @@
 import Difference from "../difference";
-import Common from "../../util/common";
+import Common from "../../common";
 
 /**
  * Represents an edge that has changed between two model versions.

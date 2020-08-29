@@ -1,5 +1,5 @@
-import Common from "../util/common";
-import Static from "../static";
+import Common from "../common";
+import Static from "../../static";
 
 /**
  * Class used as a base for all differences that appear between two

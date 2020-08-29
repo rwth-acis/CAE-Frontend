@@ -1,9 +1,9 @@
 import chai from "../node_modules/chai";
 
-import ModelDifferencing from "../src/model-differencing/model-differencing";
-import NodeAddition from "../src/model-differencing/node/node-addition";
-import NodeDeletion from "../src/model-differencing/node/node-deletion";
-import NodeUpdate from "../src/model-differencing/node/node-update";
+import ModelDifferencing from "../src/util/model-differencing/model-differencing";
+import NodeAddition from "../src/util/model-differencing/node/node-addition";
+import NodeDeletion from "../src/util/model-differencing/node/node-deletion";
+import NodeUpdate from "../src/util/model-differencing/node/node-update";
 
 // import example models
 import example1 from "./examples/example1";

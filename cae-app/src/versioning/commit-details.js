@@ -4,10 +4,10 @@ import '@polymer/paper-progress/paper-progress.js';
 import Common from "../util/common";
 import Auth from "../util/auth";
 import Static from "../static";
-import ModelDifferencing from "../model-differencing/model-differencing";
+import ModelDifferencing from "../util/model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";
-import ModelValidator from "../model-differencing/model-validator";
-import Difference from "../model-differencing/difference";
+import ModelValidator from "../util/model-differencing/model-validator";
+import Difference from "../util/model-differencing/difference";
 import MetamodelUploader from "../util/metamodel-uploader";
 import {CommitList} from "./commit-list";
 
@@ -757,31 +757,6 @@ export class CommitDetails extends LitElement {
       commitDetailsCodeCommit.innerHTML = "This commit belongs to code changes made with the " +
         "Live Code Editor. View them on <a href='" + CommitList.getCommitGitHubURL(commit) +
         "' style='text-decoration: none' target='_blank'>GitHub</a>.";
-
-      // The following lines are commented, because they got removed since it is possibile to create
-      // empty manual commits now, which can be tagged with a version. Thus, it is not necessary anymore, to
-      // tag auto commits with a version tag.
-      // If at some point, this is wanted again, then the following lines just need to be uncommented again.
-      // check if no commit after this one is already tagged
-      /*let noTagAfter = false;
-      for(const c of this.versionedModel.commits) {
-        if(c.sha == commit.sha) {
-          noTagAfter = true;
-          break;
-        }
-        if(c.versionTag) {
-          break;
-        }
-      }
-      if(noTagAfter && commit.versionTag == undefined) {
-        this.showUIForCommiting();
-        this.shadowRoot.getElementById("div-select-all").style.setProperty("display", "none");
-        this.shadowRoot.getElementById("new-version-checkbox").style.setProperty("display", "none");
-        this.shadowRoot.getElementById("version-number-div").style.removeProperty("display");
-        this.shadowRoot.getElementById("div-commit-message-button").style.setProperty("display", "none");
-        this.shadowRoot.getElementById("button-set-tag").style.removeProperty("display");
-        this.setInitVersionNumber();
-      }*/
 
       commitDetailsCodeCommit.style = "margin-left: 0.5em; margin-right: 0.5em";
       changesListElement.appendChild(commitDetailsCodeCommit);
