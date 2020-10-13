@@ -11,6 +11,20 @@ import config from "./config.js";
 
 let Range = ace.require('ace/range').Range
 
+
+// private yjs instance
+let _y;
+
+function _initYjs(yjsRoomName){
+  return new Y({db:{name:"memory"},connector:{
+      name:"websockets-client",
+      room: yjsRoomName,
+      url : config.Yjs.websockets_server
+    },
+    sourceDir: config.CodeEditorWidget.bower_components,
+    share:{'widgetConfig':'Map'}, types : ['Map']});
+}
+
 /**
 *  The main class of the editor. An abstraction of the ace editor that also supports unprotected & protected segments and synchronizes them with the source code
 */
@@ -27,6 +41,17 @@ class CodeEditor{
     //create needed data structures
     this.workspace = new Workspace(this);
     this.editor = this.createAceEditor(editorId);
+    _initYjs(parent.caeRoom).then(y => {
+      _y = y;
+
+      // check if view only mode is enabled
+      if(_y.share.widgetConfig.get("view_only")) {
+        // code should not be editable
+        this.editor.setReadOnly(true);
+        // also disable button for pushing commits
+        $("#publishButton").prop("disabled", true);
+      }
+    });
     this.segmentManager = this.createSegmentManager();
     this.traceHighlighter = new TraceHighlighter(this.editor, this.segmentManager, this.workspace);
     this.commandDecorator = new CommandDecorator(this.editor, this.segmentManager, this.traceHighlighter);
@@ -119,6 +144,24 @@ class CodeEditor{
       this.workspace.push().always( () =>{
         $("#publishButton").show();
         $("#publishSpinner").hide();
+
+        //when the commit(s) is/are pushed, then the versioning widget needs to
+        //get notified, that a new commit got created and the widget should be reloaded
+        Y({
+          db: {
+            name: "memory" // store the shared data in memory
+          },
+          connector: {
+            name: "websockets-client", // use the websockets connector
+            room: "versionedModel-" + localStorage.versionedModelId,
+            url: config.Yjs.websockets_server
+          },
+          share: { // specify the shared content
+            versioning_widget: 'Map'
+          }
+        }).then(function(y) {
+          y.share.versioning_widget.set("COMMIT_CREATED", true);
+        });
       });
 
       e.preventDefault();
@@ -289,7 +332,7 @@ class CodeEditor{
     editor.getSession().setMode("ace/mode/xml");
     editor.getSession().setFoldStyle('manual');
     editor.setTheme("ace/theme/chrome");
-    editor.setFontSize(25);
+    editor.setFontSize(15);
     return editor;
   }
 

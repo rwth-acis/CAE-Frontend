@@ -5,9 +5,7 @@ module.exports = function(grunt) {
 		yjsserver: typeof grunt.option('yjsserver') === 'string' ? grunt.option('yjsserver') : 'http://localhost:1234',
 		yjsresourcepath: grunt.option('yjsresourcepath'),
 		caehost: typeof grunt.option('caehost') === 'string' ? grunt.option('caehost') : 'http://localhost:8080',
-		reqbazbackend: typeof grunt.option('reqbazbackend') === 'string' ? grunt.option('reqbazbackend') : 'http://localhost:8080',
-		reqbazfrontend: typeof grunt.option('reqbazfrontend') === 'string' ? grunt.option('reqbazfrontend') : 'http://localhost:8082',
-		
+
 		browserify:{
 			options:{
 				transform: [
@@ -93,38 +91,15 @@ module.exports = function(grunt) {
 						{
 							match: 'caehost',
 							replace: '<%= caehost %>'
-						},
-						{
-							match: 'reqbazbackend',
-							replace: '<%= reqbazbackend %>'
-						},
-						{
-							match: 'reqbazfrontend',
-							replace: '<%= reqbazfrontend %>'
 						}
 					]
 				},
 				files: [
-					{src: "src/frontendComponentPersistenceWidget/index.html", dest: "dist/frontendComponentPersistenceWidget/index.html"},
-					{src: "src/microservicePersistenceWidget/index.html", dest: "dist/microservicePersistenceWidget/index.html"},
-					{src: "src/applicationPersistenceWidget/widget.html", dest: "dist/applicationPersistenceWidget/widget.html"},
-
-
-					//CAE widgets XML
-					{src: "src/applicationPersistenceWidget/widget.xml", dest: "dist/applicationPersistenceWidget/widget.xml"},
-					{src: "src/frontendComponentPersistenceWidget/widget.xml", dest: "dist/frontendComponentPersistenceWidget/widget.xml"},
-					{src: "src/microservicePersistenceWidget/widget.xml", dest: "dist/microservicePersistenceWidget/widget.xml"},
-					
-					{src: "src/frontendComponentSelectWidget/widget.xml", dest: "dist/frontendComponentSelectWidget/widget.xml"},
-					{src: "src/frontendComponentSelectWidget/widget.html", dest: "dist/frontendComponentSelectWidget/widget.html"},
-					{src: "src/microserviceSelectWidget/widget.xml", dest: "dist/microserviceSelectWidget/widget.xml"},
-					{src: "src/microserviceSelectWidget/widget.html", dest: "dist/microserviceSelectWidget/widget.html"},
+				  //CAE widgets XML
 					{src: "src/liveCodeEditorWidget/index.html", dest: "dist/liveCodeEditorWidget/index.html"},
 
-					{src: "src/metadataWidget/widget.xml", dest: "dist/metadataWidget/widget.xml"},
-					{src: "src/metadataWidget/widget.html", dest: "dist/metadataWidget/widget.html"},
-					{src: "src/requirementsBazaarWidget/widget.xml", dest: "dist/requirementsBazaarWidget/widget.xml"},
-					{src: "src/requirementsBazaarWidget/index.html", dest: "dist/requirementsBazaarWidget/index.html"},
+					{src: "src/matchingWidget/widget.xml", dest: "dist/matchingWidget/widget.xml"},
+					{src: "src/matchingWidget/widget.html", dest: "dist/matchingWidget/widget.html"},
 					{src: "src/swaggerWidget/widget.xml", dest: "dist/swaggerWidget/widget.xml"},
 
 					{src: "src/swaggerWidget/swaggerUi.xml", dest: "dist/swaggerWidget/swaggerUi.xml"},
@@ -136,15 +111,7 @@ module.exports = function(grunt) {
 					{src: "src/swaggerWidget/swaggerUiEditor.html", dest: "dist/swaggerWidget/swaggerUiEditor.html"},
 
 					//CAE widgets JS
-					{src: "src/microservicePersistenceWidget/js/applicationScript.js", dest: "dist/microservicePersistenceWidget/js/applicationScript.js"},
-					{src: "src/frontendComponentPersistenceWidget/js/applicationScript.js", dest: "dist/frontendComponentPersistenceWidget/js/applicationScript.js"},
-					{src: "src/applicationPersistenceWidget/js/applicationScript.js", dest: "dist/applicationPersistenceWidget/js/applicationScript.js"},
-					
-					{src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest:"dist/frontendComponentSelectWidget/js/applicationScript.js"},
-					{src: "src/microserviceSelectWidget/js/applicationScript.js", dest:"dist/microserviceSelectWidget/js/applicationScript.js"},
-
-					{src: "src/metadataWidget/js/applicationScript.js", dest: "dist/metadataWidget/js/applicationScript.js"},
-					{src: "src/requirementsBazaarWidget/js/applicationScript.js", dest: "dist/requirementsBazaarWidget/js/applicationScript.js"},
+					{src: "src/matchingWidget/js/applicationScript.js", dest: "dist/matchingWidget/js/applicationScript.js"},
 					{src: "src/swaggerWidget/js/applicationScript.js", dest: "dist/swaggerWidget/js/applicationScript.js"},
 					
 					{src: "src/swaggerWidget/js/swaggerUi.js", dest: "dist/swaggerWidget/js/swaggerUi.js"},
@@ -162,88 +129,6 @@ module.exports = function(grunt) {
 			}
 		},
 		copy: {
-			applicationPersistenceWidget: {
-				files: [
-					//CSS
-					{expand: true, cwd: "src/applicationPersistenceWidget", src:"css/*", dest: "dist/applicationPersistenceWidget/"},
-					//Static JS
-					//{expand: true, cwd: "src/applicationPersistenceWidget", src:"js/*", dest:"dist/applicationPersistenceWidget/"}
-					{expand: true, flatten: true, filter: 'isFile', src: "src/applicationPersistenceWidget/js/las2peerWidgetLibrary.js", dest: "dist/applicationPersistenceWidget/js/"},
-					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/applicationPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/applicationPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/applicationPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/applicationPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/applicationPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/applicationPersistenceWidget/js/"}
-				]
-			},
-			frontendComponentPersistenceWidget: {
-				files: [
-					//CSS
-					{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"css/*", dest: "dist/frontendComponentPersistenceWidget/"},
-					//Static JS
-				  //{expand: true, cwd: "src/frontendComponentPersistenceWidget", src:"js/*", dest:"dist/frontendComponentPersistenceWidget/"}
-					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentPersistenceWidget/js/las2peerWidgetLibrary.js", dest: "dist/frontendComponentPersistenceWidget/js/"},
-					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/frontendComponentPersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/frontendComponentPersistenceWidget/js/"}
-				]
-			},
-			microservicePersistenceWidget: {
-				files: [
-					//CSS
-					{expand: true, cwd: "src/microservicePersistenceWidget", src:"css/*", dest: "dist/microservicePersistenceWidget/"},
-					//Static JS
-					//{expand: true, cwd: "src/microservicePersistenceWidget", src:"js/*", dest: "dist/microservicePersistenceWidget/"}
-					{expand: true, flatten: true, filter: 'isFile', src: "src/microservicePersistenceWidget/js/las2peerWidgetLibrary.js", dest: "dist/microservicePersistenceWidget/js/"},
-					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/microservicePersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/microservicePersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/microservicePersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/microservicePersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/microservicePersistenceWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/microservicePersistenceWidget/js/"}
-				]
-			},
-			frontendComponentSelectWidget: {
-				files: [
-					//CSS
-					{expand: true, cwd: "src/frontendComponentSelectWidget", src:"css/*", dest: "dist/frontendComponentSelectWidget/"},
-					//Static JS
-					//{expand: true, cwd: "src/frontendComponentSelectWidget", src:"js/*", dest: "dist/frontendComponentSelectWidget/"}
-					{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/extendedLas2peerWidgetLibrary.js", dest: "dist/frontendComponentSelectWidget/js/"},
-					//{expand: true, flatten: true, filter: 'isFile', src: "src/frontendComponentSelectWidget/js/applicationScript.js", dest: "dist/frontendComponentSelectWidget/js/"},
-					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/frontendComponentSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/frontendComponentSelectWidget/js/"}
-				]
-			},
-			microserviceSelectWidget: {
-				files: [
-					//CSS
-					{expand: true, cwd: "src/microserviceSelectWidget", src:"css/*", dest: "dist/microserviceSelectWidget/"},
-					//Static JS
-					//{expand: true, cwd: "src/microserviceSelectWidget", src:"js/*", dest: "dist/microserviceSelectWidget/"}
-					{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/extendedLas2peerWidgetLibrary.js", dest: "dist/microserviceSelectWidget/js/"},
-					//{expand: true, flatten: true, filter: 'isFile', src: "src/microserviceSelectWidget/js/applicationScript.js", dest: "dist/microserviceSelectWidget/js/"},
-					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/microserviceSelectWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/microserviceSelectWidget/js/"}
-				]
-			},
 			liveCodeEditorWidget: {
 				files: [
 					//CSS
@@ -257,34 +142,26 @@ module.exports = function(grunt) {
 					{expand: true, flatten: true, filter: 'isFile', src: "src/liveCodeEditorWidget/iwc.js", dest: "dist/liveCodeEditorWidget/"}
 				]
 			},
-			metadataWidget: {
+			matchingWidget: {
 				files: [
 					//CSS
-					{expand: true, cwd: "src/metadataWidget", src:"css/*", dest: "dist/metadataWidget/"},
+					{expand: true, cwd: "src/matchingWidget", src:"css/*", dest: "dist/matchingWidget/"},
 					//Static JS
-					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/las2peerWidgetLibrary.js", dest: "dist/metadataWidget/js/"},
-					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/js/iwc.js", dest: "dist/metadataWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/matchingWidget/js/las2peerWidgetLibrary.js", dest: "dist/matchingWidget/js/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/matchingWidget/js/iwc.js", dest: "dist/matchingWidget/js/"},
 					
 					// JSON REF
-					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/lib/json-ref-lite.min.js", dest: "dist/metadataWidget/lib/"},
-					{expand: true, flatten: true, filter: 'isFile', src: "src/metadataWidget/lib/json-refs-standalone.js", dest: "dist/metadataWidget/lib/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/matchingWidget/lib/json-ref-lite.min.js", dest: "dist/matchingWidget/lib/"},
+					{expand: true, flatten: true, filter: 'isFile', src: "src/matchingWidget/lib/json-refs-standalone.js", dest: "dist/matchingWidget/lib/"},
 					
 					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/metadataWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/metadataWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/metadataWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/metadataWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/metadataWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/metadataWidget/js/"}
+					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/matchingWidget/js/"}
 				]
-			},
-			requirementsBazaarWidget: {
-				files: [
-					//CSS
-					{expand: true, cwd: "src/requirementsBazaarWidget", src:"css/*", dest: "dist/requirementsBazaarWidget/"},
-					//Static JS
-					{expand: true, flatten: true, filter: 'isFile', src: "src/requirementsBazaarWidget/js/las2peerWidgetLibrary.js", dest: "dist/requirementsBazaarWidget/js/"},
-				],
 			},
 			swaggerWidget: {
 				files: [

@@ -1,0 +1,12 @@
+#mainContent {
+    max-height: 500px;
+    width:100%;
+}
+
+#metadataTable tr:hover {
+    background-color: #ccc;
+}
+.scrolltable {
+    height: 350px;
+    overflow: auto;
+}
