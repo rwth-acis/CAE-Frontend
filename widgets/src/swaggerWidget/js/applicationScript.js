@@ -33,7 +33,8 @@
  // global variables
 var client,
     feedbackTimeout,
-    loadedModel = null,
+    componentName = null,
+    versionedModelId = -1;
     loadedSwaggerDoc = null,
     iwcClient = null,
     selectedNodeId = null,
@@ -267,25 +268,13 @@ var init = function() {
             url: '@@yjsserver'
         },
         share: { // specify the shared content
-            users: 'Map',
-            undo: 'Array',
-            redo: 'Array',
-            join: 'Map',
-            canvas: 'Map',
-            nodes: 'Map',
-            edges: 'Map',
-            userList: 'Map',
-            select: 'Map',
-            views: 'Map',
             data: 'Map',
-            text: "Text",
             swaggerDescription: "Text",
-            swaggerVersion: "Text",
             swaggerTermsOfService: "Text",
             swaggerMapNodes: 'Map',
             swaggerMapSchema: 'Map',
             swaggerMapNodeSchema: 'Map',
-            swagger: 'Map',
+            swagger: 'Map'
         },
         sourceDir: '@@host/swaggerWidget/js'
         //sourceDir: 'http://localhost:8001/microservicePersistenceWidget/js'
@@ -293,7 +282,6 @@ var init = function() {
 
         //yjs text binding
         y.share.swaggerDescription.bind(document.querySelector('#description'));
-        y.share.swaggerVersion.bind(document.querySelector('#version'));
         y.share.swaggerTermsOfService.bind(document.querySelector('#termsOfService'));
 
         console.log("[swaggerWidget] Get shared y");
@@ -358,11 +346,6 @@ var init = function() {
           saveMapNode(y);
         });
 
-        $("#version").on('input', function() {
-          console.log("Version - Saving node properties and description");
-          saveMapNode(y);
-        });
-
         $("#termsOfService").on('input', function() {
           console.log("Version - Saving node properties and description");
           saveMapNode(y);
@@ -410,7 +393,6 @@ var storeDoc = function(y) {
     var componentId = $("#name").val();
     
     var description = $("#description").val();
-    var version = $("#version").val();
     var termsOfService = $("#termsOfService").val();
 
     // process schemas
@@ -443,7 +425,7 @@ var storeDoc = function(y) {
     var infoNode = `{
         "info": {
           "description": "${description}",
-          "version": "${version}",
+          "version": "",
           "termsOfService": "${termsOfService}"
         },
         "definitions": ${JSON.stringify(schemasJson)}, 
@@ -472,11 +454,9 @@ var loadDivs = function(data, y) {
       var jsonSwaggerInputDoc = JSON.parse(data.docInput);
       if (jsonSwaggerInputDoc.info) {
         var description = jsonSwaggerInputDoc.info.description;
-        var version = jsonSwaggerInputDoc.info.version;
         var terms = jsonSwaggerInputDoc.info.termsOfService;
 
         $("#description").val((description) ? description : "");
-        $("#version").val((version) ? version : "");
         $("#termsOfService").val((terms) ? terms : "");
       }
 
@@ -512,7 +492,6 @@ var clearDivs = function(y) {
   console.log("[SWAGGER WIDGET] Clear divs");
   $("#name").val("");
   $("#description").val("");
-  $("#version").val("");
   $("#termsOfService").val("");
 
   nodeMetadataList.map = {};
@@ -540,16 +519,20 @@ var loadModel = function(y) {
   if (y.share.data.get('model')) {
       console.log('[Swagger Widget] Saved model exists');
       var data = y.share.data.get('model');
-      loadedModel = data.attributes.label.value.value;
+
+      var modelingInfo = JSON.parse(localStorage.getItem("modelingInfo"));
+      componentName = modelingInfo.microservice.name;
+      versionedModelId = localStorage.getItem("versionedModelId");
+
       // special case if model was only saved in the space (not loaded from db)
-      if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-          loadedModel = null;
+      if (componentName.toUpperCase() == "Model attributes".toUpperCase()) {
+          componentName = null;
           feedback("Model was not loaded from database until now..");
       } else {
-          $("#name").val(loadedModel);
+          $("#name").val(componentName);
       }
   } else {
-      loadedModel = null;
+      componentName = null;
   }
 
   // retrieve current model from the space and store it
@@ -559,7 +542,7 @@ var loadModel = function(y) {
     var data = y.share.data.get('metadataDoc');
     console.log(data);
     loadedSwaggerDoc = data;
-    if(loadedSwaggerDoc.componentId === loadedModel) {
+    if(loadedSwaggerDoc.componentId === versionedModelId) {
       console.log("[Swagger Widget] Shared metadata have some component id");
       loadDivs(loadedSwaggerDoc, y);
     } else {
@@ -572,11 +555,11 @@ var loadModel = function(y) {
   }
 
   console.log("[Swagger Widget] Load model");
-  if (loadedModel && !loadedSwaggerDoc) {
-    console.log("[Swagger Widget] Load metadata for model " + loadedModel);
+  if (componentName && !loadedSwaggerDoc) {
+    console.log("[Swagger Widget] Load metadata for model " + componentName);
     // first, clean the current model
     y.share.data.set('metadataDoc', null);
-    client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {}, false,
+    client.sendRequest("GET", "docs/component/" + versionedModelId, "", "application/json", {}, false,
         function(data, type) {
             console.log("[Swagger Widget] Metadata doc loaded!");
             console.log(data);

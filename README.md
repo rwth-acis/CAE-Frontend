@@ -38,6 +38,9 @@ Following environment variables are needed to be passed to container during init
 * `CAE_BACKEND_URL`: Url address of CAE backend
 * `CODE_EDITOR_BOWER`: Url address of Bower components for Live Code Editor widget
 * `OIDC_CLIENT_ID`: OIDC client id which is used in CAE Frontend for authentication purpose. Client id can be acquired from Learning Layers after client registration
+* `DEPLOYMENT_URL`: Url address which leads to the Web apps deployed with the CAE.
+* `GIT_ORGANIZATION`: Name of the GitHub organization where the generated code repositories are hosted.
+* `GITHUB_OAUTH_CLIENTID`: Client id of the GitHub OAuth app used to access the GitHub API. For more information on the OAuth app see [CAE-Project-Management-Service](https://github.com/rwth-acis/CAE-Project-Management-Service).
 
 Following environment variables have default values however they can be changed during initialization:
 

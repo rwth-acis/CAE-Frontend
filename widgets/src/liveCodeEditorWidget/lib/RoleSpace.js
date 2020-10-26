@@ -158,7 +158,7 @@ export default class RoleSpace extends EventEmitter{
   }
 
   getComponentName(){
-    return this.componentName;
+    return localStorage.getItem("githubRepoName");
   }
 
   init(){

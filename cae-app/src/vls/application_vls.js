@@ -147,6 +147,14 @@ export default {
                 "6a4e681cd6b9d6b21e765c45": {
                     "key": "label",
                     "value": "string"
+                },
+                "6a4e681cd6b9d6b21e765c46": {
+                    "key": "versionedModelId",
+                    "value": "string"
+                },
+                "6a4e681cd6b9d6b21e765c47": {
+                    "key": "version",
+                    "value": "string"
                 }
             },
             "shape": {
@@ -164,7 +172,44 @@ export default {
                 "93641f72fb49c4f74264a780": {
                     "key": "label",
                     "value": "string"
+                },
+                "93641f72fb49c4f74264a781": {
+                    "key": "versionedModelId",
+                    "value": "string"
+                },
+                "93641f72fb49c4f74264a782": {
+                    "key": "version",
+                    "value": "string"
                 }
+            },
+            "shape": {
+                "shape": "rounded_rectangle",
+                "color": "",
+                "defaultWidth": 200,
+                "defaultHeight": 100,
+                "customShape": "",
+                "customAnchors": ""
+            }
+        },
+        "a5ae5050e89283adgd9502332": {
+            "label": "External Dependency",
+            "attributes": {
+                "73641ffrfb50c4fab263a137": {
+                    "key": "label",
+                    "value": "string"
+                },
+                "73641ffrfb50c4fab263a138": {
+                    "key": "gitHubURL",
+                    "value": "string"
+                },
+                "73641ffrfb50c4fab263a139": {
+                    "key": "version",
+                    "value": "string"
+                },
+                "73641ffrfb50c4fab263a140": {
+                    "key": "type",
+                    "value": "string"
+                },
             },
             "shape": {
                 "shape": "rounded_rectangle",

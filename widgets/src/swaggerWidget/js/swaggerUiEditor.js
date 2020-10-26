@@ -33,10 +33,11 @@
  // global variables
 var client,
     feedbackTimeout,
-    loadedModel = null,
+    componentName = null,
+    versionedModelId = -1;
     iwcClient = null,
     currentComponentName = null,
-    editor,
+    editor = null,
     swaggerStatus = null;
 
 var iwcHandler = function(y, intent) {
@@ -140,27 +141,31 @@ var loadMetadata = function(y) {
 
     // use current component name if available
     if (currentComponentName) {
-        loadedModel = currentComponentName;
+        componentName = currentComponentName;
     } else if (y.share.data.get('model')) {
         var data = y.share.data.get('model');
-        loadedModel = data.attributes.label.value.value;
+
+        var modelingInfo = JSON.parse(localStorage.getItem("modelingInfo"));
+        componentName = modelingInfo.microservice.name;
+        versionedModelId = localStorage.getItem("versionedModelId");
+
         // special case if model was only saved in the space (not loaded from db)
-        if (loadedModel.toUpperCase() == "Model attributes".toUpperCase()) {
-            loadedModel = null;
+        if (componentName.toUpperCase() == "Model attributes".toUpperCase()) {
+            componentName = null;
             feedback("Model was not loaded from database until now..");
         } else {
-            $("#name").html(loadedModel);
+            $("#name").html(componentName);
         }
     } else {
-        loadedModel = null;
+        componentName = null;
     }
 
-    if (loadedModel) {
-        $("#name").html(loadedModel);
+    if (componentName) {
+        $("#name").html(componentName);
         $("#status").html('<span class="label label-info">Loading information</span>');
         // first, clean the current model
         y.share.data.set('metadataDoc', null);
-        client.sendRequest("GET", "docs/component/" + loadedModel, "", "application/json", {}, false,
+        client.sendRequest("GET", "docs/component/" + versionedModelId, "", "application/json", {}, false,
             function(data, type) {
                 var jsonDocString = JSON.parse(data.docString);
                 var timeDeployed = null;
