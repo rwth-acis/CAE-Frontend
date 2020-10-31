@@ -17,6 +17,9 @@ Static.CodeGenServiceURL = '{CAE_BACKEND_URL}/CodeGen';
 Static.YjsAddress = "{YJS_ADDRESS}";
 Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
 
+// client id
+Static.OIDCClientId = "{OIDC_CLIENT_ID}";
+
 // URL where the deployed application can be seen
 Static.DeploymentURL = "{DEPLOYMENT_URL}";
 // name of the GitHub organization where the source code is hosted
