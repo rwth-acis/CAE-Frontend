@@ -64,7 +64,7 @@ class CaeStaticApp extends PolymerElement {
         oidcpopupsigninurl="/callbacks/popup-signin-callback.html"
         oidcpopupsignouturl="/callbacks/popup-signout-callback.html"
         oidcsilentsigninturl="/callbacks/silent-callback.html"
-        oidcclientid="${Static.OIDCClientId}"
+        oidcclientid="{OIDC_CLIENT_ID}"
         suppresswidgeterror="true"
         autoAppendWidget=true
       ></las2peer-frontend-statusbar>
