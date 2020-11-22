@@ -49,7 +49,7 @@ export default class RoleSpace extends EventEmitter{
             data: 'Map',
             text: "Text"
         },
-        sourceDir: config.CodeEditorWidget.bower_components
+        sourceDir: config.CodeEditorWidget.node_modules
     }).then(function(y) {
         console.info('LIVEEDIT: Yjs successfully initialized');
 
