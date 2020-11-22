@@ -135,8 +135,6 @@ module.exports = function(grunt) {
 					{expand: true, cwd: "src/liveCodeEditorWidget", src:"css/*", dest: "dist/liveCodeEditorWidget/"},
 					//Images
 					{expand: true, cwd: "src/liveCodeEditorWidget", src:"img/*", dest: "dist/liveCodeEditorWidget/"},
-					//Copy bower components
-					{expand: true, src: "bower_components/**", dest: "dist/liveCodeEditorWidget/"},
           //Copy node_modules
           {expand: true, src: "node_modules/**", dest: "dist/liveCodeEditorWidget/"},
 					//static js
@@ -220,12 +218,12 @@ module.exports = function(grunt) {
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwc.js", dest: "dist/swaggerWidget/js/"},
 					{expand: true, flatten: true, filter: 'isFile', src: "src/swaggerWidget/js/iwcOld.js", dest: "dist/swaggerWidget/js/"},
 					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/swaggerWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/swaggerWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/swaggerWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/swaggerWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/swaggerWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/swaggerWidget/js/"}
+					{expand: true, cwd: "node_modules", src: "yjs/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-array/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-map/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-memory/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-text/**", dest: "dist/swaggerWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-websockets-client/**", dest: "dist/swaggerWidget/js/"}
 				]
 			},
 		}
