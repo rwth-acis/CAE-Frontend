@@ -157,12 +157,12 @@ module.exports = function(grunt) {
 					{expand: true, flatten: true, filter: 'isFile', src: "src/matchingWidget/lib/json-refs-standalone.js", dest: "dist/matchingWidget/lib/"},
 					
 					//Yjs
-					{expand: true, cwd: "bower_components", src: "yjs/**", dest: "dist/matchingWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-array/**", dest: "dist/matchingWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-map/**", dest: "dist/matchingWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-memory/**", dest: "dist/matchingWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-text/**", dest: "dist/matchingWidget/js/"},
-					{expand: true, cwd: "bower_components", src: "y-websockets-client/**", dest: "dist/matchingWidget/js/"}
+					{expand: true, cwd: "node_modules", src: "yjs/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-array/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-map/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-memory/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-text/**", dest: "dist/matchingWidget/js/"},
+					{expand: true, cwd: "node_modules", src: "y-websockets-client/**", dest: "dist/matchingWidget/js/"}
 				]
 			},
 			swaggerWidget: {
