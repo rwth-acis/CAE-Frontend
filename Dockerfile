@@ -17,10 +17,10 @@ RUN npm_config_user=root npm install -g bower grunt-cli grunt polymer-cli
 COPY docker/supervisorConfigs /etc/supervisor/conf.d
 
 WORKDIR /usr/src/app/cae-app
-RUN npm install && bower install --allow-root
+RUN npm install
 
 WORKDIR /usr/src/app/widgets
-RUN npm install && bower install --allow-root
+RUN npm install
 
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/syncmeta.git

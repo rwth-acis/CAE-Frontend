@@ -3,7 +3,7 @@ export default{
     endPointBase : "<placeholder_codegen>" // location of the code generation service
   },
   CodeEditorWidget:{
-    bower_components: "<placeholder_bower_components>" // location of bower components
+    node_modules: "<placeholder_node_modules>" // location of node_modules
   },
   Yjs: {
     websockets_server: "<placeholder_yjs_websocket_server>"
