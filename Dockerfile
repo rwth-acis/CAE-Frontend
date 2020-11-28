@@ -11,7 +11,7 @@ COPY . .
 
 RUN apt-get update
 
-RUN apt-get install -y --no-install-recommends supervisor git nginx
+RUN apt-get install -y --no-install-recommends supervisor git nginx jq
 RUN npm_config_user=root npm install -g grunt-cli grunt polymer-cli
 
 COPY docker/supervisorConfigs /etc/supervisor/conf.d

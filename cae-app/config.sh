@@ -22,9 +22,9 @@ if [ "$ENV_VARIABLE_NOT_SET" = true ] ; then
     exit 1
 fi
 
+# modify values in src/static.js
 sed -i "s={WEBHOST}=$WEBHOST=g" src/static.js
 sed -i "s={CAE_BACKEND_URL}=$CAE_BACKEND_URL=g" src/static.js
-sed -i "s={OIDC_CLIENT_ID}=$OIDC_CLIENT_ID=g" src/cae-static-app.js
 sed -i "s={YJS_ADDRESS}=$YJS=g" src/static.js
 sed -i "s={YJS_RESOURCE_PATH}=$YJS_RESOURCE_PATH=g" src/static.js
 sed -i "s={DEPLOYMENT_URL}=$DEPLOYMENT_URL=g" src/static.js
@@ -32,3 +32,10 @@ sed -i "s={GIT_ORGANIZATION}=$GIT_ORGANIZATION=g" src/static.js
 sed -i "s={REQBAZ_BACKEND}=$REQBAZ_BACKEND=g" src/static.js
 sed -i "s={REQBAZ_FRONTEND}=$REQBAZ_FRONTEND=g" src/static.js
 sed -i "s={GITHUB_OAUTH_CLIENTID}=$GITHUB_OAUTH_CLIENTID=g" src/static.js
+
+# modify values in src/cae-static-app.js
+sed -i "s={OIDC_CLIENT_ID}=$OIDC_CLIENT_ID=g" src/cae-static-app.js
+# read current version from package.json
+VERSION=$(jq -r .version package.json)
+# put current version as subtitle into frontend statusbar
+sed -i "s={STATUSBAR_SUBTITLE}=v$VERSION=g" src/cae-static-app.js
