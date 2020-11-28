@@ -22,12 +22,12 @@ RUN npm install
 WORKDIR /usr/src/app/widgets
 RUN npm install
 
-WORKDIR /usr/src/app
-RUN git clone https://github.com/rwth-acis/syncmeta.git
-
-# TODO: Use master branch
 WORKDIR /usr/src/app/syncmeta
-RUN git checkout ba-philipp && cd widgets && rm package-lock.json && npm install && bower install --allow-root
+RUN npm install
+RUN cp -a node_modules/@rwth-acis/syncmeta-widgets/. widgets/
+RUN cp -a node_modules/. widgets/node_modules/
+WORKDIR /usr/src/app/syncmeta/widgets
+RUN npm install
 
 WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/CAE-WireframingEditor.git
