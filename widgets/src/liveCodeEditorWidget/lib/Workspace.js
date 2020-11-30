@@ -21,7 +21,7 @@ function _initYjs( componentName ){
     room: _createRoomName( componentName ),
     url : config.Yjs.websockets_server
   },
-  sourceDir: config.CodeEditorWidget.bower_components,
+  sourceDir: config.CodeEditorWidget.node_modules,
   share:{'workspace':'Map','user':'Map','jobs':'Map'}, types : ['Text','Map']});
 }
 
