@@ -9,6 +9,7 @@ import './project-management/project-management.js';
 import './cae-modeling.js';
 import './notifications/notification-element.js';
 import './settings/settings-element.js';
+import './cae-deploy.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
@@ -64,8 +65,8 @@ class CaeStaticApp extends PolymerElement {
         oidcpopupsigninurl="/callbacks/popup-signin-callback.html"
         oidcpopupsignouturl="/callbacks/popup-signout-callback.html"
         oidcsilentsigninturl="/callbacks/silent-callback.html"
-        oidcclientid="{OIDC_CLIENT_ID}"
-        subtitle="{STATUSBAR_SUBTITLE}"
+        oidcclientid="f1412b21-0657-484a-9edb-39ed52e880ee"
+        subtitle="v"
         suppresswidgeterror="true"
         autoAppendWidget=true
       ></las2peer-frontend-statusbar>
@@ -99,6 +100,7 @@ class CaeStaticApp extends PolymerElement {
         <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <notification-element id="notification-element" name="notifications"></notification-element>
         <settings-element id="settings-element" name="settings"></settings-element>
+        <cae-deploy id="cae-deploy" name="cae-deploy" route="{{subroute}}"></cae-deploy>
         <p name="404">Not found!</p>
       </iron-pages>
       

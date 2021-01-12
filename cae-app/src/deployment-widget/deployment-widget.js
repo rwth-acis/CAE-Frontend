@@ -29,6 +29,7 @@ export class DeploymentWidget extends LitElement {
       
       <div>
         <div style="display: flex; margin-left: 4px; margin-right: 4px; margin-top: 4px;">
+        <a id="test-deploy" href="/cae-deploy/test-deploy/${Common.getVersionedModelId()}" style="cursor: pointer; margin-top: auto; margin-bottom: auto">TEST DEPLOY</a>
           <paper-button id="deploy-model" @click=${this._onDeployButtonClicked} class="paper-button-blue">Deploy</paper-button>
           <a id="open-deployment" target="_blank" href=${Static.DeploymentURL} style="margin-left: auto; margin-top: auto; margin-bottom: auto">Open deployment</a>
         </div>
