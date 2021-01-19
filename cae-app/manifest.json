@@ -2,6 +2,6 @@
   "name": "Community Application Editor",
   "short_name": "CAE",
   "description": "Unified CAE frontend",
-  "start_url": "/",
+  "start_url": "/ba-erdzan",
   "display": "standalone"
 }
