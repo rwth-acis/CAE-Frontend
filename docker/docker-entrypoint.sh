@@ -59,11 +59,11 @@ cd ..
 ##### Nginx ####
 cp docker/nginx.conf /etc/nginx/conf.d/default.conf
 sed -i "s=<port>=$PORT=g" /etc/nginx/conf.d/default.conf
-/etc/init.d/nginx start
+nginx
 
 ##### CAE App ####
 cd cae-app
-./config.sh
+sh config.sh
 cd ..
 
 #### Supervisor ####
