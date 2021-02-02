@@ -1,7 +1,7 @@
 import {html, LitElement} from 'lit-element';
 import './project-explorer';
 import './project-info';
-import '@polymer/iron-flex-layout/iron-flex-layout-classes';
+import '../../node_modules/@polymer/iron-flex-layout/iron-flex-layout-classes';
 import Auth from "../util/auth";
 
 /**

@@ -1,6 +1,6 @@
 import { LitElement, html} from 'lit-element';
-import '@polymer/paper-checkbox/paper-checkbox.js';
-import '@polymer/paper-progress/paper-progress.js';
+import '../../node_modules/@polymer/paper-checkbox/paper-checkbox.js';
+import '../../node_modules/@polymer/paper-progress/paper-progress.js';
 import Common from "../util/common";
 import Auth from "../util/auth";
 import Static from "../static";

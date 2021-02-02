@@ -4,10 +4,10 @@
  Information Systems), RWTH Aachen University, Germany. All rights reserved.
  */
 
-import {LitElement, html} from '@polymer/lit-element';
+import {LitElement, html} from '../node_modules/@polymer/lit-element';
 import Static from "../src/static";
 import Auth from "../src/util/auth";
-import '@polymer/paper-spinner/paper-spinner-lite.js';
+import '../node_modules/@polymer/paper-spinner/paper-spinner-lite.js';
 import Common from "../src/util/common";
 
 /**

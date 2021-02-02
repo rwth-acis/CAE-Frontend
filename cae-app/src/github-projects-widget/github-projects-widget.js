@@ -1,7 +1,7 @@
 import {LitElement, html} from "lit-element";
 import Common from "../util/common";
-import '@polymer/paper-tabs/paper-tabs.js';
-import '@polymer/paper-tabs/paper-tab.js';
+import '../../node_modules/@polymer/paper-tabs/paper-tabs.js';
+import '../../node_modules/@polymer/paper-tabs/paper-tab.js';
 
 /**
  * Widget used to display the columns and their cards of a GitHub project.

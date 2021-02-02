@@ -1,5 +1,5 @@
 import {html, LitElement} from 'lit-element';
-import '@polymer/iron-icon/iron-icon.js';
+import '../../node_modules/@polymer/iron-icon/iron-icon.js';
 import Static from "../static";
 import Auth from "../util/auth";
 

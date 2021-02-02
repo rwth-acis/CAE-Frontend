@@ -2,7 +2,7 @@ import { LitElement, html } from "lit-element";
 import "./versioning/versioning-element.js";
 import Common from "./util/common.js";
 import Static from "./static.js";
-import "@polymer/iron-icon/iron-icon.js";
+import "../node_modules/@polymer/iron-icon/iron-icon.js";
 
 /**
  * @customElement
@@ -145,7 +145,7 @@ class TestDeploy extends LitElement {
                 type="text"
                 id="country"
                 name="country"
-                value="cae-app-"
+                value="${this.namespacePrefixDefaultValue}"
                 readonly
               />
               <input
@@ -258,6 +258,9 @@ class TestDeploy extends LitElement {
       projectName: {
         type: String,
       },
+      projectUsers: {
+        type: Object,
+      },
       deploymentStatus: {
         type: String,
       },
@@ -320,6 +323,7 @@ class TestDeploy extends LitElement {
   }
 
   constructor() {
+    var pathname = window.location.pathname.split("/");
     super();
     self = this;
     setInterval(function () {
@@ -331,7 +335,7 @@ class TestDeploy extends LitElement {
       },
       connector: {
         name: "websockets-client",
-        room: "example",
+        room: pathname[pathname.length - 1],
         options: { resource: Static.YjsResourcePath },
         url: Static.YjsAddress,
       },
@@ -399,7 +403,7 @@ class TestDeploy extends LitElement {
     this.deployButtonStatus = "DEPLOY"
     this.pendingDots = 0;
     this.nameDefaultValue = "cae-app-";
-    this.getProjectNameById();
+    this.getProjectInfo();
     this.urlDefaultValue =
       "https://cae.tech4comp.dbis.rwth-aachen.de/deployment/";
     this.deploymentStatus = "setNotDeploying";
@@ -438,7 +442,7 @@ class TestDeploy extends LitElement {
   _onDeployButtonClicked() {
     //check if  value of name is valid
     var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
-      this.nameDefaultValue
+      this.namespacePrefixDefaultValue + this.nameDefaultValue
     );
     if (validName == false) {
       console.log("Name invalid, only use low letters and -, _ if needed");
@@ -469,9 +473,7 @@ class TestDeploy extends LitElement {
         jobAlias,
       {
         method: "POST",
-        body: `{"name":"${this.nameDefaultValue}","id":"${
-          pathname[pathname.length - 1]
-        }"}`,
+        body: `{"name":"${this.namespacePrefixDefaultValue + this.nameDefaultValue}","id":"${pathname[pathname.length - 1]}","author":"[${this.projectUsers}]","deployStatus":"DEPLOYING"}`,
       }
     )
       .then((response) => {
@@ -573,10 +575,11 @@ class TestDeploy extends LitElement {
     return this.shadowRoot.getElementById("open-deployment");
   }
 
-  async getProjectNameById() {
+  async getProjectInfo() {
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
     var nameofProject = "";
+    var users = [];
     await fetch(` http://localhost:8081/project-management/projects/` + id, {
       method: "GET",
     })
@@ -587,9 +590,21 @@ class TestDeploy extends LitElement {
       .then((data) => {
         console.log(JSON.parse(data).name);
         nameofProject = JSON.parse(data).name;
-        this.namespacePrefixDefaultValue = "cae-app-" + JSON.parse(data).name;
+        console.log("JSON.parse(data).users");
+        console.log(JSON.parse(data).users);
+        users = JSON.parse(data).users;
+        console.log(users);
+
+        this.namespacePrefixDefaultValue = "cae-app-" + JSON.parse(data).name + "-";
         // return JSON.parse(data).name;
       });
+      this.projectUsers = [];
+      for (let index = 0; index < users.length; index++) {
+        console.log(users[index].loginName);
+        this.projectUsers.push(users[index].loginName);
+      }
+      console.log(this.projectUsers);
+
     this.projectName = nameofProject;
     console.log(nameofProject);
     this.requestUpdate();
@@ -605,6 +620,7 @@ class TestDeploy extends LitElement {
       // pathname[pathname.length - 1],
       {
         method: "POST",
+        body: `{"name":"${this.namespacePrefixDefaultValue + this.nameDefaultValue}","id":"${pathname[pathname.length - 1]}","author": "[${this.projectUsers}]" ,"deployStatus":"DEPLOYING"}`,
       }
     )
       .then((response) => {
@@ -613,6 +629,8 @@ class TestDeploy extends LitElement {
         return response.text();
       })
       .then((data) => {
+        console.log("datadatadatadata");
+
         console.log(data);
         if (data == "DEPLOYING") {
           this.setDeploying();
@@ -634,7 +652,7 @@ class TestDeploy extends LitElement {
     fetch(`http://localhost:8081/CAE/updateDeployStatus/` + id, {
       method: "POST",
       body: `{
-          "name": "${this.nameDefaultValue}",
+          "name": "${this.namespacePrefixDefaultValue + this.nameDefaultValue}",
           "namespace": "default",
           "port": "${this.portDefaultValue}",
           "url": "${this.urlDefaultValue}",
@@ -657,11 +675,7 @@ class TestDeploy extends LitElement {
 
     fetch(`http://localhost:8081/CAE/deleteDeployment/` + id, {
       method: "POST",
-      body: `{
-          "name": "${this.nameDefaultValue}",
-          "namespace": "default",
-          "status": "${status}"
-        }`,
+      body: `{"name":"${this.namespacePrefixDefaultValue + this.nameDefaultValue}","id":"${pathname[pathname.length - 1]}","author": "[${this.projectUsers}]" ,"deployStatus":"DELETED"}`,
     })
       .then((response) => {
         console.log(response);
