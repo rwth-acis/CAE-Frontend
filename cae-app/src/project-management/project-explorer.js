@@ -1,9 +1,9 @@
 import {html, LitElement} from 'lit-element';
-import '@polymer/paper-card/paper-card.js';
-import '@polymer/paper-button/paper-button.js';
-import '@polymer/paper-input/paper-input.js';
-import '@polymer/paper-dialog/paper-dialog.js';
-import '@polymer/paper-spinner/paper-spinner-lite.js';
+import '../../node_modules/@polymer/paper-card/paper-card.js';
+import '../../node_modules/@polymer/paper-button/paper-button.js';
+import '../../node_modules/@polymer/paper-input/paper-input.js';
+import '../../node_modules/@polymer/paper-dialog/paper-dialog.js';
+import '../../node_modules/@polymer/paper-spinner/paper-spinner-lite.js';
 import Auth from "../util/auth";
 import Static from "../static";
 import Common from "../util/common";

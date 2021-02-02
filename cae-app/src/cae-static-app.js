@@ -1,10 +1,10 @@
-import {html, PolymerElement} from '@polymer/polymer/polymer-element.js';
+import {html, PolymerElement} from '../node_modules/@polymer/polymer/polymer-element.js';
 import 'las2peer-frontend-statusbar/las2peer-frontend-statusbar.js';
-import '@polymer/app-route/app-location.js';
-import '@polymer/app-route/app-route.js';
-import '@polymer/iron-pages/iron-pages.js';
-import '@polymer/iron-icon/iron-icon.js';
-import '@polymer/paper-card/paper-card.js';
+import '../node_modules/@polymer/app-route/app-location.js';
+import '../node_modules/@polymer/app-route/app-route.js';
+import '../node_modules/@polymer/iron-pages/iron-pages.js';
+import '../node_modules/@polymer/iron-icon/iron-icon.js';
+import '../node_modules/@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import './notifications/notification-element.js';
