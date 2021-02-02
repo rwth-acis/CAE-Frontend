@@ -10,6 +10,7 @@ import './cae-modeling.js';
 import './notifications/notification-element.js';
 import './settings/settings-element.js';
 import './cae-deploy.js';
+import './cae-all-running-applications.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
@@ -80,7 +81,8 @@ class CaeStaticApp extends PolymerElement {
           <a id="menu-microservice-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Microservice Modeling</a>
           <div class="vl"></div>
           <a id="menu-application-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Application Mashup</a>
-          
+          <div class="vl"></div>
+          <a id="menu-all-running-applications" href="/cae-all-running-applications/all-applications" style="cursor: pointer; margin-top: auto; margin-bottom: auto">All running applications</a>
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
           <iron-icon id="settings-button" icon="settings" class="icon" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
@@ -100,6 +102,7 @@ class CaeStaticApp extends PolymerElement {
         <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <notification-element id="notification-element" name="notifications"></notification-element>
         <settings-element id="settings-element" name="settings"></settings-element>
+        <cae-all-running-applications id="cae-all-running-applications" name="cae-all-running-applications" route="{{subroute}}"></cae-all-running-applications>
         <cae-deploy id="cae-deploy" name="cae-deploy" route="{{subroute}}"></cae-deploy>
         <p name="404">Not found!</p>
       </iron-pages>

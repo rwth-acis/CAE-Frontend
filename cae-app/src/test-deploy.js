@@ -414,6 +414,7 @@ class TestDeploy extends LitElement {
       this.getOpenDeploymentLink().style.setProperty("display", "none");
     });
   }
+
   updated() {
     this.y.share.data.set("deploymentStatus", this.deploymentStatus);
     // this.checkIfApplicationIsDeploying();
@@ -580,6 +581,7 @@ class TestDeploy extends LitElement {
     var id = pathname[pathname.length - 1];
     var nameofProject = "";
     var users = [];
+    this.namespacePrefixDefaultValue = "cae-app-" + "anotherone" + "-";
     await fetch(` http://localhost:8081/project-management/projects/` + id, {
       method: "GET",
     })
