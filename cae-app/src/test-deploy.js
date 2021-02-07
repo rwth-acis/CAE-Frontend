@@ -231,7 +231,6 @@ class TestDeploy extends LitElement {
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
-
   static get properties() {
     return {
       pendingDots: {
@@ -264,6 +263,9 @@ class TestDeploy extends LitElement {
       deploymentStatus: {
         type: String,
       },
+      wordList: {
+        type: Array,
+      },
       map: {
         type: String,
         observer: "_activeChanged",
@@ -274,11 +276,11 @@ class TestDeploy extends LitElement {
     };
   }
   showManagement() {
-    this.deployButtonStatus = "DEPLOYED"
+    this.deployButtonStatus = "DEPLOYED";
     this.shadowRoot.getElementById("app").style.pointerEvents = "all";
   }
   showDeployment() {
-    this.deployButtonStatus = "DEPLOY"
+    this.deployButtonStatus = "DEPLOY";
     this.shadowRoot.getElementById("app").style.pointerEvents = "none";
   }
   nameDefaultValueInput() {
@@ -325,6 +327,7 @@ class TestDeploy extends LitElement {
   constructor() {
     var pathname = window.location.pathname.split("/");
     super();
+    this.wordList = this.returnWordList();
     self = this;
     setInterval(function () {
       self.checkIfApplicationIsDeploying();
@@ -377,7 +380,7 @@ class TestDeploy extends LitElement {
           }
         } else if (event.name == "deploymentStatus") {
           if (event.value == "setDeploying") {
-            self.deployButtonStatus = "DEPLOY"
+            self.deployButtonStatus = "DEPLOY";
             self.deploymentStatus = "setDeploying";
             self.getDeployButton().disabled = true;
             self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
@@ -400,9 +403,12 @@ class TestDeploy extends LitElement {
         }
       });
     });
-    this.deployButtonStatus = "DEPLOY"
+    this.deployButtonStatus = "DEPLOY";
     this.pendingDots = 0;
-    this.nameDefaultValue = "cae-app-";
+    this.nameDefaultValue =
+      this.wordList[Math.floor(Math.random() * this.wordList.length)] +
+      "-" +
+      this.wordList[Math.floor(Math.random() * this.wordList.length)];
     this.getProjectInfo();
     this.urlDefaultValue =
       "https://cae.tech4comp.dbis.rwth-aachen.de/deployment/";
@@ -474,7 +480,11 @@ class TestDeploy extends LitElement {
         jobAlias,
       {
         method: "POST",
-        body: `{"name":"${this.namespacePrefixDefaultValue + this.nameDefaultValue}","id":"${pathname[pathname.length - 1]}","author":"[${this.projectUsers}]","deployStatus":"DEPLOYING"}`,
+        body: `{"name":"${
+          this.namespacePrefixDefaultValue + this.nameDefaultValue
+        }","id":"${pathname[pathname.length - 1]}","author":"[${
+          this.projectUsers
+        }]","deployStatus":"DEPLOYING"}`,
       }
     )
       .then((response) => {
@@ -581,7 +591,7 @@ class TestDeploy extends LitElement {
     var id = pathname[pathname.length - 1];
     var nameofProject = "";
     var users = [];
-    this.namespacePrefixDefaultValue = "cae-app-" + "anotherone" + "-";
+    this.namespacePrefixDefaultValue = "cae-app-" + "projectName" + "-";
     await fetch(` http://localhost:8081/project-management/projects/` + id, {
       method: "GET",
     })
@@ -597,15 +607,16 @@ class TestDeploy extends LitElement {
         users = JSON.parse(data).users;
         console.log(users);
 
-        this.namespacePrefixDefaultValue = "cae-app-" + JSON.parse(data).name + "-";
+        this.namespacePrefixDefaultValue =
+          "cae-app-" + JSON.parse(data).name + "-";
         // return JSON.parse(data).name;
       });
-      this.projectUsers = [];
-      for (let index = 0; index < users.length; index++) {
-        console.log(users[index].loginName);
-        this.projectUsers.push(users[index].loginName);
-      }
-      console.log(this.projectUsers);
+    this.projectUsers = [];
+    for (let index = 0; index < users.length; index++) {
+      console.log(users[index].loginName);
+      this.projectUsers.push(users[index].loginName);
+    }
+    console.log(this.projectUsers);
 
     this.projectName = nameofProject;
     console.log(nameofProject);
@@ -617,12 +628,15 @@ class TestDeploy extends LitElement {
     console.log("CHECKING");
     var pathname = window.location.pathname.split("/");
     await fetch(
-      ` http://localhost:8081/CAE/checkDeployStatus/` +
-        pathname[pathname.length - 1],
+      `http://localhost:8012/las2peer/services/deployments`,
       // pathname[pathname.length - 1],
       {
-        method: "POST",
-        body: `{"name":"${this.namespacePrefixDefaultValue + this.nameDefaultValue}","id":"${pathname[pathname.length - 1]}","author": "[${this.projectUsers}]" ,"deployStatus":"DEPLOYING"}`,
+        method: "GET",
+        // body: `{"name":"${
+        //   this.namespacePrefixDefaultValue + this.nameDefaultValue
+        // }","id":"${pathname[pathname.length - 1]}","author": "[${
+        //   this.projectUsers
+        // }]" ,"deployStatus":"DEPLOYING"}`,
       }
     )
       .then((response) => {
@@ -632,15 +646,25 @@ class TestDeploy extends LitElement {
       })
       .then((data) => {
         console.log("datadatadatadata");
-
+        var deployments = JSON.parse(data.toString());
+        var inf;
+        Object.keys(deployments).forEach((item) => {
+          if(item == this.namespacePrefixDefaultValue + this.nameDefaultValue){
+            inf= "DEPLOYING";
+          }
+          else{
+            inf= "NOT DEPLOYED";
+          }
+          console.log(item + "  " + deployments[item].length);
+        });
         console.log(data);
-        if (data == "DEPLOYING") {
+        if (inf == "DEPLOYING") {
           this.setDeploying();
           console.log("OK DEPLOYING");
-        } else if (data == "NOT DEPLOYED") {
+        } else if (inf == "NOT DEPLOYED") {
           console.log("OK NOT DEPL");
           this.setNotDeploying();
-        } else if (data == "DEPLOYED") {
+        } else if (inf == "DEPLOYED") {
           console.log("OK DEPLOYED");
           this.setAlreadyDeployed();
         }
@@ -677,7 +701,11 @@ class TestDeploy extends LitElement {
 
     fetch(`http://localhost:8081/CAE/deleteDeployment/` + id, {
       method: "POST",
-      body: `{"name":"${this.namespacePrefixDefaultValue + this.nameDefaultValue}","id":"${pathname[pathname.length - 1]}","author": "[${this.projectUsers}]" ,"deployStatus":"DELETED"}`,
+      body: `{"name":"${
+        this.namespacePrefixDefaultValue + this.nameDefaultValue
+      }","id":"${pathname[pathname.length - 1]}","author": "[${
+        this.projectUsers
+      }]" ,"deployStatus":"DELETED"}`,
     })
       .then((response) => {
         console.log(response);
@@ -704,6 +732,111 @@ class TestDeploy extends LitElement {
     const toastElement = this.shadowRoot.getElementById("toast");
     toastElement.text = text;
     toastElement.show();
+  }
+
+  returnWordList() {
+    return [
+      "chug",
+      "port",
+      "agal",
+      "redo",
+      "esth",
+      "goon",
+      "hopi",
+      "conn",
+      "vico",
+      "dime",
+      "hols",
+      "dual",
+      "juba",
+      "slut",
+      "safi",
+      "puca",
+      "yodh",
+      "dyke",
+      "exam",
+      "prov",
+      "brim",
+      "boob",
+      "math",
+      "coed",
+      "heal",
+      "zeta",
+      "bias",
+      "napa",
+      "heap",
+      "stew",
+      "pair",
+      "chem",
+      "guns",
+      "ceyx",
+      "glyn",
+      "bard",
+      "hall",
+      "loun",
+      "rote",
+      "axle",
+      "yean",
+      "kung",
+      "pale",
+      "mage",
+      "ymha",
+      "purr",
+      "cast",
+      "ivar",
+      "lion",
+      "fyke",
+      "ache",
+      "thor",
+      "quod",
+      "genl",
+      "sect",
+      "tana",
+      "prut",
+      "wait",
+      "send",
+      "frug",
+      "form",
+      "bury",
+      "raff",
+      "cohn",
+      "clea",
+      "alar",
+      "conk",
+      "rego",
+      "nysa",
+      "cete",
+      "gybe",
+      "auto",
+      "mina",
+      "oryx",
+      "lati",
+      "hone",
+      "nurl",
+      "lalu",
+      "lean",
+      "idly",
+      "nave",
+      "poon",
+      "alfa",
+      "sour",
+      "zond",
+      "alep",
+      "sage",
+      "greg",
+      "opus",
+      "ibis",
+      "laic",
+      "pier",
+      "crow",
+      "cove",
+      "tike",
+      "nerc",
+      "glob",
+      "jamb",
+      "atys",
+      "dita",
+    ];
   }
 }
 
