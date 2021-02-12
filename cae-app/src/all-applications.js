@@ -119,72 +119,38 @@ class AllApplications extends LitElement {
     this.getAllRunningApplications();
   }
 
-  getAllRunningApplications() {
-    console.log("getAllRunningApplications");
-
-    // fetch(`http://192.168.178.90:1235/verification/getRunningApplications`, {
-    //   method: "POST",
-    // })
-    //   .then((response) => {
-    //     console.log(response);
-    //     return response.text();
-    //   })
-    //   .then((data) => {
-    //     var res = data.toString();
-    //     console.log(data.toString());
-    //     res = res.replace(/['"]+/g, "");
-    //     res = res.substring(1, res.length - 1);
-    //     console.log(res);
-    //     this.runningApplications = res.split(",");
-    //     this.runningApplications.shift();
-    //     let x = this.runningApplications.filter((item, index) => this.runningApplications.indexOf(item) == index);
-    //     this.runningApplications = x;
-    //     console.log(this.runningApplications);
-    //     console.log(this.runningApplications.length);
-    //   })
-    //   .catch((_) => {
-    //     this.showToast("Error probably down");
-    //   });
+  async getAllRunningApplications() {
     var services = [];
-    fetch(`http://localhost:8012/las2peer/services/services`, {
+    await fetch(`http://localhost:8012/las2peer/services/services`, {
       method: "GET",
     })
       .then((response) => {
-        console.log(response);
-        return response.text();
+        return response.json();
       })
       .then((data) => {
-        services = JSON.parse(data.toString());
-        console.log(services);
+        services = data;
       })
       .catch((_) => {
         this.showToast("Error probably down");
       });
     var deployments;
-    fetch(`http://localhost:8012/las2peer/services/deployments`, {
+    await fetch(`http://localhost:8012/las2peer/services/deployments`, {
       method: "GET",
     })
       .then((response) => {
         console.log(response);
-        return response.text();
+        return response.json();
       })
       .then((data) => {
-        deployments = JSON.parse(data.toString());
+        deployments = data;
         Object.keys(deployments).forEach((item) => {
           if (deployments[item].length != 0) {
             var filtered = services.filter(function (app) {
-              console.log("app");
-              console.log(app.name);
-              console.log(deployments[item][0].packageName);
               return app.name == deployments[item][0].packageName;
             });
             this.runningApplications.push(filtered[0]);
-            console.log("filtered");
-            console.log(filtered);
           }
-          console.log(item + "  " + deployments[item].length);
         });
-        console.log(this.runningApplications);
         this.requestUpdate();
       })
       .catch((e) => {

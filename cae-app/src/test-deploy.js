@@ -162,9 +162,45 @@ class TestDeploy extends LitElement {
               @input="${this.urlDefaultValueInput}"
               .value="${this.urlDefaultValue}"
             />
+            <div id="version-number-div" style="display: show">
+              <div
+                id="semver-number-div"
+                style="display: flex; height: 2em; margin-top: 0.5em"
+              >
+                <input
+                  id="input-version-number-1"
+                  @change=${(e) => this._onVersionInputChanged(e, 1)}
+                  .value="${this.versionNumber1}"
+                  type="number"
+                  step="1"
+                  min="0"
+                  class="input input-version-number"
+                />
+                <span style="margin-top: 0.85em">.</span>
+                <input
+                  id="input-version-number-2"
+                  @change=${(e) => this._onVersionInputChanged(e, 2)}
+                  type="number"
+                  step="1"
+                  min="0"
+                  .value="${this.versionNumber2}"
+                  class="input input-version-number"
+                />
+                <span style="margin-top: 0.85em">.</span>
+                <input
+                  id="input-version-number-3"
+                  @change=${(e) => this._onVersionInputChanged(e, 3)}
+                  type="number"
+                  step="1"
+                  min="0"
+                  .value="${this.versionNumber3}"
+                  class="input input-version-number"
+                />
+              </div>
+            </div>
             <paper-button
               id="deploy-model"
-              @click=${this._onDeployButtonClicked}
+              @click=${this.checkInitialDeploymentInfo}
               class="paper-button-blue"
               >${this.deployButtonStatus}</paper-button
             >
@@ -273,6 +309,15 @@ class TestDeploy extends LitElement {
       y: {
         type: Object,
       },
+      versionNumber1: {
+        type: String,
+      },
+      versionNumber2: {
+        type: String,
+      },
+      versionNumber3: {
+        type: String,
+      },
     };
   }
   showManagement() {
@@ -281,6 +326,10 @@ class TestDeploy extends LitElement {
   }
   showDeployment() {
     this.deployButtonStatus = "DEPLOY";
+    this.shadowRoot.getElementById("app").style.pointerEvents = "none";
+  }
+  showCheckNameAvailable() {
+    this.deployButtonStatus = "Check name availability";
     this.shadowRoot.getElementById("app").style.pointerEvents = "none";
   }
   nameDefaultValueInput() {
@@ -329,9 +378,9 @@ class TestDeploy extends LitElement {
     super();
     this.wordList = this.returnWordList();
     self = this;
-    setInterval(function () {
-      self.checkIfApplicationIsDeploying();
-    }, 5000);
+    // setInterval(function () {
+    //   self.checkIfApplicationIsDeploying();
+    // }, 5000);
     Y({
       db: {
         name: "memory",
@@ -386,12 +435,10 @@ class TestDeploy extends LitElement {
             self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
             self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
           } else if (event.value == "setNotDeploying") {
-            console.log("setNotDeploying");
             self.deploymentStatus = "setNotDeploying";
             self.getDeployButton().disabled = false;
             self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
             self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
-            // self.showDeployment();
             self.showDeployment();
           } else if (event.value == "setAlreadyDeployed") {
             self.deploymentStatus = "setAlreadyDeployed";
@@ -399,9 +446,19 @@ class TestDeploy extends LitElement {
             self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
             self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
             self.showManagement();
+          } else if (event.value == "setCheckNameAvailable") {
+            self.deploymentStatus = "setCheckNameAvailable";
+            self.getDeployButton().disabled = false;
+            self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
+            self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
+            self.showCheckNameAvailable();
           }
         }
       });
+    });
+    this.checkInitialDeploymentInfo().then((_) =>{
+      this.requestUpdate();
+      this.checkInitialDeploymentInfo()
     });
     this.deployButtonStatus = "DEPLOY";
     this.pendingDots = 0;
@@ -413,6 +470,10 @@ class TestDeploy extends LitElement {
     this.urlDefaultValue =
       "https://cae.tech4comp.dbis.rwth-aachen.de/deployment/";
     this.deploymentStatus = "setNotDeploying";
+    this.versionNumber1 = "2";
+    this.versionNumber2 = "3";
+    this.versionNumber3 = "4";
+
     this.requestUpdate().then((_) => {
       this.getDeployButton().disabled = false;
       this.getStatusInput().style.setProperty("display", "none");
@@ -446,7 +507,78 @@ class TestDeploy extends LitElement {
     this.getDeployButton().disabled = false;
   }
 
-  _onDeployButtonClicked() {
+  async checkInitialDeploymentInfo() {
+    var pathname = window.location.pathname.split("/");
+    var id = pathname[pathname.length - 1];
+    var services = [];
+    var projectOnChain = false;
+    var relevantReleases = [];
+    await fetch("http://localhost:8012/las2peer/services/services", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        services = data;
+      });
+    await services.forEach((service) => {
+      Object.keys(service.releases).forEach((item) => {
+        if (service.releases[item].supplement.projectId == id) {
+          projectOnChain = true;
+          relevantReleases.push(service.releases[item]);
+        }
+      });
+    });
+
+    if (projectOnChain == true) {
+      var latestTimeRelease = Math.max.apply(
+        Math,
+        relevantReleases.map(function (o) {
+          return o.publicationEpochSeconds;
+        })
+      );
+      var result = relevantReleases.findIndex(
+        (release) => release.publicationEpochSeconds == latestTimeRelease
+      );
+      var tempProjectName = [];
+      tempProjectName = relevantReleases[result].supplement.name.split("-");
+      tempProjectName.shift();
+      tempProjectName.shift();
+      tempProjectName.shift();
+      var projectName = tempProjectName.join("-");
+      this.nameDefaultValue = projectName;
+      this.requestUpdate();
+    } else {
+    }
+  }
+  _toHumanDate(epochSeconds) {
+    return new Date(epochSeconds * 1000).toLocaleString();
+  }
+  async checkIfNameAvailable() {
+    this.setCheckNameAvailable();
+    var services = [];
+    await fetch("http://localhost:8012/las2peer/services/services", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        services = data;
+      });
+    var nameAvailable = true;
+    await services.forEach((service) => {
+      if (
+        service.name ==
+        this.namespacePrefixDefaultValue + this.nameDefaultValue
+      ) {
+        nameAvailable = false;
+      }
+    });
+    return nameAvailable;
+  }
+  async _onDeployButtonClicked() {
     //check if  value of name is valid
     var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
       this.namespacePrefixDefaultValue + this.nameDefaultValue
@@ -455,17 +587,22 @@ class TestDeploy extends LitElement {
       console.log("Name invalid, only use low letters and -, _ if needed");
       this.showToast("Name invalid, only use low letters and -, _ if needed");
     } else {
-      // disable button until deployment has finished
-      this.getDeployButton().disabled = true;
+      var nameAvailable = true;
+      nameAvailable = await this.checkIfNameAvailable();
+      if (nameAvailable == true) {
+        // disable button until deployment has finished
+        this.getDeployButton().disabled = true;
 
-      // show status input field and textarea for deployment status
-      this.getStatusInput().style.removeProperty("display");
+        // show status input field and textarea for deployment status
+        this.getStatusInput().style.removeProperty("display");
+        // send deploy request
+        this.getStatusInput().value = "Sending deploy request...";
 
-      // send deploy request
-      this.getStatusInput().value = "Sending deploy request...";
-      console.log();
-      this.deployRequest("Build");
-      console.log(Common.getVersionedModelId());
+        this.deployRequest("Build");
+      } else {
+        this.setNotDeploying();
+        this.showToast("Name already taken, choose another one");
+      }
     }
   }
 
@@ -596,16 +733,11 @@ class TestDeploy extends LitElement {
       method: "GET",
     })
       .then((response) => {
-        console.log(response);
         return response.text();
       })
       .then((data) => {
-        console.log(JSON.parse(data).name);
         nameofProject = JSON.parse(data).name;
-        console.log("JSON.parse(data).users");
-        console.log(JSON.parse(data).users);
         users = JSON.parse(data).users;
-        console.log(users);
 
         this.namespacePrefixDefaultValue =
           "cae-app-" + JSON.parse(data).name + "-";
@@ -613,19 +745,15 @@ class TestDeploy extends LitElement {
       });
     this.projectUsers = [];
     for (let index = 0; index < users.length; index++) {
-      console.log(users[index].loginName);
       this.projectUsers.push(users[index].loginName);
     }
-    console.log(this.projectUsers);
 
     this.projectName = nameofProject;
-    console.log(nameofProject);
     this.requestUpdate();
     return nameofProject;
   }
   //
   async checkIfApplicationIsDeploying() {
-    console.log("CHECKING");
     var pathname = window.location.pathname.split("/");
     await fetch(
       `http://localhost:8012/las2peer/services/deployments`,
@@ -640,24 +768,21 @@ class TestDeploy extends LitElement {
       }
     )
       .then((response) => {
-        console.log("RES");
-        console.log(response);
         return response.text();
       })
       .then((data) => {
-        console.log("datadatadatadata");
         var deployments = JSON.parse(data.toString());
         var inf;
         Object.keys(deployments).forEach((item) => {
-          if(item == this.namespacePrefixDefaultValue + this.nameDefaultValue){
-            inf= "DEPLOYING";
+          if (
+            item ==
+            this.namespacePrefixDefaultValue + this.nameDefaultValue
+          ) {
+            inf = "DEPLOYING";
+          } else {
+            inf = "NOT DEPLOYED";
           }
-          else{
-            inf= "NOT DEPLOYED";
-          }
-          console.log(item + "  " + deployments[item].length);
         });
-        console.log(data);
         if (inf == "DEPLOYING") {
           this.setDeploying();
           console.log("OK DEPLOYING");
@@ -671,7 +796,6 @@ class TestDeploy extends LitElement {
       });
   }
   async updateDeployStatus(status) {
-    console.log("TRYING UPDATE");
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
 
@@ -686,16 +810,12 @@ class TestDeploy extends LitElement {
         }`,
     })
       .then((response) => {
-        console.log(response);
         return response.text();
       })
-      .then((data) => {
-        console.log(data);
-      });
+      .then((data) => {});
   }
 
   deleteDeployment() {
-    console.log("TRYING TO DELETE");
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
 
@@ -708,24 +828,23 @@ class TestDeploy extends LitElement {
       }]" ,"deployStatus":"DELETED"}`,
     })
       .then((response) => {
-        console.log(response);
         return response.text();
       })
       .then((data) => {
-        console.log(data);
-        this.showToast("Deleted deployment succesfully");
-        // this.checkIfApplicationIsDeploying();
+        this.showToast("Deleted deployment successfully");
       });
   }
 
   setDeploying() {
     this.y.share.data.set("deploymentStatus", "setDeploying");
   }
+  setCheckNameAvailable() {
+    this.y.share.data.set("deploymentStatus", "setCheckNameAvailable");
+  }
   setAlreadyDeployed() {
     this.y.share.data.set("deploymentStatus", "setAlreadyDeployed");
   }
   setNotDeploying() {
-    console.log("TRY TO NOT DEPL");
     this.y.share.data.set("deploymentStatus", "setNotDeploying");
   }
   showToast(text) {

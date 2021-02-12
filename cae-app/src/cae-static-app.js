@@ -268,7 +268,15 @@ class CaeStaticApp extends PolymerElement {
   }
 
   handleLogin(event) {
-    Auth.setAuthDataToLocalStorage(event.detail.access_token);
+    console.log("AAAAAAAAAAAAAAAAA")
+    console.log("AAAAAAAAAAAAAAAAA")
+    console.log("AAAAAAAAAAAAAAAAA")
+    console.log("AAAAAAAAAAAAAAAAA")
+    console.log("AAAAAAAAAAAAAAAAA")
+    console.log("AAAAAAAAAAAAAAAAA")
+
+    console.log(event);
+    Auth.setAuthDataToLocalStorage(event.detail.access_token, event.detail.profile.preferred_username + ":" + event.detail.profile.sub);
 
     this.storeEmptyModelingInfo();
     this.updateMenu();
