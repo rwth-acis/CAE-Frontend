@@ -3,6 +3,7 @@ import "./versioning/versioning-element.js";
 import Common from "./util/common.js";
 import Static from "./static.js";
 import "../node_modules/@polymer/iron-icon/iron-icon.js";
+import { valid, clean, satisfies, gt, lt, coerce } from "es-semver";
 
 /**
  * @customElement
@@ -169,38 +170,35 @@ class TestDeploy extends LitElement {
               >
                 <input
                   id="input-version-number-1"
-                  @change=${(e) => this._onVersionInputChanged(e, 1)}
-                  .value="${this.versionNumber1}"
                   type="number"
                   step="1"
                   min="0"
+                  value="0"
                   class="input input-version-number"
                 />
                 <span style="margin-top: 0.85em">.</span>
                 <input
                   id="input-version-number-2"
-                  @change=${(e) => this._onVersionInputChanged(e, 2)}
                   type="number"
                   step="1"
                   min="0"
-                  .value="${this.versionNumber2}"
+                  value="0"
                   class="input input-version-number"
                 />
                 <span style="margin-top: 0.85em">.</span>
                 <input
                   id="input-version-number-3"
-                  @change=${(e) => this._onVersionInputChanged(e, 3)}
                   type="number"
                   step="1"
-                  min="0"
-                  .value="${this.versionNumber3}"
+                  min="1"
+                  value="0"
                   class="input input-version-number"
                 />
               </div>
             </div>
             <paper-button
               id="deploy-model"
-              @click=${this.checkInitialDeploymentInfo}
+              @click=${this._onDeployButtonClicked}
               class="paper-button-blue"
               >${this.deployButtonStatus}</paper-button
             >
@@ -456,9 +454,9 @@ class TestDeploy extends LitElement {
         }
       });
     });
-    this.checkInitialDeploymentInfo().then((_) =>{
+    this.checkInitialDeploymentInfo().then((_) => {
       this.requestUpdate();
-      this.checkInitialDeploymentInfo()
+      this.checkInitialDeploymentInfo();
     });
     this.deployButtonStatus = "DEPLOY";
     this.pendingDots = 0;
@@ -538,19 +536,88 @@ class TestDeploy extends LitElement {
           return o.publicationEpochSeconds;
         })
       );
-      var result = relevantReleases.findIndex(
+      var correctIndex = relevantReleases.findIndex(
         (release) => release.publicationEpochSeconds == latestTimeRelease
       );
       var tempProjectName = [];
-      tempProjectName = relevantReleases[result].supplement.name.split("-");
+      tempProjectName = relevantReleases[correctIndex].supplement.name.split(
+        "-"
+      );
       tempProjectName.shift();
       tempProjectName.shift();
       tempProjectName.shift();
       var projectName = tempProjectName.join("-");
       this.nameDefaultValue = projectName;
+      var version = relevantReleases[correctIndex].supplement.version.split(
+        "."
+      );
+      console.log(version);
+      this.setEnteredVersion(version[0], version[1], version[2]);
       this.requestUpdate();
     } else {
     }
+  }
+  async checkIfVersionValid() {
+    var pathname = window.location.pathname.split("/");
+    var id = pathname[pathname.length - 1];
+    var services = [];
+    var projectOnChain = false;
+    var relevantReleases = [];
+    var versionNumberValid = true;
+    await fetch("http://localhost:8012/las2peer/services/services", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        services = data;
+      });
+    await services.forEach((service) => {
+      Object.keys(service.releases).forEach((item) => {
+        if (service.releases[item].supplement.projectId == id) {
+          projectOnChain = true;
+          relevantReleases.push(service.releases[item]);
+        }
+      });
+    });
+
+    if (projectOnChain == true) {
+      var latestTimeRelease = Math.max.apply(
+        Math,
+        relevantReleases.map(function (o) {
+          return o.publicationEpochSeconds;
+        })
+      );
+      var correctIndex = relevantReleases.findIndex(
+        (release) => release.publicationEpochSeconds == latestTimeRelease
+      );
+      var versionOnChain = relevantReleases[correctIndex].supplement.version;
+      var currentVersion =
+        this.getVersionNumberInput(1).value +
+        "." +
+        this.getVersionNumberInput(2).value +
+        "." +
+        this.getVersionNumberInput(3).value;
+      versionNumberValid = await gt(currentVersion, versionOnChain);
+      if (!versionNumberValid) {
+        this.showToast("Version should be higher than " + versionOnChain);
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      return true;
+    }
+  }
+  getVersionNumberInput(part) {
+    return this.shadowRoot.getElementById("input-version-number-" + part);
+  }
+
+  setEnteredVersion(major, minor, patch) {
+    this.getVersionNumberInput(1).value = major;
+    this.getVersionNumberInput(2).value = minor;
+    this.getVersionNumberInput(3).value = patch;
   }
   _toHumanDate(epochSeconds) {
     return new Date(epochSeconds * 1000).toLocaleString();
@@ -569,13 +636,19 @@ class TestDeploy extends LitElement {
       });
     var nameAvailable = true;
     await services.forEach((service) => {
+      console.log(service.name);
+      console.log(this.namespacePrefixDefaultValue + this.nameDefaultValue);
       if (
-        service.name ==
-        this.namespacePrefixDefaultValue + this.nameDefaultValue
+        service.name.normalize() ==
+        (
+          this.namespacePrefixDefaultValue.normalize() +
+          this.nameDefaultValue.normalize()
+        ).normalize()
       ) {
         nameAvailable = false;
       }
     });
+    console.log(nameAvailable);
     return nameAvailable;
   }
   async _onDeployButtonClicked() {
@@ -589,19 +662,27 @@ class TestDeploy extends LitElement {
     } else {
       var nameAvailable = true;
       nameAvailable = await this.checkIfNameAvailable();
-      if (nameAvailable == true) {
-        // disable button until deployment has finished
-        this.getDeployButton().disabled = true;
+      var versionValid = true;
+      versionValid = await this.checkIfVersionValid();
+      if (versionValid == true) {
+        console.log(nameAvailable);
+        console.log("nameAvailablenameAvailablenameAvailable");
+        if (nameAvailable == true) {
+          // disable button until deployment has finished
+          // this.getDeployButton().disabled = true;
 
-        // show status input field and textarea for deployment status
-        this.getStatusInput().style.removeProperty("display");
-        // send deploy request
-        this.getStatusInput().value = "Sending deploy request...";
+          // show status input field and textarea for deployment status
+          this.getStatusInput().style.removeProperty("display");
+          // send deploy request
+          this.getStatusInput().value = "Sending deploy request...";
 
-        this.deployRequest("Build");
+          // this.deployRequest("Build");
+        } else {
+          this.setNotDeploying();
+          this.showToast("Name already taken, choose another one");
+        }
       } else {
         this.setNotDeploying();
-        this.showToast("Name already taken, choose another one");
       }
     }
   }

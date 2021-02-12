@@ -25,6 +25,7 @@
     "@polymer/paper-tabs": "^3.1.0",
     "@polymer/paper-toast": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
+    "es-semver": "^1.0.1",
     "esm": "^3.2.25",
     "human-readable-ids": "^1.0.4",
     "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#0.3.0",
