@@ -19,6 +19,7 @@ class AllApplications extends LitElement {
           width: 100%;
           margin-top: 1em;
           align-items: center;
+          padding: 2em;
         }
         .running-applications:hover {
           background: #eeeeee;
@@ -83,7 +84,10 @@ class AllApplications extends LitElement {
                   >
                   <paper-button
                     class="edit-running-applications"
-                    @click=${this._onEditAppClicked}
+                    @click=${ (e) =>{this._onEditAppClicked(
+                      app.releases[Object.keys(app.releases)[0]].supplement
+                          .id
+                    )} }
                     >Edit app</paper-button
                   >
                 </paper-card>
@@ -99,8 +103,9 @@ class AllApplications extends LitElement {
   _onOpenAppClicked(link) {
     window.open(link, "_blank");
   }
-  _onEditAppClicked() {
-    window.open("https://google.com", "_blank");
+  _onEditAppClicked(id) {
+    console.log(id)
+    window.open("http://localhost:8070/cae-deploy/test-deploy/" + id.toString(), "_blank");
   }
   static get properties() {
     return {
@@ -151,6 +156,8 @@ class AllApplications extends LitElement {
             this.runningApplications.push(filtered[0]);
           }
         });
+        console.log(Object.keys(this.runningApplications[0].releases) )
+        console.log(this.runningApplications )
         this.requestUpdate();
       })
       .catch((e) => {

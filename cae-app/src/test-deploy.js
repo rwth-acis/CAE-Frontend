@@ -4,7 +4,7 @@ import Common from "./util/common.js";
 import Static from "./static.js";
 import "../node_modules/@polymer/iron-icon/iron-icon.js";
 import { valid, clean, satisfies, gt, lt, coerce } from "es-semver";
-
+import Auth from "./util/auth";
 /**
  * @customElement
  * @polymer
@@ -262,6 +262,7 @@ class TestDeploy extends LitElement {
           </div>
         </div>
       </div>
+      <paper-button @click=${this.testfunction}>HEHIEIH</paper-button>
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
@@ -376,9 +377,10 @@ class TestDeploy extends LitElement {
     super();
     this.wordList = this.returnWordList();
     self = this;
-    // setInterval(function () {
-    //   self.checkIfApplicationIsDeploying();
-    // }, 5000);
+    setInterval(function () {
+      self.checkIfApplicationIsDeploying();
+      console.log("djsndjnsknjkds");
+    }, 5000);
     Y({
       db: {
         name: "memory",
@@ -490,7 +492,7 @@ class TestDeploy extends LitElement {
   ///
   ///
   testfunction() {
-    this.updateDeployStatus("NOT DEPLOYED");
+    console.log(Auth.getAuthHeader()["Authorization"]);
   }
   ///
   ///
@@ -522,12 +524,15 @@ class TestDeploy extends LitElement {
       });
     await services.forEach((service) => {
       Object.keys(service.releases).forEach((item) => {
-        if (service.releases[item].supplement.projectId == id) {
+        console.log("item")
+        console.log(item)
+        if (service.releases[item].supplement.id == id) {
           projectOnChain = true;
           relevantReleases.push(service.releases[item]);
         }
       });
     });
+    console.log(projectOnChain)
 
     if (projectOnChain == true) {
       var latestTimeRelease = Math.max.apply(
@@ -551,7 +556,6 @@ class TestDeploy extends LitElement {
       var version = relevantReleases[correctIndex].supplement.version.split(
         "."
       );
-      console.log(version);
       this.setEnteredVersion(version[0], version[1], version[2]);
       this.requestUpdate();
     } else {
@@ -619,6 +623,16 @@ class TestDeploy extends LitElement {
     this.getVersionNumberInput(2).value = minor;
     this.getVersionNumberInput(3).value = patch;
   }
+
+  getVersion() {
+    return (
+      this.getVersionNumberInput(1).value +
+      "." +
+      this.getVersionNumberInput(2).value +
+      "." +
+      this.getVersionNumberInput(3).value
+    );
+  }
   _toHumanDate(epochSeconds) {
     return new Date(epochSeconds * 1000).toLocaleString();
   }
@@ -636,8 +650,6 @@ class TestDeploy extends LitElement {
       });
     var nameAvailable = true;
     await services.forEach((service) => {
-      console.log(service.name);
-      console.log(this.namespacePrefixDefaultValue + this.nameDefaultValue);
       if (
         service.name.normalize() ==
         (
@@ -648,7 +660,6 @@ class TestDeploy extends LitElement {
         nameAvailable = false;
       }
     });
-    console.log(nameAvailable);
     return nameAvailable;
   }
   async _onDeployButtonClicked() {
@@ -665,18 +676,16 @@ class TestDeploy extends LitElement {
       var versionValid = true;
       versionValid = await this.checkIfVersionValid();
       if (versionValid == true) {
-        console.log(nameAvailable);
-        console.log("nameAvailablenameAvailablenameAvailable");
         if (nameAvailable == true) {
           // disable button until deployment has finished
-          // this.getDeployButton().disabled = true;
+          this.getDeployButton().disabled = true;
 
           // show status input field and textarea for deployment status
           this.getStatusInput().style.removeProperty("display");
           // send deploy request
           this.getStatusInput().value = "Sending deploy request...";
 
-          // this.deployRequest("Build");
+          this.deployRequest("Build");
         } else {
           this.setNotDeploying();
           this.showToast("Name already taken, choose another one");
@@ -690,6 +699,8 @@ class TestDeploy extends LitElement {
   deployRequest(jobAlias) {
     this.setDeploying();
     var pathname = window.location.pathname.split("/");
+    console.log(Auth.getAuthHeader()["Authorization"].split(" ")[1]);
+    var aut = Auth.getAuthHeader()["Authorization"].split(" ")[1];
     fetch(
       Static.ModelPersistenceServiceURL +
         "/deploy/" +
@@ -702,7 +713,9 @@ class TestDeploy extends LitElement {
           this.namespacePrefixDefaultValue + this.nameDefaultValue
         }","id":"${pathname[pathname.length - 1]}","author":"[${
           this.projectUsers
-        }]","deployStatus":"DEPLOYING"}`,
+        }]","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}","link":"${
+          this.urlDefaultValue
+        }"}`,
       }
     )
       .then((response) => {
@@ -712,6 +725,7 @@ class TestDeploy extends LitElement {
         if (data.indexOf("Error") > -1) {
           console.error(data);
         } else {
+          this.updateDeployStatus("DEPLOYING");
           this.getStatusInput().value = "Starting deployment";
           console.log("Deployment: Starting deployment");
           console.log("Deployment: Start polling job console text");
@@ -810,26 +824,51 @@ class TestDeploy extends LitElement {
     var nameofProject = "";
     var users = [];
     this.namespacePrefixDefaultValue = "cae-app-" + "projectName" + "-";
-    await fetch(` http://localhost:8081/project-management/projects/` + id, {
+    var selectedProject;
+
+    await fetch(` http://localhost:8081/project-management/projects`, {
       method: "GET",
     })
       .then((response) => {
-        return response.text();
+        return response.json();
       })
       .then((data) => {
-        nameofProject = JSON.parse(data).name;
-        users = JSON.parse(data).users;
-
-        this.namespacePrefixDefaultValue =
-          "cae-app-" + JSON.parse(data).name + "-";
-        // return JSON.parse(data).name;
+        data.forEach((project) => {
+          project.components.forEach((component) => {
+            if (component.id == id) {
+              selectedProject = project;
+            }
+          });
+        });
       });
-    this.projectUsers = [];
-    for (let index = 0; index < users.length; index++) {
-      this.projectUsers.push(users[index].loginName);
-    }
+      console.log(selectedProject)
 
-    this.projectName = nameofProject;
+    // await fetch(` http://localhost:8081/project-management/projects/` + id, {
+    //   method: "GET",
+    // })
+    //   .then((response) => {
+    //     return response.text();
+    //   })
+    //   .then((data) => {
+    //     nameofProject = JSON.parse(data).name;
+    //     users = JSON.parse(data).users;
+
+    //     this.namespacePrefixDefaultValue =
+    //       "cae-app-" + JSON.parse(data).name + "-";
+    //     // return JSON.parse(data).name;
+    //   });
+    // this.projectUsers = [];
+    // for (let index = 0; index < users.length; index++) {
+    //   this.projectUsers.push(users[index].loginName);
+    // }
+
+    this.projectName = selectedProject.name;
+    nameofProject = selectedProject.name;
+    this.namespacePrefixDefaultValue =
+    "cae-app-" + this.projectName + "-";
+
+    console.log(this.projectName)
+    console.log(nameofProject)
     this.requestUpdate();
     return nameofProject;
   }
@@ -837,33 +876,35 @@ class TestDeploy extends LitElement {
   async checkIfApplicationIsDeploying() {
     var pathname = window.location.pathname.split("/");
     await fetch(
-      `http://localhost:8012/las2peer/services/deployments`,
+      // `http://localhost:8012/las2peer/services/deployments`,
+      Static.ModelPersistenceServiceURL + `/checkDeployStatus`,
       // pathname[pathname.length - 1],
       {
-        method: "GET",
-        // body: `{"name":"${
-        //   this.namespacePrefixDefaultValue + this.nameDefaultValue
-        // }","id":"${pathname[pathname.length - 1]}","author": "[${
-        //   this.projectUsers
-        // }]" ,"deployStatus":"DEPLOYING"}`,
+        method: "POST",
+        body: `{"name":"${
+          this.namespacePrefixDefaultValue + this.nameDefaultValue
+        }","id":"${pathname[pathname.length - 1]}","author": "[${
+          this.projectUsers
+        }]" ,"statusUpdate":"DEPLOYING"}`,
       }
     )
       .then((response) => {
         return response.text();
       })
       .then((data) => {
-        var deployments = JSON.parse(data.toString());
-        var inf;
-        Object.keys(deployments).forEach((item) => {
-          if (
-            item ==
-            this.namespacePrefixDefaultValue + this.nameDefaultValue
-          ) {
-            inf = "DEPLOYING";
-          } else {
-            inf = "NOT DEPLOYED";
-          }
-        });
+        console.log(data);
+        // var deployments = JSON.parse(data.toString());
+        var inf = data;
+        // Object.keys(deployments).forEach((item) => {
+        //   if (
+        //     item ==
+        //     this.namespacePrefixDefaultValue + this.nameDefaultValue
+        //   ) {
+        //     inf = "DEPLOYING";
+        //   } else {
+        //     inf = "NOT DEPLOYED";
+        //   }
+        // });
         if (inf == "DEPLOYING") {
           this.setDeploying();
           console.log("OK DEPLOYING");
@@ -873,34 +914,41 @@ class TestDeploy extends LitElement {
         } else if (inf == "DEPLOYED") {
           console.log("OK DEPLOYED");
           this.setAlreadyDeployed();
+        } else if (inf == "") {
+          console.log("OK NOT DEPLOYED");
+          this.setNotDeploying();
         }
       });
   }
-  async updateDeployStatus(status) {
+  async updateDeployStatus(statusUpdate) {
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
 
-    fetch(`http://localhost:8081/CAE/updateDeployStatus/` + id, {
+    fetch(`http://localhost:8081/CAE/updateDeployStatus`, {
       method: "POST",
       body: `{
           "name": "${this.namespacePrefixDefaultValue + this.nameDefaultValue}",
           "namespace": "default",
           "port": "${this.portDefaultValue}",
           "url": "${this.urlDefaultValue}",
-          "status": "${status}"
+          "statusUpdate": "${statusUpdate}",
+          "id":"${id}"
         }`,
     })
       .then((response) => {
         return response.text();
       })
-      .then((data) => {});
+      .then((data) => {
+        console.log("UPDATE DATA");
+        console.log(data);
+      });
   }
 
   deleteDeployment() {
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
 
-    fetch(`http://localhost:8081/CAE/deleteDeployment/` + id, {
+    fetch(`http://localhost:8081/CAE/deleteDeployment/`, {
       method: "POST",
       body: `{"name":"${
         this.namespacePrefixDefaultValue + this.nameDefaultValue
@@ -912,6 +960,7 @@ class TestDeploy extends LitElement {
         return response.text();
       })
       .then((data) => {
+        // this.updateDeployStatus("NOT DEPLOYED");
         this.showToast("Deleted deployment successfully");
       });
   }
