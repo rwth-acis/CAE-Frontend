@@ -1,4 +1,4 @@
-FROM node:8
+FROM node:8-alpine
 USER root
 
 ENV PORT 8070
@@ -9,12 +9,14 @@ ENV YJS_RESOURCE_PATH /socket.io
 WORKDIR /usr/src/app
 COPY . .
 
-RUN apt-get update
+RUN apk update
 
-RUN apt-get install -y --no-install-recommends supervisor git nginx jq
-RUN npm_config_user=root npm install -g grunt-cli grunt polymer-cli
+RUN apk add supervisor openssh git nginx jq python openrc && \
+    npm_config_user=root npm install -g grunt-cli grunt polymer-cli
 
-COPY docker/supervisorConfigs /etc/supervisor/conf.d
+RUN mkdir -p /run/nginx
+
+COPY docker/supervisorConfigs /etc/supervisor.d
 
 WORKDIR /usr/src/app/cae-app
 RUN npm install
@@ -24,8 +26,9 @@ RUN npm install
 
 WORKDIR /usr/src/app/syncmeta
 RUN npm install
-RUN cp -a node_modules/@rwth-acis/syncmeta-widgets/. widgets/
-RUN cp -a node_modules/. widgets/node_modules/
+RUN cp -a node_modules/@rwth-acis/syncmeta-widgets/. widgets/ && \
+    cp -a node_modules/. widgets/node_modules/ && \
+    rm -r node_modules
 WORKDIR /usr/src/app/syncmeta/widgets
 RUN npm install
 
@@ -33,8 +36,8 @@ WORKDIR /usr/src/app
 RUN git clone https://github.com/rwth-acis/CAE-WireframingEditor.git
 
 WORKDIR /usr/src/app/CAE-WireframingEditor
-RUN git checkout master && npm install
+RUN npm install
 
 WORKDIR /usr/src/app
 COPY docker/docker-entrypoint.sh docker-entrypoint.sh
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["sh", "./docker-entrypoint.sh"]
