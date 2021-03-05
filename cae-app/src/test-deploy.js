@@ -492,7 +492,7 @@ class TestDeploy extends LitElement {
   ///
   ///
   testfunction() {
-    console.log(Auth.getAuthHeader()["Authorization"]);
+    console.log(this.getProjectInfo());
   }
   ///
   ///

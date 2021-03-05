@@ -60,10 +60,23 @@ class AllApplications extends LitElement {
           color: rgb(240, 248, 255);
           background: rgb(232, 178, 0);
         }
+        .outer {
+          display: flex;
+          flex-flow: column;
+          height: 100%;
+        }
+        .nothing-deployed {
+          text-align: center;
+          margin: auto;
+          width: 100%;
+          height: 100%;
+          border: 3px solid green;
+          padding: 10px;
+        }
       </style>
 
       ${this.runningApplications.length != 0
-        ? html`<div>
+        ? html` <div>
             ${this.runningApplications.map(
               (app) => html`
                 <paper-card class="running-applications">
@@ -84,17 +97,20 @@ class AllApplications extends LitElement {
                   >
                   <paper-button
                     class="edit-running-applications"
-                    @click=${ (e) =>{this._onEditAppClicked(
-                      app.releases[Object.keys(app.releases)[0]].supplement
-                          .id
-                    )} }
+                    @click=${(e) => {
+                      this._onEditAppClicked(
+                        app.releases[Object.keys(app.releases)[0]].supplement.id
+                      );
+                    }}
                     >Edit app</paper-button
                   >
                 </paper-card>
               `
             )}
           </div>`
-        : html`<paper-card>Nothing deployed</paper-card>`}
+        : html`<div class="outer">
+            <paper-card class="nothing-deployed">Nothing deployed</paper-card>
+          </div>`}
 
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
@@ -104,8 +120,11 @@ class AllApplications extends LitElement {
     window.open(link, "_blank");
   }
   _onEditAppClicked(id) {
-    console.log(id)
-    window.open("http://localhost:8070/cae-deploy/test-deploy/" + id.toString(), "_blank");
+    console.log(id);
+    window.open(
+      "http://localhost:8070/cae-deploy/test-deploy/" + id.toString(),
+      "_blank"
+    );
   }
   static get properties() {
     return {
@@ -134,6 +153,9 @@ class AllApplications extends LitElement {
       })
       .then((data) => {
         services = data;
+        if (services == []) {
+          this.showToast("No deployments");
+        }
       })
       .catch((_) => {
         this.showToast("Error probably down");
@@ -143,22 +165,32 @@ class AllApplications extends LitElement {
       method: "GET",
     })
       .then((response) => {
-        console.log(response);
         return response.json();
       })
       .then((data) => {
         deployments = data;
-        Object.keys(deployments).forEach((item) => {
-          if (deployments[item].length != 0) {
-            var filtered = services.filter(function (app) {
-              return app.name == deployments[item][0].packageName;
-            });
-            this.runningApplications.push(filtered[0]);
-          }
-        });
-        console.log(Object.keys(this.runningApplications[0].releases) )
-        console.log(this.runningApplications )
-        this.requestUpdate();
+        if (Object.keys(deployments).length === 0) {
+          console.log("NOOOO")
+          this.showToast("No deployments");
+        } else {
+          console.log("YYEEHHHH")
+
+          Object.keys(deployments).forEach((item) => {
+            console.log("item")
+            console.log(item)
+            if (deployments[item].length != 0) {
+              console.log(item)
+              var filtered = services.filter(function (app) {
+                return app.name == deployments[item][0].packageName;
+              });
+              this.runningApplications.push(filtered[0]);
+            }
+          });
+          console.log(deployments)
+          console.log(services)
+          console.log(this.runningApplications)
+          this.requestUpdate();
+        }
       })
       .catch((e) => {
         console.log(e);
