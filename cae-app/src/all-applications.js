@@ -14,9 +14,17 @@ class AllApplications extends LitElement {
   render() {
     return html`
       <style>
+        .see-releases-paper {
+          width: 100%;
+        }
+        .release-deployments-paper {
+          width: 100%;
+        }
+        .running-applications-paper {
+          width: 100%;
+        }
         .running-applications {
           display: flex;
-          width: 100%;
           margin-top: 1em;
           align-items: center;
           padding: 2em;
@@ -79,31 +87,63 @@ class AllApplications extends LitElement {
         ? html` <div>
             ${this.runningApplications.map(
               (app) => html`
-                <paper-card class="running-applications">
-                  <div class="running-applications-content">${app.name}</div>
-                  <div class="running-applications-content">
-                    Created by: ${app.authorName}
-                  </div>
+                <paper-card class="running-applications-paper">
+                  <div class="running-applications">
+                    <div class="running-applications-content">${app.name}</div>
+                    <div class="running-applications-content">
+                      Created by: ${app.authorName}
+                    </div>
 
-                  <paper-button
-                    class="open-running-applications"
-                    @click=${(e) => {
-                      this._onOpenAppClicked(
-                        app.releases[Object.keys(app.releases)[0]].supplement
-                          .link
-                      );
-                    }}
-                    >Open app</paper-button
-                  >
-                  <paper-button
-                    class="edit-running-applications"
-                    @click=${(e) => {
-                      this._onEditAppClicked(
-                        app.releases[Object.keys(app.releases)[0]].supplement.id
-                      );
-                    }}
-                    >Edit app</paper-button
-                  >
+                    <paper-button
+                      class="open-running-applications"
+                      @click=${(e) => {
+                        this._onOpenAppClicked(
+                          app.releases[Object.keys(app.releases)[0]].supplement
+                            .link
+                        );
+                      }}
+                      >Open app</paper-button
+                    >
+                    <paper-button
+                      class="edit-running-applications"
+                      @click=${(e) => {
+                        this._onEditAppClicked(
+                          app.releases[Object.keys(app.releases)[0]].supplement
+                            .id
+                        );
+                      }}
+                      >Edit app</paper-button
+                    >
+                  </div>
+                  <paper-card class="see-releases-paper">
+                    <details>
+                      <summary>See Releases</summary>
+                      ${Object.keys(app.releases).map(
+                        (release) => html`
+                          <details>
+                            <summary>
+                              Deployments of release version: ${release}
+                            </summary>
+                            ${app.releases[release].instances.map(
+                              (a) =>
+                                html` <div>
+                                  <paper-card class="release-deployments-paper"
+                                    >${a.link}
+                                    <paper-button
+                                      class="open-running-applications"
+                                      @click=${(e) => {
+                                        this._onOpenAppClicked(a.link);
+                                      }}
+                                      >Open app</paper-button
+                                    >
+                                  </paper-card>
+                                </div>`
+                            )}
+                          </details>
+                        `
+                      )}
+                    </details>
+                  </paper-card>
                 </paper-card>
               `
             )}
@@ -152,7 +192,11 @@ class AllApplications extends LitElement {
         return response.json();
       })
       .then((data) => {
+        console.log("data");
+        console.log(data);
         services = data;
+        this.runningApplications = data;
+        this.requestUpdate();
         if (services == []) {
           this.showToast("No deployments");
         }
@@ -160,42 +204,42 @@ class AllApplications extends LitElement {
       .catch((_) => {
         this.showToast("Error probably down");
       });
-    var deployments;
-    await fetch(`http://localhost:8012/las2peer/services/deployments`, {
-      method: "GET",
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        deployments = data;
-        if (Object.keys(deployments).length === 0) {
-          console.log("NOOOO")
-          this.showToast("No deployments");
-        } else {
-          console.log("YYEEHHHH")
+    // var deployments;
+    // await fetch(`http://localhost:8012/las2peer/services/deployments`, {
+    //   method: "GET",
+    // })
+    //   .then((response) => {
+    //     return response.json();
+    //   })
+    //   .then((data) => {
+    //     deployments = data;
+    //     if (Object.keys(deployments).length === 0) {
+    //       console.log("NOOOO")
+    //       this.showToast("No deployments");
+    //     } else {
+    //       console.log("YYEEHHHH")
 
-          Object.keys(deployments).forEach((item) => {
-            console.log("item")
-            console.log(item)
-            if (deployments[item].length != 0) {
-              console.log(item)
-              var filtered = services.filter(function (app) {
-                return app.name == deployments[item][0].packageName;
-              });
-              this.runningApplications.push(filtered[0]);
-            }
-          });
-          console.log(deployments)
-          console.log(services)
-          console.log(this.runningApplications)
-          this.requestUpdate();
-        }
-      })
-      .catch((e) => {
-        console.log(e);
-        this.showToast("Error probably down");
-      });
+    //       Object.keys(deployments).forEach((item) => {
+    //         console.log("item")
+    //         console.log(item)
+    //         if (deployments[item].length != 0) {
+    //           console.log(item)
+    //           var filtered = services.filter(function (app) {
+    //             return app.name == deployments[item][0].packageName;
+    //           });
+    //           this.runningApplications.push(filtered[0]);
+    //         }
+    //       });
+    //       console.log(deployments)
+    //       console.log(services)
+    //       console.log(this.runningApplications)
+    //       this.requestUpdate();
+    //     }
+    //   })
+    //   .catch((e) => {
+    //     console.log(e);
+    //     this.showToast("Error probably down");
+    //   });
   }
 
   showToast(text) {
