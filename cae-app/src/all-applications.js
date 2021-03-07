@@ -125,12 +125,9 @@ class AllApplications extends LitElement {
                     <paper-button
                       class="open-running-applications"
                       @click=${(e) => {
-                        this._onOpenAppClicked(
-                          app.releases[Object.keys(app.releases)[0]].supplement
-                            .link
-                        );
+                        this._openDeployInfoSection(app.name);
                       }}
-                      >Open app</paper-button
+                      >Deploy instance</paper-button
                     >
                     <paper-button
                       class="edit-running-applications"
@@ -175,9 +172,7 @@ class AllApplications extends LitElement {
                                       <paper-button
                                         class="stop-release-application"
                                         @click=${(e) => {
-                                          this._onOpenAppClicked(
-                                            deployment.link
-                                          );
+                                          this._undeployInstance(deployment);
                                         }}
                                         >Stop deployment</paper-button
                                       >
@@ -191,6 +186,17 @@ class AllApplications extends LitElement {
                     </details>
                   </paper-card>
                 </paper-card>
+
+                <div id="${app.name}" style="display: none">
+                  <paper-card>
+                    <paper-button
+                      @click=${(e) => {
+                        this._deployOwnInstance();
+                      }}
+                    >
+                    </paper-button>
+                  </paper-card>
+                </div>
               `
             )}
           </div>`
@@ -202,6 +208,13 @@ class AllApplications extends LitElement {
     `;
   }
 
+  _openDeployInfoSection(name) {
+    if (this.shadowRoot.getElementById(name).style.display == "none") {
+      this.shadowRoot.getElementById(name).style.display = "block";
+    } else {
+      this.shadowRoot.getElementById(name).style.display = "none";
+    }
+  }
   _onOpenAppClicked(link) {
     window.open(link, "_blank");
   }
@@ -250,42 +263,47 @@ class AllApplications extends LitElement {
       .catch((_) => {
         this.showToast("Error probably down");
       });
-    // var deployments;
-    // await fetch(`http://localhost:8012/las2peer/services/deployments`, {
-    //   method: "GET",
-    // })
-    //   .then((response) => {
-    //     return response.json();
-    //   })
-    //   .then((data) => {
-    //     deployments = data;
-    //     if (Object.keys(deployments).length === 0) {
-    //       console.log("NOOOO")
-    //       this.showToast("No deployments");
-    //     } else {
-    //       console.log("YYEEHHHH")
+  }
+  // deploy own instance of selected release
+  // user can choose release version to deploy
+  async _deployOwnInstance() {
+    await fetch(`http://localhost:8012/las2peer/services/announceDeployment`, {
+      method: "POST",
+      body:
+        '{"name":"cae-app-ew-other-new","clusterName":"cae-app-ew-other-new-2","version":"0.0.1","link":"https://www.google.com"}',
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("deployOwnInstance data");
+        console.log(data);
+        getAllRunningApplications();
+        requestUpdate();
+      })
+      .catch((_) => {
+        this.showToast("Error probably down");
+      });
+  }
 
-    //       Object.keys(deployments).forEach((item) => {
-    //         console.log("item")
-    //         console.log(item)
-    //         if (deployments[item].length != 0) {
-    //           console.log(item)
-    //           var filtered = services.filter(function (app) {
-    //             return app.name == deployments[item][0].packageName;
-    //           });
-    //           this.runningApplications.push(filtered[0]);
-    //         }
-    //       });
-    //       console.log(deployments)
-    //       console.log(services)
-    //       console.log(this.runningApplications)
-    //       this.requestUpdate();
-    //     }
-    //   })
-    //   .catch((e) => {
-    //     console.log(e);
-    //     this.showToast("Error probably down");
-    //   });
+  // deploy own instance of selected release
+  // user can choose release version to deploy
+  async _undeployInstance(deployment) {
+    await fetch(`http://localhost:8012/las2peer/services/announceUndeployment`, {
+      method: "POST",
+      body:
+        '{"name":"cae-app-ew-other-new","clusterName":"'+deployment.clusterName+'","version":"'+deployment.version+'"}',
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("deployOwnInstance data");
+        console.log(data);
+      })
+      .catch((_) => {
+        this.showToast("Error probably down");
+      });
   }
 
   showToast(text) {
