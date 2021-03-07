@@ -14,14 +14,30 @@ class AllApplications extends LitElement {
   render() {
     return html`
       <style>
+        .deployment-info {
+          text-align: center;
+          align-items: center;
+        }
+        .summary-see-release {
+          padding: 1em;
+        }
+        .summary {
+          padding: 1em;
+        }
         .see-releases-paper {
           width: 100%;
         }
         .release-deployments-paper {
           width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          align-content: center;
+          padding: 2em;
         }
         .running-applications-paper {
           width: 100%;
+          margin-top: 1em;
         }
         .running-applications {
           display: flex;
@@ -48,6 +64,18 @@ class AllApplications extends LitElement {
           color: rgb(240, 248, 255);
           background: rgb(30, 144, 255);
           max-height: 30px;
+        }
+        .open-release-application {
+          align-items: center;
+          align-content: center;
+          color: rgb(240, 248, 255);
+          background: rgb(30, 144, 255);
+        }
+        .stop-release-application {
+          align-items: center;
+          align-content: center;
+          color: rgb(240, 248, 255);
+          background: red;
         }
         .open-running-applications:hover {
           color: rgb(240, 248, 255);
@@ -117,25 +145,43 @@ class AllApplications extends LitElement {
                   </div>
                   <paper-card class="see-releases-paper">
                     <details>
-                      <summary>See Releases</summary>
+                      <summary class="summary-see-release">
+                        See Releases
+                      </summary>
                       ${Object.keys(app.releases).map(
                         (release) => html`
                           <details>
-                            <summary>
+                            <summary class="summary">
                               Deployments of release version: ${release}
                             </summary>
                             ${app.releases[release].instances.map(
-                              (a) =>
+                              (deployment) =>
                                 html` <div>
-                                  <paper-card class="release-deployments-paper"
-                                    >${a.link}
-                                    <paper-button
-                                      class="open-running-applications"
-                                      @click=${(e) => {
-                                        this._onOpenAppClicked(a.link);
-                                      }}
-                                      >Open app</paper-button
-                                    >
+                                  <paper-card class="release-deployments-paper">
+                                    <div class="deployment-info">
+                                      ${deployment.clusterName} Time:
+                                      ${deployment.time}
+                                    </div>
+                                    <div>
+                                      <paper-button
+                                        class="open-release-application"
+                                        @click=${(e) => {
+                                          this._onOpenAppClicked(
+                                            deployment.link
+                                          );
+                                        }}
+                                        >Open app</paper-button
+                                      >
+                                      <paper-button
+                                        class="stop-release-application"
+                                        @click=${(e) => {
+                                          this._onOpenAppClicked(
+                                            deployment.link
+                                          );
+                                        }}
+                                        >Stop deployment</paper-button
+                                      >
+                                    </div>
                                   </paper-card>
                                 </div>`
                             )}
