@@ -436,8 +436,6 @@ class TestDeploy extends LitElement {
     super();
     this.wordList = this.returnWordList();
     self = this;
-    this.applicationReleases = [];
-    this.highestApplicationReleaseVersion = "0.0.1";
     // setInterval(function () {
     //   self.checkIfApplicationIsDeploying();
     //   console.log("djsndjnsknjkds");
@@ -517,6 +515,8 @@ class TestDeploy extends LitElement {
         }
       });
     });
+    this.applicationReleases = [];
+    this.highestApplicationReleaseVersion = "0.0.1";
     this.pendingDots = 0;
     this.nameDefaultValue =
       this.wordList[Math.floor(Math.random() * this.wordList.length)] +
@@ -531,7 +531,7 @@ class TestDeploy extends LitElement {
     this.versionNumber3 = "1";
 
     this.requestUpdate().then((_) => {
-      this.getDeployButton().disabled = false;
+      this.getReleaseButton().disabled = false;
       this.getStatusInput().style.setProperty("display", "none");
       this.getDeployStatusTextarea().style.setProperty("display", "none");
       this.getOpenDeploymentLink().style.setProperty("display", "none");
@@ -548,6 +548,7 @@ class TestDeploy extends LitElement {
   ///
   ///
   testfunction() {
+    this.setNotReleasing();
     console.log(this.getProjectInfo());
   }
   ///
@@ -560,7 +561,7 @@ class TestDeploy extends LitElement {
    */
 
   enableWidget() {
-    this.getDeployButton().disabled = false;
+    this.getReleaseButton().disabled = false;
   }
   async _getReleasesOfApplication() {
     var allServices = [];
@@ -594,17 +595,17 @@ class TestDeploy extends LitElement {
       }
     });
     var highestVersion = this.highestApplicationReleaseVersion.split(".");
-    this.setEnteredVersion(highestVersion[0], highestVersion[1], highestVersion[2]);
+    this.setEnteredVersion(
+      highestVersion[0],
+      highestVersion[1],
+      highestVersion[2]
+    );
     this.requestUpdate();
   }
 
   async checkIfVersionValid() {
-    var pathname = window.location.pathname.split("/");
-    var id = pathname[pathname.length - 1];
-    var services = [];
-    var projectOnChain = false;
-    var relevantReleases = [];
-    var versionNumberValid = true;
+    var allServices = [];
+    var releaseVersions = [];
     await fetch("http://localhost:8012/las2peer/services/services", {
       method: "GET",
     })
@@ -612,41 +613,42 @@ class TestDeploy extends LitElement {
         return response.json();
       })
       .then((data) => {
-        services = data;
+        allServices = data;
       });
-    await services.forEach((service) => {
-      Object.keys(service.releases).forEach((item) => {
-        if (service.releases[item].supplement.projectId == id) {
-          projectOnChain = true;
-          relevantReleases.push(service.releases[item]);
+    allServices.forEach((service) => {
+      Object.keys(service.releases).forEach((releaseVersion) => {
+        if (
+          service.releases[releaseVersion].supplement.name ==
+            "cae-app-" + this.projectName &&
+          service.releases[releaseVersion].supplement.id ==
+            this.applicationId &&
+          service.releases[releaseVersion].supplement.type == "cae-application"
+        ) {
+          releaseVersions.push(releaseVersion);
         }
       });
     });
-
-    if (projectOnChain == true) {
-      var latestTimeRelease = Math.max.apply(
-        Math,
-        relevantReleases.map(function (o) {
-          return o.publicationEpochSeconds;
-        })
-      );
-      var correctIndex = relevantReleases.findIndex(
-        (release) => release.publicationEpochSeconds == latestTimeRelease
-      );
-      var versionOnChain = relevantReleases[correctIndex].supplement.version;
-      var currentVersion =
-        this.getVersionNumberInput(1).value +
-        "." +
-        this.getVersionNumberInput(2).value +
-        "." +
-        this.getVersionNumberInput(3).value;
-      versionNumberValid = await gt(currentVersion, versionOnChain);
-      if (!versionNumberValid) {
-        this.showToast("Version should be higher than " + versionOnChain);
-        return false;
-      } else {
-        return true;
+    releaseVersions.forEach((version) => {
+      if (gt(version, this.highestApplicationReleaseVersion)) {
+        this.highestApplicationReleaseVersion = version;
       }
+    });
+
+    var currentVersion =
+      this.getVersionNumberInput(1).value +
+      "." +
+      this.getVersionNumberInput(2).value +
+      "." +
+      this.getVersionNumberInput(3).value;
+    var versionNumberValid = await gt(
+      currentVersion,
+      this.highestApplicationReleaseVersion
+    );
+    if (!versionNumberValid) {
+      this.showToast(
+        "Version should be higher than " + this.highestApplicationReleaseVersion
+      );
+      return false;
     } else {
       return true;
     }
@@ -700,6 +702,31 @@ class TestDeploy extends LitElement {
     return nameAvailable;
   }
   async _onReleaseApplicationButtonClicked() {
+    var releaseNameAvailable = true;
+    releaseNameAvailable = await this.checkIfNameAvailable();
+
+    var versionValid = true;
+    versionValid = await this.checkIfVersionValid();
+
+    if (versionValid == true) {
+      if (releaseNameAvailable == true) {
+        // disable button until release has finished
+        this.getReleaseButton().disabled = true;
+
+        // show status input field and textarea for deployment status
+        this.getStatusInput().style.removeProperty("display");
+        // send deploy request
+        this.getStatusInput().value = "Releasing CAE application ...";
+        this.deployRequest("Build");
+      } else {
+        this.setNotReleasing();
+        this.showToast("Name already taken, choose another one");
+      }
+    } else {
+      this.setNotReleasing();
+    }
+  }
+  async _onReleaseApplicationButtonClickedOLD() {
     //check if  value of name is valid
     var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
       this.namespacePrefixDefaultValue + this.nameDefaultValue
@@ -715,7 +742,7 @@ class TestDeploy extends LitElement {
       if (versionValid == true) {
         if (nameAvailable == true) {
           // disable button until deployment has finished
-          this.getDeployButton().disabled = true;
+          this.getReleaseButton().disabled = true;
 
           // show status input field and textarea for deployment status
           this.getStatusInput().style.removeProperty("display");
@@ -724,11 +751,11 @@ class TestDeploy extends LitElement {
 
           this.deployRequest("Build");
         } else {
-          this.setNotDeploying();
+          this.setNotReleasing();
           this.showToast("Name already taken, choose another one");
         }
       } else {
-        this.setNotDeploying();
+        this.setNotReleasing();
       }
     }
   }
@@ -747,10 +774,10 @@ class TestDeploy extends LitElement {
       {
         method: "POST",
         body: `{"name":"${
-          this.namespacePrefixDefaultValue + this.nameDefaultValue
-        }","id":"${pathname[pathname.length - 1]}","author":"[${
-          this.projectUsers
-        }]","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}"}`,
+          this.namespacePrefixDefaultValue + this.projectName
+        }","id":"${
+          pathname[pathname.length - 1]
+        }","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}","type":"cae-application"}`,
       }
     )
       .then((response) => {
@@ -774,7 +801,7 @@ class TestDeploy extends LitElement {
     setTimeout(
       function () {
         var feedbackString =
-          "Deployment in progess" + Array(this.pendingDots + 1).join(".");
+          "Release in progress" + Array(this.pendingDots + 1).join(".");
         this.getStatusInput().value = feedbackString;
         console.log(feedbackString);
         this.getJobConsoleText(location, jobAlias);
@@ -816,18 +843,18 @@ class TestDeploy extends LitElement {
               this.deployRequest("Docker");
               break;
             case "Docker":
-              this.getStatusInput().value = "Application is now ready!";
+              this.getStatusInput().value = "Your CAE application has been released";
               this.getDeployStatusTextarea().style.setProperty(
                 "display",
                 "none"
               );
               this.getOpenDeploymentLink().style.removeProperty("display");
               // allow to deploy again by activating the deploy button
-              this.getDeployButton().disabled = false;
+              this.getReleaseButton().disabled = false;
               break;
           }
         } else if (data.indexOf("Finished: FAILURE") > -1) {
-          console.log("Deployment: Error during deployment!");
+          console.log("Deployment: Error during release!");
         } else {
           this.pollJobConsoleText(queueItem, jobAlias);
         }
@@ -837,7 +864,7 @@ class TestDeploy extends LitElement {
   changeRoute() {
     this.set("route.path", "/test-deploy/" + Common.getVersionedModelId());
   }
-  getDeployButton() {
+  getReleaseButton() {
     return this.shadowRoot.getElementById("release-application");
   }
 
@@ -946,13 +973,13 @@ class TestDeploy extends LitElement {
           console.log("OK DEPLOYING");
         } else if (inf == "NOT DEPLOYED") {
           console.log("OK NOT DEPL");
-          this.setNotDeploying();
+          this.setNotReleasing();
         } else if (inf == "DEPLOYED") {
           console.log("OK DEPLOYED");
           this.setAlreadyDeployed();
         } else if (inf == "") {
           console.log("OK NOT DEPLOYED");
-          this.setNotDeploying();
+          this.setNotReleasing();
         }
       });
   }
@@ -1010,7 +1037,7 @@ class TestDeploy extends LitElement {
   setAlreadyDeployed() {
     this.y.share.data.set("deploymentStatus", "setAlreadyDeployed");
   }
-  setNotDeploying() {
+  setNotReleasing() {
     this.y.share.data.set("deploymentStatus", "setNotDeploying");
   }
   showToast(text) {
