@@ -103,7 +103,7 @@ export class DeploymentWidget extends LitElement {
   pollJobConsoleText(location, jobAlias) {
     this.getDeployStatusTextarea().removeAttribute("hidden");
     setTimeout(function() {
-      var feedbackString = "Deployment in progess" + Array(this.pendingDots+1).join(".");
+      var feedbackString = "Deployment in progress" + Array(this.pendingDots+1).join(".");
       this.getStatusInput().value = feedbackString;
       console.log(feedbackString);
       this.getJobConsoleText(location, jobAlias);

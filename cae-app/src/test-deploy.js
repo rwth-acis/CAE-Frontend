@@ -273,7 +273,10 @@ class TestDeploy extends LitElement {
                 </div>
               </div>
             </div>
-            <paper-button id="deploy-release" class="paper-button-blue"
+            <paper-button
+              id="deploy-release"
+              @click=${this._onDeployReleaseButtonClicked}
+              class="paper-button-blue"
               >Deploy your release</paper-button
             >
           </div>
@@ -701,6 +704,34 @@ class TestDeploy extends LitElement {
     });
     return nameAvailable;
   }
+
+  async checkIfDeploymentNameAvailable() {
+    var deployments = [];
+    await fetch("http://localhost:8012/las2peer/services/deployments", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        deployments = data;
+      });
+    var nameAvailable = true;
+    Object.keys(deployments).forEach((release) => {
+      deployments[release].forEach((deployment) => {
+        if (
+          deployment.clusterName.normalize() ==
+          this.namespacePrefixDefaultValue.normalize() +
+            "-" +
+            +this.nameDefaultValue.normalize()
+        ) {
+          nameAvailable = false;
+        }
+      });
+    });
+    return nameAvailable;
+  }
+
   async _onReleaseApplicationButtonClicked() {
     var releaseNameAvailable = true;
     releaseNameAvailable = await this.checkIfNameAvailable();
@@ -717,7 +748,7 @@ class TestDeploy extends LitElement {
         this.getStatusInput().style.removeProperty("display");
         // send deploy request
         this.getStatusInput().value = "Releasing CAE application ...";
-        this.deployRequest("Build");
+        this.releaseRequest("Build");
       } else {
         this.setNotReleasing();
         this.showToast("Name already taken, choose another one");
@@ -726,10 +757,30 @@ class TestDeploy extends LitElement {
       this.setNotReleasing();
     }
   }
+
+  async _onDeployReleaseButtonClicked() {
+    var deployNameAvailable = true;
+    deployNameAvailable = await this.checkIfDeploymentNameAvailable();
+
+    if (deployNameAvailable == true) {
+      // disable button until release has finished
+      // this.getDeploymentButton().disabled = true;
+
+      // show status input field and textarea for deployment status
+      this.getStatusInput().style.removeProperty("display");
+      // send deploy request
+      this.getStatusInput().value = "Releasing CAE application ...";
+      console.log("shoudl deploy");
+    } else {
+      this.setNotDeploying();
+      this.showToast("Name already taken, choose another one");
+    }
+  }
+
   async _onReleaseApplicationButtonClickedOLD() {
     //check if  value of name is valid
     var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
-      this.namespacePrefixDefaultValue + this.nameDefaultValue
+      this.namespacePrefixDefaultValue
     );
     if (validName == false) {
       console.log("Name invalid, only use low letters and -, _ if needed");
@@ -749,7 +800,7 @@ class TestDeploy extends LitElement {
           // send deploy request
           this.getStatusInput().value = "Sending deploy request...";
 
-          this.deployRequest("Build");
+          this.releaseRequest("Build");
         } else {
           this.setNotReleasing();
           this.showToast("Name already taken, choose another one");
@@ -760,7 +811,7 @@ class TestDeploy extends LitElement {
     }
   }
 
-  deployRequest(jobAlias) {
+  releaseRequest(jobAlias) {
     this.setDeploying();
     var pathname = window.location.pathname.split("/");
     console.log(Auth.getAuthHeader()["Authorization"].split(" ")[1]);
@@ -773,9 +824,7 @@ class TestDeploy extends LitElement {
         jobAlias,
       {
         method: "POST",
-        body: `{"name":"${
-          this.namespacePrefixDefaultValue + this.projectName
-        }","id":"${
+        body: `{"name":"${this.namespacePrefixDefaultValue}","id":"${
           pathname[pathname.length - 1]
         }","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}","type":"cae-application"}`,
       }
@@ -788,7 +837,7 @@ class TestDeploy extends LitElement {
           console.error(data);
         } else {
           this.updateDeployStatus("DEPLOYING");
-          this.getStatusInput().value = "Starting deployment";
+          this.getStatusInput().value = "Starting release";
           console.log("Deployment: Starting deployment");
           console.log("Deployment: Start polling job console text");
           this.pollJobConsoleText(data, jobAlias);
@@ -840,10 +889,11 @@ class TestDeploy extends LitElement {
           switch (jobAlias) {
             case "Build":
               this.getStatusInput().value = "Building was successfully!";
-              this.deployRequest("Docker");
+              this.releaseRequest("Docker");
               break;
             case "Docker":
-              this.getStatusInput().value = "Your CAE application has been released";
+              this.getStatusInput().value =
+                "Your CAE application has been released";
               this.getDeployStatusTextarea().style.setProperty(
                 "display",
                 "none"
@@ -886,7 +936,7 @@ class TestDeploy extends LitElement {
     this.applicationId = String(id);
     var nameofProject = "";
     var users = [];
-    this.namespacePrefixDefaultValue = "cae-app-" + "projectName" + "-";
+    this.namespacePrefixDefaultValue = "cae-app-" + "projectName";
     var selectedProject;
 
     await fetch(` http://localhost:8081/project-management/projects`, {
@@ -927,7 +977,7 @@ class TestDeploy extends LitElement {
 
     this.projectName = selectedProject.name;
     nameofProject = selectedProject.name;
-    this.namespacePrefixDefaultValue = "cae-app-" + this.projectName + "-";
+    this.namespacePrefixDefaultValue = "cae-app-" + this.projectName;
 
     console.log(this.projectName);
     console.log(nameofProject);
