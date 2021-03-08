@@ -99,8 +99,6 @@ class CaeAllRunningApplications extends PolymerElement {
   }
 
   _routerChanged(page) {
-    console.log(" _routerChanged _routerChanged", page)
-    console.log(page)
     this.page = page || "cae-all-running-applications";
   }
   createNewModelingElement(type) {
@@ -115,19 +113,11 @@ class CaeAllRunningApplications extends PolymerElement {
     return elem;
   }
   _subpageChanged(currentSubpage, oldSubpage) {
-    console.log("CAE DEPLOY LOGS");
-
-    console.log(currentSubpage);
-    console.log(oldSubpage);
-    console.log("subpage changed: " + currentSubpage);
-    // console.log(this.shadowRoot.getElementById(currentSubpage).hasChildNodes())
-    console.log(this.shadowRoot.getElementById("all-applications").hasChildNodes())
 
     if (currentSubpage == "all-applications") {
       this.reloadModelingElement("all-applications");
       // check if div in iron-pages is empty
       let ironPagesDivName = currentSubpage;
-      console.log(this.shadowRoot.getElementById(ironPagesDivName).hasChildNodes())
       const hasChildNodes = this.shadowRoot
         .getElementById(ironPagesDivName)
         .hasChildNodes();

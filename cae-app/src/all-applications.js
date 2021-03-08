@@ -219,7 +219,6 @@ class AllApplications extends LitElement {
     window.open(link, "_blank");
   }
   _onEditAppClicked(id) {
-    console.log(id);
     window.open(
       "http://localhost:8070/cae-deploy/test-deploy/" + id.toString(),
       "_blank"
@@ -251,11 +250,7 @@ class AllApplications extends LitElement {
         return response.json();
       })
       .then((data) => {
-        console.log("data");
-        console.log(data);
         services = data;
-        this.runningApplications = data;
-        this.requestUpdate();
         if (services == []) {
           this.showToast("No deployments");
         }
@@ -263,6 +258,18 @@ class AllApplications extends LitElement {
       .catch((_) => {
         this.showToast("Error probably down");
       });
+    services.forEach((service) => {
+      Object.keys(service.releases).forEach((releaseVersion) => {
+        if (
+          service.releases[releaseVersion].supplement.type == "cae-application"
+        ) {
+          if (this.runningApplications.indexOf(service) == -1) {
+            this.runningApplications.push(service);
+          }
+        }
+      });
+    });
+    this.requestUpdate();
   }
   // deploy own instance of selected release
   // user can choose release version to deploy
@@ -276,8 +283,6 @@ class AllApplications extends LitElement {
         return response.json();
       })
       .then((data) => {
-        console.log("deployOwnInstance data");
-        console.log(data);
         getAllRunningApplications();
         requestUpdate();
       })
@@ -286,20 +291,24 @@ class AllApplications extends LitElement {
       });
   }
 
-  // deploy own instance of selected release
-  // user can choose release version to deploy
+  // undeploy instance of selected release
   async _undeployInstance(deployment) {
-    await fetch(`http://localhost:8012/las2peer/services/announceUndeployment`, {
-      method: "POST",
-      body:
-        '{"name":"cae-app-ew-other-new","clusterName":"'+deployment.clusterName+'","version":"'+deployment.version+'"}',
-    })
+    await fetch(
+      `http://localhost:8012/las2peer/services/announceUndeployment`,
+      {
+        method: "POST",
+        body:
+          '{"name":"cae-app-ew-other-new","clusterName":"' +
+          deployment.clusterName +
+          '","version":"' +
+          deployment.version +
+          '"}',
+      }
+    )
       .then((response) => {
         return response.json();
       })
       .then((data) => {
-        console.log("deployOwnInstance data");
-        console.log(data);
       })
       .catch((_) => {
         this.showToast("Error probably down");

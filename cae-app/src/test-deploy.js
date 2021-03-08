@@ -287,18 +287,6 @@ class TestDeploy extends LitElement {
         </div>
         <div>
           <div
-            style="display: flex; margin-left: 4px; margin-right: 4px; margin-top: 4px;"
-          >
-            <a
-              id="open-deployment"
-              target="_blank"
-              href=${Static.DeploymentURL}
-              style="margin-left: auto; margin-top: auto; margin-bottom: auto"
-              >Open deployment</a
-            >
-          </div>
-
-          <div
             class="form-group"
             style="margin-left: 4px; margin-right: 4px; margin-top: 4px; height: 150px"
           >

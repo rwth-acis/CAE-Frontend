@@ -100,8 +100,6 @@ class CaeDeploy extends PolymerElement {
   }
 
   _routerChanged(page) {
-    console.log(" _routerChanged _routerChanged", page)
-    console.log(page)
     this.page = page || "cae-deploy";
   }
   createNewModelingElement(type) {
@@ -116,19 +114,10 @@ class CaeDeploy extends PolymerElement {
     return elem;
   }
   _subpageChanged(currentSubpage, oldSubpage) {
-    console.log("CAE DEPLOY LOGS");
-
-    console.log(currentSubpage);
-    console.log(oldSubpage);
-    console.log("subpage changed: " + currentSubpage);
-    // console.log(this.shadowRoot.getElementById(currentSubpage).hasChildNodes())
-    console.log(this.shadowRoot.getElementById("test-deploy").hasChildNodes())
-
     if (currentSubpage == "test-deploy") {
       this.reloadModelingElement("test-deploy");
       // check if div in iron-pages is empty
       let ironPagesDivName = currentSubpage;
-      console.log(this.shadowRoot.getElementById(ironPagesDivName).hasChildNodes())
       const hasChildNodes = this.shadowRoot
         .getElementById(ironPagesDivName)
         .hasChildNodes();
