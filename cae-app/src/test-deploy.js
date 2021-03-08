@@ -136,12 +136,12 @@ class TestDeploy extends LitElement {
           background: #00ff55;
         }
       </style>
-      <div id="Deployment" style="hidden: false;">
-        <div class="middle">
-          <div class="input-fields">
-            <h4>Application Name</h4>
-            Name
-            <span class="textbox">
+      <div id="Deployment">
+        <div class="middle" style="display:flex">
+          <div class="input-fields" style="flex-grow: 1;">
+            <h4>Release your application</h4>
+            <!-- Name -->
+            <!-- <span class="textbox">
               <input
                 type="text"
                 id="country"
@@ -155,77 +155,127 @@ class TestDeploy extends LitElement {
                 @input="${this.nameDefaultValueInput}"
                 .value="${this.nameDefaultValue}"
               />
-            </span>
-            URL
+            </span> -->
+            <!-- URL
             <input
               id="urlDefaultValue"
               type="text"
               @input="${this.urlDefaultValueInput}"
               .value="${this.urlDefaultValue}"
-            />
-            <div id="version-number-div" style="display: show">
-              <div
-                id="semver-number-div"
-                style="display: flex; height: 2em; margin-top: 0.5em"
-              >
-                <input
-                  id="input-version-number-1"
-                  type="number"
-                  step="1"
-                  min="0"
-                  value="0"
-                  class="input input-version-number"
-                />
-                <span style="margin-top: 0.85em">.</span>
-                <input
-                  id="input-version-number-2"
-                  type="number"
-                  step="1"
-                  min="0"
-                  value="0"
-                  class="input input-version-number"
-                />
-                <span style="margin-top: 0.85em">.</span>
-                <input
-                  id="input-version-number-3"
-                  type="number"
-                  step="1"
-                  min="1"
-                  value="0"
-                  class="input input-version-number"
-                />
+            /> -->
+            <div style="display:flex; flex-direction: row;">
+              <div style="display:flex; flex-direction: column;">
+                <div>Existing Releases</div>
+                <paper-dropdown-menu>
+                  <paper-listbox slot="dropdown-content">
+                    ${this.applicationReleases.map(
+                      (release) =>
+                        html`
+                          <paper-item>${release.supplement.version}</paper-item>
+                        `
+                    )}
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+              <div style="display:flex; flex-direction: column;">
+                <!-- <div id="version-number-div" style="display: show"> -->
+                <div
+                  id="semver-number-div"
+                  style="display: flex; height: 2em; margin-top: 0.5em"
+                >
+                  <input
+                    id="input-version-number-1"
+                    type="number"
+                    step="1"
+                    min="0"
+                    value="0"
+                    class="input input-version-number"
+                    style="width:40px"
+                  />
+                  <span style="margin-top: 0.85em">.</span>
+                  <input
+                    id="input-version-number-2"
+                    type="number"
+                    step="1"
+                    min="0"
+                    value="0"
+                    class="input input-version-number"
+                    style="width:40px"
+                  />
+                  <span style="margin-top: 0.85em">.</span>
+                  <input
+                    id="input-version-number-3"
+                    type="number"
+                    step="1"
+                    min="1"
+                    value="1"
+                    class="input input-version-number"
+                    style="width:40px"
+                  />
+                </div>
+                <!-- </div> -->
+                <paper-button
+                  id="release-application"
+                  @click=${this._onReleaseApplicationButtonClicked}
+                  class="paper-button-blue"
+                  >Release</paper-button
+                >
               </div>
             </div>
-            <paper-button
-              id="deploy-model"
-              @click=${this._onDeployButtonClicked}
-              class="paper-button-blue"
-              >${this.deployButtonStatus}</paper-button
-            >
           </div>
-          <div class="right-side">
-            <h4>Management</h4>
-            <div id="Management" style="hidden: true;">
-              <div class="app" id="app">
-                <div style="margin-right:20px;">
-                  Application: ${this.projectName}
+          <div style="flex-grow: 4;">
+            <h4>Deploy a release</h4>
+
+            <div>
+              <div style="margin-right:20px;">
+                Selected Release:
+                <paper-dropdown-menu label="Select Release">
+                  <paper-listbox slot="dropdown-content" id="mydropdown">
+                    ${this.applicationReleases.map(
+                      (release) =>
+                        html`
+                          <paper-item>${release.supplement.version}</paper-item>
+                        `
+                    )}
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+              <div style="display:flex; flex-direction: column; flex-grow: 4;">
+                <div style="display:flex; flex-direction: column;">
+                  Name
+                  <span
+                    class="textbox"
+                    style="display:flex; flex-direction: row;"
+                  >
+                    <input
+                      type="text"
+                      id="country"
+                      name="country"
+                      value="${this.namespacePrefixDefaultValue}"
+                      readonly
+                    />
+                    <input
+                      id="nameDefaultValue"
+                      type="text"
+                      @input="${this.nameDefaultValueInput}"
+                      .value="${this.nameDefaultValue}"
+                    />
+                  </span>
                 </div>
-                <!-- <iron-icon
-                  icon="arrow-drop-down"
-                  class="icon-no icon"
-                ></iron-icon> -->
-                <div class="App" style="hidden: false;">
-                  <div>
-                    <iron-icon
-                      icon="block"
-                      class="delete_button"
-                      @click="${() => this.deleteDeployment()}"
-                    ></iron-icon>
-                    <iron-icon icon="redo" class="retry_button"></iron-icon>
-                  </div>
+                <div style="display:flex; flex-direction: column;">
+                  URL
+                  <input
+                    id="urlDefaultValue"
+                    type="text"
+                    @input="${this.urlDefaultValueInput}"
+                    .value="${this.urlDefaultValue}"
+                  />
                 </div>
               </div>
             </div>
+            <paper-button id="deploy-release" class="paper-button-blue"
+              >Deploy your release</paper-button
+            >
           </div>
         </div>
         <div>
@@ -289,7 +339,16 @@ class TestDeploy extends LitElement {
       nameDefaultValue: {
         type: String,
       },
-      projectName: {
+      applicationName: {
+        type: String,
+      },
+      applicationId: {
+        type: String,
+      },
+      applicationReleases: {
+        type: Array,
+      },
+      highestApplicationReleaseVersion: {
         type: String,
       },
       projectUsers: {
@@ -320,15 +379,15 @@ class TestDeploy extends LitElement {
     };
   }
   showManagement() {
-    this.deployButtonStatus = "DEPLOYED";
+    this.releaseButtonStatus = "DEPLOYED";
     this.shadowRoot.getElementById("app").style.pointerEvents = "all";
   }
   showDeployment() {
-    this.deployButtonStatus = "DEPLOY";
+    this.releaseButtonStatus = "DEPLOY";
     this.shadowRoot.getElementById("app").style.pointerEvents = "none";
   }
   showCheckNameAvailable() {
-    this.deployButtonStatus = "Check name availability";
+    this.releaseButtonStatus = "Check name availability";
     this.shadowRoot.getElementById("app").style.pointerEvents = "none";
   }
   nameDefaultValueInput() {
@@ -377,10 +436,12 @@ class TestDeploy extends LitElement {
     super();
     this.wordList = this.returnWordList();
     self = this;
-    setInterval(function () {
-      self.checkIfApplicationIsDeploying();
-      console.log("djsndjnsknjkds");
-    }, 5000);
+    this.applicationReleases = [];
+    this.highestApplicationReleaseVersion = "0.0.1";
+    // setInterval(function () {
+    //   self.checkIfApplicationIsDeploying();
+    //   console.log("djsndjnsknjkds");
+    // }, 5000);
     Y({
       db: {
         name: "memory",
@@ -456,11 +517,6 @@ class TestDeploy extends LitElement {
         }
       });
     });
-    this.checkInitialDeploymentInfo().then((_) => {
-      this.requestUpdate();
-      this.checkInitialDeploymentInfo();
-    });
-    this.deployButtonStatus = "DEPLOY";
     this.pendingDots = 0;
     this.nameDefaultValue =
       this.wordList[Math.floor(Math.random() * this.wordList.length)] +
@@ -470,9 +526,9 @@ class TestDeploy extends LitElement {
     this.urlDefaultValue =
       "https://cae.tech4comp.dbis.rwth-aachen.de/deployment/";
     this.deploymentStatus = "setNotDeploying";
-    this.versionNumber1 = "2";
-    this.versionNumber2 = "3";
-    this.versionNumber3 = "4";
+    this.versionNumber1 = "0";
+    this.versionNumber2 = "0";
+    this.versionNumber3 = "1";
 
     this.requestUpdate().then((_) => {
       this.getDeployButton().disabled = false;
@@ -506,13 +562,9 @@ class TestDeploy extends LitElement {
   enableWidget() {
     this.getDeployButton().disabled = false;
   }
-
-  async checkInitialDeploymentInfo() {
-    var pathname = window.location.pathname.split("/");
-    var id = pathname[pathname.length - 1];
-    var services = [];
-    var projectOnChain = false;
-    var relevantReleases = [];
+  async _getReleasesOfApplication() {
+    var allServices = [];
+    var releaseVersions = [];
     await fetch("http://localhost:8012/las2peer/services/services", {
       method: "GET",
     })
@@ -520,47 +572,32 @@ class TestDeploy extends LitElement {
         return response.json();
       })
       .then((data) => {
-        services = data;
+        allServices = data;
       });
-    await services.forEach((service) => {
-      Object.keys(service.releases).forEach((item) => {
-        console.log("item")
-        console.log(item)
-        if (service.releases[item].supplement.id == id) {
-          projectOnChain = true;
-          relevantReleases.push(service.releases[item]);
+    allServices.forEach((service) => {
+      Object.keys(service.releases).forEach((releaseVersion) => {
+        if (
+          service.releases[releaseVersion].supplement.name ==
+            "cae-app-" + this.projectName &&
+          service.releases[releaseVersion].supplement.id ==
+            this.applicationId &&
+          service.releases[releaseVersion].supplement.type == "cae-application"
+        ) {
+          releaseVersions.push(releaseVersion);
+          this.applicationReleases.push(service.releases[releaseVersion]);
         }
       });
     });
-    console.log(projectOnChain)
-
-    if (projectOnChain == true) {
-      var latestTimeRelease = Math.max.apply(
-        Math,
-        relevantReleases.map(function (o) {
-          return o.publicationEpochSeconds;
-        })
-      );
-      var correctIndex = relevantReleases.findIndex(
-        (release) => release.publicationEpochSeconds == latestTimeRelease
-      );
-      var tempProjectName = [];
-      tempProjectName = relevantReleases[correctIndex].supplement.name.split(
-        "-"
-      );
-      tempProjectName.shift();
-      tempProjectName.shift();
-      tempProjectName.shift();
-      var projectName = tempProjectName.join("-");
-      this.nameDefaultValue = projectName;
-      var version = relevantReleases[correctIndex].supplement.version.split(
-        "."
-      );
-      this.setEnteredVersion(version[0], version[1], version[2]);
-      this.requestUpdate();
-    } else {
-    }
+    releaseVersions.forEach((version) => {
+      if (gt(version, this.highestApplicationReleaseVersion)) {
+        this.highestApplicationReleaseVersion = version;
+      }
+    });
+    var highestVersion = this.highestApplicationReleaseVersion.split(".");
+    this.setEnteredVersion(highestVersion[0], highestVersion[1], highestVersion[2]);
+    this.requestUpdate();
   }
+
   async checkIfVersionValid() {
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
@@ -662,7 +699,7 @@ class TestDeploy extends LitElement {
     });
     return nameAvailable;
   }
-  async _onDeployButtonClicked() {
+  async _onReleaseApplicationButtonClicked() {
     //check if  value of name is valid
     var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
       this.namespacePrefixDefaultValue + this.nameDefaultValue
@@ -713,9 +750,7 @@ class TestDeploy extends LitElement {
           this.namespacePrefixDefaultValue + this.nameDefaultValue
         }","id":"${pathname[pathname.length - 1]}","author":"[${
           this.projectUsers
-        }]","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}","link":"${
-          this.urlDefaultValue
-        }"}`,
+        }]","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}"}`,
       }
     )
       .then((response) => {
@@ -803,7 +838,7 @@ class TestDeploy extends LitElement {
     this.set("route.path", "/test-deploy/" + Common.getVersionedModelId());
   }
   getDeployButton() {
-    return this.shadowRoot.getElementById("deploy-model");
+    return this.shadowRoot.getElementById("release-application");
   }
 
   getDeployStatusTextarea() {
@@ -821,6 +856,7 @@ class TestDeploy extends LitElement {
   async getProjectInfo() {
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
+    this.applicationId = String(id);
     var nameofProject = "";
     var users = [];
     this.namespacePrefixDefaultValue = "cae-app-" + "projectName" + "-";
@@ -841,7 +877,7 @@ class TestDeploy extends LitElement {
           });
         });
       });
-      console.log(selectedProject)
+    console.log(selectedProject);
 
     // await fetch(` http://localhost:8081/project-management/projects/` + id, {
     //   method: "GET",
@@ -864,11 +900,11 @@ class TestDeploy extends LitElement {
 
     this.projectName = selectedProject.name;
     nameofProject = selectedProject.name;
-    this.namespacePrefixDefaultValue =
-    "cae-app-" + this.projectName + "-";
+    this.namespacePrefixDefaultValue = "cae-app-" + this.projectName + "-";
 
-    console.log(this.projectName)
-    console.log(nameofProject)
+    console.log(this.projectName);
+    console.log(nameofProject);
+    await this._getReleasesOfApplication();
     this.requestUpdate();
     return nameofProject;
   }
