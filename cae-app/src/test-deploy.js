@@ -230,7 +230,10 @@ class TestDeploy extends LitElement {
               <div style="margin-right:20px;">
                 Selected Release:
                 <paper-dropdown-menu label="Select Release">
-                  <paper-listbox slot="dropdown-content" id="mydropdown">
+                  <paper-listbox
+                    slot="dropdown-content"
+                    id="deployment-release-dropdown"
+                  >
                     ${this.applicationReleases.map(
                       (release) =>
                         html`
@@ -274,9 +277,10 @@ class TestDeploy extends LitElement {
               </div>
             </div>
             <paper-button
-              id="deploy-release"
+              id="deployment-button"
               @click=${this._onDeployReleaseButtonClicked}
               class="paper-button-blue"
+              ?disabled=${true}
               >Deploy your release</paper-button
             >
           </div>
@@ -350,6 +354,9 @@ class TestDeploy extends LitElement {
       },
       applicationReleases: {
         type: Array,
+      },
+      selectedReleaseVersion: {
+        type: String,
       },
       highestApplicationReleaseVersion: {
         type: String,
@@ -441,7 +448,6 @@ class TestDeploy extends LitElement {
     self = this;
     // setInterval(function () {
     //   self.checkIfApplicationIsDeploying();
-    //   console.log("djsndjnsknjkds");
     // }, 5000);
     Y({
       db: {
@@ -532,7 +538,6 @@ class TestDeploy extends LitElement {
     this.versionNumber1 = "0";
     this.versionNumber2 = "0";
     this.versionNumber3 = "1";
-
     this.requestUpdate().then((_) => {
       this.getReleaseButton().disabled = false;
       this.getStatusInput().style.setProperty("display", "none");
@@ -543,6 +548,16 @@ class TestDeploy extends LitElement {
 
   updated() {
     this.y.share.data.set("deploymentStatus", this.deploymentStatus);
+    const elem = this.shadowRoot.getElementById("deployment-release-dropdown");
+    elem.addEventListener(
+      "iron-select",
+      function (e) {
+        this.getDeploymentButton().disabled = false;
+        this.selectedReleaseVersion = e.target.selectedItems[0].outerText;
+        this.requestUpdate();
+      }.bind(this)
+    );
+
     // this.checkIfApplicationIsDeploying();
   }
   ///
@@ -552,7 +567,6 @@ class TestDeploy extends LitElement {
   ///
   testfunction() {
     this.setNotReleasing();
-    console.log(this.getProjectInfo());
   }
   ///
   ///
@@ -723,7 +737,7 @@ class TestDeploy extends LitElement {
           deployment.clusterName.normalize() ==
           this.namespacePrefixDefaultValue.normalize() +
             "-" +
-            +this.nameDefaultValue.normalize()
+            this.nameDefaultValue.normalize()
         ) {
           nameAvailable = false;
         }
@@ -764,57 +778,54 @@ class TestDeploy extends LitElement {
 
     if (deployNameAvailable == true) {
       // disable button until release has finished
-      // this.getDeploymentButton().disabled = true;
+      this.getDeploymentButton().disabled = true;
 
       // show status input field and textarea for deployment status
       this.getStatusInput().style.removeProperty("display");
       // send deploy request
       this.getStatusInput().value = "Releasing CAE application ...";
-      console.log("shoudl deploy");
+      this._sendDeploymentRequest("DeployToCluster");
     } else {
-      this.setNotDeploying();
       this.showToast("Name already taken, choose another one");
     }
   }
 
-  async _onReleaseApplicationButtonClickedOLD() {
-    //check if  value of name is valid
+  _sendDeploymentRequest(jobAlias) {
+    var pathname = window.location.pathname.split("/");
+    var clusterName =
+      this.namespacePrefixDefaultValue + "-" + this.nameDefaultValue;
     var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
-      this.namespacePrefixDefaultValue
+      clusterName
     );
     if (validName == false) {
-      console.log("Name invalid, only use low letters and -, _ if needed");
       this.showToast("Name invalid, only use low letters and -, _ if needed");
     } else {
-      var nameAvailable = true;
-      nameAvailable = await this.checkIfNameAvailable();
-      var versionValid = true;
-      versionValid = await this.checkIfVersionValid();
-      if (versionValid == true) {
-        if (nameAvailable == true) {
-          // disable button until deployment has finished
-          this.getReleaseButton().disabled = true;
-
-          // show status input field and textarea for deployment status
-          this.getStatusInput().style.removeProperty("display");
-          // send deploy request
-          this.getStatusInput().value = "Sending deploy request...";
-
-          this.releaseRequest("Build");
-        } else {
-          this.setNotReleasing();
-          this.showToast("Name already taken, choose another one");
+      fetch(
+        Static.ModelPersistenceServiceURL +
+          "/deploy/" +
+          pathname[pathname.length - 1] +
+          "/" +
+          jobAlias,
+        {
+          method: "POST",
+          body: `{"name":"${this.namespacePrefixDefaultValue}","id":"${
+            pathname[pathname.length - 1]
+          }","clusterName":"${clusterName}","version":"${
+            this.selectedReleaseVersion
+          }","type":"cae-application","link":"${this.urlDefaultValue}"}`,
         }
-      } else {
-        this.setNotReleasing();
-      }
+      )
+        .then((response) => {
+          return response.text();
+        })
+        .then((data) => {
+        });
     }
   }
 
   releaseRequest(jobAlias) {
     this.setDeploying();
     var pathname = window.location.pathname.split("/");
-    console.log(Auth.getAuthHeader()["Authorization"].split(" ")[1]);
     var aut = Auth.getAuthHeader()["Authorization"].split(" ")[1];
     fetch(
       Static.ModelPersistenceServiceURL +
@@ -838,8 +849,6 @@ class TestDeploy extends LitElement {
         } else {
           this.updateDeployStatus("DEPLOYING");
           this.getStatusInput().value = "Starting release";
-          console.log("Deployment: Starting deployment");
-          console.log("Deployment: Start polling job console text");
           this.pollJobConsoleText(data, jobAlias);
         }
       });
@@ -852,7 +861,6 @@ class TestDeploy extends LitElement {
         var feedbackString =
           "Release in progress" + Array(this.pendingDots + 1).join(".");
         this.getStatusInput().value = feedbackString;
-        console.log(feedbackString);
         this.getJobConsoleText(location, jobAlias);
       }.bind(this),
       1000
@@ -904,7 +912,6 @@ class TestDeploy extends LitElement {
               break;
           }
         } else if (data.indexOf("Finished: FAILURE") > -1) {
-          console.log("Deployment: Error during release!");
         } else {
           this.pollJobConsoleText(queueItem, jobAlias);
         }
@@ -916,6 +923,10 @@ class TestDeploy extends LitElement {
   }
   getReleaseButton() {
     return this.shadowRoot.getElementById("release-application");
+  }
+
+  getDeploymentButton() {
+    return this.shadowRoot.getElementById("deployment-button");
   }
 
   getDeployStatusTextarea() {
@@ -954,8 +965,6 @@ class TestDeploy extends LitElement {
           });
         });
       });
-    console.log(selectedProject);
-
     // await fetch(` http://localhost:8081/project-management/projects/` + id, {
     //   method: "GET",
     // })
@@ -978,9 +987,6 @@ class TestDeploy extends LitElement {
     this.projectName = selectedProject.name;
     nameofProject = selectedProject.name;
     this.namespacePrefixDefaultValue = "cae-app-" + this.projectName;
-
-    console.log(this.projectName);
-    console.log(nameofProject);
     await this._getReleasesOfApplication();
     this.requestUpdate();
     return nameofProject;
@@ -1005,7 +1011,6 @@ class TestDeploy extends LitElement {
         return response.text();
       })
       .then((data) => {
-        console.log(data);
         // var deployments = JSON.parse(data.toString());
         var inf = data;
         // Object.keys(deployments).forEach((item) => {
@@ -1020,15 +1025,11 @@ class TestDeploy extends LitElement {
         // });
         if (inf == "DEPLOYING") {
           this.setDeploying();
-          console.log("OK DEPLOYING");
         } else if (inf == "NOT DEPLOYED") {
-          console.log("OK NOT DEPL");
           this.setNotReleasing();
         } else if (inf == "DEPLOYED") {
-          console.log("OK DEPLOYED");
           this.setAlreadyDeployed();
         } else if (inf == "") {
-          console.log("OK NOT DEPLOYED");
           this.setNotReleasing();
         }
       });
@@ -1052,8 +1053,6 @@ class TestDeploy extends LitElement {
         return response.text();
       })
       .then((data) => {
-        console.log("UPDATE DATA");
-        console.log(data);
       });
   }
 
