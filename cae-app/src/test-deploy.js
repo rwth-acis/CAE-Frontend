@@ -759,7 +759,33 @@ class TestDeploy extends LitElement {
       this.setNotReleasing();
     }
   }
+  async _getReleaseProjectId(cae_application_name) {
+    var projectId;
+    var services = [];
+    await fetch("http://localhost:8012/las2peer/services/services", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        services = data;
+      });
 
+    services.forEach((service) => {
+      Object.keys(service.releases).forEach((releaseVersion) => {
+        if (
+          service.releases[releaseVersion].supplement.type ==
+            "cae-application" &&
+          service.releases[releaseVersion].supplement.name ==
+            cae_application_name
+        ) {
+          projectId = service.releases[releaseVersion].supplement.id;
+        }
+      });
+    });
+    return projectId;
+  }
   async _onDeployReleaseButtonClicked() {
     var deployNameAvailable = true;
     deployNameAvailable = await this.checkIfDeploymentNameAvailable();
@@ -768,46 +794,45 @@ class TestDeploy extends LitElement {
       // disable button until release has finished
       this.getDeploymentButton().disabled = true;
 
-      // show status input field and textarea for deployment status
-      this.getStatusInput().style.removeProperty("display");
-      // send deploy request
-      this.getStatusInput().value = "Releasing CAE application ...";
       this._sendDeploymentRequest("DeployToCluster");
     } else {
       this.showToast("Name already taken, choose another one");
     }
   }
 
-  _sendDeploymentRequest(jobAlias) {
-    var pathname = window.location.pathname.split("/");
-    var clusterName =
-      this.namespacePrefixDefaultValue + "-" + this.nameDefaultValue;
-    var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
-      clusterName
-    );
-    if (validName == false) {
-      this.showToast("Name invalid, only use low letters and -, _ if needed");
+  async _sendDeploymentRequest(jobAlias) {
+    var id = await this._getReleaseProjectId(this.namespacePrefixDefaultValue);
+    if (!id) {
+      this.showToast("Error getting project id");
     } else {
-      fetch(
-        Static.ModelPersistenceServiceURL +
-          "/deploy/" +
-          pathname[pathname.length - 1] +
-          "/" +
-          jobAlias,
-        {
-          method: "POST",
-          body: `{"name":"${this.namespacePrefixDefaultValue}","id":"${
-            pathname[pathname.length - 1]
-          }","clusterName":"${clusterName}","version":"${
-            this.selectedReleaseVersion
-          }","type":"cae-application","link":"${this.urlDefaultValue}"}`,
-        }
-      )
-        .then((response) => {
-          return response.text();
-        })
-        .then((data) => {
-        });
+      var clusterName =
+        this.namespacePrefixDefaultValue + "-" + this.nameDefaultValue;
+      var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
+        clusterName
+      );
+      if (validName == false) {
+        this.showToast("Name invalid, only use low letters and -, _ if needed");
+      } else {
+        fetch(
+          Static.ModelPersistenceServiceURL +
+            "/deploy/" +
+            String(id) +
+            "/" +
+            jobAlias,
+          {
+            method: "POST",
+            body: `{"name":"${this.namespacePrefixDefaultValue}","id":"${String(
+              id
+            )}","clusterName":"${clusterName}","version":"${
+              this.selectedReleaseVersion
+            }","type":"cae-application","link":"${this.urlDefaultValue}"}`,
+          }
+        )
+          .then((response) => {
+            return response.text();
+          })
+          .then((data) => {});
+      }
     }
   }
 
@@ -1040,8 +1065,7 @@ class TestDeploy extends LitElement {
       .then((response) => {
         return response.text();
       })
-      .then((data) => {
-      });
+      .then((data) => {});
   }
 
   deleteDeployment() {

@@ -130,23 +130,10 @@ class CaeAllRunningApplications extends PolymerElement {
     }
   }
   reloadModelingElement(type) {
-    // this.removeModelingElement(type);
     let div = this.shadowRoot.getElementById("all-applications");
     const modelingElement = this.createNewModelingElement(type);
     div.appendChild(modelingElement);
     this.currentModelingElement = modelingElement;
-
-    // also clear the content of the menu
-    // this.clearMenuContent();
-    // this.closeSideMenu();
-
-    // check if we are in dependency mode
-    // if(Common.isCurrentComponentDependency()) {
-    //   // dependency mode -> hide widget config editor
-    //   this.shadowRoot.getElementById("btn-widget-config").style.setProperty("display", "none");
-    // } else {
-    //   this.shadowRoot.getElementById("btn-widget-config").style.removeProperty("display");
-    // }
   }
 }
 
