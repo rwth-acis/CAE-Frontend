@@ -215,10 +215,8 @@ class AllApplications extends LitElement {
                                 <paper-icon-button
                                   icon="close"
                                   @click=${(e) => {
-                                  this._closeDeployInfoSection(                                    app.name
-)
-                                }}
-
+                                    this._closeDeployInfoSection(app.name);
+                                  }}
                                 ></paper-icon-button>
                               </div>
                               <span
@@ -247,11 +245,11 @@ class AllApplications extends LitElement {
                                 class="textbox"
                                 style="display:flex; flex-direction: row;"
                               >
-                              <paper-input
-                                id="url-input"
-                                type="text"
-                                .value="${this.urlDefaultValue}"
-                              ></paper-input>
+                                <paper-input
+                                  id="url-input"
+                                  type="text"
+                                  .value="${this.urlDefaultValue}"
+                                ></paper-input>
                               </span>
                             </div>
                           </div>
@@ -265,7 +263,8 @@ class AllApplications extends LitElement {
                             this.selectedRelease
                           );
                         }}
-                      > Deploy own Release
+                      >
+                        Deploy own Release
                       </paper-button>
                     </paper-card>
                   </paper-card>
@@ -297,11 +296,9 @@ class AllApplications extends LitElement {
     }
   }
 
-  _closeDeployInfoSection(id){
-    this.shadowRoot.getElementById(id).style.display =
-    "none";
-
-  }  
+  _closeDeployInfoSection(id) {
+    this.shadowRoot.getElementById(id).style.display = "none";
+  }
   _onOpenAppClicked(link) {
     window.open(link, "_blank");
   }
@@ -391,8 +388,28 @@ class AllApplications extends LitElement {
 
   // undeploy instance of selected release
   async _undeployInstance(deployment) {
+    // fetch(
+    //   Static.ModelPersistenceServiceURL +
+    //     "/deploy/" +
+    //     String(id) +
+    //     "/" +
+    //     jobAlias,
+    //   {
+    //     method: "POST",
+    //     body: `${JSON.stringify(deploymentData)}`,
+    //   }
+    // )
+    //   .then((response) => {
+    //     return response.text();
+    //   })
+    //   .then((data) => {});
+
     await fetch(
-      `http://localhost:8012/las2peer/services/announceUndeployment`,
+      Static.ModelPersistenceServiceURL +
+        "/deploy/" +
+        String(deployment.id) +
+        "/" +
+        "UndeployFromCluster",
       {
         method: "POST",
         body:
@@ -408,7 +425,9 @@ class AllApplications extends LitElement {
       .then((response) => {
         return response.json();
       })
-      .then((data) => {})
+      .then((data) => {
+        console.log(data)
+      })
       .catch((_) => {
         this.showToast("Error probably down");
       });

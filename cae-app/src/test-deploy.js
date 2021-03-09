@@ -144,7 +144,7 @@ class TestDeploy extends LitElement {
         }
         .release-list {
           height: 110px;
-          overflow: scroll;
+          overflow-y: scroll !important;
         }
       </style>
       <div id="Deployment">
@@ -220,6 +220,28 @@ class TestDeploy extends LitElement {
                   </div>
                 </div>
               </div>
+              <div>
+                <div
+                  class="form-group"
+                  style="margin-left: 4px; margin-right: 4px; margin-top: 4px; height: 150px"
+                >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="status"
+                    style="width: 100%"
+                    placeholder="Status.."
+                    readonly
+                  />
+                  <br />
+                  <textarea
+                    id="deploy-status"
+                    style="width: 100%;"
+                    class="form-control"
+                    readonly
+                  ></textarea>
+                </div>
+              </div>
             </div>
           </paper-card>
           <paper-card>
@@ -260,7 +282,7 @@ class TestDeploy extends LitElement {
                         type="text"
                         id="country"
                         name="country"
-                        value="${this.namespacePrefixDefaultValue}"
+                        value="${this.namespacePrefixDefaultValue}-"
                         readonly
                       ></paper-input>
                       <paper-input
@@ -291,27 +313,6 @@ class TestDeploy extends LitElement {
               >
             </div>
           </paper-card>
-        </div>
-        <div>
-          <div
-            class="form-group"
-            style="margin-left: 4px; margin-right: 4px; margin-top: 4px; height: 150px"
-          >
-            <input
-              type="text"
-              class="form-control"
-              id="status"
-              style="width: 100%"
-              placeholder="Status.."
-            />
-            <br />
-            <textarea
-              id="deploy-status"
-              style="width: 100%;"
-              class="form-control"
-              readonly
-            ></textarea>
-          </div>
         </div>
       </div>
       <paper-button @click=${this.testfunction}>HEHIEIH</paper-button>
@@ -544,6 +545,8 @@ class TestDeploy extends LitElement {
   updated() {
     this.y.share.data.set("deploymentStatus", this.deploymentStatus);
     const elem = this.shadowRoot.getElementById("deployment-release-dropdown");
+    // this.getDeployStatusTextarea().style.setProperty("display", "none");
+    // this.getStatusInput().style.setProperty("display", "none");
     elem.addEventListener(
       "iron-select",
       function (e) {
@@ -741,58 +744,6 @@ class TestDeploy extends LitElement {
     return nameAvailable;
   }
 
-  async _onReleaseApplicationButtonClicked() {
-    var releaseNameAvailable = true;
-    releaseNameAvailable = await this.checkIfNameAvailable();
-
-    var versionValid = true;
-    versionValid = await this.checkIfVersionValid();
-
-    if (versionValid == true) {
-      if (releaseNameAvailable == true) {
-        // disable button until release has finished
-        this.getReleaseButton().disabled = true;
-
-        // show status input field and textarea for deployment status
-        this.getStatusInput().style.removeProperty("display");
-        // send deploy request
-        this.getStatusInput().value = "Releasing CAE application ...";
-        this.releaseRequest("Build");
-      } else {
-        this.setNotReleasing();
-        this.showToast("Name already taken, choose another one");
-      }
-    } else {
-      this.setNotReleasing();
-    }
-  }
-  async _getReleaseProjectId(cae_application_name) {
-    var projectId;
-    var services = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
-      method: "GET",
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        services = data;
-      });
-
-    services.forEach((service) => {
-      Object.keys(service.releases).forEach((releaseVersion) => {
-        if (
-          service.releases[releaseVersion].supplement.type ==
-            "cae-application" &&
-          service.releases[releaseVersion].supplement.name ==
-            cae_application_name
-        ) {
-          projectId = service.releases[releaseVersion].supplement.id;
-        }
-      });
-    });
-    return projectId;
-  }
   async _onDeployReleaseButtonClicked() {
     var deployNameAvailable = true;
     deployNameAvailable = await this.checkIfDeploymentNameAvailable();
@@ -843,6 +794,61 @@ class TestDeploy extends LitElement {
     }
   }
 
+  async _getReleaseProjectId(cae_application_name) {
+    var projectId;
+    var services = [];
+    await fetch("http://localhost:8012/las2peer/services/services", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        services = data;
+      });
+
+    services.forEach((service) => {
+      Object.keys(service.releases).forEach((releaseVersion) => {
+        if (
+          service.releases[releaseVersion].supplement.type ==
+            "cae-application" &&
+          service.releases[releaseVersion].supplement.name ==
+            cae_application_name
+        ) {
+          projectId = service.releases[releaseVersion].supplement.id;
+        }
+      });
+    });
+    return projectId;
+  }
+
+  async _onReleaseApplicationButtonClicked() {
+    var releaseNameAvailable = true;
+    // TODO Check if group authorized to release this application
+    // releaseNameAvailable = await this.checkIfNameAvailable();
+
+    var versionValid = true;
+    versionValid = await this.checkIfVersionValid();
+
+    if (versionValid == true) {
+      // if (releaseNameAvailable == true) {
+      // disable button until release has finished
+      this.getReleaseButton().disabled = true;
+
+      // show status input field and textarea for deployment status
+      this.getStatusInput().style.removeProperty("display");
+      // send deploy request
+      this.getStatusInput().value = "Releasing CAE application ...";
+      this.releaseRequest("Build");
+      // } else {
+      //   this.setNotReleasing();
+      //   this.showToast("Name already taken, choose another one");
+      // }
+    } else {
+      this.setNotReleasing();
+    }
+  }
+
   releaseRequest(jobAlias) {
     this.setDeploying();
     var pathname = window.location.pathname.split("/");
@@ -867,7 +873,6 @@ class TestDeploy extends LitElement {
         if (data.indexOf("Error") > -1) {
           console.error(data);
         } else {
-          this.updateDeployStatus("DEPLOYING");
           this.getStatusInput().value = "Starting release";
           this.pollJobConsoleText(data, jobAlias);
         }
@@ -904,7 +909,7 @@ class TestDeploy extends LitElement {
       .then((data) => {
         if (data.indexOf("Pending") > -1) {
           data =
-            jobAlias + " job pending" + Array(this.pendingDots + 1).join(".");
+            "Release" + "pending" + Array(this.pendingDots + 1).join(".");
         }
 
         this.pendingDots = (this.pendingDots + 1) % 4;
@@ -912,25 +917,12 @@ class TestDeploy extends LitElement {
         this.getDeployStatusTextarea().style.removeProperty("display");
         this.getDeployStatusTextarea().value = data;
 
-        //$('#deploy-status').scrollTop($('#deploy-status')[0].scrollHeight);
         if (data.indexOf("Finished: SUCCESS") > -1) {
-          switch (jobAlias) {
-            case "Build":
-              this.getStatusInput().value = "Building was successfully!";
-              this.releaseRequest("Docker");
-              break;
-            case "Docker":
-              this.getStatusInput().value =
-                "Your CAE application has been released";
-              this.getDeployStatusTextarea().style.setProperty(
-                "display",
-                "none"
-              );
-              this.getOpenDeploymentLink().style.removeProperty("display");
-              // allow to deploy again by activating the deploy button
-              this.getReleaseButton().disabled = false;
-              break;
-          }
+          this.getStatusInput().value =
+            "Your CAE application has been released";
+          this.getDeployStatusTextarea().style.setProperty("display", "none");
+          // allow to deploy again by activating the deploy button
+          this.getReleaseButton().disabled = false;
         } else if (data.indexOf("Finished: FAILURE") > -1) {
         } else {
           this.pollJobConsoleText(queueItem, jobAlias);
