@@ -173,7 +173,9 @@ class AllApplications extends LitElement {
                                         <paper-button
                                           class="stop-release-application"
                                           @click=${(e) => {
-                                            this._undeployInstance(deployment);
+                                            this._onUndeployButtonClicked(
+                                              deployment
+                                            );
                                           }}
                                           >Stop deployment</paper-button
                                         >
@@ -336,6 +338,12 @@ class AllApplications extends LitElement {
     this.urlDefaultValue = "https://google.com";
   }
 
+  showToast(text) {
+    const toastElement = this.shadowRoot.getElementById("toast");
+    toastElement.text = text;
+    toastElement.show();
+  }
+
   async getAllRunningApplications() {
     var services = [];
     await fetch(`http://localhost:8012/las2peer/services/services`, {
@@ -366,44 +374,9 @@ class AllApplications extends LitElement {
     });
     this.requestUpdate();
   }
-  // deploy own instance of selected release
-  // user can choose release version to deploy
-  async _deployOwnInstance() {
-    await fetch(`http://localhost:8012/las2peer/services/announceDeployment`, {
-      method: "POST",
-      body:
-        '{"name":"cae-app-ew-other-new","clusterName":"cae-app-ew-other-new-2","version":"0.0.1","link":"https://www.google.com"}',
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        getAllRunningApplications();
-        requestUpdate();
-      })
-      .catch((_) => {
-        this.showToast("Error probably down");
-      });
-  }
 
   // undeploy instance of selected release
-  async _undeployInstance(deployment) {
-    // fetch(
-    //   Static.ModelPersistenceServiceURL +
-    //     "/deploy/" +
-    //     String(id) +
-    //     "/" +
-    //     jobAlias,
-    //   {
-    //     method: "POST",
-    //     body: `${JSON.stringify(deploymentData)}`,
-    //   }
-    // )
-    //   .then((response) => {
-    //     return response.text();
-    //   })
-    //   .then((data) => {});
-
+  async _onUndeployButtonClicked(deployment) {
     await fetch(
       Static.ModelPersistenceServiceURL +
         "/deploy/" +
@@ -426,46 +399,13 @@ class AllApplications extends LitElement {
         return response.json();
       })
       .then((data) => {
-        console.log(data)
-      })
-      .catch((_) => {
-        this.showToast("Error probably down");
+        console.log(data);
       });
   }
 
-  showToast(text) {
-    const toastElement = this.shadowRoot.getElementById("toast");
-    toastElement.text = text;
-    toastElement.show();
-  }
+  // deploy own instance of selected release
+  // user can choose release version to deploy
 
-  async _getReleaseProjectId(cae_application_name) {
-    var projectId;
-    var services = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
-      method: "GET",
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        services = data;
-      });
-
-    services.forEach((service) => {
-      Object.keys(service.releases).forEach((releaseVersion) => {
-        if (
-          service.releases[releaseVersion].supplement.type ==
-            "cae-application" &&
-          service.releases[releaseVersion].supplement.name ==
-            cae_application_name
-        ) {
-          projectId = service.releases[releaseVersion].supplement.id;
-        }
-      });
-    });
-    return projectId;
-  }
   async _onDeployReleaseButtonClicked(releaseData) {
     var deployNameAvailable = true;
     this.clusterNamePostfix = this.shadowRoot.getElementById(
@@ -492,7 +432,6 @@ class AllApplications extends LitElement {
     if (deployNameAvailable == true) {
       // disable button until release has finished
       // this.getDeploymentButton().disabled = true;
-
       this._sendDeploymentRequest("DeployToCluster", deploymentData);
     } else {
       this.showToast("Name already taken, choose another one");
