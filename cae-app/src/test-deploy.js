@@ -43,10 +43,17 @@ class TestDeploy extends LitElement {
           justify-content: space-around;
         }
         .input-fields {
-          flex-grow: 0;
           display: flex;
           flex-direction: column;
-          justify-content: space-around;
+          justify-content: space-between;
+          margin: 20px;
+        }
+        .deploy-release-input {
+          display: flex;
+          flex-direction: column;
+          flex-grow: 4;
+          justify-content: space-between;
+          margin: 20px;
         }
         .selectDeployment {
           display: flex;
@@ -58,13 +65,13 @@ class TestDeploy extends LitElement {
           flex-direction: row;
         }
         span.textbox {
-          background-color: #fff;
-          color: #888;
-          line-height: 20px;
-          height: 20px;
-          padding: 3px;
-          border: 1px #888 solid;
-          font-size: 9pt;
+          /* background-color: #fff;
+          color: #888; */
+          /* line-height: 20px; */
+          /* height: 20px; */
+          /* padding: 3px; */
+          /* border: 1px #888 solid; */
+          /* font-size: 1pt; */
         }
 
         span.textbox input {
@@ -135,155 +142,155 @@ class TestDeploy extends LitElement {
           color: #000000;
           background: #00ff55;
         }
+        .release-list {
+          height: 110px;
+          overflow: scroll;
+        }
       </style>
       <div id="Deployment">
-        <div class="middle" style="display:flex">
-          <div class="input-fields" style="flex-grow: 1;">
-            <h4>Release your application</h4>
-            <!-- Name -->
-            <!-- <span class="textbox">
-              <input
-                type="text"
-                id="country"
-                name="country"
-                value="${this.namespacePrefixDefaultValue}"
-                readonly
-              />
-              <input
-                id="nameDefaultValue"
-                type="text"
-                @input="${this.nameDefaultValueInput}"
-                .value="${this.nameDefaultValue}"
-              />
-            </span> -->
-            <!-- URL
-            <input
-              id="urlDefaultValue"
-              type="text"
-              @input="${this.urlDefaultValueInput}"
-              .value="${this.urlDefaultValue}"
-            /> -->
-            <div style="display:flex; flex-direction: row;">
-              <div style="display:flex; flex-direction: column;">
-                <div>Existing Releases</div>
-                <paper-dropdown-menu>
-                  <paper-listbox slot="dropdown-content">
-                    ${this.applicationReleases.map(
-                      (release) =>
-                        html`
-                          <paper-item>${release.supplement.version}</paper-item>
-                        `
-                    )}
-                  </paper-listbox>
-                </paper-dropdown-menu>
-              </div>
-              <div style="display:flex; flex-direction: column;">
-                <!-- <div id="version-number-div" style="display: show"> -->
-                <div
-                  id="semver-number-div"
-                  style="display: flex; height: 2em; margin-top: 0.5em"
-                >
-                  <input
-                    id="input-version-number-1"
-                    type="number"
-                    step="1"
-                    min="0"
-                    value="0"
-                    class="input input-version-number"
-                    style="width:40px"
-                  />
-                  <span style="margin-top: 0.85em">.</span>
-                  <input
-                    id="input-version-number-2"
-                    type="number"
-                    step="1"
-                    min="0"
-                    value="0"
-                    class="input input-version-number"
-                    style="width:40px"
-                  />
-                  <span style="margin-top: 0.85em">.</span>
-                  <input
-                    id="input-version-number-3"
-                    type="number"
-                    step="1"
-                    min="1"
-                    value="1"
-                    class="input input-version-number"
-                    style="width:40px"
-                  />
-                </div>
-                <!-- </div> -->
-                <paper-button
-                  id="release-application"
-                  @click=${this._onReleaseApplicationButtonClicked}
-                  class="paper-button-blue"
-                  >Release</paper-button
-                >
-              </div>
-            </div>
-          </div>
-          <div style="flex-grow: 4;">
-            <h4>Deploy a release</h4>
-
-            <div>
-              <div style="margin-right:20px;">
-                Selected Release:
-                <paper-dropdown-menu label="Select Release">
-                  <paper-listbox
-                    slot="dropdown-content"
-                    id="deployment-release-dropdown"
-                  >
-                    ${this.applicationReleases.map(
-                      (release) =>
-                        html`
-                          <paper-item>${release.supplement.version}</paper-item>
-                        `
-                    )}
-                  </paper-listbox>
-                </paper-dropdown-menu>
-              </div>
-              <div style="display:flex; flex-direction: column; flex-grow: 4;">
-                <div style="display:flex; flex-direction: column;">
-                  Name
-                  <span
-                    class="textbox"
-                    style="display:flex; flex-direction: row;"
-                  >
-                    <input
-                      type="text"
-                      id="country"
-                      name="country"
-                      value="${this.namespacePrefixDefaultValue}"
-                      readonly
-                    />
-                    <input
-                      id="nameDefaultValue"
-                      type="text"
-                      @input="${this.nameDefaultValueInput}"
-                      .value="${this.nameDefaultValue}"
-                    />
-                  </span>
-                </div>
-                <div style="display:flex; flex-direction: column;">
-                  URL
-                  <input
-                    id="urlDefaultValue"
-                    type="text"
-                    @input="${this.urlDefaultValueInput}"
-                    .value="${this.urlDefaultValue}"
-                  />
-                </div>
-              </div>
-            </div>
-            <paper-button
-              id="deployment-button"
-              @click=${this._onDeployReleaseButtonClicked}
-              class="paper-button-blue"
-              ?disabled=${true}
-              >Deploy your release</paper-button
+        <div class="middle" style="display:flex; padding: 20px;">
+          <paper-card>
+            <div
+              class="input-fields"
+              style="flex-grow: 1;display:flex; flex-direction: column;"
             >
-          </div>
+              <h4 style="text-align: center;text-decoration: underline;">
+                Release your application
+              </h4>
+              <div style="display:flex; flex-direction: row; flex-grow:2;">
+                <div style="display:flex; flex-direction: column; margin:20px">
+                  <div>Existing Releases</div>
+                  <div class="release-list">
+                    <paper-listbox slot="dropdown-content">
+                      ${this.applicationReleases.map(
+                        (release) =>
+                          html`
+                            <paper-item
+                              >${release.supplement.version}</paper-item
+                            >
+                          `
+                      )}
+                    </paper-listbox>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;">
+                  <div style="display:flex; flex-direction: column;">
+                    <!-- <div id="version-number-div" style="display: show"> -->
+                    <div
+                      id="semver-number-div"
+                      style="display: flex; height: 2em; margin-bottom: 0.5em"
+                    >
+                      <input
+                        id="input-version-number-1"
+                        type="number"
+                        step="1"
+                        min="0"
+                        value="0"
+                        class="input input-version-number"
+                        style="width:40px"
+                      />
+                      <span style="margin-top: 0.85em">.</span>
+                      <input
+                        id="input-version-number-2"
+                        type="number"
+                        step="1"
+                        min="0"
+                        value="0"
+                        class="input input-version-number"
+                        style="width:40px"
+                      />
+                      <span style="margin-top: 0.85em">.</span>
+                      <input
+                        id="input-version-number-3"
+                        type="number"
+                        step="1"
+                        min="1"
+                        value="1"
+                        class="input input-version-number"
+                        style="width:40px"
+                      />
+                    </div>
+                    <!-- </div> -->
+                    <paper-button
+                      id="release-application"
+                      @click=${this._onReleaseApplicationButtonClicked}
+                      class="paper-button-blue"
+                      >Release</paper-button
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+          </paper-card>
+          <paper-card>
+            <div class="deploy-release-input">
+              <h4 style="text-align: center; text-decoration: underline;">
+                Deploy a release
+              </h4>
+
+              <div>
+                <div style="margin-right:20px;">
+                  Selected Release:
+                  <paper-dropdown-menu label="Select Release">
+                    <paper-listbox
+                      slot="dropdown-content"
+                      id="deployment-release-dropdown"
+                    >
+                      ${this.applicationReleases.map(
+                        (release) =>
+                          html`
+                            <paper-item
+                              >${release.supplement.version}</paper-item
+                            >
+                          `
+                      )}
+                    </paper-listbox>
+                  </paper-dropdown-menu>
+                </div>
+                <div
+                  style="display:flex; flex-direction: column; flex-grow: 4;"
+                >
+                  <div style="display:flex; flex-direction: column;">
+                    Name
+                    <span
+                      class="textbox"
+                      style="display:flex; flex-direction: row;"
+                    >
+                      <paper-input
+                        type="text"
+                        id="country"
+                        name="country"
+                        value="${this.namespacePrefixDefaultValue}"
+                        readonly
+                      ></paper-input>
+                      <paper-input
+                        id="nameDefaultValue"
+                        type="text"
+                        @input="${this.nameDefaultValueInput}"
+                        .value="${this.nameDefaultValue}"
+                      ></paper-input>
+                    </span>
+                  </div>
+                  <div style="display:flex; flex-direction: column;">
+                    URL
+                    <paper-input
+                      id="urlDefaultValue"
+                      type="text"
+                      @input="${this.urlDefaultValueInput}"
+                      .value="${this.urlDefaultValue}"
+                    ></paper-input>
+                  </div>
+                </div>
+              </div>
+              <paper-button
+                id="deployment-button"
+                @click=${this._onDeployReleaseButtonClicked}
+                class="paper-button-blue"
+                ?disabled=${true}
+                >Deploy your release</paper-button
+              >
+            </div>
+          </paper-card>
         </div>
         <div>
           <div
