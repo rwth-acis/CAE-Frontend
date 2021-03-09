@@ -315,12 +315,14 @@ class TestDeploy extends LitElement {
           </paper-card>
         </div>
       </div>
-      <paper-button @click=${this.testfunction}>HEHIEIH</paper-button>
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
     `;
   }
   static get properties() {
     return {
+      releaseStatus: {
+        type: String,
+      },
       pendingDots: {
         type: Number,
       },
@@ -413,6 +415,9 @@ class TestDeploy extends LitElement {
     var temp = this.shadowRoot.getElementById("urlDefaultValue");
     this.y.share.data.set("urlDefaultValue", temp.value);
   }
+  setReleaseStatus(data) {
+    this.y.share.data.set("releaseStatus", data);
+  }
   updateDefaultValue(newDefaultValue, defaultValue) {
     switch (defaultValue) {
       case "portDefaultValue":
@@ -431,7 +436,16 @@ class TestDeploy extends LitElement {
         this.urlDefaultValue = newDefaultValue;
         this.requestUpdate("newDefaultValue", newDefaultValue);
         break;
-
+      case "releaseStatus":
+        this.releaseStatus = newDefaultValue;
+        this.requestUpdate("releaseStatus", newDefaultValue);
+        console.log(
+          "releaseStatusreleaseStatusreleaseStatusreleaseStatusreleaseStatusreleaseStatus"
+        );
+        console.log(this.releaseStatus);
+        if (this.releaseStatus != null) {
+          this.pollJobConsoleText(this.releaseStatus, "Build");
+        }
       default:
         break;
     }
@@ -440,11 +454,7 @@ class TestDeploy extends LitElement {
   constructor() {
     var pathname = window.location.pathname.split("/");
     super();
-    this.wordList = this.returnWordList();
     self = this;
-    // setInterval(function () {
-    //   self.checkIfApplicationIsDeploying();
-    // }, 5000);
     Y({
       db: {
         name: "memory",
@@ -480,6 +490,17 @@ class TestDeploy extends LitElement {
       } else {
         self.deploymentStatus = y.share.data.get("deploymentStatus");
         y.share.data.set("deploymentStatus", "setNotDeploying");
+      }
+      // deploymentStatus
+      if (y.share.data.get("releaseStatus") == undefined) {
+        console.log("releaseStatusreleaseStatusreleaseStatus undefinnned");
+        console.log(self.releaseStatus);
+        y.share.data.set("releaseStatus", self.releaseStatus);
+      } else {
+        console.log("releaseStatusreleaseStatus definiined");
+        console.log(self.releaseStatus);
+        self.releaseStatus = y.share.data.get("releaseStatus");
+        self.pollJobConsoleText(self.releaseStatus, "Build");
       }
 
       y.share.data.observe((event) => {
@@ -517,9 +538,26 @@ class TestDeploy extends LitElement {
             self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
             self.showCheckNameAvailable();
           }
+        } else if (event.name == "releaseStatus") {
+          if (event.value != event.oldValue) {
+            self.updateDefaultValue(event.value, "releaseStatus");
+          }
         }
       });
     });
+    this.setupDefaultValues();
+    this.requestUpdate().then((_) => {
+      this.getReleaseButton().disabled = false;
+      this.getStatusInput().style.setProperty("display", "none");
+      this.getDeployStatusTextarea().style.setProperty("display", "none");
+      this.getOpenDeploymentLink().style.setProperty("display", "none");
+      this.getDeployStatusTextarea().style.setProperty("display", "none");
+      this.getStatusInput().style.setProperty("display", "none");
+    });
+  }
+
+  setupDefaultValues() {
+    this.wordList = this.returnWordList();
     this.applicationReleases = [];
     this.highestApplicationReleaseVersion = "0.0.1";
     this.pendingDots = 0;
@@ -530,24 +568,18 @@ class TestDeploy extends LitElement {
     this.getProjectInfo();
     this.urlDefaultValue =
       "https://cae.tech4comp.dbis.rwth-aachen.de/deployment/";
+    this.releaseStatus = null;
     this.deploymentStatus = "setNotDeploying";
     this.versionNumber1 = "0";
     this.versionNumber2 = "0";
     this.versionNumber3 = "1";
-    this.requestUpdate().then((_) => {
-      this.getReleaseButton().disabled = false;
-      this.getStatusInput().style.setProperty("display", "none");
-      this.getDeployStatusTextarea().style.setProperty("display", "none");
-      this.getOpenDeploymentLink().style.setProperty("display", "none");
-    });
   }
-
   updated() {
     this.y.share.data.set("deploymentStatus", this.deploymentStatus);
-    const elem = this.shadowRoot.getElementById("deployment-release-dropdown");
-    // this.getDeployStatusTextarea().style.setProperty("display", "none");
-    // this.getStatusInput().style.setProperty("display", "none");
-    elem.addEventListener(
+    const deploymentReleaseDropdownElement = this.shadowRoot.getElementById(
+      "deployment-release-dropdown"
+    );
+    deploymentReleaseDropdownElement.addEventListener(
       "iron-select",
       function (e) {
         this.getDeploymentButton().disabled = false;
@@ -555,29 +587,9 @@ class TestDeploy extends LitElement {
         this.requestUpdate();
       }.bind(this)
     );
+  }
 
-    // this.checkIfApplicationIsDeploying();
-  }
-  ///
-  ///
-  ///
-  ///
-  ///
-  testfunction() {
-    this.setNotReleasing();
-  }
-  ///
-  ///
-  ///
-  ///
-  /**
-   * Gets called by application-modeling.js when at least one commit exists (and code got generated)
-   * and deployment can get started.
-   */
-
-  enableWidget() {
-    this.getReleaseButton().disabled = false;
-  }
+  // Get all release of CAE application to show as list
   async _getReleasesOfApplication() {
     var allServices = [];
     var releaseVersions = [];
@@ -618,56 +630,6 @@ class TestDeploy extends LitElement {
     this.requestUpdate();
   }
 
-  async checkIfVersionValid() {
-    var allServices = [];
-    var releaseVersions = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
-      method: "GET",
-    })
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        allServices = data;
-      });
-    allServices.forEach((service) => {
-      Object.keys(service.releases).forEach((releaseVersion) => {
-        if (
-          service.releases[releaseVersion].supplement.name ==
-            "cae-app-" + this.projectName &&
-          service.releases[releaseVersion].supplement.id ==
-            this.applicationId &&
-          service.releases[releaseVersion].supplement.type == "cae-application"
-        ) {
-          releaseVersions.push(releaseVersion);
-        }
-      });
-    });
-    releaseVersions.forEach((version) => {
-      if (gt(version, this.highestApplicationReleaseVersion)) {
-        this.highestApplicationReleaseVersion = version;
-      }
-    });
-
-    var currentVersion =
-      this.getVersionNumberInput(1).value +
-      "." +
-      this.getVersionNumberInput(2).value +
-      "." +
-      this.getVersionNumberInput(3).value;
-    var versionNumberValid = await gt(
-      currentVersion,
-      this.highestApplicationReleaseVersion
-    );
-    if (!versionNumberValid) {
-      this.showToast(
-        "Version should be higher than " + this.highestApplicationReleaseVersion
-      );
-      return false;
-    } else {
-      return true;
-    }
-  }
   getVersionNumberInput(part) {
     return this.shadowRoot.getElementById("input-version-number-" + part);
   }
@@ -717,6 +679,24 @@ class TestDeploy extends LitElement {
     return nameAvailable;
   }
 
+  //
+  // Called when deploying a new CAE deployment of an existing release
+  //
+  async _onDeployReleaseButtonClicked() {
+    var deployNameAvailable = true;
+    deployNameAvailable = await this.checkIfDeploymentNameAvailable();
+
+    if (deployNameAvailable == true) {
+      // disable button until release has finished
+      this.getDeploymentButton().disabled = true;
+
+      this._sendDeploymentRequest("DeployToCluster");
+    } else {
+      this.showToast("Name already taken, choose another one");
+    }
+  }
+
+  // Check if name of deployment is not already taken, as in namespace unique names of deployments needed
   async checkIfDeploymentNameAvailable() {
     var deployments = [];
     await fetch("http://localhost:8012/las2peer/services/deployments", {
@@ -742,20 +722,6 @@ class TestDeploy extends LitElement {
       });
     });
     return nameAvailable;
-  }
-
-  async _onDeployReleaseButtonClicked() {
-    var deployNameAvailable = true;
-    deployNameAvailable = await this.checkIfDeploymentNameAvailable();
-
-    if (deployNameAvailable == true) {
-      // disable button until release has finished
-      this.getDeploymentButton().disabled = true;
-
-      this._sendDeploymentRequest("DeployToCluster");
-    } else {
-      this.showToast("Name already taken, choose another one");
-    }
   }
 
   async _sendDeploymentRequest(jobAlias) {
@@ -822,6 +788,9 @@ class TestDeploy extends LitElement {
     return projectId;
   }
 
+  //
+  // Functions called when releasing a new version of CAE application
+  //
   async _onReleaseApplicationButtonClicked() {
     var releaseNameAvailable = true;
     // TODO Check if group authorized to release this application
@@ -846,6 +815,57 @@ class TestDeploy extends LitElement {
       // }
     } else {
       this.setNotReleasing();
+    }
+  }
+  // Upon releasing a new CAE application release check if version is valid, so already now check if version is not already present
+  async checkIfVersionValid() {
+    var allServices = [];
+    var releaseVersions = [];
+    await fetch("http://localhost:8012/las2peer/services/services", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        allServices = data;
+      });
+    allServices.forEach((service) => {
+      Object.keys(service.releases).forEach((releaseVersion) => {
+        if (
+          service.releases[releaseVersion].supplement.name ==
+            "cae-app-" + this.projectName &&
+          service.releases[releaseVersion].supplement.id ==
+            this.applicationId &&
+          service.releases[releaseVersion].supplement.type == "cae-application"
+        ) {
+          releaseVersions.push(releaseVersion);
+        }
+      });
+    });
+    releaseVersions.forEach((version) => {
+      if (gt(version, this.highestApplicationReleaseVersion)) {
+        this.highestApplicationReleaseVersion = version;
+      }
+    });
+
+    var currentVersion =
+      this.getVersionNumberInput(1).value +
+      "." +
+      this.getVersionNumberInput(2).value +
+      "." +
+      this.getVersionNumberInput(3).value;
+    var versionNumberValid = await gt(
+      currentVersion,
+      this.highestApplicationReleaseVersion
+    );
+    if (!versionNumberValid) {
+      this.showToast(
+        "Version should be higher than " + this.highestApplicationReleaseVersion
+      );
+      return false;
+    } else {
+      return true;
     }
   }
 
@@ -873,6 +893,7 @@ class TestDeploy extends LitElement {
         if (data.indexOf("Error") > -1) {
           console.error(data);
         } else {
+          this.setReleaseStatus(data);
           this.getStatusInput().value = "Starting release";
           this.pollJobConsoleText(data, jobAlias);
         }
@@ -881,10 +902,11 @@ class TestDeploy extends LitElement {
 
   pollJobConsoleText(location, jobAlias) {
     this.getDeployStatusTextarea().removeAttribute("hidden");
+    this.getReleaseButton().disabled = true;
     setTimeout(
       function () {
         var feedbackString =
-          "Release in progress" + Array(this.pendingDots + 1).join(".");
+          "Release in progress " + Array(this.pendingDots + 1).join(".");
         this.getStatusInput().value = feedbackString;
         this.getJobConsoleText(location, jobAlias);
       }.bind(this),
@@ -908,8 +930,7 @@ class TestDeploy extends LitElement {
       })
       .then((data) => {
         if (data.indexOf("Pending") > -1) {
-          data =
-            "Release" + "pending" + Array(this.pendingDots + 1).join(".");
+          data = "Release " + "pending" + Array(this.pendingDots + 1).join(".");
         }
 
         this.pendingDots = (this.pendingDots + 1) % 4;
@@ -918,6 +939,7 @@ class TestDeploy extends LitElement {
         this.getDeployStatusTextarea().value = data;
 
         if (data.indexOf("Finished: SUCCESS") > -1) {
+          this.setReleaseStatus(null);
           this.getStatusInput().value =
             "Your CAE application has been released";
           this.getDeployStatusTextarea().style.setProperty("display", "none");
@@ -930,9 +952,6 @@ class TestDeploy extends LitElement {
       });
   }
 
-  changeRoute() {
-    this.set("route.path", "/test-deploy/" + Common.getVersionedModelId());
-  }
   getReleaseButton() {
     return this.shadowRoot.getElementById("release-application");
   }
@@ -977,25 +996,6 @@ class TestDeploy extends LitElement {
           });
         });
       });
-    // await fetch(` http://localhost:8081/project-management/projects/` + id, {
-    //   method: "GET",
-    // })
-    //   .then((response) => {
-    //     return response.text();
-    //   })
-    //   .then((data) => {
-    //     nameofProject = JSON.parse(data).name;
-    //     users = JSON.parse(data).users;
-
-    //     this.namespacePrefixDefaultValue =
-    //       "cae-app-" + JSON.parse(data).name + "-";
-    //     // return JSON.parse(data).name;
-    //   });
-    // this.projectUsers = [];
-    // for (let index = 0; index < users.length; index++) {
-    //   this.projectUsers.push(users[index].loginName);
-    // }
-
     this.projectName = selectedProject.name;
     nameofProject = selectedProject.name;
     this.namespacePrefixDefaultValue = "cae-app-" + this.projectName;
@@ -1004,89 +1004,6 @@ class TestDeploy extends LitElement {
     return nameofProject;
   }
   //
-  async checkIfApplicationIsDeploying() {
-    var pathname = window.location.pathname.split("/");
-    await fetch(
-      // `http://localhost:8012/las2peer/services/deployments`,
-      Static.ModelPersistenceServiceURL + `/checkDeployStatus`,
-      // pathname[pathname.length - 1],
-      {
-        method: "POST",
-        body: `{"name":"${
-          this.namespacePrefixDefaultValue + this.nameDefaultValue
-        }","id":"${pathname[pathname.length - 1]}","author": "[${
-          this.projectUsers
-        }]" ,"statusUpdate":"DEPLOYING"}`,
-      }
-    )
-      .then((response) => {
-        return response.text();
-      })
-      .then((data) => {
-        // var deployments = JSON.parse(data.toString());
-        var inf = data;
-        // Object.keys(deployments).forEach((item) => {
-        //   if (
-        //     item ==
-        //     this.namespacePrefixDefaultValue + this.nameDefaultValue
-        //   ) {
-        //     inf = "DEPLOYING";
-        //   } else {
-        //     inf = "NOT DEPLOYED";
-        //   }
-        // });
-        if (inf == "DEPLOYING") {
-          this.setDeploying();
-        } else if (inf == "NOT DEPLOYED") {
-          this.setNotReleasing();
-        } else if (inf == "DEPLOYED") {
-          this.setAlreadyDeployed();
-        } else if (inf == "") {
-          this.setNotReleasing();
-        }
-      });
-  }
-  async updateDeployStatus(statusUpdate) {
-    var pathname = window.location.pathname.split("/");
-    var id = pathname[pathname.length - 1];
-
-    fetch(`http://localhost:8081/CAE/updateDeployStatus`, {
-      method: "POST",
-      body: `{
-          "name": "${this.namespacePrefixDefaultValue + this.nameDefaultValue}",
-          "namespace": "default",
-          "port": "${this.portDefaultValue}",
-          "url": "${this.urlDefaultValue}",
-          "statusUpdate": "${statusUpdate}",
-          "id":"${id}"
-        }`,
-    })
-      .then((response) => {
-        return response.text();
-      })
-      .then((data) => {});
-  }
-
-  deleteDeployment() {
-    var pathname = window.location.pathname.split("/");
-    var id = pathname[pathname.length - 1];
-
-    fetch(`http://localhost:8081/CAE/deleteDeployment/`, {
-      method: "POST",
-      body: `{"name":"${
-        this.namespacePrefixDefaultValue + this.nameDefaultValue
-      }","id":"${pathname[pathname.length - 1]}","author": "[${
-        this.projectUsers
-      }]" ,"deployStatus":"DELETED"}`,
-    })
-      .then((response) => {
-        return response.text();
-      })
-      .then((data) => {
-        // this.updateDeployStatus("NOT DEPLOYED");
-        this.showToast("Deleted deployment successfully");
-      });
-  }
 
   setDeploying() {
     this.y.share.data.set("deploymentStatus", "setDeploying");
@@ -1106,6 +1023,9 @@ class TestDeploy extends LitElement {
     toastElement.show();
   }
 
+  changeRoute() {
+    this.set("route.path", "/test-deploy/" + Common.getVersionedModelId());
+  }
   returnWordList() {
     return [
       "chug",
