@@ -309,7 +309,7 @@ class AllApplications extends LitElement {
   }
   _onEditAppClicked(id) {
     window.open(
-      "http://localhost:8070/cae-deploy/test-deploy/" + id.toString(),
+      Static.WebhostURL + "/cae-deploy/test-deploy/" + id.toString(),
       "_blank"
     );
   }
@@ -338,7 +338,8 @@ class AllApplications extends LitElement {
     this.runningApplications = [];
     this.getAllRunningApplications();
     this.clusterNamePostfix = "";
-    this.urlDefaultValue = "https://google.com";
+    this.urlDefaultValue =
+      "https://mentoring.tech4comp.dbis.rwth-aachen.de/deployment/";
     this.pendingDots = 0;
   }
 
@@ -354,7 +355,7 @@ class AllApplications extends LitElement {
 
   async getAllRunningApplications() {
     var services = [];
-    await fetch(`http://localhost:8012/las2peer/services/services`, {
+    await fetch(Static.RegistryURL + `/las2peer/services/services`, {
       method: "GET",
     })
       .then((response) => {
@@ -487,7 +488,7 @@ class AllApplications extends LitElement {
   }
   async checkIfDeploymentNameAvailable(clusterName) {
     var deployments = [];
-    await fetch("http://localhost:8012/las2peer/services/deployments", {
+    await fetch(Static.RegistryURL + "/las2peer/services/deployments", {
       method: "GET",
     })
       .then((response) => {

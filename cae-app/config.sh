@@ -16,6 +16,7 @@ check_if_exists "$YJS_RESOURCE_PATH" "YJS_RESOURCE_PATH"
 check_if_exists "$DEPLOYMENT_URL" "DEPLOYMENT_URL"
 check_if_exists "$GIT_ORGANIZATION" "GIT_ORGANIZATION"
 check_if_exists "$GITHUB_OAUTH_CLIENTID" "GITHUB_OAUTH_CLIENTID"
+check_if_exists "$LAS2PEER_REGISTRY_URL" "LAS2PEER_REGISTRY_URL"
 
 if [ "$ENV_VARIABLE_NOT_SET" = true ] ; then
     echo "Missing environment variables, exiting..."
@@ -32,6 +33,7 @@ sed -i "s={GIT_ORGANIZATION}=$GIT_ORGANIZATION=g" src/static.js
 sed -i "s={REQBAZ_BACKEND}=$REQBAZ_BACKEND=g" src/static.js
 sed -i "s={REQBAZ_FRONTEND}=$REQBAZ_FRONTEND=g" src/static.js
 sed -i "s={GITHUB_OAUTH_CLIENTID}=$GITHUB_OAUTH_CLIENTID=g" src/static.js
+sed -i "s={LAS2PEER_REGISTRY_URL}=$LAS2PEER_REGISTRY_URL=g" src/static.js
 
 # modify values in src/cae-static-app.js
 sed -i "s={OIDC_CLIENT_ID}=$OIDC_CLIENT_ID=g" src/cae-static-app.js

@@ -570,7 +570,7 @@ class TestDeploy extends LitElement {
       this.wordList[Math.floor(Math.random() * this.wordList.length)];
     this.getProjectInfo();
     this.urlDefaultValue =
-      "https://cae.tech4comp.dbis.rwth-aachen.de/deployment/";
+      "https://mentoring.tech4comp.dbis.rwth-aachen.de/deployment/";
     this.releaseStatus = null;
     this.deploymentStatus = "setNotDeploying";
     this.versionNumber1 = "0";
@@ -596,7 +596,7 @@ class TestDeploy extends LitElement {
   async _getReleasesOfApplication() {
     var allServices = [];
     var releaseVersions = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
+    await fetch(Static.RegistryURL + "/las2peer/services/services", {
       method: "GET",
     })
       .then((response) => {
@@ -658,7 +658,7 @@ class TestDeploy extends LitElement {
   async checkIfNameAvailable() {
     this.setCheckNameAvailable();
     var services = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
+    await fetch(Static.RegistryURL + "/las2peer/services/services", {
       method: "GET",
     })
       .then((response) => {
@@ -702,7 +702,7 @@ class TestDeploy extends LitElement {
   // Check if name of deployment is not already taken, as in namespace unique names of deployments needed
   async checkIfDeploymentNameAvailable() {
     var deployments = [];
-    await fetch("http://localhost:8012/las2peer/services/deployments", {
+    await fetch(Static.RegistryURL + "/las2peer/services/deployments", {
       method: "GET",
     })
       .then((response) => {
@@ -774,7 +774,7 @@ class TestDeploy extends LitElement {
   async _getReleaseProjectId(cae_application_name) {
     var projectId;
     var services = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
+    await fetch(Static.RegistryURL + "/las2peer/services/services", {
       method: "GET",
     })
       .then((response) => {
@@ -888,7 +888,7 @@ class TestDeploy extends LitElement {
   async checkIfVersionValid() {
     var allServices = [];
     var releaseVersions = [];
-    await fetch("http://localhost:8012/las2peer/services/services", {
+    await fetch(Static.RegistryURL + "/las2peer/services/services", {
       method: "GET",
     })
       .then((response) => {
@@ -1049,7 +1049,7 @@ class TestDeploy extends LitElement {
     this.namespacePrefixDefaultValue = "cae-app-" + "projectName";
     var selectedProject;
 
-    await fetch(` http://localhost:8081/project-management/projects`, {
+    await fetch(Static.ProjectManagementServiceURL + '/projects', {
       method: "GET",
     })
       .then((response) => {

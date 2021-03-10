@@ -66,7 +66,7 @@ class CaeStaticApp extends PolymerElement {
         oidcpopupsigninurl="/callbacks/popup-signin-callback.html"
         oidcpopupsignouturl="/callbacks/popup-signout-callback.html"
         oidcsilentsigninturl="/callbacks/silent-callback.html"
-        oidcclientid="f1412b21-0657-484a-9edb-39ed52e880ee"
+        oidcclientid="bb767191-32ed-44ed-b007-7fa0858133b6"
         subtitle="v"
         suppresswidgeterror="true"
         autoAppendWidget=true
