@@ -28,7 +28,7 @@ class TestDeploy extends LitElement {
         paper-button[disabled] {
           background: #e1e1e1;
         }
-        textarea#deploy-status {
+        textarea#release-status {
           background-color: #000000;
           color: #ffffff;
         }
@@ -212,7 +212,7 @@ class TestDeploy extends LitElement {
                     </div>
                     <!-- </div> -->
                     <paper-button
-                      id="release-application"
+                      id="release-button"
                       @click=${this._onReleaseApplicationButtonClicked}
                       class="paper-button-blue"
                       >Release</paper-button
@@ -235,7 +235,7 @@ class TestDeploy extends LitElement {
                   />
                   <br />
                   <textarea
-                    id="deploy-status"
+                    id="release-status"
                     style="width: 100%;"
                     class="form-control"
                     readonly
@@ -308,7 +308,7 @@ class TestDeploy extends LitElement {
                 id="deployment-button"
                 @click=${this._onDeployReleaseButtonClicked}
                 class="paper-button-blue"
-                ?disabled=${true}
+                ?disabled=${false}
                 >Deploy your release</paper-button
               >
             </div>
@@ -324,6 +324,9 @@ class TestDeploy extends LitElement {
         type: String,
       },
       pendingDots: {
+        type: Number,
+      },
+      deploymentPendingDots: {
         type: Number,
       },
       portDefaultValue: {
@@ -513,31 +516,31 @@ class TestDeploy extends LitElement {
             self.updateDefaultValue(event.value, "nameDefaultValue");
           }
         } else if (event.name == "deploymentStatus") {
-          if (event.value == "setDeploying") {
-            self.deployButtonStatus = "DEPLOY";
-            self.deploymentStatus = "setDeploying";
-            self.getDeployButton().disabled = true;
-            self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
-            self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
-          } else if (event.value == "setNotDeploying") {
-            self.deploymentStatus = "setNotDeploying";
-            self.getDeployButton().disabled = false;
-            self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
-            self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
-            self.showDeployment();
-          } else if (event.value == "setAlreadyDeployed") {
-            self.deploymentStatus = "setAlreadyDeployed";
-            self.getDeployButton().disabled = true;
-            self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
-            self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
-            self.showManagement();
-          } else if (event.value == "setCheckNameAvailable") {
-            self.deploymentStatus = "setCheckNameAvailable";
-            self.getDeployButton().disabled = false;
-            self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
-            self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
-            self.showCheckNameAvailable();
-          }
+          // if (event.value == "setDeploying") {
+          //   self.deployButtonStatus = "DEPLOY";
+          //   self.deploymentStatus = "setDeploying";
+          //   self.getDeployButton().disabled = true;
+          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
+          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
+          // } else if (event.value == "setNotDeploying") {
+          //   self.deploymentStatus = "setNotDeploying";
+          //   self.getDeployButton().disabled = false;
+          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
+          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
+          //   self.showDeployment();
+          // } else if (event.value == "setAlreadyDeployed") {
+          //   self.deploymentStatus = "setAlreadyDeployed";
+          //   self.getDeployButton().disabled = true;
+          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
+          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
+          //   self.showManagement();
+          // } else if (event.value == "setCheckNameAvailable") {
+          //   self.deploymentStatus = "setCheckNameAvailable";
+          //   self.getDeployButton().disabled = false;
+          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
+          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
+          //   self.showCheckNameAvailable();
+          // }
         } else if (event.name == "releaseStatus") {
           if (event.value != event.oldValue) {
             self.updateDefaultValue(event.value, "releaseStatus");
@@ -549,9 +552,9 @@ class TestDeploy extends LitElement {
     this.requestUpdate().then((_) => {
       this.getReleaseButton().disabled = false;
       this.getStatusInput().style.setProperty("display", "none");
-      this.getDeployStatusTextarea().style.setProperty("display", "none");
+      this.getReleaseStatusTextarea().style.setProperty("display", "none");
       this.getOpenDeploymentLink().style.setProperty("display", "none");
-      this.getDeployStatusTextarea().style.setProperty("display", "none");
+      this.getReleaseStatusTextarea().style.setProperty("display", "none");
       this.getStatusInput().style.setProperty("display", "none");
     });
   }
@@ -755,7 +758,15 @@ class TestDeploy extends LitElement {
           .then((response) => {
             return response.text();
           })
-          .then((data) => {});
+          .then((data) => {
+            if (data.indexOf("Error") > -1) {
+              console.error(data);
+              this.showToast("Error calling deployment server");
+              this.getDeploymentButton().disabled = false;
+            } else {
+              this.pollDeploymentJobConsoleText(data);
+            }
+          });
       }
     }
   }
@@ -786,6 +797,62 @@ class TestDeploy extends LitElement {
       });
     });
     return projectId;
+  }
+
+  pollDeploymentJobConsoleText(location) {
+    // this.getDeploymentStatusTextarea().removeAttribute("hidden");
+    this.getDeploymentButton().disabled = true;
+    setTimeout(
+      function () {
+        var feedbackString =
+          "Deployment in progress " + Array(this.pendingDots + 1).join(".");
+        // this.getDeploymentStatusInput().value = feedbackString;
+        this.getDeploymentJobConsoleText(location);
+      }.bind(this),
+      1000
+    );
+  }
+  getDeploymentJobConsoleText(queueItem) {
+    fetch(
+      Static.ModelPersistenceServiceURL +
+        "/deployStatus?queueItem=" +
+        queueItem,
+      {
+        method: "GET",
+      }
+    )
+      .then((response) => {
+        return response.text();
+      })
+      .then((data) => {
+        if (data.indexOf("Pending") > -1) {
+          data =
+            "Deployment " + "pending" + Array(this.pendingDots + 1).join(".");
+        }
+
+        // this.deploymentPendingDots = (this.deploymentPendingDots + 1) % 4;
+
+        // this.getDeploymentStatusTextarea().style.removeProperty("display");
+        // this.getDeploymentStatusTextarea().value = data;
+
+        if (data.indexOf("Finished: SUCCESS") > -1) {
+          this.getDeploymentButton().disabled = false;
+
+          // this.setDeploymentStatus(null);
+          // this.getDeploymentStatusInput().value =
+          //   "Your CAE application has been deployed";
+          this.showToast("Your CAE application has been deployed");
+          // this.getDeploymentStatusTextarea().style.setProperty("display", "none");
+          // allow to deploy again by activating the deploy button
+          // this.getDeploymentButton().disabled = false;
+        } else if (data.indexOf("Finished: FAILURE") > -1) {
+          this.getDeploymentButton().disabled = false;
+
+          this.showToast("Error during deployment");
+        } else {
+          this.pollDeploymentJobConsoleText(queueItem);
+        }
+      });
   }
 
   //
@@ -901,7 +968,7 @@ class TestDeploy extends LitElement {
   }
 
   pollJobConsoleText(location, jobAlias) {
-    this.getDeployStatusTextarea().removeAttribute("hidden");
+    this.getReleaseStatusTextarea().removeAttribute("hidden");
     this.getReleaseButton().disabled = true;
     setTimeout(
       function () {
@@ -918,9 +985,7 @@ class TestDeploy extends LitElement {
     fetch(
       Static.ModelPersistenceServiceURL +
         "/deployStatus?queueItem=" +
-        queueItem +
-        "&jobAlias=" +
-        jobAlias,
+        queueItem,
       {
         method: "GET",
       }
@@ -935,14 +1000,14 @@ class TestDeploy extends LitElement {
 
         this.pendingDots = (this.pendingDots + 1) % 4;
 
-        this.getDeployStatusTextarea().style.removeProperty("display");
-        this.getDeployStatusTextarea().value = data;
+        this.getReleaseStatusTextarea().style.removeProperty("display");
+        this.getReleaseStatusTextarea().value = data;
 
         if (data.indexOf("Finished: SUCCESS") > -1) {
           this.setReleaseStatus(null);
           this.getStatusInput().value =
             "Your CAE application has been released";
-          this.getDeployStatusTextarea().style.setProperty("display", "none");
+          this.getReleaseStatusTextarea().style.setProperty("display", "none");
           // allow to deploy again by activating the deploy button
           this.getReleaseButton().disabled = false;
         } else if (data.indexOf("Finished: FAILURE") > -1) {
@@ -953,14 +1018,17 @@ class TestDeploy extends LitElement {
   }
 
   getReleaseButton() {
-    return this.shadowRoot.getElementById("release-application");
+    return this.shadowRoot.getElementById("release-button");
   }
 
   getDeploymentButton() {
     return this.shadowRoot.getElementById("deployment-button");
   }
 
-  getDeployStatusTextarea() {
+  getReleaseStatusTextarea() {
+    return this.shadowRoot.getElementById("release-status");
+  }
+  getDeploymentStatusTextarea() {
     return this.shadowRoot.getElementById("deploy-status");
   }
 

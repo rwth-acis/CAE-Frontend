@@ -260,6 +260,9 @@ class AllApplications extends LitElement {
 
                     <paper-card>
                       <paper-button
+                        id="deployment-button"
+                        class="paper-button-blue"
+                        ?disabled=${false}
                         @click=${(e) => {
                           this._onDeployReleaseButtonClicked(
                             this.selectedRelease
@@ -336,12 +339,17 @@ class AllApplications extends LitElement {
     this.getAllRunningApplications();
     this.clusterNamePostfix = "";
     this.urlDefaultValue = "https://google.com";
+    this.pendingDots = 0;
   }
 
   showToast(text) {
     const toastElement = this.shadowRoot.getElementById("toast");
     toastElement.text = text;
     toastElement.show();
+  }
+
+  getDeploymentButton() {
+    return this.shadowRoot.getElementById("deployment-button");
   }
 
   async getAllRunningApplications() {
@@ -396,7 +404,7 @@ class AllApplications extends LitElement {
       }
     )
       .then((response) => {
-        return response.json();
+        return response.text();
       })
       .then((data) => {
         console.log(data);
@@ -465,7 +473,15 @@ class AllApplications extends LitElement {
           .then((response) => {
             return response.text();
           })
-          .then((data) => {});
+          .then((data) => {
+            if (data.indexOf("Error") > -1) {
+              console.error(data);
+              this.showToast("Error calling deployment server");
+              this.getDeploymentButton().disabled = false;
+            } else {
+              this.pollDeploymentJobConsoleText(data);
+            }
+          });
       }
     }
   }
@@ -489,6 +505,62 @@ class AllApplications extends LitElement {
       });
     });
     return nameAvailable;
+  }
+
+  pollDeploymentJobConsoleText(location) {
+    // this.getDeploymentStatusTextarea().removeAttribute("hidden");
+    this.getDeploymentButton().disabled = true;
+    setTimeout(
+      function () {
+        var feedbackString =
+          "Deployment in progress " + Array(this.pendingDots + 1).join(".");
+        // this.getDeploymentStatusInput().value = feedbackString;
+        this.getDeploymentJobConsoleText(location);
+      }.bind(this),
+      1000
+    );
+  }
+  getDeploymentJobConsoleText(queueItem) {
+    fetch(
+      Static.ModelPersistenceServiceURL +
+        "/deployStatus?queueItem=" +
+        queueItem,
+      {
+        method: "GET",
+      }
+    )
+      .then((response) => {
+        return response.text();
+      })
+      .then((data) => {
+        if (data.indexOf("Pending") > -1) {
+          data =
+            "Deployment " + "pending" + Array(this.pendingDots + 1).join(".");
+        }
+
+        // this.deploymentPendingDots = (this.deploymentPendingDots + 1) % 4;
+
+        // this.getDeploymentStatusTextarea().style.removeProperty("display");
+        // this.getDeploymentStatusTextarea().value = data;
+
+        if (data.indexOf("Finished: SUCCESS") > -1) {
+          this.getDeploymentButton().disabled = false;
+
+          // this.setDeploymentStatus(null);
+          // this.getDeploymentStatusInput().value =
+          //   "Your CAE application has been deployed";
+          this.showToast("Your CAE application has been deployed");
+          // this.getDeploymentStatusTextarea().style.setProperty("display", "none");
+          // allow to deploy again by activating the deploy button
+          // this.getDeploymentButton().disabled = false;
+        } else if (data.indexOf("Finished: FAILURE") > -1) {
+          this.getDeploymentButton().disabled = false;
+
+          this.showToast("Error during deployment");
+        } else {
+          this.pollDeploymentJobConsoleText(queueItem);
+        }
+      });
   }
 }
 
