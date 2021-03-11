@@ -1002,7 +1002,10 @@ class TestDeploy extends LitElement {
 
         this.getReleaseStatusTextarea().style.removeProperty("display");
         this.getReleaseStatusTextarea().value = data;
-
+        if (data.indexOf("Done") > -1) {
+          this.setReleaseStatus(null);
+          this.getReleaseButton().disabled = false;
+        }
         if (data.indexOf("Finished: SUCCESS") > -1) {
           this.setReleaseStatus(null);
           this.getStatusInput().value =

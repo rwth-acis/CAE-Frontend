@@ -14,7 +14,7 @@ Static.ProjectManagementServiceURL = '{CAE_BACKEND_URL}/project-management';
 Static.WebhostURL = '{WEBHOST}';
 Static.ModelPersistenceServiceURL = '{CAE_BACKEND_URL}/CAE';
 Static.CodeGenServiceURL = '{CAE_BACKEND_URL}/CodeGen';
-Static.RegistryURL = '{LAS2PEER_REGISTRY_URL}/l2p';
+Static.RegistryURL = '{LAS2PEER_REGISTRY_URL}';
 // Yjs configuration
 Static.YjsAddress = "{YJS_ADDRESS}";
 Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
