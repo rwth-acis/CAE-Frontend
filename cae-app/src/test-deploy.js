@@ -950,7 +950,7 @@ class TestDeploy extends LitElement {
         method: "POST",
         body: `{"name":"${this.namespacePrefixDefaultValue}","id":"${
           pathname[pathname.length - 1]
-        }","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}","type":"cae-application"}`,
+        }","deployStatus":"DEPLOYING","Authorization":"${aut}","version":"${this.getVersion()}","type":"cae-application","users":[${this.projectUsers}]}`,
       }
     )
       .then((response) => {
@@ -1047,7 +1047,6 @@ class TestDeploy extends LitElement {
     var pathname = window.location.pathname.split("/");
     var id = pathname[pathname.length - 1];
     this.applicationId = String(id);
-    var nameofProject = "";
     var users = [];
     this.namespacePrefixDefaultValue = "cae-app-" + "projectName";
     var selectedProject;
@@ -1068,11 +1067,14 @@ class TestDeploy extends LitElement {
         });
       });
     this.projectName = selectedProject.name;
-    nameofProject = selectedProject.name;
+    selectedProject.users.forEach(user => {
+      users.push('"' + user.loginName + '"')
+    });
+    console.log(users)
+    this.projectUsers = users;
     this.namespacePrefixDefaultValue = "cae-app-" + this.projectName;
     await this._getReleasesOfApplication();
     this.requestUpdate();
-    return nameofProject;
   }
   //
 
