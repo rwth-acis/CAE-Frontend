@@ -987,7 +987,6 @@ class TestDeploy extends LitElement {
           this.setReleaseStatus(null);
           this.getReleaseButton().disabled = false;
           this.getReleaseStatusTextarea().style.setProperty("display", "none");
-          break;
         }
         else{
           return response.text();
