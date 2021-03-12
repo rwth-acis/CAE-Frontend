@@ -983,7 +983,15 @@ class TestDeploy extends LitElement {
       }
     )
       .then((response) => {
-        return response.text();
+        if(response.status != 200){
+          this.setReleaseStatus(null);
+          this.getReleaseButton().disabled = false;
+          this.getReleaseStatusTextarea().style.setProperty("display", "none");
+          break;
+        }
+        else{
+          return response.text();
+        }
       })
       .then((data) => {
         if (data.indexOf("Pending") > -1) {
@@ -1006,6 +1014,9 @@ class TestDeploy extends LitElement {
           // allow to deploy again by activating the deploy button
           this.getReleaseButton().disabled = false;
         } else if (data.indexOf("Finished: FAILURE") > -1) {
+          this.setReleaseStatus(null);
+          this.getReleaseButton().disabled = false;
+          this.getReleaseStatusTextarea().style.setProperty("display", "none");
         } else {
           this.pollJobConsoleText(queueItem, jobAlias);
         }
