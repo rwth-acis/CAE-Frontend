@@ -442,10 +442,6 @@ class TestDeploy extends LitElement {
       case "releaseStatus":
         this.releaseStatus = newDefaultValue;
         this.requestUpdate("releaseStatus", newDefaultValue);
-        console.log(
-          "releaseStatusreleaseStatusreleaseStatusreleaseStatusreleaseStatusreleaseStatus"
-        );
-        console.log(this.releaseStatus);
         if (this.releaseStatus != null) {
           this.pollJobConsoleText(this.releaseStatus, "Build");
         }
@@ -496,12 +492,8 @@ class TestDeploy extends LitElement {
       }
       // deploymentStatus
       if (y.share.data.get("releaseStatus") == undefined) {
-        console.log("releaseStatusreleaseStatusreleaseStatus undefinnned");
-        console.log(self.releaseStatus);
         y.share.data.set("releaseStatus", self.releaseStatus);
       } else {
-        console.log("releaseStatusreleaseStatus definiined");
-        console.log(self.releaseStatus);
         self.releaseStatus = y.share.data.get("releaseStatus");
         self.pollJobConsoleText(self.releaseStatus, "Build");
       }
@@ -1070,7 +1062,6 @@ class TestDeploy extends LitElement {
     selectedProject.users.forEach(user => {
       users.push('"' + user.loginName + '"')
     });
-    console.log(users)
     this.projectUsers = users;
     this.namespacePrefixDefaultValue = "cae-app-" + this.projectName;
     await this._getReleasesOfApplication();
