@@ -1061,7 +1061,7 @@ class TestDeploy extends LitElement {
       .then((data) => {
         data.forEach((project) => {
           project.components.forEach((component) => {
-            if (component.id == id) {
+            if (component.versionedModelId == id) {
               selectedProject = project;
             }
           });
