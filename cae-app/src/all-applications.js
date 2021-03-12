@@ -122,7 +122,7 @@ class AllApplications extends LitElement {
                   <div class="running-applications">
                     <div class="running-applications-content">${app.name}</div>
                     <div class="running-applications-content">
-                      Created by: ${app.authorName}
+                      Number of releases: ${Object.keys(app.releases).length}
                     </div>
 
                     <paper-button
@@ -148,7 +148,7 @@ class AllApplications extends LitElement {
                           >
                             <details style="flex-grow: 4; ">
                               <summary class="summary">
-                                Deployments of release version: ${release}
+                                Deployments of release version: ${release}  Created by: ${app.releases[release].users}  Number of deployments: ${app.releases[release].instances.length}
                               </summary>
                               ${app.releases[release].instances.map(
                                 (deployment) =>
