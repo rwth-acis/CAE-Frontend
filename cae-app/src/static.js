@@ -10,27 +10,27 @@ Static.ApplicationSpaceId = 'application-modeling';
 // store the URL to the project management service, model persistence service and webhost (for widgets)
 // this gets updated when using docker env variables
 // and should not end with a "/"
-Static.ProjectManagementServiceURL = '{CAE_BACKEND_URL}/project-management';
-Static.WebhostURL = '{WEBHOST}';
-Static.ModelPersistenceServiceURL = '{CAE_BACKEND_URL}/CAE';
-Static.CodeGenServiceURL = '{CAE_BACKEND_URL}/CodeGen';
-Static.RegistryURL = '{LAS2PEER_REGISTRY_URL}';
+Static.ProjectManagementServiceURL = 'https://mentoring.tech4comp.dbis.rwth-aachen.de/backend/project-management';
+Static.WebhostURL = 'https://mentoring.tech4comp.dbis.rwth-aachen.de';
+Static.ModelPersistenceServiceURL = 'https://mentoring.tech4comp.dbis.rwth-aachen.de/backend/CAE';
+Static.CodeGenServiceURL = 'https://mentoring.tech4comp.dbis.rwth-aachen.de/backend/CodeGen';
+Static.RegistryURL = 'https://mentoring.tech4comp.dbis.rwth-aachen.de';
 // Yjs configuration
-Static.YjsAddress = "{YJS_ADDRESS}";
-Static.YjsResourcePath = "{YJS_RESOURCE_PATH}";
+Static.YjsAddress = "https://mentoring.tech4comp.dbis.rwth-aachen.de";
+Static.YjsResourcePath = "/yjs/socket.io";
 
 // URL where the deployed application can be seen
-Static.DeploymentURL = "{DEPLOYMENT_URL}";
+Static.DeploymentURL = "https://cae.tech4comp.dbis.rwth-aachen.de/deploy";
 // name of the GitHub organization where the source code is hosted
-Static.GitHubOrg = "{GIT_ORGANIZATION}";
-Static.GitHubOAuthClientId = "{GITHUB_OAUTH_CLIENTID}";
+Static.GitHubOrg = "CAETESTRWTH";
+Static.GitHubOAuthClientId = "e36f1d4edfc6ee7ff9c7";
 
 // the following links are not edited through the docker container
 Static.las2peerURL = "https://las2peer.org";
 Static.ExternalDependenciesWiki = "https://github.com/rwth-acis/CAE/wiki/External-Dependencies";
 
-Static.ReqBazBackend = "{REQBAZ_BACKEND}";
-Static.ReqBazFrontend = "{REQBAZ_FRONTEND}";
+Static.ReqBazBackend = "https://requirements-bazaar.org/bazaar";
+Static.ReqBazFrontend = "https://requirements-bazaar.org";
 
 
 // export default class Static {
