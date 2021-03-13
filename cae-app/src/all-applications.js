@@ -494,7 +494,7 @@ class AllApplications extends LitElement {
     var undeployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
     var indicatorUndeployButton = this.shadowRoot.getElementById("indicator-" + buttonId);
 
-    undeployButton.disabled = false;
+    undeployButton.disabled = true;
     undeployButtonText.innerText = "Undeployed"
     undeployButton.style = "background: rgb(228, 154, 199);";
 
