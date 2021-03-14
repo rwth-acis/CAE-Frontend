@@ -387,14 +387,10 @@ class ProjectExplorer extends LitElement {
     this.shadowRoot.getElementById("dialog-loading").open();
 
     if (projectName) {
-      var tempCleanedProjectName = projectName.trim();
-      var allWordsFromName = tempCleanedProjectName.split(" ");
-      var tempCleanedProjectName = "";
-      allWordsFromName.forEach((element) => {
-        tempCleanedProjectName = tempCleanedProjectName + element + " ";
-      });
-      var validatedName = tempCleanedProjectName.trim();
-      if (/^[a-z0-9-]+$/i.test(validatedName)) {
+      var validatedName = projectName.replace(/\s+/g, " ");
+      validatedName = validatedName.replace(/^\s+|\s+$/g, "");
+      
+      if (/^[a-zA-Z0-9 -]*$/i.test(validatedName)) {
         fetch(Static.ProjectManagementServiceURL + "/projects", {
           method: "POST",
           headers: Auth.getAuthHeader(),
