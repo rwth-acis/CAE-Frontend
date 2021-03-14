@@ -1,9 +1,9 @@
-import {html, LitElement} from 'lit-element';
-import '../../node_modules/@polymer/paper-card/paper-card.js';
-import '../../node_modules/@polymer/paper-button/paper-button.js';
-import '../../node_modules/@polymer/paper-input/paper-input.js';
-import '../../node_modules/@polymer/paper-dialog/paper-dialog.js';
-import '../../node_modules/@polymer/paper-spinner/paper-spinner-lite.js';
+import { html, LitElement } from "lit-element";
+import "../../node_modules/@polymer/paper-card/paper-card.js";
+import "../../node_modules/@polymer/paper-button/paper-button.js";
+import "../../node_modules/@polymer/paper-input/paper-input.js";
+import "../../node_modules/@polymer/paper-dialog/paper-dialog.js";
+import "../../node_modules/@polymer/paper-spinner/paper-spinner-lite.js";
 import Auth from "../util/auth";
 import Static from "../static";
 import Common from "../util/common";
@@ -101,49 +101,87 @@ class ProjectExplorer extends LitElement {
       </style>
       <div class="main">
         <div class="explorer-top-menu">
-          <paper-button class="button-create-project paper-button-blue" @click="${this._onCreateProjectButtonClicked}">Create Project</paper-button>
-          <input class="input-search-project" @input="${(e) => this._onSearchInputChanged(e.target.value)}" 
+          <paper-button class="button-create-project paper-button-blue" @click="${
+            this._onCreateProjectButtonClicked
+          }">Create Project</paper-button>
+          <input class="input-search-project" @input="${(e) =>
+            this._onSearchInputChanged(e.target.value)}" 
               placeholder="Search Projects"></input>
         </div>
         <div>
           <paper-tabs id="my-and-all-projects" selected="0">
-            <paper-tab @click="${() => this._onTabChanged(0)}">My Projects</paper-tab>
-            <paper-tab @click="${() => this._onTabChanged(1)}">All Projects</paper-tab>
+            <paper-tab @click="${() =>
+              this._onTabChanged(0)}">My Projects</paper-tab>
+            <paper-tab @click="${() =>
+              this._onTabChanged(1)}">All Projects</paper-tab>
           </paper-tabs>
         </div>
         <!-- show spinner if projects are loading -->
-        ${this.projectsLoading ? html`
-          <div style="width: 100%; display: flex">
-            <paper-spinner-lite style="margin-top: 4em; margin-left: auto; margin-right: auto"active></paper-spinner-lite>
-          </div>
-        ` : html``}
-        ${this.listedProjects.map(project => html`
-            <paper-card class="project-item-card" @click="${() => this._onProjectItemClicked(project.id)}">
+        ${
+          this.projectsLoading
+            ? html`
+                <div style="width: 100%; display: flex">
+                  <paper-spinner-lite
+                    style="margin-top: 4em; margin-left: auto; margin-right: auto"
+                    active
+                  ></paper-spinner-lite>
+                </div>
+              `
+            : html``
+        }
+        ${this.listedProjects.map(
+          (project) => html`
+            <paper-card
+              class="project-item-card"
+              @click="${() => this._onProjectItemClicked(project.id)}"
+            >
               <div class="project-item-card-content">
                 <p class="project-item-name">${project.name}</p>
                 <div style="margin-left: auto; display: flex">
-                  ${this.getListOfProjectOnlineUsers(project.id) ? html`<span class="green-dot" style="margin-top: auto; margin-bottom: auto"></span>` : html``}
-                  <p class="project-item-user-list">${this.getListOfProjectOnlineUsers(project.id)}</p>
-                  <a href="${project.gitHubProjectHtmlUrl}" title="Open on GitHub Projects" target="_blank" class="github-a" style="margin-top: auto; margin-bottom: auto">
+                  ${this.getListOfProjectOnlineUsers(project.id)
+                    ? html`<span
+                        class="green-dot"
+                        style="margin-top: auto; margin-bottom: auto"
+                      ></span>`
+                    : html``}
+                  <p class="project-item-user-list">
+                    ${this.getListOfProjectOnlineUsers(project.id)}
+                  </p>
+                  <a
+                    href="${project.gitHubProjectHtmlUrl}"
+                    title="Open on GitHub Projects"
+                    target="_blank"
+                    class="github-a"
+                    style="margin-top: auto; margin-bottom: auto"
+                  >
                     <!-- not using the svg from master branch, otherwise the file might be deleted and cannot be displayed anymore -->
-                    <img src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" class="github-img">
+                    <img
+                      src="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg"
+                      class="github-img"
+                    />
                   </a>
                 </div>
               </div>
             </paper-card>
-        `)}
+          `
+        )}
       </div>
       
       <!-- Dialog for creating new projects. -->
       <paper-dialog id="dialog-create-project">
         <h2>Create a Project</h2>
         
-        <paper-input id="input-project-name" @input="${(e) => this._onInputProjectNameChanged(e.target.value)}" 
+        <paper-input id="input-project-name" @input="${(e) =>
+          this._onInputProjectNameChanged(e.target.value)}" 
             placeholder="Project Name"></paper-input>
         
         <div class="buttons">
-          <paper-button @click="${this._closeCreateProjectDialogClicked}" dialog-dismiss>Cancel</paper-button>
-          <paper-button id="dialog-button-create" @click="${this._createProject}" dialog-confirm>Create</paper-button>
+          <paper-button @click="${
+            this._closeCreateProjectDialogClicked
+          }" dialog-dismiss>Cancel</paper-button>
+          <paper-button id="dialog-button-create" @click="${
+            this._createProject
+          }" dialog-confirm>Create</paper-button>
         </div>
       </paper-dialog>
       
@@ -164,6 +202,7 @@ class ProjectExplorer extends LitElement {
         }
       </style></custom-style>
       <paper-toast id="toast-already-existing" text="A project with the given name already exists!"></paper-toast>
+      <paper-toast id="toast-name-not-valid" text="Projectname can only be alpha numeric with hypens"></paper-toast>
     `;
   }
 
@@ -175,10 +214,10 @@ class ProjectExplorer extends LitElement {
        * is selected by the user.
        */
       projects: {
-        type: Array
+        type: Array,
       },
       projectsOnlineUser: {
-        type: Map
+        type: Map,
       },
       /**
        * This contains the projects that are shown.
@@ -186,15 +225,15 @@ class ProjectExplorer extends LitElement {
        * is enabled.
        */
       listedProjects: {
-        type: Array
+        type: Array,
       },
       tabSelected: {
-        type: Number
+        type: Number,
       },
       projectsLoading: {
-        type: Boolean
-      }
-    }
+        type: Boolean,
+      },
+    };
   }
 
   constructor() {
@@ -214,7 +253,7 @@ class ProjectExplorer extends LitElement {
    */
   _onTabChanged(tabIndex) {
     this.tabSelected = tabIndex;
-    if(tabIndex == 0) {
+    if (tabIndex == 0) {
       // show users projects / projects where the user is a member of
       this.showProjects(false);
     } else {
@@ -238,52 +277,55 @@ class ProjectExplorer extends LitElement {
 
     // only send authHeader when not all projects should be shown, but only the
     // one from the current user
-    const headers = allProjects? undefined : Auth.getAuthHeader();
+    const headers = allProjects ? undefined : Auth.getAuthHeader();
 
     fetch(Static.ProjectManagementServiceURL + "/projects", {
       method: "GET",
-      headers: headers
-    }).then(response => {
-      if(!response.ok) throw Error(response.status);
-      return response.json();
-    }).then(data => {
-      // set loading to false, then the spinner gets hidden
-      this.projectsLoading = false;
+      headers: headers,
+    })
+      .then((response) => {
+        if (!response.ok) throw Error(response.status);
+        return response.json();
+      })
+      .then((data) => {
+        // set loading to false, then the spinner gets hidden
+        this.projectsLoading = false;
 
-      // store loaded projects
-      this.projects = data;
-      // set projects that should be shown (currently all)
-      this.listedProjects = data;
+        // store loaded projects
+        this.projects = data;
+        // set projects that should be shown (currently all)
+        this.listedProjects = data;
 
-      // notify project-management about users projects (only if allProjects is false)
-      if(!allProjects) {
-        let event = new CustomEvent("user-project-list-loaded-event", {
-          detail: {
-            message: "Finished loading users projects.",
-            usersProjects: data
-          }
-        });
-        this.dispatchEvent(event);
-      }
+        // notify project-management about users projects (only if allProjects is false)
+        if (!allProjects) {
+          let event = new CustomEvent("user-project-list-loaded-event", {
+            detail: {
+              message: "Finished loading users projects.",
+              usersProjects: data,
+            },
+          });
+          this.dispatchEvent(event);
+        }
 
-      // load online users
-      for(let i in this.projects) {
-        this.loadListOfProjectOnlineUsers(this.projects[i].id);
-      }
-    }).catch(error => {
-      if(error.message == "401") {
-        // user is not authorized
-        // maybe the access token has expired
-        Auth.removeAuthDataFromLocalStorage();
-        location.reload();
-      } else {
-        console.log(error);
-      }
-    });
+        // load online users
+        for (let i in this.projects) {
+          this.loadListOfProjectOnlineUsers(this.projects[i].id);
+        }
+      })
+      .catch((error) => {
+        if (error.message == "401") {
+          // user is not authorized
+          // maybe the access token has expired
+          Auth.removeAuthDataFromLocalStorage();
+          location.reload();
+        } else {
+          console.log(error);
+        }
+      });
   }
 
   getProjectById(id) {
-    return this.listedProjects.find(x => x.id == id);
+    return this.listedProjects.find((x) => x.id == id);
   }
 
   /**
@@ -306,7 +348,7 @@ class ProjectExplorer extends LitElement {
    * @private
    */
   _onInputProjectNameChanged(projectName) {
-    if(projectName) {
+    if (projectName) {
       this.shadowRoot.getElementById("dialog-button-create").disabled = false;
     } else {
       this.shadowRoot.getElementById("dialog-button-create").disabled = true;
@@ -319,8 +361,8 @@ class ProjectExplorer extends LitElement {
    * @private
    */
   _onSearchInputChanged(searchInput) {
-    if(searchInput) {
-      this.listedProjects = this.projects.filter(project => {
+    if (searchInput) {
+      this.listedProjects = this.projects.filter((project) => {
         return project.name.toLowerCase().includes(searchInput.toLowerCase());
       });
     } else {
@@ -334,7 +376,8 @@ class ProjectExplorer extends LitElement {
    * create project dialog.
    */
   _createProject() {
-    const projectName = this.shadowRoot.getElementById("input-project-name").value;
+    const projectName = this.shadowRoot.getElementById("input-project-name")
+      .value;
 
     // close dialog (then also the button is not clickable and user cannot create project twice or more often)
     // important: get projectName before closing dialog, because when closing the dialog the input field gets cleared
@@ -343,39 +386,51 @@ class ProjectExplorer extends LitElement {
     // show loading dialog
     this.shadowRoot.getElementById("dialog-loading").open();
 
-    if(projectName) {
-      fetch(Static.ProjectManagementServiceURL + "/projects", {
-        method: "POST",
-        headers: Auth.getAuthHeader(),
-        body: JSON.stringify({
-          "name": projectName,
-          "access_token": Auth.getAccessToken()
-        })
-      }).then(response => {
-        // close loading dialog
-        this.shadowRoot.getElementById("dialog-loading").close();
-
-        if(response.status == 201) {
-          // project got created successfully
-          this.shadowRoot.getElementById("toast-success").show();
-
-          // clear input field for project name in the dialog
-          this.shadowRoot.getElementById("input-project-name").value = "";
-
-          // since a new project exists, reload projects from server
-          this.showProjects(false);
-          // switch to tab "My Projects"
-          this.tabSelected = 0;
-          this.shadowRoot.getElementById("my-and-all-projects").selected = 0;
-        } else if(response.status == 409) {
-          // a project with the given name already exists
-          this.shadowRoot.getElementById("toast-already-existing").show();
-        } else if(response.status == 401) {
-          Auth.removeAuthDataFromLocalStorage();
-          location.reload();
-        }
-        // TODO: check what happens when access_token is missing in localStorage
+    if (projectName) {
+      var tempCleanedProjectName = projectName.trim();
+      var allWordsFromName = tempCleanedProjectName.split(" ");
+      var tempCleanedProjectName = "";
+      allWordsFromName.forEach((element) => {
+        tempCleanedProjectName = tempCleanedProjectName + element + " ";
       });
+      var validatedName = tempCleanedProjectName.trim();
+      if (/^[a-z0-9-]+$/i.test(validatedName)) {
+        fetch(Static.ProjectManagementServiceURL + "/projects", {
+          method: "POST",
+          headers: Auth.getAuthHeader(),
+          body: JSON.stringify({
+            name: validatedName,
+            access_token: Auth.getAccessToken(),
+          }),
+        }).then((response) => {
+          // close loading dialog
+          this.shadowRoot.getElementById("dialog-loading").close();
+
+          if (response.status == 201) {
+            // project got created successfully
+            this.shadowRoot.getElementById("toast-success").show();
+
+            // clear input field for project name in the dialog
+            this.shadowRoot.getElementById("input-project-name").value = "";
+
+            // since a new project exists, reload projects from server
+            this.showProjects(false);
+            // switch to tab "My Projects"
+            this.tabSelected = 0;
+            this.shadowRoot.getElementById("my-and-all-projects").selected = 0;
+          } else if (response.status == 409) {
+            // a project with the given name already exists
+            this.shadowRoot.getElementById("toast-already-existing").show();
+          } else if (response.status == 401) {
+            Auth.removeAuthDataFromLocalStorage();
+            location.reload();
+          }
+          // TODO: check what happens when access_token is missing in localStorage
+        });
+      } else {
+        this.shadowRoot.getElementById("dialog-loading").close();
+        this.shadowRoot.getElementById("toast-name-not-valid").show();
+      }
     }
   }
 
@@ -403,8 +458,8 @@ class ProjectExplorer extends LitElement {
     let event = new CustomEvent("project-selected-event", {
       detail: {
         message: "Selected project in project explorer.",
-        project: this.getProjectById(projectId)
-      }
+        project: this.getProjectById(projectId),
+      },
     });
     this.dispatchEvent(event);
   }
@@ -417,11 +472,11 @@ class ProjectExplorer extends LitElement {
    */
   getListOfProjectOnlineUsers(projectId) {
     let s = "";
-    for(let i in this.projectsOnlineUser[projectId]) {
+    for (let i in this.projectsOnlineUser[projectId]) {
       s += this.projectsOnlineUser[projectId][i] + ",";
     }
-    if(s) {
-      s = s.substr(0,s.length-1);
+    if (s) {
+      s = s.substr(0, s.length - 1);
     }
     return s;
   }
@@ -439,57 +494,65 @@ class ProjectExplorer extends LitElement {
     let list = [];
     this.projectsOnlineUser[projectId] = list;
 
-    for(let i in components) {
+    for (let i in components) {
       const component = components[i];
       // get currently active users in yjs room
-      new Promise((resolve) => Y({
-        db: {
-          name: "memory" // store the shared data in memory
-        },
-        connector: {
-          name: "websockets-client", // use the websockets connector
-          room: Common.getYjsRoomNameForVersionedModel(component.versionedModelId, false),
-          options: { resource: Static.YjsResourcePath},
-          url: Static.YjsAddress
-        },
-        share: { // specify the shared content
-          userList: 'Map', // used to get full name of users
-          join: 'Map' // used to get currently online users
-        },
-        type:["Map"]
-      }).then(function(y) {
-        //y.share.data.set('metamodel', vls);
-        //console.log(component.name);
-        const userList = y.share.userList;
+      new Promise((resolve) =>
+        Y({
+          db: {
+            name: "memory", // store the shared data in memory
+          },
+          connector: {
+            name: "websockets-client", // use the websockets connector
+            room: Common.getYjsRoomNameForVersionedModel(
+              component.versionedModelId,
+              false
+            ),
+            options: { resource: Static.YjsResourcePath },
+            url: Static.YjsAddress,
+          },
+          share: {
+            // specify the shared content
+            userList: "Map", // used to get full name of users
+            join: "Map", // used to get currently online users
+          },
+          type: ["Map"],
+        }).then(function (y) {
+          //y.share.data.set('metamodel', vls);
+          //console.log(component.name);
+          const userList = y.share.userList;
 
-        // Start observing for join events.
-        // After that we will join the Yjs room with the username "invisible_user".
-        // When we join the Yjs room, then all the other users send a join event back to us.
-        // Thus, we wait for join events which tell us which users are online.
-        // We use "invisible_user" as username, because this is the only username where SyncMeta's
-        // activity list widget does not show the join/leave events for.
-        y.share.join.observe(event  => {
-          if(userList.get(event.name)) {
-            const userFullName = userList.get(event.name)["http://purl.org/dc/terms/title"];
-            if(y.share.userList.get(event.name)) {
-              if(!list.includes(userFullName)) {
-                list.push(userFullName);
+          // Start observing for join events.
+          // After that we will join the Yjs room with the username "invisible_user".
+          // When we join the Yjs room, then all the other users send a join event back to us.
+          // Thus, we wait for join events which tell us which users are online.
+          // We use "invisible_user" as username, because this is the only username where SyncMeta's
+          // activity list widget does not show the join/leave events for.
+          y.share.join.observe((event) => {
+            if (userList.get(event.name)) {
+              const userFullName = userList.get(event.name)[
+                "http://purl.org/dc/terms/title"
+              ];
+              if (y.share.userList.get(event.name)) {
+                if (!list.includes(userFullName)) {
+                  list.push(userFullName);
+                }
               }
             }
-          }
-        });
-        // now join the Yjs room
-        y.share.join.set("invisible_user", false);
+          });
+          // now join the Yjs room
+          y.share.join.set("invisible_user", false);
 
-        setTimeout(function() {
-          y.close();
-          resolve();
-        }, 5000);
-      })).then(_ => {
+          setTimeout(function () {
+            y.close();
+            resolve();
+          }, 5000);
+        })
+      ).then((_) => {
         this.requestUpdate();
       });
     }
   }
 }
 
-customElements.define('project-explorer', ProjectExplorer);
+customElements.define("project-explorer", ProjectExplorer);
