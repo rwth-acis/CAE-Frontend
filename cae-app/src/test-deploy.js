@@ -563,7 +563,10 @@ class TestDeploy extends LitElement {
                         </div>
                       </div>
                     </paper-button>
-                    <div id="open-deployment-button" style="align-self: center; margin: 20px; display: none;">
+                    <div
+                      id="open-deployment-button"
+                      style="align-self: center; margin: 20px; display: none;"
+                    >
                       <paper-button
                         class="paper-button-blue"
                         @click=${(e) => {
@@ -1178,7 +1181,7 @@ class TestDeploy extends LitElement {
     var openDeploymentButton = this.shadowRoot.getElementById(
       "open-deployment-button"
     );
-    
+
     deployButton.disabled = true;
     deployButtonText.innerText = "Deployed";
     deployButton.style = "background: rgb(73, 160, 80);";
@@ -1186,7 +1189,8 @@ class TestDeploy extends LitElement {
     indicatorDeployButton.style = "display:none;";
     indicatorDeployButton.disabled = false;
 
-    openDeploymentButton.style = "align-self: center; margin: 20px; display:block;";
+    openDeploymentButton.style =
+      "align-self: center; margin: 20px; display:block;";
   }
 
   setDeployButtonError(buttonId) {
