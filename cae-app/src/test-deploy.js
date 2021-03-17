@@ -325,8 +325,9 @@ class TestDeploy extends LitElement {
           background-color: #fff;
           color: black;
           padding: 3px;
-          /* border: 1px #888 solid; */
           border-bottom: 1px #888 solid;
+          display: flex;
+          flex-direction: row;
         }
 
         .textbox input {
@@ -537,7 +538,6 @@ class TestDeploy extends LitElement {
                               />
                             </div>
                           </paper-span>
-                          <!-- </span> -->
                         </div>
                       </div>
                     </div>
@@ -580,6 +580,72 @@ class TestDeploy extends LitElement {
                       >
                         Open Application
                       </paper-button>
+                    </div>
+                    <div
+                      style="align-items: center; display: flex; flex-direction: column; padding-top: 20px;"
+                    >
+                      <details
+                        id="auto-details-node"
+                        style="outline:none; width: 100%;"
+                        @click=${(e) => {
+                          this.shadowRoot.getElementById(
+                            "manual-details-node"
+                          ).open = false;
+                        }}
+                      >
+                        <summary style="outline:none">
+                          Select existing Bootstrap
+                        </summary>
+                        <ul
+                          id="ss_elem_list"
+                          aria-labelledby="id"
+                          style="height:100px; overflow:hidden; overflow-y:scroll; outline:none;"
+                        >
+                          ${this.availableBootstrapNodes.map(
+                            (node) => html`
+                              <li
+                                class="bootstrap-node"
+                                id=${node.clusterName}
+                                @click=${(e) => {
+                                  this.onBootstrapNodeClicked(node);
+                                }}
+                              >
+                                ${node.clusterName}
+                              </li>
+                            `
+                          )}
+                        </ul>
+                      </details>
+                      <span> --------------or-------------- </span>
+                      <details
+                        id="manual-details-node"
+                        style="outline:none; width: 100%;"
+                        @click=${(e) => {
+                          this.shadowRoot.getElementById(
+                            "auto-details-node"
+                          ).open = false;
+                        }}
+                      >
+                        <summary style="outline:none">
+                          Enter manually IP and Port
+                        </summary>
+                        <span class="textbox">
+                          <input
+                            style="flex:1;"
+                            type="text"
+                            id="bootstrapNodeURL"
+                            @input="${this.bootstrapNodeURLInput}"
+                            .value="${this.bootstrapNodeURL}"
+                          />
+                          <input
+                            style="background-color: #dcdcdc; width:20%"
+                            type="number"
+                            id="bootstrapNodePort"
+                            @input="${this.bootstrapNodePortInput}"
+                            .value="${this.bootstrapNodePort}"
+                          />
+                        </span>
+                      </details>
                     </div>
                   </div>
                 </paper-card>
@@ -655,6 +721,18 @@ class TestDeploy extends LitElement {
       applicationReleases: {
         type: Array,
       },
+      availableBootstrapNodes: {
+        type: Array,
+      },
+      selectedBootstrapNode: {
+        type: Object,
+      },
+      bootstrapNodeURL: {
+        type: Object,
+      },
+      bootstrapNodePort: {
+        type: Object,
+      },
       selectedReleaseVersion: {
         type: String,
       },
@@ -727,17 +805,20 @@ class TestDeploy extends LitElement {
       }
       // deploymentStatus
       if (y.share.data.get("deploymentStatus") == undefined) {
+        console.log(y.share.data.get("deploymentStatus"))
         y.share.data.set("deploymentStatus", self.deploymentStatus);
       } else {
+        console.log(y.share.data.get("deploymentStatus"))
+
         self.deploymentStatus = y.share.data.get("deploymentStatus");
-        y.share.data.set("deploymentStatus", "setNotDeploying");
+        self.pollDeploymentJobConsoleText(self.deploymentStatus, "deployment-button");
       }
-      // deploymentStatus
+      // releaseStatus
       if (y.share.data.get("releaseStatus") == undefined) {
         y.share.data.set("releaseStatus", self.releaseStatus);
       } else {
         self.releaseStatus = y.share.data.get("releaseStatus");
-        self.pollJobConsoleText(self.releaseStatus, "Build");
+        self.pollJobConsoleText(self.releaseStatus, "release-button");
       }
 
       y.share.data.observe((event) => {
@@ -750,31 +831,10 @@ class TestDeploy extends LitElement {
             self.updateDefaultValue(event.value, "nameDefaultValue");
           }
         } else if (event.name == "deploymentStatus") {
-          // if (event.value == "setDeploying") {
-          //   self.deployButtonStatus = "DEPLOY";
-          //   self.deploymentStatus = "setDeploying";
-          //   self.getDeployButton().disabled = true;
-          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
-          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
-          // } else if (event.value == "setNotDeploying") {
-          //   self.deploymentStatus = "setNotDeploying";
-          //   self.getDeployButton().disabled = false;
-          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
-          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
-          //   self.showDeployment();
-          // } else if (event.value == "setAlreadyDeployed") {
-          //   self.deploymentStatus = "setAlreadyDeployed";
-          //   self.getDeployButton().disabled = true;
-          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = true;
-          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = true;
-          //   self.showManagement();
-          // } else if (event.value == "setCheckNameAvailable") {
-          //   self.deploymentStatus = "setCheckNameAvailable";
-          //   self.getDeployButton().disabled = false;
-          //   self.shadowRoot.getElementById("nameDefaultValue").disabled = false;
-          //   self.shadowRoot.getElementById("urlDefaultValue").disabled = false;
-          //   self.showCheckNameAvailable();
-          // }
+          console.log(event.value);
+          if (event.value != event.oldValue) {
+            self.updateDefaultValue(event.value, "deploymentStatus");
+          }
         } else if (event.name == "releaseStatus") {
           if (event.value != event.oldValue) {
             self.updateDefaultValue(event.value, "releaseStatus");
@@ -798,13 +858,14 @@ class TestDeploy extends LitElement {
     this.urlPrefixDefaultValue =
       "https://mentoring.tech4comp.dbis.rwth-aachen.de/mydeployment/";
     this.releaseStatus = null;
-    this.deploymentStatus = "setNotDeploying";
+    this.deploymentStatus = null;
     this.versionNumber1 = "0";
     this.versionNumber2 = "0";
     this.versionNumber3 = "1";
+    this._getAvailableBootstrapNodes();
+    this.bootstrapNodeURL = "137.226.107.63";
   }
   updated() {
-    this.y.share.data.set("deploymentStatus", this.deploymentStatus);
     const deploymentReleaseDropdownElement = this.shadowRoot.getElementById(
       "deployment-release-dropdown"
     );
@@ -824,16 +885,26 @@ class TestDeploy extends LitElement {
     var temp = this.shadowRoot.getElementById("nameDefaultValue");
     this.y.share.data.set("nameDefaultValue", temp.value);
   }
-  // namespaceDefaultValueInput() {
-  //   var temp = this.shadowRoot.getElementById("namespaceDefaultValue");
-  //   this.y.share.data.set("namespaceDefaultValue", temp.value);
-  // }
+  bootstrapNodePortInput() {
+    var temp = this.shadowRoot.getElementById("bootstrapNodePort");
+    this.bootstrapNodePort = temp.value;
+    // this.y.share.data.set("urlDefaultValue", temp.value);
+  }
+  bootstrapNodeURLInput() {
+    var temp = this.shadowRoot.getElementById("bootstrapNodeURL");
+    this.bootstrapNodeURL = temp.value;
+    // this.y.share.data.set("urlDefaultValue", temp.value);
+  }
   urlDefaultValueInput() {
     var temp = this.shadowRoot.getElementById("urlDefaultValue");
     this.y.share.data.set("urlDefaultValue", temp.value);
   }
   setReleaseQueueId(data) {
     this.y.share.data.set("releaseStatus", data);
+  }
+  setDeploymentQueueId(data) {
+    console.log("sett", data)
+    this.y.share.data.set("deploymentStatus", data);
   }
   updateDefaultValue(newDefaultValue, defaultValue) {
     switch (defaultValue) {
@@ -845,10 +916,6 @@ class TestDeploy extends LitElement {
         this.nameDefaultValue = newDefaultValue;
         this.requestUpdate("newDefaultValue", newDefaultValue);
         break;
-      // case "namespaceDefaultValue":
-      //   this.namespaceDefaultValue = newDefaultValue;
-      //   this.requestUpdate("newDefaultValue", newDefaultValue);
-      //   break;
       case "urlDefaultValue":
         this.urlDefaultValue = newDefaultValue;
         this.requestUpdate("newDefaultValue", newDefaultValue);
@@ -857,7 +924,17 @@ class TestDeploy extends LitElement {
         this.releaseStatus = newDefaultValue;
         this.requestUpdate("releaseStatus", newDefaultValue);
         if (this.releaseStatus != null) {
-          this.pollJobConsoleText(this.releaseStatus, "Build");
+          this.pollJobConsoleText(this.releaseStatus, "release-button");
+        }
+      case "deploymentStatus":
+        this.deploymentStatus = newDefaultValue;
+        this.requestUpdate("deploymentStatus", newDefaultValue);
+        console.log("call here")
+        if (this.deploymentStatus != null) {
+          this.pollDeploymentJobConsoleText(
+            this.deploymentStatus,
+            "deployment-button"
+          );
         }
       default:
         break;
@@ -868,6 +945,21 @@ class TestDeploy extends LitElement {
   // Helper functions
   //
 
+  onBootstrapNodeClicked(selectedNode) {
+    var allNodes = this.shadowRoot.querySelectorAll(
+      `[class*="bootstrap-node"]`
+    );
+
+    allNodes.forEach((node) => {
+      node.style = "";
+    });
+    var clickedBootstrapNode = this.shadowRoot.getElementById(
+      selectedNode.clusterName
+    );
+    clickedBootstrapNode.style =
+      "border: rgb(175 249 228) solid; border-radius: 10px;";
+    this.selectedBootstrapNode = selectedNode;
+  }
   _onOpenAppClicked(link) {
     window.open(link, "_blank");
   }
@@ -898,6 +990,29 @@ class TestDeploy extends LitElement {
     return new Date(epochSeconds * 1000).toLocaleString();
   }
   //
+  // Get all deployment to show as potential bootstrap nodes
+  //
+
+  async _getAvailableBootstrapNodes() {
+    var deployments = [];
+    this.availableBootstrapNodes = [];
+    await fetch(Static.RegistryURL + "/las2peer/services/deployments", {
+      method: "GET",
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        deployments = data;
+      });
+    Object.keys(deployments).forEach((release) => {
+      deployments[release].forEach((deployment) => {
+        if (deployment.type == "cae-application") {
+          this.availableBootstrapNodes.push(deployment);
+        }
+      });
+    });
+  }
   // Get all release of CAE application to show as list
   //
   async _getReleasesOfApplication() {
@@ -996,7 +1111,38 @@ class TestDeploy extends LitElement {
     deployNameAvailable = await this.checkIfDeploymentNameAvailable();
 
     if (deployNameAvailable == true) {
-      this._sendDeploymentRequest("DeployToCluster", buttonId);
+      if (this.shadowRoot.getElementById("auto-details-node").open) {
+        // Get selected bootstrap node
+        this._sendDeploymentRequest(
+          "DeployToCluster",
+          buttonId,
+          this.selectedBootstrapNode.clusterName
+        );
+      } else if (this.shadowRoot.getElementById("manual-details-node").open) {
+        // Get entered information for bootstrap node
+        console.log(this.bootstrapNodeURL);
+        if (
+          /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(
+            this.bootstrapNodeURL
+          )
+        ) {
+          if (
+            /^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/.test(
+              this.bootstrapNodePort
+            )
+          ) {
+            var ipAndPort =
+              this.bootstrapNodeURL + ":" + this.bootstrapNodePort;
+            this._sendDeploymentRequest("DeployToCluster", buttonId, ipAndPort);
+          } else {
+            this.showToast("Your Port address is invalid");
+          }
+        } else {
+          this.showToast("Your IP address is invalid");
+        }
+      } else {
+        this._sendDeploymentRequest("DeployToCluster", buttonId, "");
+      }
     } else {
       this.showToast("Name already taken, choose another one");
     }
@@ -1030,7 +1176,8 @@ class TestDeploy extends LitElement {
     return nameAvailable;
   }
 
-  async _sendDeploymentRequest(jobAlias, buttonId) {
+  async _sendDeploymentRequest(jobAlias, buttonId, bootstrapNode) {
+    console.log(bootstrapNode);
     var id = await this._getReleaseProjectId(this.namePrefixDefaultValue);
     if (!id) {
       this.showToast("Error getting project id");
@@ -1058,7 +1205,9 @@ class TestDeploy extends LitElement {
               this.selectedReleaseVersion
             }","type":"cae-application","link":"${this.urlPrefixDefaultValue}${
               this.namePrefixDefaultValue
-            }-${this.nameDefaultValue}"}`,
+            }-${this.nameDefaultValue}","bootstrap":"${String(
+              bootstrapNode
+            )}"}`,
           }
         )
           .then((response) => {
@@ -1072,6 +1221,7 @@ class TestDeploy extends LitElement {
           .then((data) => {
             if (data.startsWith("/queue")) {
               console.log(data);
+              this.setDeploymentQueueId(data);
               this.pollDeploymentJobConsoleText(data, buttonId);
             } else {
               console.log(data);
@@ -1081,6 +1231,7 @@ class TestDeploy extends LitElement {
           .catch((e) => {
             console.log(e);
             this.setDeployButtonError(buttonId);
+            this.showToast(e);
           });
       }
     }
@@ -1141,8 +1292,9 @@ class TestDeploy extends LitElement {
       .then((data) => {
         if (data.indexOf("Pending") > -1) {
           this.setDeployButtonLoading(buttonId);
-          this.getDeploymentJobConsoleText(queueItem, buttonId);
+          this.pollDeploymentJobConsoleText(queueItem, buttonId);
         } else if (data.indexOf("Done") > -1) {
+          this.setDeployButtonNeutral(buttonId);
           this.setDeployButtonDone(buttonId);
         } else if (data.indexOf("Finished: SUCCESS") > -1) {
           this.setDeployButtonDone(buttonId);
@@ -1150,13 +1302,31 @@ class TestDeploy extends LitElement {
           this.setDeployButtonError(buttonId);
         } else {
           this.setDeployButtonLoading(buttonId);
-          this.getDeploymentJobConsoleText(queueItem, buttonId);
+          this.pollDeploymentJobConsoleText(queueItem, buttonId);
         }
       })
       .catch((e) => {
         this.setDeployButtonError(buttonId);
       });
   }
+
+  setDeployButtonNeutral(buttonId) {
+    console.log(buttonId);
+    var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
+    var deployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
+    var indicatorDeployButton = this.shadowRoot.getElementById(
+      "indicator-" + buttonId
+    );
+
+    deployButton.disabled = false;
+    deployButtonText.innerText = "DEPLOY YOUR RELEASE";
+    deployButton.style = "background: rgb(30, 144, 255);";
+
+    indicatorDeployButton.style = "display:none;";
+    indicatorDeployButton.disabled = false;
+    this.setDeploymentQueueId(null);
+  }
+
   setDeployButtonLoading(buttonId) {
     var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
     var deployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
@@ -1191,6 +1361,7 @@ class TestDeploy extends LitElement {
 
     openDeploymentButton.style =
       "align-self: center; margin: 20px; display:block;";
+    this.setDeploymentQueueId(null);
   }
 
   setDeployButtonError(buttonId) {
@@ -1207,6 +1378,7 @@ class TestDeploy extends LitElement {
 
     indicatorDeployButton.style = "display:none;";
     indicatorDeployButton.disabled = false;
+    this.setDeploymentQueueId(null);
   }
 
   //
@@ -1302,12 +1474,13 @@ class TestDeploy extends LitElement {
           this.setReleaseButtonLoading(buttonId);
           this.pollJobConsoleText(queueItem, buttonId);
         } else if (data.indexOf("Done") > -1) {
-          this.setReleaseButtonDone(buttonId);
+          this.setReleaseButtonNeutral(buttonId);
         } else if (data.indexOf("Finished: SUCCESS") > -1) {
           this.setReleaseButtonDone(buttonId);
         } else if (data.indexOf("Finished: FAILURE") > -1) {
           this.setReleaseButtonError(buttonId);
         } else {
+          this.setReleaseButtonLoading(buttonId);
           this.pollJobConsoleText(queueItem, buttonId);
         }
       })
@@ -1319,6 +1492,38 @@ class TestDeploy extends LitElement {
   addLogs(logs) {
     this.getReleaseStatusTextarea().value = logs;
   }
+  setReleaseButtonNeutral(buttonId) {
+    var releaseButton = this.shadowRoot.getElementById("button-" + buttonId);
+    var releaseButtonText = this.shadowRoot.getElementById("text-" + buttonId);
+    var indicatorReleaseButton = this.shadowRoot.getElementById(
+      "indicator-" + buttonId
+    );
+    var inputVersionNumber1 = this.shadowRoot.getElementById(
+      "input-version-number-1"
+    );
+    var inputVersionNumber2 = this.shadowRoot.getElementById(
+      "input-version-number-2"
+    );
+    var inputVersionNumber3 = this.shadowRoot.getElementById(
+      "input-version-number-3"
+    );
+
+    inputVersionNumber1.disabled = false;
+    inputVersionNumber2.disabled = false;
+    inputVersionNumber3.disabled = false;
+
+    releaseButton.disabled = false;
+    releaseButton.style = "background:rgb(30, 144, 255);";
+    releaseButtonText.innerText = "Release";
+
+    indicatorReleaseButton.style = "display:none;";
+    indicatorReleaseButton.disabled = false;
+
+    this.getStatusInput().style = "width: 100%; display:none;";
+    this.getStatusInput().value = "Released";
+    this.getReleaseStatusTextarea().style = "width: 100%; display:none;";
+  }
+
   setReleaseButtonLoading(buttonId) {
     var releaseButton = this.shadowRoot.getElementById("button-" + buttonId);
     var releaseButtonText = this.shadowRoot.getElementById("text-" + buttonId);
@@ -1380,6 +1585,7 @@ class TestDeploy extends LitElement {
     this.getStatusInput().style = "width: 100%; display:none;";
     this.getStatusInput().value = "Released";
     this.getReleaseStatusTextarea().style = "width: 100%; display:none;";
+    this.setReleaseQueueId(null);
   }
 
   setReleaseButtonError(buttonId) {
@@ -1409,6 +1615,7 @@ class TestDeploy extends LitElement {
 
     indicatorReleaseButton.style = "display:none;";
     indicatorReleaseButton.disabled = false;
+    this.setReleaseQueueId(null);
   }
 
   // Upon releasing a new CAE application release check if version is valid, so already now check if version is not already present
