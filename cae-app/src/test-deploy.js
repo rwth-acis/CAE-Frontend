@@ -1331,20 +1331,20 @@ class TestDeploy extends LitElement {
     this.setDeploymentQueueId(null);
   }
 
-  // setDeployButtonLoading(buttonId) {
-  //   var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
-  //   var deployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
-  //   var indicatorDeployButton = this.shadowRoot.getElementById(
-  //     "indicator-" + buttonId
-  //   );
+  setDeployButtonLoading(buttonId) {
+    var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
+    var deployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
+    var indicatorDeployButton = this.shadowRoot.getElementById(
+      "indicator-" + buttonId
+    );
 
-  //   deployButton.disabled = true;
-  //   deployButton.style = "background:rgb(160, 73, 134);";
-  //   deployButtonText.innerText = "Deploying";
+    deployButton.disabled = true;
+    deployButton.style = "background:rgb(160, 73, 134);";
+    deployButtonText.innerText = "Deploying";
 
-  //   indicatorDeployButton.style = "display:block;";
-  //   indicatorDeployButton.disabled = true;
-  // }
+    indicatorDeployButton.style = "display:block;";
+    indicatorDeployButton.disabled = true;
+  }
 
   setDeployButtonDone(buttonId) {
     var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
