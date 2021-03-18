@@ -694,28 +694,25 @@ class TestDeploy extends LitElement {
   //
   static get properties() {
     return {
+      applicationName: {
+        type: String,
+      },
+      applicationId: {
+        type: String,
+      },
       releaseStatus: {
         type: String,
       },
-      pendingDots: {
-        type: Number,
-      },
-      deploymentPendingDots: {
-        type: Number,
-      },
-      urlDefaultValue: {
-        type: String,
-      },
-      urlPrefixDefaultValue: {
+      deploymentStatus: {
         type: String,
       },
       nameDefaultValue: {
         type: String,
       },
-      applicationName: {
+      urlPrefixDefaultValue: {
         type: String,
       },
-      applicationId: {
+      urlDefaultValue: {
         type: String,
       },
       applicationReleases: {
@@ -726,6 +723,9 @@ class TestDeploy extends LitElement {
       },
       selectedBootstrapNode: {
         type: Object,
+      },
+      projectExists: {
+        type: Boolean,
       },
       bootstrapNodeURL: {
         type: Object,
@@ -745,13 +745,6 @@ class TestDeploy extends LitElement {
       wordList: {
         type: Array,
       },
-      map: {
-        type: String,
-        observer: "_activeChanged",
-      },
-      y: {
-        type: Object,
-      },
       versionNumber1: {
         type: String,
       },
@@ -761,8 +754,12 @@ class TestDeploy extends LitElement {
       versionNumber3: {
         type: String,
       },
-      projectExists: {
-        type: Boolean,
+      map: {
+        type: String,
+        observer: "_activeChanged",
+      },
+      y: {
+        type: Object,
       },
     };
   }
@@ -805,13 +802,13 @@ class TestDeploy extends LitElement {
       }
       // deploymentStatus
       if (y.share.data.get("deploymentStatus") == undefined) {
-        console.log(y.share.data.get("deploymentStatus"))
         y.share.data.set("deploymentStatus", self.deploymentStatus);
       } else {
-        console.log(y.share.data.get("deploymentStatus"))
-
         self.deploymentStatus = y.share.data.get("deploymentStatus");
-        self.pollDeploymentJobConsoleText(self.deploymentStatus, "deployment-button");
+        self.pollDeploymentJobConsoleText(
+          self.deploymentStatus,
+          "deployment-button"
+        );
       }
       // releaseStatus
       if (y.share.data.get("releaseStatus") == undefined) {
@@ -831,7 +828,6 @@ class TestDeploy extends LitElement {
             self.updateDefaultValue(event.value, "nameDefaultValue");
           }
         } else if (event.name == "deploymentStatus") {
-          console.log(event.value);
           if (event.value != event.oldValue) {
             self.updateDefaultValue(event.value, "deploymentStatus");
           }
@@ -845,24 +841,29 @@ class TestDeploy extends LitElement {
   }
 
   setupDefaultValues() {
+    this._getAvailableBootstrapNodes();
+    this.getProjectInfoAndCheckIfProjectExists();
+
     this.wordList = this.returnWordList();
     this.applicationReleases = [];
-    this.highestApplicationReleaseVersion = "0.0.0";
-    this.pendingDots = 0;
+
     this.nameDefaultValue =
       this.wordList[Math.floor(Math.random() * this.wordList.length)] +
       "-" +
       this.wordList[Math.floor(Math.random() * this.wordList.length)];
-    this.getProjectInfoAndCheckIfProjectExists();
-    this.urlDefaultValue = "oknow";
+
+    this.urlDefaultValue = "";
     this.urlPrefixDefaultValue =
       "https://mentoring.tech4comp.dbis.rwth-aachen.de/mydeployment/";
-    this.releaseStatus = null;
-    this.deploymentStatus = null;
+
+    this.highestApplicationReleaseVersion = "0.0.0";
     this.versionNumber1 = "0";
     this.versionNumber2 = "0";
     this.versionNumber3 = "1";
-    this._getAvailableBootstrapNodes();
+
+    this.releaseStatus = null;
+    this.deploymentStatus = null;
+
     this.bootstrapNodeURL = "137.226.107.63";
   }
   updated() {
@@ -903,7 +904,6 @@ class TestDeploy extends LitElement {
     this.y.share.data.set("releaseStatus", data);
   }
   setDeploymentQueueId(data) {
-    console.log("sett", data)
     this.y.share.data.set("deploymentStatus", data);
   }
   updateDefaultValue(newDefaultValue, defaultValue) {
@@ -926,16 +926,17 @@ class TestDeploy extends LitElement {
         if (this.releaseStatus != null) {
           this.pollJobConsoleText(this.releaseStatus, "release-button");
         }
+        break;
       case "deploymentStatus":
         this.deploymentStatus = newDefaultValue;
         this.requestUpdate("deploymentStatus", newDefaultValue);
-        console.log("call here")
         if (this.deploymentStatus != null) {
           this.pollDeploymentJobConsoleText(
             this.deploymentStatus,
             "deployment-button"
           );
         }
+        break;
       default:
         break;
     }
@@ -1266,6 +1267,7 @@ class TestDeploy extends LitElement {
   }
 
   pollDeploymentJobConsoleText(location, buttonId) {
+    console.log("poll called");
     setTimeout(
       function () {
         this.getDeploymentJobConsoleText(location, buttonId);
@@ -1274,6 +1276,8 @@ class TestDeploy extends LitElement {
     );
   }
   getDeploymentJobConsoleText(queueItem, buttonId) {
+    console.log("text called");
+
     fetch(
       Static.ModelPersistenceServiceURL +
         "/deployStatus?queueItem=" +
@@ -1327,20 +1331,20 @@ class TestDeploy extends LitElement {
     this.setDeploymentQueueId(null);
   }
 
-  setDeployButtonLoading(buttonId) {
-    var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
-    var deployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
-    var indicatorDeployButton = this.shadowRoot.getElementById(
-      "indicator-" + buttonId
-    );
+  // setDeployButtonLoading(buttonId) {
+  //   var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
+  //   var deployButtonText = this.shadowRoot.getElementById("text-" + buttonId);
+  //   var indicatorDeployButton = this.shadowRoot.getElementById(
+  //     "indicator-" + buttonId
+  //   );
 
-    deployButton.disabled = true;
-    deployButton.style = "background:rgb(160, 73, 134);";
-    deployButtonText.innerText = "Deploying";
+  //   deployButton.disabled = true;
+  //   deployButton.style = "background:rgb(160, 73, 134);";
+  //   deployButtonText.innerText = "Deploying";
 
-    indicatorDeployButton.style = "display:block;";
-    indicatorDeployButton.disabled = true;
-  }
+  //   indicatorDeployButton.style = "display:block;";
+  //   indicatorDeployButton.disabled = true;
+  // }
 
   setDeployButtonDone(buttonId) {
     var deployButton = this.shadowRoot.getElementById("button-" + buttonId);
