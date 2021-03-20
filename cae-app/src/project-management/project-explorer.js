@@ -391,12 +391,14 @@ class ProjectExplorer extends LitElement {
       validatedName = validatedName.replace(/^\s+|\s+$/g, "");
       
       if (/^[a-zA-Z0-9 -]*$/i.test(validatedName)) {
+        var aut = Auth.getAuthHeader()["Authorization"].split(" ")[1];
         fetch(Static.ProjectManagementServiceURL + "/projects", {
           method: "POST",
           headers: Auth.getAuthHeader(),
           body: JSON.stringify({
             name: validatedName,
             access_token: Auth.getAccessToken(),
+            Authorization: aut,
           }),
         }).then((response) => {
           // close loading dialog

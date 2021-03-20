@@ -1134,13 +1134,15 @@ class ProjectInfo extends LitElement {
     // get entered username
     const loginName = this.shadowRoot.getElementById("input-username").value;
     const projectId = this.getProjectId();
+    var aut = Auth.getAuthHeader()["Authorization"].split(" ")[1];
 
     // send invitation
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/invitations", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
-        "loginName": loginName
+        "loginName": loginName,
+        Authorization: aut,
       })
     }).then(response => {
       if(response.ok) {
@@ -1170,11 +1172,15 @@ class ProjectInfo extends LitElement {
 
     const projectId = this.getProjectId();
     const userToRemove = this.editingUser;
+    var aut = Auth.getAuthHeader()["Authorization"].split(" ")[1];
 
     fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users/" + userToRemove.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
+      method: "POST",
+      headers: Auth.getAuthHeader(),
+      body: JSON.stringify({
+        Authorization: aut,
+      }),
+      }).then(response => {
       if(response.ok) {
         this.showToast("Removed user from project!");
 

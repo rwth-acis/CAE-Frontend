@@ -116,37 +116,20 @@ class CaeDeploy extends PolymerElement {
   _subpageChanged(currentSubpage, oldSubpage) {
     if (currentSubpage == "test-deploy") {
       this.reloadModelingElement("test-deploy");
-      // check if div in iron-pages is empty
       let ironPagesDivName = currentSubpage;
       const hasChildNodes = this.shadowRoot
         .getElementById(ironPagesDivName)
         .hasChildNodes();
-      // if the div is empty, then the page got reloaded and the div is empty, so no modeling page would be shown
-      // this should be prevented
       if (!hasChildNodes) {
         this.reloadModelingElement("test-deploy");
-        // split makes "frontend-modeling" to "frontend" etc.
       }
     }
   }
   reloadModelingElement(type) {
-    // this.removeModelingElement(type);
     let div = this.shadowRoot.getElementById("test-deploy");
     const modelingElement = this.createNewModelingElement(type);
     div.appendChild(modelingElement);
     this.currentModelingElement = modelingElement;
-
-    // also clear the content of the menu
-    // this.clearMenuContent();
-    // this.closeSideMenu();
-
-    // check if we are in dependency mode
-    // if(Common.isCurrentComponentDependency()) {
-    //   // dependency mode -> hide widget config editor
-    //   this.shadowRoot.getElementById("btn-widget-config").style.setProperty("display", "none");
-    // } else {
-    //   this.shadowRoot.getElementById("btn-widget-config").style.removeProperty("display");
-    // }
   }
 }
 

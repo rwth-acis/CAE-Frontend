@@ -404,6 +404,7 @@ class AllApplications extends LitElement {
                                         style="display:flex; flex-direction: row;justify-content: space-between;align-items: center;align-content: center;"
                                       >
                                         <div>Name</div>
+                                        <div>Version: ${this.selectedRelease.supplement.version}</div>
                                       </div>
                                       <span
                                         class="textbox"
@@ -987,6 +988,7 @@ class AllApplications extends LitElement {
     if (id == undefined) {
       this.showToast("Error getting project id");
     } else {
+      this.setDeployButtonLoading(buttonId);
       var validName = /^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*)$/.test(
         deploymentData.clusterName
       );
