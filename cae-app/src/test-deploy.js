@@ -1029,6 +1029,9 @@ class TestDeploy extends LitElement {
       projectUsers: {
         type: Object,
       },
+      projectName: {
+        type: Object,
+      },
       wordList: {
         type: Array,
       },
@@ -1883,6 +1886,7 @@ class TestDeploy extends LitElement {
     deploymentData["version"] = this.getVersion();
     deploymentData["type"] = "cae-application";
     deploymentData["users"] = this.projectUsers;
+    deploymentData["groupId"] = this.cleanFormatString(this.projectName);
     fetch(
       Static.ModelPersistenceServiceURL +
         "/deploy/" +
