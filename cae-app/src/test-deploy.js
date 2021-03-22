@@ -1365,7 +1365,7 @@ class TestDeploy extends LitElement {
       Object.keys(service.releases).forEach((releaseVersion) => {
         if (
           service.releases[releaseVersion].supplement.name ==
-            "cae-app-" + this.projectName &&
+          this.cleanFormatString("cae-app-" + this.projectName) &&
           service.releases[releaseVersion].supplement.id ==
             this.applicationId &&
           service.releases[releaseVersion].supplement.type == "cae-application"
@@ -2128,7 +2128,7 @@ class TestDeploy extends LitElement {
       Object.keys(service.releases).forEach((releaseVersion) => {
         if (
           service.releases[releaseVersion].supplement.name ==
-            "cae-app-" + this.projectName &&
+          this.cleanFormatString("cae-app-" + this.projectName) &&
           service.releases[releaseVersion].supplement.id ==
             this.applicationId &&
           service.releases[releaseVersion].supplement.type == "cae-application"
@@ -2199,7 +2199,7 @@ class TestDeploy extends LitElement {
           });
         });
       });
-    this.projectName = selectedProject.name;
+    this.projectName = this.cleanFormatString(selectedProject.name);
     selectedProject.users.forEach((user) => {
       users.push(user.loginName);
     });
