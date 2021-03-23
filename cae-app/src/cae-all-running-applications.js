@@ -60,7 +60,7 @@ class CaeAllRunningApplications extends PolymerElement {
       <app-location route="{{route}}"></app-location>
       <app-route
         route="{{route}}"
-        pattern="/cae-all-running-applications/:view"
+        pattern="/ba-erdzan/cae-all-running-applications/:view"
         data="{{routeData}}"
       ></app-route>
       <div style="display: flex">

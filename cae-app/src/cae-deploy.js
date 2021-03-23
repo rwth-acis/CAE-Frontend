@@ -61,7 +61,7 @@ class CaeDeploy extends PolymerElement {
       <app-location route="{{route}}"></app-location>
       <app-route
         route="{{route}}"
-        pattern="/cae-deploy/:view"
+        pattern="/ba-erdzan/cae-deploy/:view"
         data="{{routeData}}"
       ></app-route>
       <div style="display: flex">
