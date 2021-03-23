@@ -1144,7 +1144,7 @@ class TestDeploy extends LitElement {
 
     this.urlDefaultValue = "";
     this.urlPrefixDefaultValue =
-      "https://mentoring.tech4comp.dbis.rwth-aachen.de/mydeployment/";
+      "https://cae-dev.tech4comp.dbis.rwth-aachen.de/mydeployment/";
 
     this.highestApplicationReleaseVersion = "0.0.0";
     this.versionNumber1 = "0";

@@ -685,7 +685,7 @@ class AllApplications extends LitElement {
     this.getAllRunningApplications();
     this.clusterNamePostfix = "";
     this.urlPrefixDefaultValue =
-      "https://mentoring.tech4comp.dbis.rwth-aachen.de/mydeployment/";
+      "https://cae-dev.tech4comp.dbis.rwth-aachen.de/mydeployment/";
     this.pendingDots = 0;
     this.bootstrapNodeURL = "137.226.107.63";
     this.bootstrapNodePort = 113;

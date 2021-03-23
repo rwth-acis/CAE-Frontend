@@ -62,7 +62,7 @@ export class DeploymentWidget extends LitElement {
 
   _onDeployButtonClicked() {
     window.open(
-      "/cae-deploy/test-deploy/" + Common.getVersionedModelId(),
+      "/ba-erdzan/cae-deploy/test-deploy/" + Common.getVersionedModelId(),
       "_self"
     );
   }
