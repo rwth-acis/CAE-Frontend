@@ -63,9 +63,9 @@ class CaeStaticApp extends PolymerElement {
       <las2peer-frontend-statusbar
         id="statusBar"
         service="Community Application Editor"
-        oidcpopupsigninurl="/callbacks/popup-signin-callback.html"
-        oidcpopupsignouturl="/callbacks/popup-signout-callback.html"
-        oidcsilentsigninturl="/callbacks/silent-callback.html"
+        oidcpopupsigninurl="/ba-erdzan/callbacks/popup-signin-callback.html"
+        oidcpopupsignouturl="/ba-erdzan/callbacks/popup-signout-callback.html"
+        oidcsilentsigninturl="/ba-erdzan/callbacks/silent-callback.html"
         oidcclientid="f1412b21-0657-484a-9edb-39ed52e880ee"
         subtitle="v"
         suppresswidgeterror="true"
@@ -96,7 +96,7 @@ class CaeStaticApp extends PolymerElement {
       <!-- this app-route manages the top-level routes i.e. if the url ends with /x/y,
            then only x is managed by this app-route. In this case, x would also be the value of
            routeData.view.-->
-      <app-route route="{{route}}" pattern="/:view" data="{{routeData}}" tail="{{subroute}}"></app-route>
+      <app-route route="{{route}}" pattern="/ba-erdzan/:view" data="{{routeData}}" tail="{{subroute}}"></app-route>
       <iron-pages selected="[[view]]" attr-for-selected="name" fallback-selection="404">
         <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>

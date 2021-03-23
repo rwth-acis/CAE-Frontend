@@ -3,8 +3,8 @@ import "./versioning/versioning-element.js";
 import Common from "./util/common.js";
 import Static from "./static.js";
 import "@polymer/iron-icon";
-import "../../node_modules/@polymer/paper-card/paper-card.js";
-import "../../node_modules/@polymer/paper-button/paper-button.js";
+import "../node_modules/@polymer/paper-card/paper-card.js";
+import "../node_modules/@polymer/paper-button/paper-button.js";
 
 /**
  * @customElement

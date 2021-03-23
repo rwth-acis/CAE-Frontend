@@ -62,7 +62,7 @@ class CaeModeling extends PolymerElement {
       </style>
       
       <app-location route="{{route}}"></app-location>
-      <app-route route="{{route}}" pattern="/cae-modeling/:page" data="{{routeData}}"></app-route>
+      <app-route route="{{route}}" pattern="/ba-erdzan/cae-modeling/:page" data="{{routeData}}"></app-route>
       <div style="display: flex">
         <div id="main" style="flex: 1">
           <iron-pages id="iron-pages" selected="[[page]]" style="flex: 1" attr-for-selected="name" selected-attribute="visible" fallback-selection="404">
