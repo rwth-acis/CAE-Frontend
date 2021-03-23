@@ -555,9 +555,9 @@ class ProjectInfo extends LitElement {
 
       this.closeLoadingDialog();
       if(componentType == "frontend") {
-        this.changeView("cae-modeling/frontend-modeling");
+        this.changeView("ba-erdzan/cae-modeling/frontend-modeling");
       } else {
-        this.changeView("cae-modeling/microservice-modeling");
+        this.changeView("ba-erdzan/cae-modeling/microservice-modeling");
       }
     }, _ => {
       this.closeLoadingDialog();
@@ -731,7 +731,7 @@ class ProjectInfo extends LitElement {
       // close dialog
       this.closeLoadingDialog();
       // send event which notifies the cae-static-app to change the view
-      this.changeView("cae-modeling/application-modeling");
+      this.changeView("ba-erdzan/cae-modeling/application-modeling");
     }, _ => {
       this.closeLoadingDialog();
       this.showToast("Error while opening component!");

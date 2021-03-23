@@ -74,7 +74,7 @@ class CaeStaticApp extends PolymerElement {
       
       <paper-card id="cae-statusbar">
         <div style="width: 100%; height: 100%; display: flex">
-          <a id="menu-project-management" href="/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
+          <a id="menu-project-management" href="/ba-erdzan/project-management" style="margin-left: 2em; margin-top: auto; margin-bottom: auto">Project Management</a>
           <div class="vl"></div>
           <a id="menu-frontend-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Frontend Modeling</a>
           <div class="vl"></div>
@@ -82,7 +82,7 @@ class CaeStaticApp extends PolymerElement {
           <div class="vl"></div>
           <a id="menu-application-modeling" style="cursor: pointer; margin-top: auto; margin-bottom: auto">Application Mashup</a>
           <div class="vl"></div>
-          <a id="menu-all-running-applications" href="/cae-all-running-applications/all-applications" style="cursor: pointer; margin-top: auto; margin-bottom: auto">All running applications</a>
+          <a id="menu-all-running-applications" href="/ba-erdzan/cae-all-running-applications/all-applications" style="cursor: pointer; margin-top: auto; margin-bottom: auto">All running applications</a>
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
           <iron-icon id="settings-button" icon="settings" class="icon" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
@@ -177,12 +177,12 @@ class CaeStaticApp extends PolymerElement {
 
     const projectManagement = this.shadowRoot.getElementById("project-management");
     projectManagement.addEventListener('change-view', (event) => {
-      this.set("route.path", event.detail.view);
+      this.set("route.path", "/ba-erdzan" + event.detail.view);
     });
 
     const settingsElement = this.shadowRoot.getElementById("settings-element");
     settingsElement.addEventListener('change-view', (event) => {
-      this.set("route.path", "settings");
+      this.set("route.path", "/ba-erdzan/settings");
       this.set("route.__queryParams", "");
     });
 
@@ -297,7 +297,7 @@ class CaeStaticApp extends PolymerElement {
     // set project-management as current page
     // Reason: when the user logged out in modeling, then after login the user
     // should start with project management page again
-    this.set("route.path", "/");
+    this.set("route.path", "/ba-erdzan/");
 
     // when removing this line, we get a problem because some
     // user services used by the las2peer-frontend-statusbar cannot be accessed
@@ -382,7 +382,7 @@ class CaeStaticApp extends PolymerElement {
    * @private
    */
   _onSettingsButtonClicked() {
-    this.set("route.path", "settings");
+    this.set("route.path", "/ba-erdzan/settings");
     // remove underline from previous menu item
     this.underlineMenuItem("");
   }
@@ -533,7 +533,7 @@ class CaeStaticApp extends PolymerElement {
 
       // click should open modeling space
       this.reloadCaeRoom(menuItemComponentType);
-      this.set("route.path", "cae-modeling/" + menuItemComponentType + "-modeling");
+      this.set("route.path", "/ba-erdzan/cae-modeling/" + menuItemComponentType + "-modeling");
     } else {
       // component is not opened
       // show toast message
