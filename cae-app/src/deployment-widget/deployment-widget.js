@@ -33,7 +33,7 @@ export class DeploymentWidget extends LitElement {
         <paper-button
           id="deploy-model"
           @click=${this._onDeployButtonClicked}
-          href="/cae-deploy/test-deploy/${Common.getVersionedModelId()}"
+          href="/ba-erdzan/cae-deploy/test-deploy/${Common.getVersionedModelId()}"
           class="paper-button-blue"
           >Deploy</paper-button
         >
