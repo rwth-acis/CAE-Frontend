@@ -322,7 +322,7 @@ class CaeStaticApp extends PolymerElement {
     Common.removeUserInfoFromStorage();
 
     // redirect to landing page (because there the login-hint is shown)
-    this.set("route.path", "/");
+    this.set("route.path", "/ba-erdzan/");
   }
 
   loadCurrentUser() {
@@ -440,7 +440,7 @@ class CaeStaticApp extends PolymerElement {
   }
 
   _onNotificationsButtonClicked() {
-    this.set("route.path", "notifications");
+    this.set("route.path", "ba-erdzan/notifications");
     // remove underline from previous menu item
     this.underlineMenuItem("");
   }

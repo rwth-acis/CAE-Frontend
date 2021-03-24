@@ -2231,7 +2231,7 @@ class TestDeploy extends LitElement {
   }
 
   changeRoute() {
-    this.set("route.path", "/test-deploy/" + Common.getVersionedModelId());
+    this.set("route.path", "/ba-erdzan/test-deploy/" + Common.getVersionedModelId());
   }
 
   cleanFormatString(stringToFormat) {
