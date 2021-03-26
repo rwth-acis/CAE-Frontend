@@ -32,6 +32,8 @@ sed -i "s={GIT_ORGANIZATION}=$GIT_ORGANIZATION=g" src/static.js
 sed -i "s={REQBAZ_BACKEND}=$REQBAZ_BACKEND=g" src/static.js
 sed -i "s={REQBAZ_FRONTEND}=$REQBAZ_FRONTEND=g" src/static.js
 sed -i "s={GITHUB_OAUTH_CLIENTID}=$GITHUB_OAUTH_CLIENTID=g" src/static.js
+sed -i "s={PROJECT_SERVICE_URL}=$PROJECT_SERVICE_URL=g" src/static.js 
+sed -i "s={CONTACT_SERVICE_URL}=$CONTACT_SERVICE_URL=g" src/static.js
 
 # modify values in src/cae-static-app.js
 sed -i "s={OIDC_CLIENT_ID}=$OIDC_CLIENT_ID=g" src/cae-static-app.js

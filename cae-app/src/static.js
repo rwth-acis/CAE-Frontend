@@ -9,7 +9,9 @@ Static.ApplicationSpaceId = 'application-modeling';
 // store the URL to the project management service, model persistence service and webhost (for widgets)
 // this gets updated when using docker env variables
 // and should not end with a "/"
-Static.ProjectManagementServiceURL = '{CAE_BACKEND_URL}/project-management';
+Static.ProjectServiceURL = '{PROJECT_SERVICE_URL}';
+Static.ContactServiceURL = '{CONTACT_SERVICE_URL}';
+
 Static.WebhostURL = '{WEBHOST}';
 Static.ModelPersistenceServiceURL = '{CAE_BACKEND_URL}/CAE';
 Static.CodeGenServiceURL = '{CAE_BACKEND_URL}/CodeGen';

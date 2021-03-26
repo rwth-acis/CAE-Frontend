@@ -68,6 +68,7 @@ class CaeStaticApp extends PolymerElement {
         subtitle="{STATUSBAR_SUBTITLE}"
         suppresswidgeterror="true"
         autoAppendWidget=true
+        <!-- baseUrl of statusbar gets set in ready() -->
       ></las2peer-frontend-statusbar>
       
       <paper-card id="cae-statusbar">
@@ -145,6 +146,7 @@ class CaeStaticApp extends PolymerElement {
   ready() {
     super.ready();
     const statusBar = this.getStatusBarElement();
+    statusBar.setAttribute("baseUrl", Static.ContactServiceURL);
     // in the following we use (event) => this.method(event) in order to be able to access
     // this.shadowRoot in the handleLogin and handleLogout methods
     statusBar.addEventListener('signed-in', (event) => this.handleLogin(event));
@@ -271,19 +273,24 @@ class CaeStaticApp extends PolymerElement {
     // after login, project management is shown, thus this menu item should be underlined
     this.underlineMenuItem("menu-project-management");
 
+    // TODO: is not sent to project management service anymore, is that a problem?
+    // TODO: now it is directly loaded from learning layers
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
-    this.loadCurrentUser().then(_ => {
-      var url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
-      fetch(url, {method: "GET"}).then(response => {
-        if(response.ok) {
-          return response.json();
-        }
-      }).then(data => {
-        const userInfo = Common.getUserInfo();
-        userInfo.sub = data.sub;
-        Common.storeUserInfo(userInfo);
-      });
+    var url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
+    fetch(url, {method: "GET"}).then(response => {
+      if(response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      console.log(data);
+      const userInfo = Common.getUserInfo();
+      userInfo.sub = data.sub;
+      userInfo.email = data.email;
+      // preferred_username is used by project service frontend
+      userInfo.preferred_username = data.preferred_username;
+      userInfo.loginName = data.preferred_username;
+      Common.storeUserInfo(userInfo);
     });
 
     // show statusbar again
@@ -320,25 +327,11 @@ class CaeStaticApp extends PolymerElement {
     this.set("route.path", "/");
   }
 
-  loadCurrentUser() {
-    return new Promise(function(resolve, reject) {
-      fetch(Static.ProjectManagementServiceURL + "/users/me", {
-        headers: Auth.getAuthHeader()
-      })
-        .then(response => response.json())
-        .then(data => {
-          // store to localStorage
-          Common.storeUserInfo(data);
-          resolve();
-        });
-    });
-  }
-
   /**
    * Loads the notifications/invitations that the user received.
    */
   loadUsersNotifications() {
-    console.log("Requesting notifications from server...");
+    /*console.log("Requesting notifications from server...");
     fetch(Static.ProjectManagementServiceURL + "/invitations", {
       method: "GET",
       headers: Auth.getAuthHeader()
@@ -369,7 +362,7 @@ class CaeStaticApp extends PolymerElement {
         // notify notification-element about the new notification data
         this.getNotificationElement().setInvitations(data);
       }
-    });
+    });*/
   }
 
   /**

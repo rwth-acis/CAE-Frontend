@@ -26,7 +26,7 @@
     "@polymer/paper-toast": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
     "esm": "^3.2.25",
-    "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#0.3.0",
+    "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#fixUserGroups",
     "las2peer-frontend-user-widget": "github:rwth-acis/las2peer-frontend-user-widget#0.2.1",
     "lit-element": "2.3.1",
     "y-array": "10.1.4",

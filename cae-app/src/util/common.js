@@ -125,6 +125,7 @@ export default class Common {
    * @returns {string}
    */
   static getUserInfo() {
+    if(!localStorage.getItem(this.KEY_USER_INFO)) return {};
     return JSON.parse(localStorage.getItem(this.KEY_USER_INFO));
   }
 

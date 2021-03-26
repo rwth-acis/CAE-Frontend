@@ -3,6 +3,7 @@ import './project-explorer';
 import './project-info';
 import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 import Auth from "../util/auth";
+import Static from "../static";
 
 /**
  * PolymerElement for the project management page of the CAE.
@@ -40,9 +41,14 @@ class ProjectManagement extends LitElement {
       ${Auth.isAccessTokenAvailable() ? html`
         <div class="container flex-horizontal-with-ratios">
           <div class="flex-project-explorer">
-            <project-explorer id="project-explorer" 
+            <project-list system="CAE"
+              projectServiceURL=${Static.ProjectServiceURL}
+              contactServiceURL="${Static.ContactServiceURL}/contactservice"
+              @projects-loaded=${(e) => this._onUserProjectListLoaded(e.detail)}
+              @project-selected=${(e) => this._onProjectSelected(e.detail)}></project-list>
+            <!--<project-explorer id="project-explorer" 
                 @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"
-                @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>
+                @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>-->
           </div>
           <div class="flex-project-info">
             <project-info @change-view=${(e) => this._changeView(e)} @update-menu=${(e) => this._updateMenu(e.detail)} 
