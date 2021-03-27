@@ -225,16 +225,6 @@ class ProjectInfo extends LitElement {
                     <div class="separator"></div>
                   `)}
                 </div>
-            
-                <!-- Add users to the project -->
-                ${this.editingAllowed ? html`
-                  <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                    <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
-                        @input="${(e) => this._onInviteUserInputChanged(e.target.value)}"></input>
-                    <paper-button disabled="true" class="paper-button-blue" id="button-invite-user" @click="${this._onInviteUserToProjectClicked}"
-                        style="margin-left: auto">Invite</paper-button>
-                  </div>
-                ` : html``}
               </div>
               <div class="flex-project-roles" style="border-left: thin solid #e1e1e1;">
                 <!-- Roles of the project -->
@@ -293,10 +283,6 @@ class ProjectInfo extends LitElement {
             `)}` : html``}
           </paper-listbox>
         </paper-dropdown-menu>
-        
-        <div style="align-items: center">
-          <paper-button class="button-danger" @click="${this._removeUserFromProjectClicked}">Remove From Project</paper-button>
-        </div>
         
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
@@ -1096,19 +1082,6 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Gets called when the input of the username field gets changed.
-   * @param username Current value of the input field.
-   * @private
-   */
-  _onInviteUserInputChanged(username) {
-    if(username) {
-      this.shadowRoot.getElementById("button-invite-user").disabled = false;
-    } else {
-      this.shadowRoot.getElementById("button-invite-user").disabled = true;
-    }
-  }
-
-  /**
    * Gets called when the input of the role field gets changed.
    * @param role Current value of the input field.
    * @private
@@ -1119,67 +1092,6 @@ class ProjectInfo extends LitElement {
     } else {
       this.shadowRoot.getElementById("button-add-role").disabled = true;
     }
-  }
-
-  _onInviteUserToProjectClicked() {
-    // get entered username
-    const loginName = this.shadowRoot.getElementById("input-username").value;
-    const projectName = this.getProjectName();
-
-    // send invitation
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/invitations", {
-      method: "POST",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "loginName": loginName
-      })
-    }).then(response => {
-      if(response.ok) {
-        // show toast message
-        this.showToast("Invited user to project!");
-
-        // clear input text and deactivate button
-        this.shadowRoot.getElementById("input-username").value = "";
-        this.shadowRoot.getElementById("button-invite-user").disabled = true;
-      } else {
-        throw Error(response.status);
-      }
-    }).catch(error => {
-      if(error.message == "404") {
-        // user with given name could not be found
-        this.showToast("Could not find user with given name.");
-      } else if(error.message == "409") {
-        // user is already member of the project or already invited to it
-        this.showToast("User is already member of the project or already invited to it.");
-      }
-    });
-  }
-
-  _removeUserFromProjectClicked() {
-    // close dialog
-    this.shadowRoot.getElementById("dialog-edit-user").close();
-
-    const projectName = this.getProjectName();
-    const userToRemove = this.editingUser;
-
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/users/" + userToRemove.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Removed user from project!");
-
-        // remove the user from the users list of the project
-        this.userList.splice(this.userList.findIndex(user => {
-          return user.id === userToRemove.id;
-        }),1);
-        this.requestUpdate();
-
-        // NOTE: this.userList references to project.users (gets set in _onProjectSelected)
-        // and project is part of the listedProjects array in the project explorer
-        // Thus: the listedProjects automatically does not contain the removed user anymore
-      }
-    });
   }
 
   /**
