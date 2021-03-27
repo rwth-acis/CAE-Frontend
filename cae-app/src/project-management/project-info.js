@@ -217,7 +217,7 @@ class ProjectInfo extends LitElement {
                   ${this.userList.map(user => html`
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${user.loginName}</p>
-                      <p style="margin-right: 0.5em; margin-left: auto">${this.getRoleById(user.roleId).name}</p>
+                      <p style="margin-right: 0.5em; margin-left: auto">${user.roleName}</p>
                       ${this.editingAllowed ? html`
                         <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
                       ` : html``}
@@ -288,7 +288,7 @@ class ProjectInfo extends LitElement {
         
         <paper-dropdown-menu label="Select Role">
           <paper-listbox id="listbox-select-role" slot="dropdown-content" selected=${this.editingUser ? this.getRoleIndex(this.editingUser.roleId) : undefined}>
-            ${this.selectedProject ? html`${this.selectedProject.roles.map(role => html`
+            ${this.selectedProject ? html`${this.selectedProject.metadata.roles.map(role => html`
               <paper-item>${role.name}</paper-item>
             `)}` : html``}
           </paper-listbox>
@@ -611,7 +611,6 @@ class ProjectInfo extends LitElement {
     const content = {
       "versionedModelId": component.versionedModelId,
       "name": component.name,
-      "projectId": this.getProjectId(),
       "isDependency": isDependency,
       "gitHubProjectId": this.selectedProject.gitHubProjectId,
       "gitHubProjectHtmlUrl": this.selectedProject.gitHubProjectHtmlUrl,
@@ -634,16 +633,15 @@ class ProjectInfo extends LitElement {
    */
   getUsersRole() {
     // get id of current user
-    const userId = Common.getUserInfo().id;
-    // get id of users role
-    let usersRoleId;
-    for(const user of this.selectedProject.users) {
-      if(user.id == userId)  {
-        usersRoleId = user.roleId;
+    const loginName = Common.getUserInfo().loginName;
+    let userRoleName;
+    for(const user of this.userList) {
+      if(user.loginName == loginName)  {
+        userRoleName = user.roleName;
         break;
       }
     }
-    return this.getRoleById(usersRoleId);
+    return this.getRoleByName(userRoleName);
   }
 
   /**
@@ -813,7 +811,7 @@ class ProjectInfo extends LitElement {
     const editor = this.roleWidgetAccessEditor;
     const widgetConfig = JSON.stringify(editor.getWidgetConfig());
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/roles/" + this.editingRole.id, {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/roles/" + this.editingRole.id, {
       method: "PUT",
       headers: Auth.getAuthHeader(),
       body: widgetConfig
@@ -871,10 +869,11 @@ class ProjectInfo extends LitElement {
     if(inputRole) inputRole.value = "";
 
     // set users of the project
-    this.userList = project.users;
+    // TODO: fetch group members instead of doing this
+    this.userList = project.metadata.mapUserRole;
 
     // get roles from project
-    this.roleList = project.roles;
+    this.roleList = project.metadata.roles;
 
     // check if user is allowed to edit the project
     this.editingAllowed = this.isUserAllowedToEditProject();
@@ -909,17 +908,7 @@ class ProjectInfo extends LitElement {
    * @returns {boolean} Whether user is allowed to edit the currently shown project.
    */
   isUserAllowedToEditProject() {
-    // check if the list of projects where the current user is part of, contains
-    // a project with the id of the currently selected project
-    for(let i in this.usersProjects) {
-      const project = this.usersProjects[i];
-      if(project.id == this.selectedProject.id) {
-        // user is member of the currently shown project
-        return true;
-      }
-    }
-    // user is no member of the currently shown project
-    return false;
+    return this.selectedProject.is_member;
   }
 
   /**
@@ -927,9 +916,10 @@ class ProjectInfo extends LitElement {
    */
   loadComponents() {
     return new Promise((resolveLoading, rejectLoading) => {
-      const projectId = this.getProjectId();
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId, {
-        method: "GET"
+      const projectName = this.getProjectName();
+      fetch(Static.ProjectServiceURL + "/projects/CAE/" + projectName, {
+        method: "GET",
+        headers: Auth.getAuthHeader()
       }).then(response => {
           if(response.ok) {
             return response.json();
@@ -938,9 +928,10 @@ class ProjectInfo extends LitElement {
           }
         }
       ).then(data => {
-        const components = data.components;
-        const dependencies = data.dependencies;
-        const externalDependencies = data.externalDependencies;
+        const metadata = data.metadata;
+        const components = metadata.components;
+        const dependencies = metadata.dependencies;
+        const externalDependencies = metadata.externalDependencies;
 
         // clear current components
         this.applicationComponent = undefined;
@@ -1025,7 +1016,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/components/" + this.componentToDelete.id, {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/components/" + this.componentToDelete.id, {
       method: "DELETE",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1051,7 +1042,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeDependencyFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/dependencies/" + this.dependencyToDelete.component.id, {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/dependencies/" + this.dependencyToDelete.component.id, {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -1069,7 +1060,7 @@ class ProjectInfo extends LitElement {
   }
 
   _removeExternalDependencyFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies/" + this.externalDependencyToDelete.externalDependencyId, {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/extdependencies/" + this.externalDependencyToDelete.externalDependencyId, {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -1133,10 +1124,10 @@ class ProjectInfo extends LitElement {
   _onInviteUserToProjectClicked() {
     // get entered username
     const loginName = this.shadowRoot.getElementById("input-username").value;
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
 
     // send invitation
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/invitations", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/invitations", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1168,10 +1159,10 @@ class ProjectInfo extends LitElement {
     // close dialog
     this.shadowRoot.getElementById("dialog-edit-user").close();
 
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
     const userToRemove = this.editingUser;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users/" + userToRemove.id, {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/users/" + userToRemove.id, {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -1197,10 +1188,10 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _onAddRoleToProjectClicked() {
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
     const roleName = this.shadowRoot.getElementById("input-role").value;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/roles", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1247,10 +1238,10 @@ class ProjectInfo extends LitElement {
     // close dialog
     this.shadowRoot.getElementById("dialog-edit-role").close();
 
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
     const roleToRemove = this.editingRole;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles/" + roleToRemove.id, {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/roles/" + roleToRemove.id, {
       method: "DELETE",
       headers: Auth.getAuthHeader()
     }).then(response => {
@@ -1275,7 +1266,6 @@ class ProjectInfo extends LitElement {
 
   _onTabChanged(tabIndex) {
     this.componentTabSelected = tabIndex;
-    const projectId = this.getProjectId();
     if(tabIndex == 0) {
       this.currentlyShownComponents = this.frontendComponents;
     } else {
@@ -1284,13 +1274,13 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Searches for the role with the given id.
-   * @param roleId Id of the role to search for.
+   * Searches for the role with the given name.
+   * @param roleName Name of the role to search for.
    */
-  getRoleById(roleId) {
+  getRoleByName(roleName) {
     for(let i in this.roleList) {
       const role = this.roleList[i];
-      if (role.id == roleId) return role;
+      if (role.name == roleName) return role;
     }
   }
 
@@ -1301,7 +1291,7 @@ class ProjectInfo extends LitElement {
    */
   getRoleIndex(roleId) {
     let index = 0;
-    for(const role of this.selectedProject.roles) {
+    for(const role of this.selectedProject.metadata.roles) {
       if(role.id == roleId) break;
       index++;
     }
@@ -1322,7 +1312,7 @@ class ProjectInfo extends LitElement {
     // get corresponding role
     let index = 0;
     let selectedRole;
-    for(const role of this.selectedProject.roles) {
+    for(const role of this.selectedProject.metadata.roles) {
       if(index == selected) {
         selectedRole = role;
         break;
@@ -1335,7 +1325,7 @@ class ProjectInfo extends LitElement {
       // role of user has changed
       // update in database
       fetch(Static.ProjectManagementServiceURL + "/projects/"
-        + this.getProjectId() + "/users/" + this.editingUser.id + "/role/" + selectedRole.id, {
+        + this.getProjectName() + "/users/" + this.editingUser.id + "/role/" + selectedRole.id, {
         method: "PUT",
         headers: Auth.getAuthHeader()
       }).then(response => {
@@ -1357,7 +1347,7 @@ class ProjectInfo extends LitElement {
    */
   _onCreateComponentClicked() {
     this.openLoadingDialog();
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
 
     const componentName = this.shadowRoot.getElementById("dialog-add-component-input-name").value;
     const componentTypeSelected = this.shadowRoot.getElementById("dialog-add-component-dropdown-type").selected;
@@ -1369,7 +1359,7 @@ class ProjectInfo extends LitElement {
       componentType = "microservice";
     }
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
+    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/components", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1476,7 +1466,7 @@ class ProjectInfo extends LitElement {
         this.getSearchComponentsDialog().close();
 
         // add component as dependency to project
-        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/dependencies/" + selectedComponent.id, {
+        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/dependencies/" + selectedComponent.id, {
           method: "POST",
           headers: Auth.getAuthHeader()
         }).then(response => {
@@ -1526,7 +1516,7 @@ class ProjectInfo extends LitElement {
       }
 
       // add as external dependency to project
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies", {
+      fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/extdependencies", {
         method: "POST",
         headers: Auth.getAuthHeader(),
         body: JSON.stringify({
@@ -1701,8 +1691,8 @@ class ProjectInfo extends LitElement {
     toastElement.show();
   }
 
-  getProjectId() {
-    return this.selectedProject.id;
+  getProjectName() {
+    return this.selectedProject.name;
   }
 }
 
