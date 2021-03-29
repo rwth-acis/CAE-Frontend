@@ -980,7 +980,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/components/" + this.componentToDelete.id, {
+    fetch(Static.ModelPersistenceServiceURL + "/projects/" + this.getProjectName() + "/components/" + this.componentToDelete.name, {
       method: "DELETE",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1249,7 +1249,7 @@ class ProjectInfo extends LitElement {
       componentType = "microservice";
     }
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/components", {
+    fetch(Static.ModelPersistenceServiceURL + "/projects/" + projectName + "/components", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
