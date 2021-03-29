@@ -775,11 +775,12 @@ class ProjectInfo extends LitElement {
     const editor = this.roleWidgetAccessEditor;
     const widgetConfig = JSON.stringify(editor.getWidgetConfig());
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/roles/" + this.editingRole.id, {
-      method: "PUT",
-      headers: Auth.getAuthHeader(),
-      body: widgetConfig
-    }).then(response => {
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+    newMetadata.roles.filter(x => x.name == this.editingRole.name)[0].widgetConfig = widgetConfig;
+
+    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
       if(response.ok) {
         this.showToast("Updated role successfully!");
         this.editingRole.widgetConfig = widgetConfig;
