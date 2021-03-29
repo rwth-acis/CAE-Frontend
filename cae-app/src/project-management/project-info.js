@@ -1131,27 +1131,32 @@ class ProjectInfo extends LitElement {
     const projectName = this.getProjectName();
     const roleToRemove = this.editingRole;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/roles/" + roleToRemove.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Removed role from project!");
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
 
-        // remove the role from the roles list of the project
-        this.roleList.splice(this.roleList.findIndex(role => {
-          return role.id === roleToRemove.id;
-        }),1);
-        this.requestUpdate();
+    // check if role is assigned to a user
+    if(newMetadata.mapUserRole.filter(x => x.roleName == roleToRemove.name).length > 0) {
+      // role is still assigned to at least one user and thus cannot be removed from project
+      this.showToast("Cannot remove role since it is assigned to at least one user!");
+    } else {
+      // role is not assigned to anyone anymore => we can delete it
+      newMetadata.roles = newMetadata.roles.filter(x => x.name != roleToRemove.name);
+      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
+        if (response.ok) {
+          this.showToast("Removed role from project!");
 
-        // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
-        // and project is part of the listedProjects array in the project explorer
-        // Thus: the listedProjects automatically does not contain the removed role anymore
-      } else if(response.status == 409) {
-        // role is still assigned to at least one user and thus cannot be removed from project
-        this.showToast("Cannot remove role since it is assigned to at least one user!");
-      }
-    });
+          // remove the role from the roles list of the project
+          this.roleList.splice(this.roleList.findIndex(role => {
+            return role.name === roleToRemove.name;
+          }), 1);
+          this.requestUpdate();
+
+          // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
+          // and project is part of the listedProjects array in the project explorer
+          // Thus: the listedProjects automatically does not contain the removed role anymore
+        }
+      });
+    }
   }
 
   _onTabChanged(tabIndex) {
@@ -1211,23 +1216,49 @@ class ProjectInfo extends LitElement {
     }
     if(!selectedRole) return;
 
-    if(selectedRole.id != this.editingUser.roleId) {
+    if(selectedRole.name != this.editingUser.roleName) {
       // role of user has changed
-      // update in database
-      fetch(Static.ProjectManagementServiceURL + "/projects/"
-        + this.getProjectName() + "/users/" + this.editingUser.id + "/role/" + selectedRole.id, {
-        method: "PUT",
-        headers: Auth.getAuthHeader()
-      }).then(response => {
+      // we need to update the metadata in the project service
+      // therefore we first clone the current metadata
+      const oldMetadata = this.selectedProject.metadata;
+      const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+      // update role of user in metadata
+      newMetadata.mapUserRole.filter(x => x.agentId == this.editingUser.agentId)[0].roleName = selectedRole.name;
+
+      // update in project service
+      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
         if(response.ok) {
           // update users role locally
-          const user = this.selectedProject.users.filter(u => u.id == this.editingUser.id)[0];
-          user.roleId = selectedRole.id;
+          this.selectedProject.metadata = newMetadata;
+          this.userList = this.selectedProject.metadata.mapUserRole;
           this.requestUpdate();
           this.showToast("Updated user successfully!");
         }
       });
     }
+  }
+
+  /**
+   * Returns a request to the project service to update the metadata of the currently selected project.
+   * @param oldMetadata
+   * @param newMetadata
+   * @returns {Promise<Response>}
+   */
+  changeMetadataRequest(oldMetadata, newMetadata) {
+    const body = {
+      projectName: this.selectedProject.name,
+      oldMetadata,
+      newMetadata
+    };
+
+    const headers = Auth.getAuthHeader();
+    headers["Content-Type"] = "text/plain";
+    return fetch(Static.ProjectServiceURL + "/projects/CAE/changeMetadata", {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body)
+    });
   }
 
   /**
