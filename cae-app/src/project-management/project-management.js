@@ -4,6 +4,7 @@ import './project-info';
 import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 import Auth from "../util/auth";
 import Static from "../static";
+import Common from "../util/common";
 
 /**
  * PolymerElement for the project management page of the CAE.
@@ -41,7 +42,7 @@ class ProjectManagement extends LitElement {
       ${Auth.isAccessTokenAvailable() ? html`
         <div class="container flex-horizontal-with-ratios">
           <div class="flex-project-explorer">
-            <project-list system="CAE"
+            <project-list id="project-list" system="CAE"
               projectServiceURL=${Static.ProjectServiceURL}
               contactServiceURL="${Static.ContactServiceURL}/contactservice"
               @projects-loaded=${(e) => this._onUserProjectListLoaded(e.detail)}
@@ -107,18 +108,29 @@ class ProjectManagement extends LitElement {
    */
   _onUserProjectListLoaded(eventDetail) {
     this.getProjectInfo()._onUserProjectListLoaded(eventDetail);
+
+    // update list of online users
+    const mapProjectRooms = {};
+    for(let project of eventDetail.projects) {
+      const roomList = [];
+      for(let component of project.metadata.components) {
+        roomList.push(Common.getYjsRoomNameForVersionedModel(component.versionedModelId));
+      }
+      mapProjectRooms[project.name] = roomList;
+    }
+    this.getProjectList().setOnlineUserListYjsRooms(mapProjectRooms);
   }
 
   _reloadProjects() {
-    this.getProjectExplorer().showProjects(false);
+    this.getProjectList().showProjects(false);
   }
 
   getProjectInfo() {
     return this.shadowRoot.getElementById("project-info");
   }
 
-  getProjectExplorer() {
-    return this.shadowRoot.getElementById("project-explorer");
+  getProjectList() {
+    return this.shadowRoot.getElementById("project-list");
   }
 }
 
