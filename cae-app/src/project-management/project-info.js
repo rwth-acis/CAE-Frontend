@@ -1088,39 +1088,50 @@ class ProjectInfo extends LitElement {
     const projectName = this.getProjectName();
     const roleName = this.shadowRoot.getElementById("input-role").value;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectName + "/roles", {
-      method: "POST",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "name": roleName
-      })
-    }).then(response => {
+    // check if role with the same name already exists
+    if(this.selectedProject.metadata.roles.filter(x => x.name == roleName).length > 0) {
+      // role with same name already exists
+      this.showToast("Role with same name already exists in the project.");
+      return;
+    }
+
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+    // request the widget config allowing to view every widget from persistence service
+    fetch(Static.ModelPersistenceServiceURL + "/widgetConfigAll").then(response => {
       if(response.ok) {
         return response.json();
-      } else {
-        throw Error(response.status);
       }
     }).then(data => {
-      // data is the role which got added to the project
-      // show toast message
-      this.showToast("Added role to project!");
+      const role = {
+        isDefault: false,
+        name: roleName,
+        widgetConfig: JSON.stringify(data)
+      };
 
-      // show the new role in the roles list of the project
-      this.roleList.push(data);
-      this.requestUpdate();
+      newMetadata.roles.push(role);
 
-      // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
-      // and project is part of the listedProjects array in the project explorer
-      // Thus: the listedProjects automatically contains the newly added role
+      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
+        if(response.ok) {
+          // show toast message
+          this.showToast("Added role to project!");
 
-      // clear input text and deactivate button
-      this.shadowRoot.getElementById("input-role").value = "";
-      this.shadowRoot.getElementById("button-add-role").disabled = true;
-    }).catch(error => {
-      if(error.message == "409") {
-        // role with same name already exists
-        this.showToast("Role with same name already exists in the project.");
-      }
+          // show the new role in the roles list of the project
+          this.roleList.push(role);
+          this.requestUpdate();
+
+          // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
+          // and project is part of the listedProjects array in the project explorer
+          // Thus: the listedProjects automatically contains the newly added role
+
+          // clear input text and deactivate button
+          this.shadowRoot.getElementById("input-role").value = "";
+          this.shadowRoot.getElementById("button-add-role").disabled = true;
+        }
+      });
+      console.log("new metadata", newMetadata);
+
     });
   }
 
