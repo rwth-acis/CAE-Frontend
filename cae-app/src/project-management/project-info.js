@@ -139,10 +139,10 @@ class ProjectInfo extends LitElement {
                   </div>
                   <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
                     <!-- Labels for dependencies and external dependencies -->
-                    ${component.dependencyId ? html`<span class="label" style="margin-right: 0.5em">Dependency</span>` : html``}
-                    ${component.externalDependencyId ? html`<span class="label" style="margin-right: 0.5em; white-space: nowrap;">External Dependency</span>` : html``}
+                    ${component.objectType == "dependency" ? html`<span class="label" style="margin-right: 0.5em">Dependency</span>` : html``}
+                    ${component.objectType == "externalDependency" ? html`<span class="label" style="margin-right: 0.5em; white-space: nowrap;">External Dependency</span>` : html``}
                     <!-- Link to open modeling space -->
-                    ${component.externalDependencyId ? html`` : html`
+                    ${component.objectType == "externalDependency" ? html`` : html`
                       <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}"
                         icon="icons:exit-to-app" class="edit-icon" style="margin-top: auto; margin-bottom: auto"></iron-icon>
                     `}
@@ -514,7 +514,7 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      const componentType = component.dependencyId ? component.component.type : component.type;
+      const componentType = component.objectType == "dependency" ? component.component.type : component.type;
       this.updateMenu(componentType, false);
 
       this.closeLoadingDialog();
@@ -652,10 +652,12 @@ class ProjectInfo extends LitElement {
    */
   updateCurrentlyOpenedComponent(component) {
     let isDependency = false;
-    if(component.hasOwnProperty("dependencyId")) {
-      // component is a dependency
-      component = component.component;
-      isDependency = true;
+    if(component.hasOwnProperty("objectType")) {
+      if(component.objectType == "dependency") {
+        // component is a dependency
+        component = component.component;
+        isDependency = true;
+      }
     }
 
     // update modeling info
@@ -687,7 +689,7 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      const componentType = component.dependencyId ? component.component.type : component.type;
+      const componentType = component.objectType == "dependency" ? component.component.type : component.type;
       this.updateMenu(componentType, false);
 
       // close dialog
@@ -741,7 +743,7 @@ class ProjectInfo extends LitElement {
 
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       // success
-      const componentType = component.dependencyId ? component.component.type : component.type;
+      const componentType = component.objectType == "dependency" ? component.component.type : component.type;
       this.updateMenu(componentType, true);
     }, _ => {
       // failed
@@ -918,6 +920,7 @@ class ProjectInfo extends LitElement {
         // dependencies is a JSONArray containing both frontend component and microservice DEPENDENCIES
         for(let i in dependencies) {
           const dependency = dependencies[i];
+          dependency.objectType = "dependency";
           if(dependency.component.type == "frontend") {
             this.frontendComponents.push(dependency);
           } else if(dependency.component.type == "microservice") {
@@ -928,6 +931,7 @@ class ProjectInfo extends LitElement {
         // external dependencies
         for(let i in externalDependencies) {
           const externalDependency = externalDependencies[i];
+          externalDependency.objectType = "externalDependency";
           if(externalDependency.type == "frontend") {
             this.frontendComponents.push(externalDependency);
           } else if(externalDependency.type == "microservice") {
@@ -962,16 +966,16 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProjectClicked(component) {
-    if(component.externalDependencyId) {
-      this.externalDependencyToDelete = component;
-      this.shadowRoot.getElementById("dialog-delete-external-dependency").open();
-    } else if(component.dependencyId) {
-      this.dependencyToDelete = component;
-      this.shadowRoot.getElementById("dialog-delete-dependency").open();
-    } else {
+    if(!component.objectType) {
       this.componentToDelete = component;
       // first show dialog and ensure that the user really want to delete the component
       this.shadowRoot.getElementById("dialog-delete-component").open();
+    } else if(component.objectType == "dependency") {
+      this.dependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-dependency").open();
+    } else if(component.objectType == "externalDependency") {
+      this.externalDependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-external-dependency").open();
     }
   }
 
@@ -1025,10 +1029,12 @@ class ProjectInfo extends LitElement {
   }
 
   _removeExternalDependencyFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/extdependencies/" + this.externalDependencyToDelete.externalDependencyId, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+    newMetadata.externalDependencies = newMetadata.externalDependencies.filter(x => x.gitHubURL != this.externalDependencyToDelete.gitHubURL);
+
+    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
       if(response.ok) {
         this.showToast("Removed external dependency from project!");
 
@@ -1437,16 +1443,18 @@ class ProjectInfo extends LitElement {
         type = "microservice";
       }
 
-      // add as external dependency to project
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/extdependencies", {
-        method: "POST",
-        headers: Auth.getAuthHeader(),
-        body: JSON.stringify({
-          gitHubURL: this.enteredURL,
-          type: type
-        })
-      }).then(response => {
-        if (response.ok) {
+      const oldMetadata = this.selectedProject.metadata;
+      const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+      // add new external dependency to metadata
+      const externalDependency = {
+        gitHubURL: this.enteredURL,
+        type
+      };
+      newMetadata.externalDependencies.push(externalDependency);
+
+      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
+        if(response.ok) {
           this.showToast("Added external dependency to project!");
           // just reload components list
           this.loadComponents();
@@ -1464,8 +1472,16 @@ class ProjectInfo extends LitElement {
   }
 
   getComponentGitHubURL(component) {
-    if(component.externalDependencyId) return component.gitHubURL;
-    if(component.dependencyId) component = component.component;
+    if(!component.objectType) {
+      // no change needed
+    } else if(component.objectType == "dependency") {
+      // use the real component
+      component = component.component;
+    } else if(component.objectType == "externalDependency") {
+      // use the URL to the dependency repository on GitHub
+      return component.gitHubURL;
+    }
+
     let type = component.type;
     if(type == "frontend") type = "frontendComponent";
     return "https://github.com/" + Static.GitHubOrg + "/" + type + "-" + component.versionedModelId;
@@ -1478,28 +1494,28 @@ class ProjectInfo extends LitElement {
    * @returns {*}
    */
   getComponentName(component) {
-    if(component.dependencyId) return component.component.name;
-    if(component.externalDependencyId) return component.gitHubURL.split(".com/")[1];
-    return component.name;
+    if(!component.objectType) return component.name;
+    if(component.objectType == "dependency") return component.component.name;
+    if(component.objectType == "externalDependency") return component.gitHubURL.split(".com/")[1];
   }
 
   hasRequirementsBazaarURL(component) {
-    if(component.dependencyId) {
-      return component.component.reqBazCategoryId && component.component.reqBazCategoryId != -1;
-    } else {
+    if(!component.objectType) {
       return component.reqBazCategoryId && component.reqBazCategoryId != -1;
+    } else if(component.objectType == "dependency") {
+      return component.component.reqBazCategoryId && component.component.reqBazCategoryId != -1;
     }
   }
 
   getRequirementsBazaarURL(component) {
     let reqBazProjectId;
     let reqBazCategoryId;
-    if(component.dependencyId) {
-      reqBazProjectId = component.component.reqBazProjectId;
-      reqBazCategoryId = component.component.reqBazCategoryId;
-    } else {
+    if(!component.objectType) {
       reqBazProjectId = component.reqBazProjectId;
       reqBazCategoryId = component.reqBazCategoryId;
+    } else if(component.objectType == "dependency") {
+      reqBazProjectId = component.component.reqBazProjectId;
+      reqBazCategoryId = component.component.reqBazCategoryId;
     }
 
     return "https://requirements-bazaar.org/projects/" + reqBazProjectId + "/categories/" + reqBazCategoryId;
