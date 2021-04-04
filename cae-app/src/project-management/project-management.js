@@ -45,7 +45,7 @@ class ProjectManagement extends LitElement {
             <project-list id="project-list" system="CAE"
               projectServiceURL=${Static.ProjectServiceURL}
               contactServiceURL="${Static.ContactServiceURL}/contactservice"
-              @projects-loaded=${(e) => this._onUserProjectListLoaded(e.detail)}
+              @projects-loaded=${(e) => this._onProjectListLoaded(e.detail)}
               @project-selected=${(e) => this._onProjectSelected(e.detail)}></project-list>
             <!--<project-explorer id="project-explorer" 
                 @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"
@@ -102,12 +102,11 @@ class ProjectManagement extends LitElement {
   /**
    * Gets called when the list of projects by the user is loaded in the
    * project explorer.
-   * Notifies the project user widget about this event.
    * @param eventDetail Details of the event sent from the explorer.
    * @private
    */
-  _onUserProjectListLoaded(eventDetail) {
-    this.getProjectInfo()._onUserProjectListLoaded(eventDetail);
+  _onProjectListLoaded(eventDetail) {
+    this.getProjectInfo()._onProjectListLoaded(eventDetail.projects);
 
     // update list of online users
     const mapProjectRooms = {};

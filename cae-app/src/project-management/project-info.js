@@ -452,10 +452,6 @@ class ProjectInfo extends LitElement {
        * Tells if the logged in user is allowed to edit the currently selected project.
        */
       editingAllowed: { type: Boolean },
-      /*
-       * List of the projects where the current user is member of.
-       */
-      usersProjects: { type: Array },
       /**
        * Gets set before the "Are you sure that you want to delete...?" dialog
        * appears. Then this attribute gets used in the click event of the
@@ -469,7 +465,11 @@ class ProjectInfo extends LitElement {
       externalDependencyToDelete: { type: Object },
       validURL: { type: Boolean },
       enteredURL: { type: String },
-      roleWidgetAccessEditor: { type: Object }
+      roleWidgetAccessEditor: { type: Object },
+      /**
+       * List of all components that are available.
+       */
+      allComponents: { type: Array }
     }
   }
 
@@ -492,7 +492,6 @@ class ProjectInfo extends LitElement {
     this.currentlyShownComponents = [];
     this.componentTabSelected = 0;
     this.editingAllowed = false;
-    this.usersProjects = [];
   }
 
   /**
@@ -514,7 +513,7 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      const componentType = component.objectType == "dependency" ? component.component.type : component.type;
+      const componentType = component.type;
       this.updateMenu(componentType, false);
 
       this.closeLoadingDialog();
@@ -655,7 +654,6 @@ class ProjectInfo extends LitElement {
     if(component.hasOwnProperty("objectType")) {
       if(component.objectType == "dependency") {
         // component is a dependency
-        component = component.component;
         isDependency = true;
       }
     }
@@ -689,7 +687,7 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      const componentType = component.objectType == "dependency" ? component.component.type : component.type;
+      const componentType = component.type;
       this.updateMenu(componentType, false);
 
       // close dialog
@@ -743,7 +741,7 @@ class ProjectInfo extends LitElement {
 
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       // success
-      const componentType = component.objectType == "dependency" ? component.component.type : component.type;
+      const componentType = component.type;
       this.updateMenu(componentType, true);
     }, _ => {
       // failed
@@ -860,16 +858,6 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Gets called by the project-management which forwards the event
-   * originally sent from the project-explorer.
-   * @param eventDetail Contains the list of projects by the current user.
-   * @private
-   */
-  _onUserProjectListLoaded(eventDetail) {
-    this.usersProjects = eventDetail.usersProjects;
-  }
-
-  /**
    * Checks if the user is allowed to edit the currently shown project.
    * Therefore, it checks if the user is member of the currently shown project.
    * @returns {boolean} Whether user is allowed to edit the currently shown project.
@@ -921,9 +909,9 @@ class ProjectInfo extends LitElement {
         for(let i in dependencies) {
           const dependency = dependencies[i];
           dependency.objectType = "dependency";
-          if(dependency.component.type == "frontend") {
+          if(dependency.type == "frontend") {
             this.frontendComponents.push(dependency);
-          } else if(dependency.component.type == "microservice") {
+          } else if(dependency.type == "microservice") {
             this.microserviceComponents.push(dependency);
           }
         }
@@ -1011,10 +999,12 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeDependencyFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/dependencies/" + this.dependencyToDelete.component.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+    newMetadata.dependencies = newMetadata.dependencies.filter(x => x.name != this.dependencyToDelete.name);
+
+    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
       if(response.ok) {
         this.showToast("Removed dependency from project!");
 
@@ -1023,7 +1013,7 @@ class ProjectInfo extends LitElement {
 
         // check if the dependency which got deleted is currently opened (in the menu)
         // because then the menu and the modelingInfo in localStorage need to be updated
-        this.closeComponent(this.dependencyToDelete.component);
+        this.closeComponent(this.dependencyToDelete);
       }
     });
   }
@@ -1342,47 +1332,38 @@ class ProjectInfo extends LitElement {
     let selectedComponentHTML;
     let selectedComponent;
 
+    // we have a list of all components stored (this.allComponents)
+    // filter out the components with type "application"
+    const components = this.allComponents.filter(component => component.type != "application");
 
-    // search for components
-    fetch(Static.ProjectManagementServiceURL + "/components", {
-      method: "GET"
-    }).then(response => {
-      if(response.ok) {
-        response.json().then(data => {
-          // filter out components with type "application"
-          data = data.filter(component => component.type != "application");
+    for(const component of components) {
+      const componentOuterDiv = document.createElement("div");
+      componentOuterDiv.style = "display: flex";
+      componentOuterDiv.addEventListener("mouseover", function() {
+        componentOuterDiv.style.background = "#eeeeee";
+      });
+      componentOuterDiv.addEventListener("mouseleave", function() {
+        if(componentOuterDiv != selectedComponentHTML) {
+          componentOuterDiv.style.removeProperty("background");
+        }
+      });
+      componentOuterDiv.addEventListener("click", function() {
+        if(selectedComponentHTML) selectedComponentHTML.style.removeProperty("background");
+        selectedComponentHTML = componentOuterDiv;
+        selectedComponent = component;
+        componentOuterDiv.style.setProperty("background", "#eeeeee");
+      });
 
-          for(const component of data) {
-            const componentOuterDiv = document.createElement("div");
-            componentOuterDiv.style = "display: flex";
-            componentOuterDiv.addEventListener("mouseover", function() {
-              componentOuterDiv.style.background = "#eeeeee";
-            });
-            componentOuterDiv.addEventListener("mouseleave", function() {
-              if(componentOuterDiv != selectedComponentHTML) {
-                componentOuterDiv.style.removeProperty("background");
-              }
-            });
-            componentOuterDiv.addEventListener("click", function() {
-              if(selectedComponentHTML) selectedComponentHTML.style.removeProperty("background");
-              selectedComponentHTML = componentOuterDiv;
-              selectedComponent = component;
-              componentOuterDiv.style.setProperty("background", "#eeeeee");
-            });
+      const p = document.createElement("p");
+      p.innerText = component.name;
+      componentOuterDiv.appendChild(p);
 
-            const p = document.createElement("p");
-            p.innerText = component.name;
-            componentOuterDiv.appendChild(p);
+      searchResultDiv.appendChild(componentOuterDiv);
 
-            searchResultDiv.appendChild(componentOuterDiv);
-
-            const separator = document.createElement("div");
-            separator.class = "separator";
-            searchResultDiv.appendChild(separator);
-          }
-        });
-      }
-    });
+      const separator = document.createElement("div");
+      separator.class = "separator";
+      searchResultDiv.appendChild(separator);
+    }
 
     const searchInputField = this.shadowRoot.getElementById("dialog-search-components-input");
     searchInputField.addEventListener("input", function(e) {
@@ -1405,10 +1386,12 @@ class ProjectInfo extends LitElement {
         this.getSearchComponentsDialog().close();
 
         // add component as dependency to project
-        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectName() + "/dependencies/" + selectedComponent.id, {
-          method: "POST",
-          headers: Auth.getAuthHeader()
-        }).then(response => {
+        const oldMetadata = this.selectedProject.metadata;
+        const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+        newMetadata.dependencies.push(selectedComponent);
+
+        this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
           if(response.ok) {
             this.showToast("Added component as a dependency!");
             // just reload components list
@@ -1483,12 +1466,7 @@ class ProjectInfo extends LitElement {
   }
 
   getComponentGitHubURL(component) {
-    if(!component.objectType) {
-      // no change needed
-    } else if(component.objectType == "dependency") {
-      // use the real component
-      component = component.component;
-    } else if(component.objectType == "externalDependency") {
+    if(component.objectType && component.objectType == "externalDependency") {
       // use the URL to the dependency repository on GitHub
       return component.gitHubURL;
     }
@@ -1506,7 +1484,7 @@ class ProjectInfo extends LitElement {
    */
   getComponentName(component) {
     if(!component.objectType) return component.name;
-    if(component.objectType == "dependency") return component.component.name;
+    if(component.objectType == "dependency") return component.name;
     if(component.objectType == "externalDependency") return component.gitHubURL.split(".com/")[1];
   }
 
@@ -1514,19 +1492,16 @@ class ProjectInfo extends LitElement {
     if(!component.objectType) {
       return component.reqBazCategoryId && component.reqBazCategoryId != -1;
     } else if(component.objectType == "dependency") {
-      return component.component.reqBazCategoryId && component.component.reqBazCategoryId != -1;
+      return component.reqBazCategoryId && component.reqBazCategoryId != -1;
     }
   }
 
   getRequirementsBazaarURL(component) {
     let reqBazProjectId;
     let reqBazCategoryId;
-    if(!component.objectType) {
+    if(!component.objectType || component.objectType == "dependency") {
       reqBazProjectId = component.reqBazProjectId;
       reqBazCategoryId = component.reqBazCategoryId;
-    } else if(component.objectType == "dependency") {
-      reqBazProjectId = component.component.reqBazProjectId;
-      reqBazCategoryId = component.component.reqBazCategoryId;
     }
 
     return "https://requirements-bazaar.org/projects/" + reqBazProjectId + "/categories/" + reqBazCategoryId;
@@ -1574,6 +1549,18 @@ class ProjectInfo extends LitElement {
 
   getProjectName() {
     return this.selectedProject.name;
+  }
+
+  /**
+   * Gets called by project-management.js when all projects are loaded from the project service.
+   * @param projectList A list of all projects available in the CAE.
+   * @private
+   */
+  _onProjectListLoaded(projectList) {
+    this.allComponents = [];
+    for(let project of projectList) {
+      this.allComponents = this.allComponents.concat(project.metadata.components);
+    }
   }
 }
 
