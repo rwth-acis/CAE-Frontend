@@ -41,6 +41,9 @@ export class ComponentSelectWidget extends LitElement {
 
   static get properties() {
     return {
+      client: {
+        type: Object
+      },
       componentType: {
         type: String
       }
@@ -51,6 +54,13 @@ export class ComponentSelectWidget extends LitElement {
     super();
 
     this.requestUpdate().then(_ => {
+      const iwcCallback = function(intent) {
+        console.log(intent);
+      };
+
+      // url does not matter here, because we only use the client for iwc
+      this.client = new Las2peerWidgetLibrary(Static.ModelPersistenceServiceURL, iwcCallback, '*');
+
       this.getServices();
     });
   }
