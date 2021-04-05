@@ -215,6 +215,12 @@ export default class Common {
     return modelingInfo[componentType].name;
   }
 
+  static getProjectNameByVersionedModelId(versionedModelId) {
+    const modelingInfo = this.getModelingInfo();
+    const componentType = Common.getComponentTypeByVersionedModelId(versionedModelId);
+    return modelingInfo[componentType].projectName;
+  }
+
   static isCurrentComponentDependency() {
     const type = Common.getComponentTypeByVersionedModelId(Common.getVersionedModelId());
     if(type == "frontend") return Common.getModelingInfo().frontend.isDependency;

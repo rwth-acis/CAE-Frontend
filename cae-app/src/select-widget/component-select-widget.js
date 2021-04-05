@@ -1,6 +1,7 @@
 import {LitElement, html} from "lit-element";
 import Static from "../static";
 import Common from "../util/common";
+import Auth from "../util/auth";
 
 /**
  * Widget used to select frontend components or microservices which should be added to the application mashup.
@@ -40,9 +41,6 @@ export class ComponentSelectWidget extends LitElement {
 
   static get properties() {
     return {
-      client: {
-        type: Object
-      },
       componentType: {
         type: String
       }
@@ -53,12 +51,6 @@ export class ComponentSelectWidget extends LitElement {
     super();
 
     this.requestUpdate().then(_ => {
-      const iwcCallback = function(intent) {
-        console.log(intent);
-      };
-
-      this.client = new Las2peerWidgetLibrary(Static.ProjectManagementServiceURL + "/projects", iwcCallback, '*');
-
       this.getServices();
     });
   }
@@ -125,14 +117,19 @@ export class ComponentSelectWidget extends LitElement {
    */
   getServices() {
     const modelingInfo = JSON.parse(localStorage.getItem("modelingInfo"));
-    const currentProjectId = modelingInfo.application.projectId;
+    const currentProjectName = modelingInfo.application.projectName;
 
-    this.client.sendRequest("GET", currentProjectId + "/components", "", "application/json", {}, false, function(data, type) {
-      const projectComponents = JSON.parse(data);
-
-      const components = projectComponents.components;
-      const dependencyComponents = projectComponents.dependencies.map(dependency => dependency.component);
-      const externalDependencies = projectComponents.externalDependencies;
+    fetch(Static.ModelPersistenceServiceURL + "/projects/" + currentProjectName + "/components", {
+      method: "GET",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      const components = data.components;
+      const dependencyComponents = data.dependencies;
+      const externalDependencies = data.externalDependencies;
 
       // get components of the type which is currently shown in the select widget
       // this only works for components and dependencies, but not for external dependencies, because they do not
@@ -162,8 +159,6 @@ export class ComponentSelectWidget extends LitElement {
         const row = this.createTableRow(name, versionTags, this.createNodeExtDependency.bind(this), gitHubURL, type);
         this.getTable().appendChild(row);
       }
-    }.bind(this), function(error) {
-      console.log(error);
     });
   };
 
