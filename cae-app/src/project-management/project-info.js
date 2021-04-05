@@ -548,10 +548,8 @@ class ProjectInfo extends LitElement {
       // a dependency component, then the component will be displayed but not editable
       // IMPORTANT: this trick needs to be done before updateCurrentlyOpenedComponent() is called, otherwise
       // it is not stored in localStorage, that the component should be handled as a dependency
-      return component = {
-        "component": component,
-        "dependencyId": -1
-      };
+      component.objectType = "dependency";
+      return component;
     }
     return component;
   }
@@ -580,6 +578,12 @@ class ProjectInfo extends LitElement {
       "projectName": this.selectedProject.name,
       "widgetConfig": widgetConfig
     };
+
+    if(content.isDependency) {
+      content.objectType = "dependency";
+      content.widgetConfig = undefined;
+    }
+
     if(component.type == "frontend") {
       modelingInfo.frontend = content;
     } else if(component.type == "microservice") {
