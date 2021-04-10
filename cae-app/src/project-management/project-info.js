@@ -838,8 +838,22 @@ class ProjectInfo extends LitElement {
     if(inputRole) inputRole.value = "";
 
     // set users of the project
-    // TODO: fetch group members instead of doing this
     this.userList = project.metadata.mapUserRole;
+
+    // fetch group members from project service
+    fetch(Static.ContactServiceURL + "/contactservice/groups/" + this.selectedProject.groupName + "/member", {
+      method: "GET",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      // data is a map which maps the agent id to the username
+      // we need to check if the current user list contains all the agents
+      // it may be the case, that a user was added to the group and is not part of the mapUserRole in the project metadata yet
+      this.updateMapUserRole(data);
+    });
 
     // get roles from project
     this.roleList = project.metadata.roles;
@@ -859,6 +873,53 @@ class ProjectInfo extends LitElement {
         this.uploadMetamodelAndModelForApplicationSilent();
       }
     }, _ => {});
+  }
+
+  /**
+   * Updates the mapUserRole entry of the selected projects metadata.
+   * Given the data about the group from the contact service, the mapUserRole gets updated.
+   * Users that joined the group are added to the mapUserRole.
+   * Users that left the group get removed from the mapUserRole.
+   * @param groupData Group member data fetched from contact service.
+   */
+  updateMapUserRole(groupData) {
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+    // find default role
+    const defaultRole = newMetadata.roles.filter(role => role.isDefault)[0];
+
+    // find newly added members
+    for(let agentId of Object.keys(groupData)) {
+      let existsInMapUserRole = this.userList.map(user => user.agentId).filter(id => id == agentId).length > 0;
+      if(!existsInMapUserRole) {
+        // add user to metadata
+        const userEntry = {
+          agentId,
+          loginName: groupData[agentId],
+          roleName: defaultRole.name
+        };
+        newMetadata.mapUserRole.push(userEntry);
+      }
+    }
+
+    // check if a member left the group but is still in mapUserRole
+    for(let agentId of newMetadata.mapUserRole.map(x => x.agentId)) {
+      // check if agent id is part of group fetched from contact service
+      if(!Object.keys(groupData).includes(agentId)) {
+        // user is no group member anymore
+        // remove from metadata
+        newMetadata.mapUserRole = newMetadata.mapUserRole.filter(x => x.agentId != agentId);
+      }
+    }
+
+    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
+      if(response.ok) {
+        this.selectedProject.metadata = newMetadata;
+        this.userList = newMetadata.mapUserRole;
+        this.requestUpdate();
+      }
+    });
   }
 
   /**
