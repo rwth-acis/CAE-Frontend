@@ -481,6 +481,16 @@ class ProjectInfo extends LitElement {
       this.getAddExternalDependencyDialog().getElementsByTagName("paper-button")[1]
         .addEventListener("click", this.addExternalDependencyClicked.bind(this));
     });
+
+    window.addEventListener("metadata-changed", event => {
+      this.selectedProject.metadata = event.detail;
+      this.userList = this.selectedProject.metadata.mapUserRole;
+      this.roleList = this.selectedProject.metadata.roles;
+      this.loadComponents().then(_ => {
+        this.requestUpdate();
+      });
+      this.requestUpdate();
+    });
   }
 
   resetProjectInfo() {
@@ -784,12 +794,9 @@ class ProjectInfo extends LitElement {
 
     newMetadata.roles.filter(x => x.name == this.editingRole.name)[0].widgetConfig = widgetConfig;
 
-    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-      if(response.ok) {
-        this.showToast("Updated role successfully!");
-        this.editingRole.widgetConfig = widgetConfig;
-      }
-    });
+    this.changeMetadataRequest(oldMetadata, newMetadata);
+    this.showToast("Updated role!");
+    this.editingRole.widgetConfig = widgetConfig;
   }
 
   _onAddComponentClicked() {
@@ -889,10 +896,12 @@ class ProjectInfo extends LitElement {
     // find default role
     const defaultRole = newMetadata.roles.filter(role => role.isDefault)[0];
 
+    let changes = false;
+
     // find newly added members
-    for(let agentId of Object.keys(groupData)) {
+    for (let agentId of Object.keys(groupData)) {
       let existsInMapUserRole = this.userList.map(user => user.agentId).filter(id => id == agentId).length > 0;
-      if(!existsInMapUserRole) {
+      if (!existsInMapUserRole) {
         // add user to metadata
         const userEntry = {
           agentId,
@@ -900,26 +909,24 @@ class ProjectInfo extends LitElement {
           roleName: defaultRole.name
         };
         newMetadata.mapUserRole.push(userEntry);
+        changes = true;
       }
     }
 
     // check if a member left the group but is still in mapUserRole
-    for(let agentId of newMetadata.mapUserRole.map(x => x.agentId)) {
+    for (let agentId of newMetadata.mapUserRole.map(x => x.agentId)) {
       // check if agent id is part of group fetched from contact service
-      if(!Object.keys(groupData).includes(agentId)) {
+      if (!Object.keys(groupData).includes(agentId)) {
         // user is no group member anymore
         // remove from metadata
         newMetadata.mapUserRole = newMetadata.mapUserRole.filter(x => x.agentId != agentId);
+        changes = true;
       }
     }
 
-    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-      if(response.ok) {
-        this.selectedProject.metadata = newMetadata;
-        this.userList = newMetadata.mapUserRole;
-        this.requestUpdate();
-      }
-    });
+    if (changes) {
+      this.changeMetadataRequest(oldMetadata, newMetadata);
+    }
   }
 
   /**
@@ -1069,18 +1076,12 @@ class ProjectInfo extends LitElement {
 
     newMetadata.dependencies = newMetadata.dependencies.filter(x => x.name != this.dependencyToDelete.name);
 
-    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-      if(response.ok) {
-        this.showToast("Removed dependency from project!");
+    this.changeMetadataRequest(oldMetadata, newMetadata);
+    this.showToast("Removed dependency from project!");
 
-        // just reload components list
-        this.loadComponents();
-
-        // check if the dependency which got deleted is currently opened (in the menu)
-        // because then the menu and the modelingInfo in localStorage need to be updated
-        this.closeComponent(this.dependencyToDelete);
-      }
-    });
+    // check if the dependency which got deleted is currently opened (in the menu)
+    // because then the menu and the modelingInfo in localStorage need to be updated
+    this.closeComponent(this.dependencyToDelete);
   }
 
   _removeExternalDependencyFromProject() {
@@ -1089,14 +1090,8 @@ class ProjectInfo extends LitElement {
 
     newMetadata.externalDependencies = newMetadata.externalDependencies.filter(x => x.gitHubURL != this.externalDependencyToDelete.gitHubURL);
 
-    this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-      if(response.ok) {
-        this.showToast("Removed external dependency from project!");
-
-        // just reload components list
-        this.loadComponents();
-      }
-    });
+    this.changeMetadataRequest(oldMetadata, newMetadata)
+    this.showToast("Removed external dependency from project!");
   }
 
   closeComponent(component) {
@@ -1167,25 +1162,13 @@ class ProjectInfo extends LitElement {
 
       newMetadata.roles.push(role);
 
-      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-        if(response.ok) {
-          // show toast message
-          this.showToast("Added role to project!");
+      this.changeMetadataRequest(oldMetadata, newMetadata)
+      // show toast message
+      this.showToast("Added role to project!");
 
-          // show the new role in the roles list of the project
-          this.roleList.push(role);
-          this.requestUpdate();
-
-          // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
-          // and project is part of the listedProjects array in the project explorer
-          // Thus: the listedProjects automatically contains the newly added role
-
-          // clear input text and deactivate button
-          this.shadowRoot.getElementById("input-role").value = "";
-          this.shadowRoot.getElementById("button-add-role").disabled = true;
-        }
-      });
-      console.log("new metadata", newMetadata);
+      // clear input text and deactivate button
+      this.shadowRoot.getElementById("input-role").value = "";
+      this.shadowRoot.getElementById("button-add-role").disabled = true;
 
     });
   }
@@ -1214,21 +1197,8 @@ class ProjectInfo extends LitElement {
     } else {
       // role is not assigned to anyone anymore => we can delete it
       newMetadata.roles = newMetadata.roles.filter(x => x.name != roleToRemove.name);
-      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-        if (response.ok) {
-          this.showToast("Removed role from project!");
-
-          // remove the role from the roles list of the project
-          this.roleList.splice(this.roleList.findIndex(role => {
-            return role.name === roleToRemove.name;
-          }), 1);
-          this.requestUpdate();
-
-          // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
-          // and project is part of the listedProjects array in the project explorer
-          // Thus: the listedProjects automatically does not contain the removed role anymore
-        }
-      });
+      this.changeMetadataRequest(oldMetadata, newMetadata)
+      this.showToast("Removed role from project!");
     }
   }
 
@@ -1300,38 +1270,23 @@ class ProjectInfo extends LitElement {
       newMetadata.mapUserRole.filter(x => x.agentId == this.editingUser.agentId)[0].roleName = selectedRole.name;
 
       // update in project service
-      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-        if(response.ok) {
-          // update users role locally
-          this.selectedProject.metadata = newMetadata;
-          this.userList = this.selectedProject.metadata.mapUserRole;
-          this.requestUpdate();
-          this.showToast("Updated user successfully!");
-        }
-      });
+      this.changeMetadataRequest(oldMetadata, newMetadata);
+      this.showToast("Updated user successfully!");
     }
   }
 
   /**
-   * Returns a request to the project service to update the metadata of the currently selected project.
+   * Sends event to project service frontend. The project service frontend then updates the metadata in the service.
+   * If the update was successful, the "metadata-changed" event gets fired which is catched by the project-info.js.
    * @param oldMetadata
    * @param newMetadata
    * @returns {Promise<Response>}
    */
   changeMetadataRequest(oldMetadata, newMetadata) {
-    const body = {
-      projectName: this.selectedProject.name,
-      oldMetadata,
-      newMetadata
-    };
-
-    const headers = Auth.getAuthHeader();
-    headers["Content-Type"] = "text/plain";
-    return fetch(Static.ProjectServiceURL + "/projects/CAE/changeMetadata", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(body)
-    });
+    window.dispatchEvent(new CustomEvent("metadata-change-request", {
+      detail: newMetadata,
+      bubbles: true
+    }));
   }
 
   /**
@@ -1456,13 +1411,8 @@ class ProjectInfo extends LitElement {
 
         newMetadata.dependencies.push(selectedComponent);
 
-        this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-          if(response.ok) {
-            this.showToast("Added component as a dependency!");
-            // just reload components list
-            this.loadComponents();
-          }
-        });
+        this.changeMetadataRequest(oldMetadata, newMetadata)
+        this.showToast("Added component as a dependency!");
       }
     }.bind(this));
   }
@@ -1512,19 +1462,12 @@ class ProjectInfo extends LitElement {
       };
       newMetadata.externalDependencies.push(externalDependency);
 
-      this.changeMetadataRequest(oldMetadata, newMetadata).then(response => {
-        if(response.ok) {
-          this.showToast("Added external dependency to project!");
-          // just reload components list
-          this.loadComponents();
+      this.changeMetadataRequest(oldMetadata, newMetadata)
+      this.showToast("Added external dependency to project!");
 
-          // clear dialog input
-          const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
-          inputGitHubURL.value = "";
-        } else {
-          this.showWarningToast("Adding external dependency failed!");
-        }
-      });
+      // clear dialog input
+      const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
+      inputGitHubURL.value = "";
     } else {
       this.showWarningToast("Entered URL is not valid!");
     }
