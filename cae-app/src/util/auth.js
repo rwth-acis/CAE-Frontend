@@ -44,7 +44,7 @@ export default class Auth {
    */
   static setAuthDataToLocalStorage(access_token) {
     localStorage.setItem("access_token", access_token);
-    localStorage.setItem("userinfo_endpoint", "https://api.learning-layers.eu/o/oauth2/userinfo");
+    localStorage.setItem("userinfo_endpoint", "https://api.learning-layers.eu/auth/realms/main/protocol/openid-connect/userinfo");
   }
 
   /**
