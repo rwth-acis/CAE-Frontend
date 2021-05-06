@@ -18,6 +18,11 @@ class NotificationElement extends LitElement {
           margin-top: 1em;
           max-width: 300px;
         }
+        .main2 {
+          margin-left: 1em;
+          margin-top: 1em;
+          margin-right: 1em
+        }
         .icon-no {
           color: #DB4437;
           margin-left: auto;
@@ -55,6 +60,11 @@ class NotificationElement extends LitElement {
         ` : html`
           <p>You do not have any open project invitations.</p>
         `}
+      </div>
+      <div class="main2">
+        <div class="separator"></div>
+        <p>Want to participate in one of our example projects? Drop us a mail at 
+        <a href="mailto:tech4comp@dbis.rwth-aachen.de">tech4comp@dbis.rwth-aachen.de</a>!</p>
       </div>
       
        <!-- Generic Toast (see showToast method for more information) -->

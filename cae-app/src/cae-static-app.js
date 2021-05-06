@@ -274,16 +274,9 @@ class CaeStaticApp extends PolymerElement {
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
     this.loadCurrentUser().then(_ => {
-      var url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
-      fetch(url, {method: "GET"}).then(response => {
-        if(response.ok) {
-          return response.json();
-        }
-      }).then(data => {
-        const userInfo = Common.getUserInfo();
-        userInfo.sub = data.sub;
-        Common.storeUserInfo(userInfo);
-      });
+      const userInfo = Common.getUserInfo();
+      userInfo.sub = event.detail.profile.sub;
+      Common.storeUserInfo(userInfo);
     });
 
     // show statusbar again
