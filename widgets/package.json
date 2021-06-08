@@ -16,11 +16,11 @@
     "envify": "^3.4.0",
     "events": "^1.1.0",
     "grunt": "^1.0.1",
-    "grunt-browserify": "^4.0.1",
+    "grunt-browserify": "^6.0.0",
     "grunt-contrib-connect": "^1.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-qunit": "^1.0.2",
-    "grunt-contrib-uglify": "^1.0.0",
+    "grunt-contrib-uglify": "^3.0.0",
     "grunt-replace": "^1.0.1",
     "regenerator": "^0.8.42"
   },
