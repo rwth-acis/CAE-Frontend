@@ -125,6 +125,7 @@ export default class Common {
    * @returns {string}
    */
   static getUserInfo() {
+    if(!localStorage.getItem(this.KEY_USER_INFO)) return {};
     return JSON.parse(localStorage.getItem(this.KEY_USER_INFO));
   }
 
@@ -212,6 +213,12 @@ export default class Common {
     const modelingInfo = this.getModelingInfo();
     const componentType = Common.getComponentTypeByVersionedModelId(versionedModelId);
     return modelingInfo[componentType].name;
+  }
+
+  static getProjectNameByVersionedModelId(versionedModelId) {
+    const modelingInfo = this.getModelingInfo();
+    const componentType = Common.getComponentTypeByVersionedModelId(versionedModelId);
+    return modelingInfo[componentType].projectName;
   }
 
   static isCurrentComponentDependency() {

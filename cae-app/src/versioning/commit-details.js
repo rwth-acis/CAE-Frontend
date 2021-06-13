@@ -459,6 +459,9 @@ export class CommitDetails extends LitElement {
     // also add component name, which also gets added as an attribute to the model by the Model Persistence Service
     body.componentName = Common.getComponentNameByVersionedModelId(this.versionedModel.id);
 
+    // also put name of the project into the request (this is required to check if user is allowed to write to project)
+    body.projectName = Common.getProjectNameByVersionedModelId(this.versionedModel.id);
+
     // disable button so that it is not possible to click the button twice (or more often)
     this.getCommitButton().disabled = true;
 

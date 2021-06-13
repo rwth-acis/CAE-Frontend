@@ -5,6 +5,7 @@ export default class Auth {
 
   static KEY_ACCESS_TOKEN = "access_token";
   static KEY_USERINFO_ENDPOINT = "userinfo_endpoint";
+  static KEY_USER_INFO = "userInfo";
 
   /**
    * Helper method for creating header for HTTP requests.
@@ -13,9 +14,10 @@ export default class Auth {
    * Also adds a "fake" basic auth since las2peer seems to need a password.
    */
   static getAuthHeader() {
+    const userInfo = JSON.parse(localStorage.getItem(this.KEY_USER_INFO));
     return {
       "access-token": localStorage.getItem(this.KEY_ACCESS_TOKEN),
-      "Authorization": "Basic OnRlc3Q=",
+      "Authorization": "Basic " + btoa(userInfo.preferred_username + ":" + userInfo.sub),
       "Content-Type": "application/json"}
   }
 

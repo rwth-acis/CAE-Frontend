@@ -6,15 +6,15 @@ ENV REQBAZ_BACKEND https://requirements-bazaar.org/bazaar
 ENV REQBAZ_FRONTEND https://requirements-bazaar.org
 ENV YJS_RESOURCE_PATH /socket.io
 
-WORKDIR /usr/src/app
-COPY . .
-
 RUN apk update
 
 RUN apk add supervisor openssh git nginx jq python openrc && \
     npm_config_user=root npm install -g grunt-cli grunt polymer-cli
 
 RUN mkdir -p /run/nginx
+
+WORKDIR /usr/src/app
+COPY . .
 
 COPY docker/supervisorConfigs /etc/supervisor.d
 
