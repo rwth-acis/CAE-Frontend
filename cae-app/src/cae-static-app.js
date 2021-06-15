@@ -277,12 +277,22 @@ class CaeStaticApp extends PolymerElement {
     // TODO: now it is directly loaded from learning layers
     // notify project management service about user login
     // if the user is not yet registered, then the project management service will do this
-    this.loadCurrentUser().then(_ => {
+    fetch(localStorage.userinfo_endpoint, {
+      method: "GET",
+      headers: {
+        "Authorization": "Bearer " + Auth.getAccessToken()
+      }
+    }).then(response => {
+      if (response.ok) {
+        return response.json();
+      }
+    }).then(data => {
       const userInfo = Common.getUserInfo();
-      userInfo.sub = event.detail.profile.sub;
+      userInfo.sub = data.sub;
+      userInfo.email = data.email;
       // preferred_username is used by project service frontend
-      userInfo.preferred_username = event.detail.profile.preferred_username;
-      userInfo.loginName = event.detail.profile.preferred_username;
+      userInfo.preferred_username = data.preferred_username;
+      userInfo.loginName = data.preferred_username;
       Common.storeUserInfo(userInfo);
     });
 
