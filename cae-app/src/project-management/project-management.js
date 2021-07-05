@@ -5,6 +5,7 @@ import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 import Auth from "../util/auth";
 import Static from "../static";
 import Common from "../util/common";
+import {ProjectList} from "@rwth-acis/las2peer-project-service-frontend";
 
 /**
  * PolymerElement for the project management page of the CAE.
