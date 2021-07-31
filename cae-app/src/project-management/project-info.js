@@ -789,12 +789,11 @@ class ProjectInfo extends LitElement {
     const editor = this.roleWidgetAccessEditor;
     const widgetConfig = JSON.stringify(editor.getWidgetConfig());
 
-    const oldMetadata = this.selectedProject.metadata;
-    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+    const newMetadata = this.selectedProject.metadata;
 
     newMetadata.roles.filter(x => x.name == this.editingRole.name)[0].widgetConfig = widgetConfig;
 
-    this.changeMetadataRequest(oldMetadata, newMetadata);
+    this.changeMetadataRequest(newMetadata);
     this.showToast("Updated role!");
     this.editingRole.widgetConfig = widgetConfig;
   }
@@ -925,7 +924,7 @@ class ProjectInfo extends LitElement {
     }
 
     if (changes) {
-      this.changeMetadataRequest(oldMetadata, newMetadata);
+      this.changeMetadataRequest(newMetadata);
     }
   }
 
@@ -1055,8 +1054,9 @@ class ProjectInfo extends LitElement {
       if(response.ok) {
         this.showToast("Removed component from project!");
 
-        // just reload components list
-        this.loadComponents();
+        window.dispatchEvent(new CustomEvent("metadata-reload-request", {
+          bubbles: true
+        }));
 
         // check if the component which got deleted is currently opened (in the menu)
         // because then the menu and the modelingInfo in localStorage need to be updated
@@ -1071,12 +1071,11 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeDependencyFromProject() {
-    const oldMetadata = this.selectedProject.metadata;
-    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+    const newMetadata = this.selectedProject.metadata;
 
     newMetadata.dependencies = newMetadata.dependencies.filter(x => x.name != this.dependencyToDelete.name);
 
-    this.changeMetadataRequest(oldMetadata, newMetadata);
+    this.changeMetadataRequest(newMetadata);
     this.showToast("Removed dependency from project!");
 
     // check if the dependency which got deleted is currently opened (in the menu)
@@ -1085,12 +1084,11 @@ class ProjectInfo extends LitElement {
   }
 
   _removeExternalDependencyFromProject() {
-    const oldMetadata = this.selectedProject.metadata;
-    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+    const newMetadata = this.selectedProject.metadata;
 
     newMetadata.externalDependencies = newMetadata.externalDependencies.filter(x => x.gitHubURL != this.externalDependencyToDelete.gitHubURL);
 
-    this.changeMetadataRequest(oldMetadata, newMetadata)
+    this.changeMetadataRequest(newMetadata)
     this.showToast("Removed external dependency from project!");
   }
 
@@ -1145,8 +1143,7 @@ class ProjectInfo extends LitElement {
       return;
     }
 
-    const oldMetadata = this.selectedProject.metadata;
-    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+    const newMetadata = this.selectedProject.metadata;
 
     // request the widget config allowing to view every widget from persistence service
     fetch(Static.ModelPersistenceServiceURL + "/widgetConfigAll").then(response => {
@@ -1162,7 +1159,7 @@ class ProjectInfo extends LitElement {
 
       newMetadata.roles.push(role);
 
-      this.changeMetadataRequest(oldMetadata, newMetadata)
+      this.changeMetadataRequest(newMetadata)
       // show toast message
       this.showToast("Added role to project!");
 
@@ -1187,8 +1184,7 @@ class ProjectInfo extends LitElement {
     const projectName = this.getProjectName();
     const roleToRemove = this.editingRole;
 
-    const oldMetadata = this.selectedProject.metadata;
-    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+    const newMetadata = this.selectedProject.metadata;
 
     // check if role is assigned to a user
     if(newMetadata.mapUserRole.filter(x => x.roleName == roleToRemove.name).length > 0) {
@@ -1197,7 +1193,7 @@ class ProjectInfo extends LitElement {
     } else {
       // role is not assigned to anyone anymore => we can delete it
       newMetadata.roles = newMetadata.roles.filter(x => x.name != roleToRemove.name);
-      this.changeMetadataRequest(oldMetadata, newMetadata)
+      this.changeMetadataRequest(newMetadata)
       this.showToast("Removed role from project!");
     }
   }
@@ -1263,14 +1259,13 @@ class ProjectInfo extends LitElement {
       // role of user has changed
       // we need to update the metadata in the project service
       // therefore we first clone the current metadata
-      const oldMetadata = this.selectedProject.metadata;
-      const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+      const newMetadata = this.selectedProject.metadata;
 
       // update role of user in metadata
       newMetadata.mapUserRole.filter(x => x.agentId == this.editingUser.agentId)[0].roleName = selectedRole.name;
 
       // update in project service
-      this.changeMetadataRequest(oldMetadata, newMetadata);
+      this.changeMetadataRequest(newMetadata);
       this.showToast("Updated user successfully!");
     }
   }
@@ -1278,11 +1273,11 @@ class ProjectInfo extends LitElement {
   /**
    * Sends event to project service frontend. The project service frontend then updates the metadata in the service.
    * If the update was successful, the "metadata-changed" event gets fired which is catched by the project-info.js.
-   * @param oldMetadata
    * @param newMetadata
    * @returns {Promise<Response>}
    */
-  changeMetadataRequest(oldMetadata, newMetadata) {
+  changeMetadataRequest(newMetadata) {
+    console.log("project-info: sending metadata-change-request with newMetadata: ", newMetadata);
     window.dispatchEvent(new CustomEvent("metadata-change-request", {
       detail: newMetadata,
       bubbles: true
@@ -1321,7 +1316,10 @@ class ProjectInfo extends LitElement {
       if(response.ok) {
         // successfully created new component
         // reload components
-        this.loadComponents();
+
+        window.dispatchEvent(new CustomEvent("metadata-reload-request", {
+          bubbles: true
+        }));
 
         // reset dialog input fields
         this.shadowRoot.getElementById("dialog-add-component-input-name").value = "";
@@ -1406,12 +1404,11 @@ class ProjectInfo extends LitElement {
         this.getSearchComponentsDialog().close();
 
         // add component as dependency to project
-        const oldMetadata = this.selectedProject.metadata;
-        const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+        const newMetadata = this.selectedProject.metadata;
 
         newMetadata.dependencies.push(selectedComponent);
 
-        this.changeMetadataRequest(oldMetadata, newMetadata)
+        this.changeMetadataRequest(newMetadata)
         this.showToast("Added component as a dependency!");
       }
     }.bind(this));
@@ -1452,8 +1449,7 @@ class ProjectInfo extends LitElement {
         type = "microservice";
       }
 
-      const oldMetadata = this.selectedProject.metadata;
-      const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+      const newMetadata = this.selectedProject.metadata
 
       // add new external dependency to metadata
       const externalDependency = {
@@ -1462,7 +1458,7 @@ class ProjectInfo extends LitElement {
       };
       newMetadata.externalDependencies.push(externalDependency);
 
-      this.changeMetadataRequest(oldMetadata, newMetadata)
+      this.changeMetadataRequest(newMetadata)
       this.showToast("Added external dependency to project!");
 
       // clear dialog input
