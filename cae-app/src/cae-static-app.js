@@ -294,6 +294,8 @@ class CaeStaticApp extends PolymerElement {
       userInfo.preferred_username = data.preferred_username;
       userInfo.loginName = data.preferred_username;
       Common.storeUserInfo(userInfo);
+
+      this.shadowRoot.getElementById("project-management")._reloadProjects(false);
     });
 
     // show statusbar again

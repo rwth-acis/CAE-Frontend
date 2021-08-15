@@ -1,5 +1,4 @@
 import {html, LitElement} from 'lit-element';
-import './project-explorer';
 import './project-info';
 import '@polymer/iron-flex-layout/iron-flex-layout-classes';
 import Auth from "../util/auth";
@@ -48,9 +47,6 @@ class ProjectManagement extends LitElement {
               contactServiceURL="${Static.ContactServiceURL}/contactservice"
               @projects-loaded=${(e) => this._onProjectListLoaded(e.detail)}
               @project-selected=${(e) => this._onProjectSelected(e.detail)}></project-list>
-            <!--<project-explorer id="project-explorer" 
-                @project-selected-event="${(e) => this._onProjectSelected(e.detail)}"
-                @user-project-list-loaded-event="${(e) => this._onUserProjectListLoaded(e.detail)}"></project-explorer>-->
           </div>
           <div class="flex-project-info">
             <project-info @change-view=${(e) => this._changeView(e)} @update-menu=${(e) => this._updateMenu(e.detail)} 
