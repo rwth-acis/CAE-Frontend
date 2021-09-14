@@ -527,8 +527,8 @@
                     "value": "causes"
                 }
             },
-            "left": 4970,
-            "top": 4973,
+            "left": 4961,
+            "top": 5069,
             "width": 150,
             "height": 100,
             "zIndex": 16013,
@@ -545,8 +545,8 @@
                     "value": "HTML Element to Event"
                 }
             },
-            "left": 4922,
-            "top": 5197,
+            "left": 4938,
+            "top": 5263,
             "width": 258.75,
             "height": 100,
             "zIndex": 16014,
@@ -839,24 +839,6 @@
                     }
                 }
             }
-        },
-        "ab589b690f3029dc1604c9e3": {
-            "label": {
-                "id": "ab589b690f3029dc1604c9e3[label]",
-                "name": "Label",
-                "value": {
-                    "id": "ab589b690f3029dc1604c9e3[label]",
-                    "name": "Label",
-                    "value": ""
-                }
-            },
-            "left": 2715,
-            "top": 2505,
-            "width": 150,
-            "height": 100,
-            "zIndex": 16027,
-            "type": "Relation",
-            "attributes": {}
         },
         "fadb9895b330d412f2128e78": {
             "label": {
@@ -2354,6 +2336,272 @@
                     }
                 }
             }
+        },
+        "d00bd2cb6f5125b1dcb72316": {
+            "label": {
+                "id": "d00bd2cb6f5125b1dcb72316[label]",
+                "name": "Label",
+                "value": {
+                    "id": "d00bd2cb6f5125b1dcb72316[label]",
+                    "name": "Label",
+                    "value": "causes"
+                }
+            },
+            "left": 4629.25,
+            "top": 5376,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16077,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "5d39f6607c0c19b6fd93a5f8": {
+            "label": {
+                "id": "5d39f6607c0c19b6fd93a5f8[label]",
+                "name": "Label",
+                "value": {
+                    "id": "5d39f6607c0c19b6fd93a5f8[label]",
+                    "name": "Label",
+                    "value": "View Component to Event"
+                }
+            },
+            "left": 4630.25,
+            "top": 5618.25,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16078,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "839b671f512fe3ffc25fbd3b": {
+            "label": {
+                "id": "839b671f512fe3ffc25fbd3b[label]",
+                "name": "Label",
+                "value": {
+                    "id": "839b671f512fe3ffc25fbd3b[label]",
+                    "name": "Label",
+                    "value": "DataBinding"
+                }
+            },
+            "left": 4020.0000000000005,
+            "top": 3957.5000000000005,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16079,
+            "type": "Object",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueListAttribute",
+                    "list": {
+                        "b4e97b75ae57e7e877e58a6c": {
+                            "id": "b4e97b75ae57e7e877e58a6c",
+                            "name": "b4e97b75ae57e7e877e58a6c",
+                            "key": {
+                                "id": "b4e97b75ae57e7e877e58a6c[key]",
+                                "name": "",
+                                "value": "name"
+                            },
+                            "value": {
+                                "id": "b4e97b75ae57e7e877e58a6c[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "b242d6bba641e31d2685a409": {
+                            "id": "b242d6bba641e31d2685a409",
+                            "name": "b242d6bba641e31d2685a409",
+                            "key": {
+                                "id": "b242d6bba641e31d2685a409[key]",
+                                "name": "",
+                                "value": "returnParameter"
+                            },
+                            "value": {
+                                "id": "b242d6bba641e31d2685a409[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "f48c5c0ac4e0267a6a334b64": {
+            "label": {
+                "id": "f48c5c0ac4e0267a6a334b64[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f48c5c0ac4e0267a6a334b64[label]",
+                    "name": "Label",
+                    "value": "DataBinding Shape"
+                }
+            },
+            "left": 3802.5000000000005,
+            "top": 3707.5000000000005,
+            "width": 150,
+            "height": 150,
+            "zIndex": 16080,
+            "type": "Node Shape",
+            "attributes": {
+                "f48c5c0ac4e0267a6a334b64[shape]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[shape]",
+                    "name": "Shape",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[shape]",
+                        "name": "Shape",
+                        "value": "circle"
+                    },
+                    "option": "Circle"
+                },
+                "f48c5c0ac4e0267a6a334b64[color]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[color]",
+                    "name": "Color",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[color]",
+                        "name": "Color",
+                        "value": ""
+                    }
+                },
+                "f48c5c0ac4e0267a6a334b64[defaultWidth]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[defaultWidth]",
+                    "name": "Default Width",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[defaultWidth]",
+                        "name": "Default Width",
+                        "value": 100
+                    }
+                },
+                "f48c5c0ac4e0267a6a334b64[defaultHeight]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[defaultHeight]",
+                    "name": "Default Height",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[defaultHeight]",
+                        "name": "Default Height",
+                        "value": 50
+                    }
+                },
+                "f48c5c0ac4e0267a6a334b64[containment]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[containment]",
+                    "name": "Containment",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[containment]",
+                        "name": "Containment",
+                        "value": false
+                    }
+                },
+                "f48c5c0ac4e0267a6a334b64[customShape]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[customShape]",
+                    "name": "Custom Shape",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[customShape]",
+                        "name": "Custom Shape",
+                        "value": "<div class=\"custom_node\">\n    <div class=\"type\"><%= type %></div>\n\n<svg version=\"1.2\" baseProfile=\"tiny-ps\" xmlns=\"http://www.w3.org/2000/svg\"  x=\"0px\" y=\"0px\" width=\"15px\" height=\"15px\" viewBox=\"0 0 825 155\"  id=\"svg3048\" preserveAspectRatio=\"none\" class=\"fill_parent\">\n\t<title>rect</title>\n\t<defs>\n\t\t<image  width=\"825\" height=\"155\" id=\"img7\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAzkAAACbAgMAAAA8QL3yAAAAAXNSR0IB2cksfwAAAAxQTFRFxsbG////9vb23NzcyjZcFAAAAMdJREFUeJzt0cEJgEAQBMFNwtC8/D/m4Usj8KCRqgAGmpkBeBznf+hp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1fWdeOVf+06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WkbgNcNy6A8CE1cB5cAAAAASUVORK5CYII=\"/>\n\t</defs>\n\t<style>\n\t\ttspan { white-space:pre }\n\t</style>\n\t<use id=\"Background\" href=\"#img7\" x=\"0\" y=\"0\" />\n</svg>\n"
+                    }
+                },
+                "f48c5c0ac4e0267a6a334b64[customAnchors]": {
+                    "id": "f48c5c0ac4e0267a6a334b64[customAnchors]",
+                    "name": "Custom Anchors",
+                    "value": {
+                        "id": "f48c5c0ac4e0267a6a334b64[customAnchors]",
+                        "name": "Custom Anchors",
+                        "value": ""
+                    }
+                }
+            }
+        },
+        "bae0eb84a998c5e1553bf2de": {
+            "label": {
+                "id": "bae0eb84a998c5e1553bf2de[label]",
+                "name": "Label",
+                "value": {
+                    "id": "bae0eb84a998c5e1553bf2de[label]",
+                    "name": "Label",
+                    "value": "contains"
+                }
+            },
+            "left": 4137.5,
+            "top": 4142.5,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16081,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "b4349786c0a8fca8dfc0acc9": {
+            "label": {
+                "id": "b4349786c0a8fca8dfc0acc9[label]",
+                "name": "Label",
+                "value": {
+                    "id": "b4349786c0a8fca8dfc0acc9[label]",
+                    "name": "Label",
+                    "value": "calls"
+                }
+            },
+            "left": 4589.999999999999,
+            "top": 3704.999999999999,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16082,
+            "type": "Relation",
+            "attributes": {}
+        },
+        "659ce7f38c9887d6a051a22c": {
+            "label": {
+                "id": "659ce7f38c9887d6a051a22c[label]",
+                "name": "Label",
+                "value": {
+                    "id": "659ce7f38c9887d6a051a22c[label]",
+                    "name": "Label",
+                    "value": "View Component to DataBinding"
+                }
+            },
+            "left": 3779.999999999999,
+            "top": 4067.499999999999,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16083,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
+        },
+        "6d15ec5df4deef51586eabb0": {
+            "label": {
+                "id": "6d15ec5df4deef51586eabb0[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6d15ec5df4deef51586eabb0[label]",
+                    "name": "Label",
+                    "value": "DataBinding to Microservice Call"
+                }
+            },
+            "left": 4565,
+            "top": 3502,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16084,
+            "type": "Relationship",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "KeySelectionValueSelectionValueListAttribute",
+                    "list": {}
+                }
+            }
         }
     },
     "edges": {
@@ -3181,6 +3429,156 @@
             "target": "b04b4beec07c921a73308a58",
             "attributes": {},
             "type": "Bi-Dir-Association"
+        },
+        "f965bd1694bb875da4347464": {
+            "label": {
+                "id": "f965bd1694bb875da4347464[label]",
+                "name": "Label",
+                "value": {
+                    "id": "f965bd1694bb875da4347464[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "d00bd2cb6f5125b1dcb72316",
+            "target": "5d39f6607c0c19b6fd93a5f8",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "00e3a7b1dc7fd90f2fac542e": {
+            "label": {
+                "id": "00e3a7b1dc7fd90f2fac542e[label]",
+                "name": "Label",
+                "value": {
+                    "id": "00e3a7b1dc7fd90f2fac542e[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "3721cfc2826ee57ff905acb4",
+            "target": "d00bd2cb6f5125b1dcb72316",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "b26447228ebd2cd85b1b200c": {
+            "label": {
+                "id": "b26447228ebd2cd85b1b200c[label]",
+                "name": "Label",
+                "value": {
+                    "id": "b26447228ebd2cd85b1b200c[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "d00bd2cb6f5125b1dcb72316",
+            "target": "8ad56cf80886251ac80b42ff",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "38991e33178c08e3eda0ac67": {
+            "label": {
+                "id": "38991e33178c08e3eda0ac67[label]",
+                "name": "Label",
+                "value": {
+                    "id": "38991e33178c08e3eda0ac67[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "839b671f512fe3ffc25fbd3b",
+            "target": "f48c5c0ac4e0267a6a334b64",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "8580a7a4132bd3c821b41b55": {
+            "label": {
+                "id": "8580a7a4132bd3c821b41b55[label]",
+                "name": "Label",
+                "value": {
+                    "id": "8580a7a4132bd3c821b41b55[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "3721cfc2826ee57ff905acb4",
+            "target": "bae0eb84a998c5e1553bf2de",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "072b5770fdd67ebeb68e9007": {
+            "label": {
+                "id": "072b5770fdd67ebeb68e9007[label]",
+                "name": "Label",
+                "value": {
+                    "id": "072b5770fdd67ebeb68e9007[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "bae0eb84a998c5e1553bf2de",
+            "target": "839b671f512fe3ffc25fbd3b",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "ebe2000880408a01e486ed8a": {
+            "label": {
+                "id": "ebe2000880408a01e486ed8a[label]",
+                "name": "Label",
+                "value": {
+                    "id": "ebe2000880408a01e486ed8a[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "bae0eb84a998c5e1553bf2de",
+            "target": "659ce7f38c9887d6a051a22c",
+            "attributes": {},
+            "type": "Generalisation"
+        },
+        "6dd2dce97f1dce17f0964f53": {
+            "label": {
+                "id": "6dd2dce97f1dce17f0964f53[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6dd2dce97f1dce17f0964f53[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "839b671f512fe3ffc25fbd3b",
+            "target": "b4349786c0a8fca8dfc0acc9",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "112d77e98900e6efbfdbdb5d": {
+            "label": {
+                "id": "112d77e98900e6efbfdbdb5d[label]",
+                "name": "Label",
+                "value": {
+                    "id": "112d77e98900e6efbfdbdb5d[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "b4349786c0a8fca8dfc0acc9",
+            "target": "f99e3c6d6c073bb52ab5cfa3",
+            "attributes": {},
+            "type": "Uni-Dir-Association"
+        },
+        "6ecac2959b350c19ed9ed237": {
+            "label": {
+                "id": "6ecac2959b350c19ed9ed237[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6ecac2959b350c19ed9ed237[label]",
+                    "name": "Label",
+                    "value": ""
+                }
+            },
+            "source": "b4349786c0a8fca8dfc0acc9",
+            "target": "6d15ec5df4deef51586eabb0",
+            "attributes": {},
+            "type": "Generalisation"
         }
     }
 }
