@@ -138,18 +138,6 @@ export default class Common {
   }
 
   /**
-   * Updates the GitHub access token stored in the user info in localStorage.
-   * @param gitHubAccessToken GitHub access token.
-   */
-  static storeUserInfoGitHubAccessToken(gitHubAccessToken) {
-    if(this.getUserInfo()) {
-      const userInfo = this.getUserInfo();
-      userInfo.gitHubAccessToken = gitHubAccessToken;
-      this.storeUserInfo(userInfo);
-    }
-  }
-
-  /**
    * Removes the userInfo from localStorage.
    * This method may be used when user has logged out.
    */

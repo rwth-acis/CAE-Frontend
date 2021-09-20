@@ -8,7 +8,6 @@ import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import './notifications/notification-element.js';
-import './settings/settings-element.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
@@ -83,7 +82,6 @@ class CaeStaticApp extends PolymerElement {
           
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
-          <iron-icon id="settings-button" icon="settings" class="icon" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
           <iron-icon id="expand-collapse-statusbar-button" icon="icons:expand-less" class="icon" style="margin-left: 0.5em; margin-right: 1.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
         </div>
       </paper-card>
@@ -99,21 +97,8 @@ class CaeStaticApp extends PolymerElement {
         <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <notification-element id="notification-element" name="notifications"></notification-element>
-        <settings-element id="settings-element" name="settings"></settings-element>
         <p name="404">Not found!</p>
       </iron-pages>
-      
-      <paper-dialog id="dialog-settings" modal>
-        <h4>Settings</h4>
-        <div>
-        Here you can enter your GitHub name. This name will be used to grant access to GitHub projects.
-        <paper-input id="input-github-username" placeholder="GitHub Username"></paper-input>
-        </div>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button id="settings-button-save" dialog-confirm autofocus>Save</paper-button>
-        </div>
-      </paper-dialog>
       
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
@@ -177,12 +162,6 @@ class CaeStaticApp extends PolymerElement {
       this.set("route.path", event.detail.view);
     });
 
-    const settingsElement = this.shadowRoot.getElementById("settings-element");
-    settingsElement.addEventListener('change-view', (event) => {
-      this.set("route.path", "settings");
-      this.set("route.__queryParams", "");
-    });
-
     // update-menu event gets fired from project-info when selecting/entering components
     projectManagement.addEventListener('update-menu', (event) => {
       // get type of the component that got selected/entered in project-info
@@ -201,12 +180,6 @@ class CaeStaticApp extends PolymerElement {
 
       this.updateMenu();
     });
-
-    const settingsButton = this.shadowRoot.getElementById("settings-button");
-    settingsButton.addEventListener('click', _ => this._onSettingsButtonClicked());
-
-    const settingsButtonSave = this.shadowRoot.getElementById("settings-button-save");
-    settingsButtonSave.addEventListener('click', _ => this._onSaveSettingsClicked());
 
     const notificationsButton = this.getNotificationsButton();
     notificationsButton.addEventListener('click', _ => this._onNotificationsButtonClicked());
@@ -371,48 +344,6 @@ class CaeStaticApp extends PolymerElement {
   }
 
   /**
-   * Gets called when the settings button gets clicked.
-   * @private
-   */
-  _onSettingsButtonClicked() {
-    this.set("route.path", "settings");
-    // remove underline from previous menu item
-    this.underlineMenuItem("");
-  }
-
-  /**
-   * Gets called when the user clicks on the save button in the
-   * settings dialog.
-   * @private
-   */
-  _onSaveSettingsClicked() {
-    // get entered github username
-    const gitHubUsername = this.getSettingsGitHubUsernameInput().value;
-
-    if(gitHubUsername) {
-      // check if it is different from the one stored in localStorage
-      if(gitHubUsername != Common.getUsersGitHubUsername()) {
-        // github username got changed
-        // update it in database
-        fetch(Static.ProjectManagementServiceURL + "/users", {
-          method: "PUT",
-          headers: Auth.getAuthHeader(),
-          body: JSON.stringify({
-            "gitHubUsername": gitHubUsername
-          })
-        }).then(response => {
-          if(response.ok) {
-            // update in localStorage
-            const userInfo = Common.getUserInfo();
-            userInfo.gitHubUsername = gitHubUsername;
-            Common.storeUserInfo(userInfo);
-          }
-        });
-      }
-    }
-  }
-
-  /**
    * Expands the top status bar.
    */
   expandStatusBar() {
@@ -440,14 +371,6 @@ class CaeStaticApp extends PolymerElement {
 
   getStatusBarElement() {
     return this.shadowRoot.querySelector("#statusBar");
-  }
-
-  getSettingsDialog() {
-    return this.shadowRoot.getElementById("dialog-settings");
-  }
-
-  getSettingsGitHubUsernameInput() {
-    return this.shadowRoot.getElementById("input-github-username");
   }
 
   getNotificationsButton() {
