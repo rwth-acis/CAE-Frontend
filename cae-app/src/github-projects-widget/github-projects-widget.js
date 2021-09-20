@@ -2,6 +2,8 @@ import {LitElement, html} from "lit-element";
 import Common from "../util/common";
 import '@polymer/paper-tabs/paper-tabs.js';
 import '@polymer/paper-tabs/paper-tab.js';
+import GitHubHelper from "../util/github-helper";
+import Auth from "../util/auth";
 
 /**
  * Widget used to display the columns and their cards of a GitHub project.
@@ -132,14 +134,17 @@ export class GitHubProjectsWidget extends LitElement {
     this.projectName = modelingInfo.projectName;
 
     // get users access token
-    this.accessToken = Common.getUserInfo().gitHubAccessToken;
-    if(!this.accessToken) return;
+    GitHubHelper.getGitHubAccessToken(Auth.getAccessToken()).then(accessToken => {
+      this.accessToken = accessToken;
+
+      // load cards (and reload them every 10 seconds)
+      this.loadCards();
+      this.interval = setInterval(this.loadCards.bind(this), 10000);
+    }, error => {
+
+    });
 
     this.columnCards = {};
-
-    // load cards (and reload them every 10 seconds)
-    this.loadCards();
-    this.interval = setInterval(this.loadCards.bind(this), 10000);
   }
 
   clearIntervals() {
