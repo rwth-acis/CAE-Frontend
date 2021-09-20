@@ -107,9 +107,8 @@ export class RequirementsBazaarWidget extends LitElement {
   refreshRequirements() {
     console.log("refreshRequirements called");
     if (this.selectedProjectId && this.selectedCategoryId) {
-      this.client.sendRequest("GET",
-        this.addAccessToken("categories/" + encodeURIComponent(this.selectedCategoryId) + "/requirements"),
-        "", "application/json", {}, false,
+      this.client.sendRequest("GET", "categories/" + encodeURIComponent(this.selectedCategoryId) + "/requirements",
+        "", "application/json", Auth.getAuthHeader(), false,
         function (data, type) {
           this.renderRequirements(data);
         }.bind(this),
@@ -197,8 +196,8 @@ export class RequirementsBazaarWidget extends LitElement {
 
     // click listener for "done"/"reopen" button
     actionButton.addEventListener("click", function() {
-      this.client.sendRequest(method, this.addAccessToken("requirements/" + encodeURIComponent(requirementId) + "/realized"),
-        "", "application/json", {}, false,
+      this.client.sendRequest(method, "requirements/" + encodeURIComponent(requirementId) + "/realized",
+        "", "application/json", Auth.getAuthHeader(), false,
         function (data, type) {
           this.refreshRequirements();
         }.bind(this),
@@ -235,19 +234,6 @@ export class RequirementsBazaarWidget extends LitElement {
 
   isAnonymous() {
     return !Auth.isAccessTokenAvailable();
-  }
-
-  addAccessToken(url) {
-    if (this.isAnonymous()) {
-      return url;
-    }
-
-    if (url.indexOf("\?") > 0) {
-      url += "&access_token=" + localStorage["access_token"];
-    } else {
-      url += "?access_token=" + localStorage["access_token"];
-    }
-    return url;
   }
 
   clearIntervals() {
