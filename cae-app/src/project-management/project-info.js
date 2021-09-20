@@ -1044,12 +1044,13 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProject() {
+    const headers = Auth.getAuthHeader();
+    headers.sub = Common.getUserInfo().sub;
+    headers.access_token = Auth.getAccessToken();
+
     fetch(Static.ModelPersistenceServiceURL + "/projects/" + this.getProjectName() + "/components/" + this.componentToDelete.name, {
       method: "DELETE",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "access_token": Auth.getAccessToken()
-      })
+      headers: headers
     }).then(response => {
       if(response.ok) {
         this.showToast("Removed component from project!");
@@ -1303,13 +1304,16 @@ class ProjectInfo extends LitElement {
       componentType = "microservice";
     }
 
+    const headers = Auth.getAuthHeader();
+    headers.sub = Common.getUserInfo().sub;
+    headers.access_token = Auth.getAccessToken();
+
     fetch(Static.ModelPersistenceServiceURL + "/projects/" + projectName + "/components", {
       method: "POST",
-      headers: Auth.getAuthHeader(),
+      headers: headers,
       body: JSON.stringify({
         "name": componentName,
-        "type": componentType,
-        "access_token": Auth.getAccessToken()
+        "type": componentType
       })
     }).then(response => {
       this.closeLoadingDialog();
