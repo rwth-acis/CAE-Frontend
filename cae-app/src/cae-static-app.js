@@ -173,12 +173,12 @@ class CaeStaticApp extends PolymerElement {
       // frontend component is already opened, then the cae room needs to be updated
       this.reloadCaeRoom(componentType);
 
+      this.updateMenu();
+
       // underline the menu item
       if(!silent) {
         this.underlineMenuItem("menu-" + componentType + "-modeling");
       }
-
-      this.updateMenu();
     });
 
     const notificationsButton = this.getNotificationsButton();
@@ -222,6 +222,18 @@ class CaeStaticApp extends PolymerElement {
     this.isComponentOpened("frontend") ? this.showMenuItem("frontend") : this.hideMenuItem("frontend");
     this.isComponentOpened("microservice") ? this.showMenuItem("microservice") : this.hideMenuItem("microservice");
     this.isComponentOpened("application") ? this.showMenuItem("application") : this.hideMenuItem("application");
+
+    // find currently opened page and underline the corresponding menu item
+    const path = this.get("route.path");
+    if(path.startsWith("/project-management")) {
+      this.underlineMenuItem("menu-project-management");
+    } else if(path.startsWith("/cae-modeling/frontend-modeling")) {
+      this.underlineMenuItem("menu-frontend-modeling");
+    } else if(path.startsWith("/cae-modeling/microservice-modeling")) {
+      this.underlineMenuItem("menu-microservice-modeling");
+    } else if(path.startsWith("/cae-modeling/application-modeling")) {
+      this.underlineMenuItem("menu-application-modeling");
+    }
   }
 
   /**
@@ -240,51 +252,20 @@ class CaeStaticApp extends PolymerElement {
   handleLogin(event) {
     Auth.setAuthDataToLocalStorage(event.detail.access_token);
 
-    this.storeEmptyModelingInfo();
     this.updateMenu();
 
-    // after login, project management is shown, thus this menu item should be underlined
-    this.underlineMenuItem("menu-project-management");
-
-    // TODO: is not sent to project management service anymore, is that a problem?
-    // TODO: now it is directly loaded from learning layers
-    // notify project management service about user login
-    // if the user is not yet registered, then the project management service will do this
-    fetch(localStorage.userinfo_endpoint, {
-      method: "GET",
-      headers: {
-        "Authorization": "Bearer " + Auth.getAccessToken()
-      }
-    }).then(response => {
-      if (response.ok) {
-        return response.json();
-      }
-    }).then(data => {
-      const userInfo = Common.getUserInfo();
-      userInfo.sub = data.sub;
-      userInfo.email = data.email;
-      // preferred_username is used by project service frontend
-      userInfo.preferred_username = data.preferred_username;
-      userInfo.loginName = data.preferred_username;
-      Common.storeUserInfo(userInfo);
-
-      this.shadowRoot.getElementById("project-management")._reloadProjects(false);
-    });
+    const userInfo = Common.getUserInfo();
+    userInfo.sub = event.detail.profile.sub;
+    userInfo.email = event.detail.profile.email;
+    // preferred_username is used by project service frontend
+    userInfo.preferred_username = event.detail.profile.preferred_username;
+    userInfo.loginName = event.detail.profile.preferred_username;
+    Common.storeUserInfo(userInfo);
 
     // show statusbar again
     this.getCaeStatusbar().removeAttribute("hidden");
 
-    // set project-management as current page
-    // Reason: when the user logged out in modeling, then after login the user
-    // should start with project management page again
-    this.set("route.path", "/");
-
-    // when removing this line, we get a problem because some
-    // user services used by the las2peer-frontend-statusbar cannot be accessed
-    //location.reload();
-
-    // since location.reload() is not called anymore, it is necessary
-    // to reload the project management manually, since otherwise the "Please login"
+    // reload the project management manually, since otherwise the "Please login"
     // message does not disappear.
     this.shadowRoot.getElementById("project-management").requestUpdate();
   }
