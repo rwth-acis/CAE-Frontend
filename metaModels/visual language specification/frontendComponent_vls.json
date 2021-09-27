@@ -491,28 +491,6 @@
             ],
             "attributes": {}
         },
-        "3c94b7e943e2a455a98b1504": {
-            "label": "Widget to Function",
-            "shape": {
-                "arrow": "bidirassociation",
-                "shape": "straight",
-                "color": "black",
-                "overlay": "",
-                "overlayPosition": "top",
-                "overlayRotate": true
-            },
-            "relations": [
-                {
-                    "sourceTypes": [
-                        "Widget"
-                    ],
-                    "targetTypes": [
-                        "Function"
-                    ]
-                }
-            ],
-            "attributes": {}
-        },
         "dfb287f904b6083156b09896": {
             "label": "Widget to Container",
             "shape": {
