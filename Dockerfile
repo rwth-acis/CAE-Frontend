@@ -33,7 +33,7 @@ WORKDIR /usr/src/app/syncmeta/widgets
 RUN npm install
 
 WORKDIR /usr/src/app
-RUN git clone -b develop https://github.com/rwth-acis/CAE-WireframingEditor.git
+RUN git clone -b v1.0.1 https://github.com/rwth-acis/CAE-WireframingEditor.git
 
 WORKDIR /usr/src/app/CAE-WireframingEditor
 RUN npm install
