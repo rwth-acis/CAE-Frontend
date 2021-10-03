@@ -1026,8 +1026,8 @@
                     "value": "Method Type"
                 }
             },
-            "left": 4647,
-            "top": 3993,
+            "left": 4681,
+            "top": 3951,
             "width": 150,
             "height": 122,
             "zIndex": 16034,
@@ -2365,7 +2365,7 @@
                             "key": {
                                 "id": "b4e97b75ae57e7e877e58a6c[key]",
                                 "name": "",
-                                "value": "name"
+                                "value": "path"
                             },
                             "value": {
                                 "id": "b4e97b75ae57e7e877e58a6c[value]",
@@ -2379,10 +2379,38 @@
                             "key": {
                                 "id": "b242d6bba641e31d2685a409[key]",
                                 "name": "",
-                                "value": "returnParameter"
+                                "value": "authorize"
                             },
                             "value": {
                                 "id": "b242d6bba641e31d2685a409[value]",
+                                "name": "",
+                                "value": "boolean"
+                            }
+                        },
+                        "d6a3ba47b666301f9f5bd2d7": {
+                            "id": "d6a3ba47b666301f9f5bd2d7",
+                            "name": "d6a3ba47b666301f9f5bd2d7",
+                            "key": {
+                                "id": "d6a3ba47b666301f9f5bd2d7[key]",
+                                "name": "",
+                                "value": "content"
+                            },
+                            "value": {
+                                "id": "d6a3ba47b666301f9f5bd2d7[value]",
+                                "name": "",
+                                "value": "string"
+                            }
+                        },
+                        "3f65036540d72cbe0da22e12": {
+                            "id": "3f65036540d72cbe0da22e12",
+                            "name": "Attribute",
+                            "key": {
+                                "id": "3f65036540d72cbe0da22e12[key]",
+                                "name": "",
+                                "value": "displayAttr"
+                            },
+                            "value": {
+                                "id": "3f65036540d72cbe0da22e12[value]",
                                 "name": "",
                                 "value": "string"
                             }
@@ -2557,6 +2585,121 @@
                     "name": "Attributes",
                     "type": "KeySelectionValueSelectionValueListAttribute",
                     "list": {}
+                }
+            }
+        },
+        "6e980ffb1d7a5a291c0fd81f": {
+            "label": {
+                "id": "6e980ffb1d7a5a291c0fd81f[label]",
+                "name": "Label",
+                "value": {
+                    "id": "6e980ffb1d7a5a291c0fd81f[label]",
+                    "name": "Label",
+                    "value": "Method Type"
+                }
+            },
+            "left": 4373,
+            "top": 3956,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16085,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "625fa668585e97e05c6db636[value]": {
+                            "id": "625fa668585e97e05c6db636[value]",
+                            "name": "625fa668585e97e05c6db636[value]",
+                            "value": {
+                                "id": "625fa668585e97e05c6db636[value]",
+                                "name": "625fa668585e97e05c6db636[value]",
+                                "value": "GET"
+                            }
+                        },
+                        "a5194625c09277e0134615d1[value]": {
+                            "id": "a5194625c09277e0134615d1[value]",
+                            "name": "a5194625c09277e0134615d1[value]",
+                            "value": {
+                                "id": "a5194625c09277e0134615d1[value]",
+                                "name": "a5194625c09277e0134615d1[value]",
+                                "value": "POST"
+                            }
+                        },
+                        "325b23e52cfa7c0336d8bfa9[value]": {
+                            "id": "325b23e52cfa7c0336d8bfa9[value]",
+                            "name": "325b23e52cfa7c0336d8bfa9[value]",
+                            "value": {
+                                "id": "325b23e52cfa7c0336d8bfa9[value]",
+                                "name": "325b23e52cfa7c0336d8bfa9[value]",
+                                "value": "PUT"
+                            }
+                        },
+                        "53e1e6956d949cc77341339d[value]": {
+                            "id": "53e1e6956d949cc77341339d[value]",
+                            "name": "53e1e6956d949cc77341339d[value]",
+                            "value": {
+                                "id": "53e1e6956d949cc77341339d[value]",
+                                "name": "53e1e6956d949cc77341339d[value]",
+                                "value": "DELETE"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "fa905b2484015510afd96d0a": {
+            "label": {
+                "id": "fa905b2484015510afd96d0a[label]",
+                "name": "Label",
+                "value": {
+                    "id": "fa905b2484015510afd96d0a[label]",
+                    "name": "Label",
+                    "value": "Content Type"
+                }
+            },
+            "left": 4143,
+            "top": 3652,
+            "width": 150,
+            "height": 100,
+            "zIndex": 16086,
+            "type": "Enumeration",
+            "attributes": {
+                "[attributes]": {
+                    "id": "[attributes]",
+                    "name": "Attributes",
+                    "type": "SingleValueListAttribute",
+                    "list": {
+                        "d5e2f55c4cd17da1cf4efbc5[value]": {
+                            "id": "d5e2f55c4cd17da1cf4efbc5[value]",
+                            "name": "d5e2f55c4cd17da1cf4efbc5[value]",
+                            "value": {
+                                "id": "d5e2f55c4cd17da1cf4efbc5[value]",
+                                "name": "d5e2f55c4cd17da1cf4efbc5[value]",
+                                "value": "application/json"
+                            }
+                        },
+                        "fed4b2404409e36915abdef6[value]": {
+                            "id": "fed4b2404409e36915abdef6[value]",
+                            "name": "fed4b2404409e36915abdef6[value]",
+                            "value": {
+                                "id": "fed4b2404409e36915abdef6[value]",
+                                "name": "fed4b2404409e36915abdef6[value]",
+                                "value": "text/plain"
+                            }
+                        },
+                        "75888cb29f952ce99fe0ad83[value]": {
+                            "id": "75888cb29f952ce99fe0ad83[value]",
+                            "name": "75888cb29f952ce99fe0ad83[value]",
+                            "value": {
+                                "id": "75888cb29f952ce99fe0ad83[value]",
+                                "name": "75888cb29f952ce99fe0ad83[value]",
+                                "value": "CUSTOM"
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -3491,6 +3634,36 @@
             "target": "6d15ec5df4deef51586eabb0",
             "attributes": {},
             "type": "Generalisation"
+        },
+        "aad5b4215028da64095db094": {
+            "label": {
+                "id": "aad5b4215028da64095db094[label]",
+                "name": "Label",
+                "value": {
+                    "id": "aad5b4215028da64095db094[label]",
+                    "name": "Label",
+                    "value": "methodType"
+                }
+            },
+            "source": "839b671f512fe3ffc25fbd3b",
+            "target": "6e980ffb1d7a5a291c0fd81f",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
+        },
+        "a57feea821cefaa9d0da88de": {
+            "label": {
+                "id": "a57feea821cefaa9d0da88de[label]",
+                "name": "Label",
+                "value": {
+                    "id": "a57feea821cefaa9d0da88de[label]",
+                    "name": "Label",
+                    "value": "contentType"
+                }
+            },
+            "source": "839b671f512fe3ffc25fbd3b",
+            "target": "fa905b2484015510afd96d0a",
+            "attributes": {},
+            "type": "Bi-Dir-Association"
         }
     }
 }

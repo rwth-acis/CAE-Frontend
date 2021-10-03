@@ -293,12 +293,39 @@ export default {
         "839b671f512fe3ffc25fbd3b": {
             "label": "DataBinding",
             "attributes": {
+                "6e980ffb1d7a5a291c0fd81f": {
+                    "key": "methodType",
+                    "value": "Method Type",
+                    "options": {
+                        "GET": "GET",
+                        "POST": "POST",
+                        "PUT": "PUT",
+                        "DELETE": "DELETE"
+                    }
+                },
+                "fa905b2484015510afd96d0a": {
+                    "key": "contentType",
+                    "value": "Content Type",
+                    "options": {
+                        "application/json": "application/json",
+                        "text/plain": "text/plain",
+                        "CUSTOM": "CUSTOM"
+                    }
+                },
                 "b4e97b75ae57e7e877e58a6c": {
-                    "key": "name",
+                    "key": "path",
                     "value": "string"
                 },
                 "b242d6bba641e31d2685a409": {
-                    "key": "returnParameter",
+                    "key": "authorize",
+                    "value": "boolean"
+                },
+                "d6a3ba47b666301f9f5bd2d7": {
+                    "key": "content",
+                    "value": "string"
+                },
+                "3f65036540d72cbe0da22e12": {
+                    "key": "displayAttr",
                     "value": "string"
                 }
             },
