@@ -79,7 +79,7 @@
                 "defaultWidth": 150,
                 "defaultHeight": 50,
                 "containment": false,
-                "customShape": "<div class=\"custom_node\">\n    <div class=\"type\"><%= type %></div>\n\n<svg version=\"1.2\" baseProfile=\"tiny-ps\" xmlns=\"http://www.w3.org/2000/svg\"  x=\"0px\" y=\"0px\" width=\"15px\" height=\"15px\" viewBox=\"0 0 825 155\"  id=\"svg3048\" preserveAspectRatio=\"none\" class=\"fill_parent\">\n\t<title>rect</title>\n\t<defs>\n\t\t<image  width=\"825\" height=\"155\" id=\"img7\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAzkAAACbAgMAAAA8QL3yAAAAAXNSR0IB2cksfwAAAAxQTFRFxsbG////9vb23NzcyjZcFAAAAMdJREFUeJzt0cEJgEAQBMFNwtC8/D/m4Usj8KCRqgAGmpkBeBznf+hp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1fWdeOVf+06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WkbgNcNy6A8CE1cB5cAAAAASUVORK5CYII=\"/>\n\t</defs>\n\t<style>\n\t\ttspan { white-space:pre }\n\t</style>\n\t<use id=\"Background\" href=\"#img7\" x=\"0\" y=\"0\" />\n</svg>\n",
+                "customShape": "<div class=\"custom_node\">\n    <div class=\"type\"><%= type %></div>\n\n<svg version=\"1.2\" baseProfile=\"tiny-ps\" xmlns=\"http://www.w3.org/2000/svg\"  x=\"0px\" y=\"0px\" width=\"15px\" height=\"10px\" viewBox=\"0 0 825 155\"  id=\"svg3048\" preserveAspectRatio=\"none\" class=\"fill_parent\">\n\t<title>rect</title>\n\t<defs>\n\t\t<image  width=\"825\" height=\"155\" id=\"img7\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAzkAAACbAgMAAAA8QL3yAAAAAXNSR0IB2cksfwAAAAxQTFRFxsbG////9vb23NzcyjZcFAAAAMdJREFUeJzt0cEJgEAQBMFNwtC8/D/m4Usj8KCRqgAGmpkBeBznf+hp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1fWdeOVf+06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WkbgNcNy6A8CE1cB5cAAAAASUVORK5CYII=\"/>\n\t</defs>\n\t<style>\n\t\ttspan { white-space:pre }\n\t</style>\n\t<use id=\"Background\" href=\"#img7\" x=\"0\" y=\"0\" />\n</svg>\n",
                 "customAnchors": ""
             }
         },
@@ -336,6 +336,32 @@
                 "defaultHeight": 50,
                 "containment": false,
                 "customShape": "<div class=\"custom_node\">\n    <div class=\"type\"><%= type %></div>\n\n<svg version=\"1.2\" baseProfile=\"tiny-ps\" xmlns=\"http://www.w3.org/2000/svg\"  x=\"0px\" y=\"0px\" width=\"15px\" height=\"15px\" viewBox=\"0 0 825 155\"  id=\"svg3048\" preserveAspectRatio=\"none\" class=\"fill_parent\">\n\t<title>rect</title>\n\t<defs>\n\t\t<image  width=\"825\" height=\"155\" id=\"img7\" href=\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAzkAAACbAgMAAAA8QL3yAAAAAXNSR0IB2cksfwAAAAxQTFRFxsbG////9vb23NzcyjZcFAAAAMdJREFUeJzt0cEJgEAQBMFNwtC8/D/m4Usj8KCRqgAGmpkBeBznf+hp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1fWdeOVf+06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WnT06anTU+bnjY9bXra9LTpadPTpqdNT5ueNj1tetr0tOlp09Omp01Pm542PW162vS06WkbgNcNy6A8CE1cB5cAAAAASUVORK5CYII=\"/>\n\t</defs>\n\t<style>\n\t\ttspan { white-space:pre }\n\t</style>\n\t<use id=\"Background\" href=\"#img7\" x=\"0\" y=\"0\" />\n</svg>\n",
+                "customAnchors": ""
+            }
+        },
+        "150d416b91ea53a9027ac72c": {
+            "label": "ParameterBinding",
+            "attributes": {
+                "fd425d199cecb41a6befa796": {
+                    "key": "input",
+                    "value": "string"
+                },
+                "7fffdc3a04c06f8951af66df": {
+                    "key": "output",
+                    "value": "string"
+                },
+                "b309a5b6479e9c313795c689": {
+                    "key": "functionName",
+                    "value": "string"
+                }
+            },
+            "shape": {
+                "shape": "circle",
+                "color": "",
+                "defaultWidth": 0,
+                "defaultHeight": 0,
+                "containment": false,
+                "customShape": "<div class=\"custom_node\">\n    <div class=\"type\"><%= type %></div>\n\n<svg version=\"1.2\" baseProfile=\"tiny-ps\" xmlns=\"http://www.w3.org/2000/svg\" x=\"0px\" y=\"0px\" width=\"15px\" height=\"10px\" viewBox=\"0 0 30 10\"  id=\"svg3051\" preserveAspectRatio=\"none\" class=\"fill_parent\">\n\t<title>parambinding</title>\n\t<defs>\n\t\t<image  width=\"30\" height=\"10\" id=\"imgpr1\" href=\"data:image/png;base64,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\"/>\n\t</defs>\n\t<style>\n\t\ttspan { white-space:pre }\n\t</style>\n\t<use id=\"Background\" href=\"#imgpr1\" x=\"0\" y=\"0\" />\n</svg>\n<div class=\"fill_parent\">\n        <div style=\"position: absolute; left: 50%; top: 50%; -webkit-transform: translateY(-50%) translateX(-50%)\" class=\"name\"></div>\n    </div>\n</div>",
                 "customAnchors": ""
             }
         }
@@ -619,11 +645,9 @@
             "relations": [
                 {
                     "sourceTypes": [
-                        "View Component",
-                        "Event"
+                        "View Component"
                     ],
                     "targetTypes": [
-                        "View Component",
                         "Event"
                     ]
                 }
@@ -669,6 +693,50 @@
                     ],
                     "targetTypes": [
                         "Microservice Call"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "373facd530232ce9993fc6d5": {
+            "label": "Event to ParamBinding",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "Event"
+                    ],
+                    "targetTypes": [
+                        "ParameterBinding"
+                    ]
+                }
+            ],
+            "attributes": {}
+        },
+        "da0886d465286372844d4768": {
+            "label": "ParamBinding to ViewComponent",
+            "shape": {
+                "arrow": "bidirassociation",
+                "shape": "straight",
+                "color": "black",
+                "overlay": "",
+                "overlayPosition": "top",
+                "overlayRotate": true
+            },
+            "relations": [
+                {
+                    "sourceTypes": [
+                        "ParameterBinding"
+                    ],
+                    "targetTypes": [
+                        "View Component"
                     ]
                 }
             ],
