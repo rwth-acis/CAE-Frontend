@@ -24,11 +24,8 @@ RUN npm install
 WORKDIR /usr/src/app/widgets
 RUN npm install
 
-WORKDIR /usr/src/app/syncmeta
-RUN npm install
-RUN cp -a node_modules/@rwth-acis/syncmeta-widgets/. widgets/ && \
-    cp -a node_modules/. widgets/node_modules/ && \
-    rm -r node_modules
+WORKDIR /usr/src/app
+RUN git clone -b ifml-dev https://github.com/rwth-acis/SyncMeta
 WORKDIR /usr/src/app/syncmeta/widgets
 RUN npm install
 
