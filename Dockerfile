@@ -25,7 +25,7 @@ WORKDIR /usr/src/app/widgets
 RUN npm install
 
 WORKDIR /usr/src/app
-RUN git clone -b ifml-dev https://github.com/rwth-acis/SyncMeta
+RUN git clone -b ifml-dev https://github.com/rwth-acis/SyncMeta.git
 WORKDIR /usr/src/app/syncmeta/widgets
 RUN npm install
 
