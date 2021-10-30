@@ -583,11 +583,14 @@ class ProjectInfo extends LitElement {
       "versionedModelId": component.versionedModelId,
       "name": component.name,
       "isDependency": isDependency,
-      "gitHubProjectId": this.selectedProject.gitHubProject.id,
-      "gitHubProjectHtmlUrl": this.selectedProject.gitHubProject.url,
       "projectName": this.selectedProject.name,
       "widgetConfig": widgetConfig
     };
+
+    if(this.selectedProject.gitHubProject) {
+      content.gitHubProjectId = this.selectedProject.gitHubProject.id;
+      content.gitHubProjectHtmlUrl = this.selectedProject.gitHubProject.url;
+    }
 
     if(content.isDependency) {
       content.objectType = "dependency";
