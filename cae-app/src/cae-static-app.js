@@ -8,7 +8,6 @@ import '@polymer/paper-card/paper-card.js';
 import './project-management/project-management.js';
 import './cae-modeling.js';
 import './notifications/notification-element.js';
-import './settings/settings-element.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
@@ -68,6 +67,7 @@ class CaeStaticApp extends PolymerElement {
         subtitle="{STATUSBAR_SUBTITLE}"
         suppresswidgeterror="true"
         autoAppendWidget=true
+        <!-- baseUrl of statusbar gets set in ready() -->
       ></las2peer-frontend-statusbar>
       
       <paper-card id="cae-statusbar">
@@ -82,7 +82,6 @@ class CaeStaticApp extends PolymerElement {
           
           <iron-icon id="notifications-button" icon="mail" class="icon" style="margin-left:auto; margin-top:auto; margin-bottom: auto"></iron-icon>
           <paper-badge id="notifications-badge" for="notifications-button" class="badge-blue" hidden></paper-badge>
-          <iron-icon id="settings-button" icon="settings" class="icon" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
           <iron-icon id="expand-collapse-statusbar-button" icon="icons:expand-less" class="icon" style="margin-left: 0.5em; margin-right: 1.5em; margin-top: auto; margin-bottom: auto"></iron-icon>
         </div>
       </paper-card>
@@ -98,21 +97,8 @@ class CaeStaticApp extends PolymerElement {
         <project-management id="project-management" name="project-management"></project-management>
         <cae-modeling id="cae-modeling" name="cae-modeling" route="{{subroute}}"></cae-modeling>
         <notification-element id="notification-element" name="notifications"></notification-element>
-        <settings-element id="settings-element" name="settings"></settings-element>
         <p name="404">Not found!</p>
       </iron-pages>
-      
-      <paper-dialog id="dialog-settings" modal>
-        <h4>Settings</h4>
-        <div>
-        Here you can enter your GitHub name. This name will be used to grant access to GitHub projects.
-        <paper-input id="input-github-username" placeholder="GitHub Username"></paper-input>
-        </div>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button id="settings-button-save" dialog-confirm autofocus>Save</paper-button>
-        </div>
-      </paper-dialog>
       
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
@@ -145,6 +131,7 @@ class CaeStaticApp extends PolymerElement {
   ready() {
     super.ready();
     const statusBar = this.getStatusBarElement();
+    statusBar.setAttribute("baseUrl", Static.ContactServiceURL);
     // in the following we use (event) => this.method(event) in order to be able to access
     // this.shadowRoot in the handleLogin and handleLogout methods
     statusBar.addEventListener('signed-in', (event) => this.handleLogin(event));
@@ -175,12 +162,6 @@ class CaeStaticApp extends PolymerElement {
       this.set("route.path", event.detail.view);
     });
 
-    const settingsElement = this.shadowRoot.getElementById("settings-element");
-    settingsElement.addEventListener('change-view', (event) => {
-      this.set("route.path", "settings");
-      this.set("route.__queryParams", "");
-    });
-
     // update-menu event gets fired from project-info when selecting/entering components
     projectManagement.addEventListener('update-menu', (event) => {
       // get type of the component that got selected/entered in project-info
@@ -192,19 +173,13 @@ class CaeStaticApp extends PolymerElement {
       // frontend component is already opened, then the cae room needs to be updated
       this.reloadCaeRoom(componentType);
 
+      this.updateMenu();
+
       // underline the menu item
       if(!silent) {
         this.underlineMenuItem("menu-" + componentType + "-modeling");
       }
-
-      this.updateMenu();
     });
-
-    const settingsButton = this.shadowRoot.getElementById("settings-button");
-    settingsButton.addEventListener('click', _ => this._onSettingsButtonClicked());
-
-    const settingsButtonSave = this.shadowRoot.getElementById("settings-button-save");
-    settingsButtonSave.addEventListener('click', _ => this._onSaveSettingsClicked());
 
     const notificationsButton = this.getNotificationsButton();
     notificationsButton.addEventListener('click', _ => this._onNotificationsButtonClicked());
@@ -247,6 +222,18 @@ class CaeStaticApp extends PolymerElement {
     this.isComponentOpened("frontend") ? this.showMenuItem("frontend") : this.hideMenuItem("frontend");
     this.isComponentOpened("microservice") ? this.showMenuItem("microservice") : this.hideMenuItem("microservice");
     this.isComponentOpened("application") ? this.showMenuItem("application") : this.hideMenuItem("application");
+
+    // find currently opened page and underline the corresponding menu item
+    const path = this.get("route.path");
+    if(path.startsWith("/project-management")) {
+      this.underlineMenuItem("menu-project-management");
+    } else if(path.startsWith("/cae-modeling/frontend-modeling")) {
+      this.underlineMenuItem("menu-frontend-modeling");
+    } else if(path.startsWith("/cae-modeling/microservice-modeling")) {
+      this.underlineMenuItem("menu-microservice-modeling");
+    } else if(path.startsWith("/cae-modeling/application-modeling")) {
+      this.underlineMenuItem("menu-application-modeling");
+    }
   }
 
   /**
@@ -265,34 +252,20 @@ class CaeStaticApp extends PolymerElement {
   handleLogin(event) {
     Auth.setAuthDataToLocalStorage(event.detail.access_token);
 
-    this.storeEmptyModelingInfo();
     this.updateMenu();
 
-    // after login, project management is shown, thus this menu item should be underlined
-    this.underlineMenuItem("menu-project-management");
-
-    // notify project management service about user login
-    // if the user is not yet registered, then the project management service will do this
-    this.loadCurrentUser().then(_ => {
-      const userInfo = Common.getUserInfo();
-      userInfo.sub = event.detail.profile.sub;
-      Common.storeUserInfo(userInfo);
-    });
+    const userInfo = Common.getUserInfo();
+    userInfo.sub = event.detail.profile.sub;
+    userInfo.email = event.detail.profile.email;
+    // preferred_username is used by project service frontend
+    userInfo.preferred_username = event.detail.profile.preferred_username;
+    userInfo.loginName = event.detail.profile.preferred_username;
+    Common.storeUserInfo(userInfo);
 
     // show statusbar again
     this.getCaeStatusbar().removeAttribute("hidden");
 
-    // set project-management as current page
-    // Reason: when the user logged out in modeling, then after login the user
-    // should start with project management page again
-    this.set("route.path", "/");
-
-    // when removing this line, we get a problem because some
-    // user services used by the las2peer-frontend-statusbar cannot be accessed
-    //location.reload();
-
-    // since location.reload() is not called anymore, it is necessary
-    // to reload the project management manually, since otherwise the "Please login"
+    // reload the project management manually, since otherwise the "Please login"
     // message does not disappear.
     this.shadowRoot.getElementById("project-management").requestUpdate();
   }
@@ -313,25 +286,11 @@ class CaeStaticApp extends PolymerElement {
     this.set("route.path", "/");
   }
 
-  loadCurrentUser() {
-    return new Promise(function(resolve, reject) {
-      fetch(Static.ProjectManagementServiceURL + "/users/me", {
-        headers: Auth.getAuthHeader()
-      })
-        .then(response => response.json())
-        .then(data => {
-          // store to localStorage
-          Common.storeUserInfo(data);
-          resolve();
-        });
-    });
-  }
-
   /**
    * Loads the notifications/invitations that the user received.
    */
   loadUsersNotifications() {
-    console.log("Requesting notifications from server...");
+    /*console.log("Requesting notifications from server...");
     fetch(Static.ProjectManagementServiceURL + "/invitations", {
       method: "GET",
       headers: Auth.getAuthHeader()
@@ -362,49 +321,7 @@ class CaeStaticApp extends PolymerElement {
         // notify notification-element about the new notification data
         this.getNotificationElement().setInvitations(data);
       }
-    });
-  }
-
-  /**
-   * Gets called when the settings button gets clicked.
-   * @private
-   */
-  _onSettingsButtonClicked() {
-    this.set("route.path", "settings");
-    // remove underline from previous menu item
-    this.underlineMenuItem("");
-  }
-
-  /**
-   * Gets called when the user clicks on the save button in the
-   * settings dialog.
-   * @private
-   */
-  _onSaveSettingsClicked() {
-    // get entered github username
-    const gitHubUsername = this.getSettingsGitHubUsernameInput().value;
-
-    if(gitHubUsername) {
-      // check if it is different from the one stored in localStorage
-      if(gitHubUsername != Common.getUsersGitHubUsername()) {
-        // github username got changed
-        // update it in database
-        fetch(Static.ProjectManagementServiceURL + "/users", {
-          method: "PUT",
-          headers: Auth.getAuthHeader(),
-          body: JSON.stringify({
-            "gitHubUsername": gitHubUsername
-          })
-        }).then(response => {
-          if(response.ok) {
-            // update in localStorage
-            const userInfo = Common.getUserInfo();
-            userInfo.gitHubUsername = gitHubUsername;
-            Common.storeUserInfo(userInfo);
-          }
-        });
-      }
-    }
+    });*/
   }
 
   /**
@@ -435,14 +352,6 @@ class CaeStaticApp extends PolymerElement {
 
   getStatusBarElement() {
     return this.shadowRoot.querySelector("#statusBar");
-  }
-
-  getSettingsDialog() {
-    return this.shadowRoot.getElementById("dialog-settings");
-  }
-
-  getSettingsGitHubUsernameInput() {
-    return this.shadowRoot.getElementById("input-github-username");
   }
 
   getNotificationsButton() {

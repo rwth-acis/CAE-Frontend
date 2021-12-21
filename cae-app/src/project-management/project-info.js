@@ -139,10 +139,10 @@ class ProjectInfo extends LitElement {
                   </div>
                   <div style="margin-left: auto; margin-top: auto; margin-bottom:auto; height: 100%; display: flex">
                     <!-- Labels for dependencies and external dependencies -->
-                    ${component.dependencyId ? html`<span class="label" style="margin-right: 0.5em">Dependency</span>` : html``}
-                    ${component.externalDependencyId ? html`<span class="label" style="margin-right: 0.5em; white-space: nowrap;">External Dependency</span>` : html``}
+                    ${component.objectType == "dependency" ? html`<span class="label" style="margin-right: 0.5em">Dependency</span>` : html``}
+                    ${component.objectType == "externalDependency" ? html`<span class="label" style="margin-right: 0.5em; white-space: nowrap;">External Dependency</span>` : html``}
                     <!-- Link to open modeling space -->
-                    ${component.externalDependencyId ? html`` : html`
+                    ${component.objectType == "externalDependency" ? html`` : html`
                       <iron-icon title="Open modeling" @click="${() => this._onComponentClicked(component)}"
                         icon="icons:exit-to-app" class="edit-icon" style="margin-top: auto; margin-bottom: auto"></iron-icon>
                     `}
@@ -217,7 +217,7 @@ class ProjectInfo extends LitElement {
                   ${this.userList.map(user => html`
                     <div style="width: 100%; display: flex; align-items: center">
                       <p>${user.loginName}</p>
-                      <p style="margin-right: 0.5em; margin-left: auto">${this.getRoleById(user.roleId).name}</p>
+                      <p style="margin-right: 0.5em; margin-left: auto">${user.roleName}</p>
                       ${this.editingAllowed ? html`
                         <iron-icon @click="${() => this._userEditButtonClicked(user)}" class="edit-icon" icon="create"></iron-icon>
                       ` : html``}
@@ -225,16 +225,6 @@ class ProjectInfo extends LitElement {
                     <div class="separator"></div>
                   `)}
                 </div>
-            
-                <!-- Add users to the project -->
-                ${this.editingAllowed ? html`
-                  <div class="add-user" style="display: flex; margin-top: 0.5em; margin-left: 1em; margin-right: 1em; margin-bottom: 1em">
-                    <input id="input-username" class="input-username input" placeholder="Enter Username" style="margin-left: 0"
-                        @input="${(e) => this._onInviteUserInputChanged(e.target.value)}"></input>
-                    <paper-button disabled="true" class="paper-button-blue" id="button-invite-user" @click="${this._onInviteUserToProjectClicked}"
-                        style="margin-left: auto">Invite</paper-button>
-                  </div>
-                ` : html``}
               </div>
               <div class="flex-project-roles" style="border-left: thin solid #e1e1e1;">
                 <!-- Roles of the project -->
@@ -263,16 +253,6 @@ class ProjectInfo extends LitElement {
                 ` : html``}
               </div>
             </div>
-            <div style="margin-left: 1em; margin-right: 1em; margin-bottom: 0.5em">
-              ${this.editingAllowed ? html`
-              <div class="separator"></div>
-              <h4>Danger Zone</h4>
-              <div style="display: flex">
-                <p>Delete this project. Please note that a project cannot be restored after deletion.</p>
-                <paper-button @click=${this._onDeleteProjectClicked} class="button-danger" style="margin-top: auto; margin-bottom: auto; margin-left: auto">Delete</paper-button>
-              </div>
-              ` : html``}
-            </div>
           ` :
       html`
             <div style="margin-left: 1em; margin-right: 1em; margin-top: 1em">
@@ -288,15 +268,11 @@ class ProjectInfo extends LitElement {
         
         <paper-dropdown-menu label="Select Role">
           <paper-listbox id="listbox-select-role" slot="dropdown-content" selected=${this.editingUser ? this.getRoleIndex(this.editingUser.roleId) : undefined}>
-            ${this.selectedProject ? html`${this.selectedProject.roles.map(role => html`
+            ${this.selectedProject ? html`${this.selectedProject.metadata.roles.map(role => html`
               <paper-item>${role.name}</paper-item>
             `)}` : html``}
           </paper-listbox>
         </paper-dropdown-menu>
-        
-        <div style="align-items: center">
-          <paper-button class="button-danger" @click="${this._removeUserFromProjectClicked}">Remove From Project</paper-button>
-        </div>
         
         <div class="buttons">
           <paper-button dialog-dismiss>Cancel</paper-button>
@@ -446,18 +422,6 @@ class ProjectInfo extends LitElement {
         </div>
       </paper-dialog>
       
-      <!-- Dialog: Are you sure to delete the project? -->
-      <paper-dialog id="dialog-delete-project" modal>
-        <h4>Delete Project</h4>
-        <div>
-        Are you sure that you want to delete the project?
-        </div>
-        <div class="buttons">
-          <paper-button dialog-dismiss>Cancel</paper-button>
-          <paper-button @click=${this._deleteProject} dialog-confirm autofocus>Yes</paper-button>
-        </div>
-      </paper-dialog>
-      
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
       
@@ -488,10 +452,6 @@ class ProjectInfo extends LitElement {
        * Tells if the logged in user is allowed to edit the currently selected project.
        */
       editingAllowed: { type: Boolean },
-      /*
-       * List of the projects where the current user is member of.
-       */
-      usersProjects: { type: Array },
       /**
        * Gets set before the "Are you sure that you want to delete...?" dialog
        * appears. Then this attribute gets used in the click event of the
@@ -505,7 +465,11 @@ class ProjectInfo extends LitElement {
       externalDependencyToDelete: { type: Object },
       validURL: { type: Boolean },
       enteredURL: { type: String },
-      roleWidgetAccessEditor: { type: Object }
+      roleWidgetAccessEditor: { type: Object },
+      /**
+       * List of all components that are available.
+       */
+      allComponents: { type: Array }
     }
   }
 
@@ -516,6 +480,16 @@ class ProjectInfo extends LitElement {
     this.requestUpdate().then(_ => {
       this.getAddExternalDependencyDialog().getElementsByTagName("paper-button")[1]
         .addEventListener("click", this.addExternalDependencyClicked.bind(this));
+    });
+
+    window.addEventListener("metadata-changed", event => {
+      this.selectedProject.metadata = event.detail;
+      this.userList = this.selectedProject.metadata.mapUserRole;
+      this.roleList = this.selectedProject.metadata.roles;
+      this.loadComponents().then(_ => {
+        this.requestUpdate();
+      });
+      this.requestUpdate();
     });
   }
 
@@ -528,7 +502,6 @@ class ProjectInfo extends LitElement {
     this.currentlyShownComponents = [];
     this.componentTabSelected = 0;
     this.editingAllowed = false;
-    this.usersProjects = [];
   }
 
   /**
@@ -550,7 +523,7 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for the component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      const componentType = component.dependencyId ? component.component.type : component.type;
+      const componentType = component.type;
       this.updateMenu(componentType, false);
 
       this.closeLoadingDialog();
@@ -585,10 +558,8 @@ class ProjectInfo extends LitElement {
       // a dependency component, then the component will be displayed but not editable
       // IMPORTANT: this trick needs to be done before updateCurrentlyOpenedComponent() is called, otherwise
       // it is not stored in localStorage, that the component should be handled as a dependency
-      return component = {
-        "component": component,
-        "dependencyId": -1
-      };
+      component.objectType = "dependency";
+      return component;
     }
     return component;
   }
@@ -611,13 +582,21 @@ class ProjectInfo extends LitElement {
     const content = {
       "versionedModelId": component.versionedModelId,
       "name": component.name,
-      "projectId": this.getProjectId(),
       "isDependency": isDependency,
-      "gitHubProjectId": this.selectedProject.gitHubProjectId,
-      "gitHubProjectHtmlUrl": this.selectedProject.gitHubProjectHtmlUrl,
       "projectName": this.selectedProject.name,
       "widgetConfig": widgetConfig
     };
+
+    if(this.selectedProject.gitHubProject) {
+      content.gitHubProjectId = this.selectedProject.gitHubProject.id;
+      content.gitHubProjectHtmlUrl = this.selectedProject.gitHubProject.url;
+    }
+
+    if(content.isDependency) {
+      content.objectType = "dependency";
+      content.widgetConfig = undefined;
+    }
+
     if(component.type == "frontend") {
       modelingInfo.frontend = content;
     } else if(component.type == "microservice") {
@@ -634,16 +613,15 @@ class ProjectInfo extends LitElement {
    */
   getUsersRole() {
     // get id of current user
-    const userId = Common.getUserInfo().id;
-    // get id of users role
-    let usersRoleId;
-    for(const user of this.selectedProject.users) {
-      if(user.id == userId)  {
-        usersRoleId = user.roleId;
+    const loginName = Common.getUserInfo().loginName;
+    let userRoleName;
+    for(const user of this.userList) {
+      if(user.loginName == loginName)  {
+        userRoleName = user.roleName;
         break;
       }
     }
-    return this.getRoleById(usersRoleId);
+    return this.getRoleByName(userRoleName);
   }
 
   /**
@@ -690,10 +668,11 @@ class ProjectInfo extends LitElement {
    */
   updateCurrentlyOpenedComponent(component) {
     let isDependency = false;
-    if(component.hasOwnProperty("dependencyId")) {
-      // component is a dependency
-      component = component.component;
-      isDependency = true;
+    if(component.hasOwnProperty("objectType")) {
+      if(component.objectType == "dependency") {
+        // component is a dependency
+        isDependency = true;
+      }
     }
 
     // update modeling info
@@ -725,7 +704,7 @@ class ProjectInfo extends LitElement {
 
     // upload metamodel for application component
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
-      const componentType = component.dependencyId ? component.component.type : component.type;
+      const componentType = component.type;
       this.updateMenu(componentType, false);
 
       // close dialog
@@ -779,7 +758,7 @@ class ProjectInfo extends LitElement {
 
     MetamodelUploader.uploadMetamodelAndModelForComponent(component).then(_ => {
       // success
-      const componentType = component.dependencyId ? component.component.type : component.type;
+      const componentType = component.type;
       this.updateMenu(componentType, true);
     }, _ => {
       // failed
@@ -813,16 +792,13 @@ class ProjectInfo extends LitElement {
     const editor = this.roleWidgetAccessEditor;
     const widgetConfig = JSON.stringify(editor.getWidgetConfig());
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/roles/" + this.editingRole.id, {
-      method: "PUT",
-      headers: Auth.getAuthHeader(),
-      body: widgetConfig
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Updated role successfully!");
-        this.editingRole.widgetConfig = widgetConfig;
-      }
-    });
+    const newMetadata = this.selectedProject.metadata;
+
+    newMetadata.roles.filter(x => x.name == this.editingRole.name)[0].widgetConfig = widgetConfig;
+
+    this.changeMetadataRequest(newMetadata);
+    this.showToast("Updated role!");
+    this.editingRole.widgetConfig = widgetConfig;
   }
 
   _onAddComponentClicked() {
@@ -871,10 +847,25 @@ class ProjectInfo extends LitElement {
     if(inputRole) inputRole.value = "";
 
     // set users of the project
-    this.userList = project.users;
+    this.userList = project.metadata.mapUserRole;
+
+    // fetch group members from project service
+    fetch(Static.ContactServiceURL + "/contactservice/groups/" + this.selectedProject.groupName + "/member", {
+      method: "GET",
+      headers: Auth.getAuthHeader()
+    }).then(response => {
+      if(response.ok) {
+        return response.json();
+      }
+    }).then(data => {
+      // data is a map which maps the agent id to the username
+      // we need to check if the current user list contains all the agents
+      // it may be the case, that a user was added to the group and is not part of the mapUserRole in the project metadata yet
+      this.updateMapUserRole(data);
+    });
 
     // get roles from project
-    this.roleList = project.roles;
+    this.roleList = project.metadata.roles;
 
     // check if user is allowed to edit the project
     this.editingAllowed = this.isUserAllowedToEditProject();
@@ -894,13 +885,50 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Gets called by the project-management which forwards the event
-   * originally sent from the project-explorer.
-   * @param eventDetail Contains the list of projects by the current user.
-   * @private
+   * Updates the mapUserRole entry of the selected projects metadata.
+   * Given the data about the group from the contact service, the mapUserRole gets updated.
+   * Users that joined the group are added to the mapUserRole.
+   * Users that left the group get removed from the mapUserRole.
+   * @param groupData Group member data fetched from contact service.
    */
-  _onUserProjectListLoaded(eventDetail) {
-    this.usersProjects = eventDetail.usersProjects;
+  updateMapUserRole(groupData) {
+    const oldMetadata = this.selectedProject.metadata;
+    const newMetadata = JSON.parse(JSON.stringify(oldMetadata));
+
+    // find default role
+    const defaultRole = newMetadata.roles.filter(role => role.isDefault)[0];
+
+    let changes = false;
+
+    // find newly added members
+    for (let agentId of Object.keys(groupData)) {
+      let existsInMapUserRole = this.userList.map(user => user.agentId).filter(id => id == agentId).length > 0;
+      if (!existsInMapUserRole) {
+        // add user to metadata
+        const userEntry = {
+          agentId,
+          loginName: groupData[agentId],
+          roleName: defaultRole.name
+        };
+        newMetadata.mapUserRole.push(userEntry);
+        changes = true;
+      }
+    }
+
+    // check if a member left the group but is still in mapUserRole
+    for (let agentId of newMetadata.mapUserRole.map(x => x.agentId)) {
+      // check if agent id is part of group fetched from contact service
+      if (!Object.keys(groupData).includes(agentId)) {
+        // user is no group member anymore
+        // remove from metadata
+        newMetadata.mapUserRole = newMetadata.mapUserRole.filter(x => x.agentId != agentId);
+        changes = true;
+      }
+    }
+
+    if (changes) {
+      this.changeMetadataRequest(newMetadata);
+    }
   }
 
   /**
@@ -909,17 +937,7 @@ class ProjectInfo extends LitElement {
    * @returns {boolean} Whether user is allowed to edit the currently shown project.
    */
   isUserAllowedToEditProject() {
-    // check if the list of projects where the current user is part of, contains
-    // a project with the id of the currently selected project
-    for(let i in this.usersProjects) {
-      const project = this.usersProjects[i];
-      if(project.id == this.selectedProject.id) {
-        // user is member of the currently shown project
-        return true;
-      }
-    }
-    // user is no member of the currently shown project
-    return false;
+    return this.selectedProject.is_member;
   }
 
   /**
@@ -927,9 +945,10 @@ class ProjectInfo extends LitElement {
    */
   loadComponents() {
     return new Promise((resolveLoading, rejectLoading) => {
-      const projectId = this.getProjectId();
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId, {
-        method: "GET"
+      const projectName = this.getProjectName();
+      fetch(Static.ProjectServiceURL + "/projects/CAE/" + projectName, {
+        method: "GET",
+        headers: Auth.getAuthHeader()
       }).then(response => {
           if(response.ok) {
             return response.json();
@@ -938,9 +957,10 @@ class ProjectInfo extends LitElement {
           }
         }
       ).then(data => {
-        const components = data.components;
-        const dependencies = data.dependencies;
-        const externalDependencies = data.externalDependencies;
+        const metadata = data.metadata;
+        const components = metadata.components;
+        const dependencies = metadata.dependencies;
+        const externalDependencies = metadata.externalDependencies;
 
         // clear current components
         this.applicationComponent = undefined;
@@ -962,9 +982,10 @@ class ProjectInfo extends LitElement {
         // dependencies is a JSONArray containing both frontend component and microservice DEPENDENCIES
         for(let i in dependencies) {
           const dependency = dependencies[i];
-          if(dependency.component.type == "frontend") {
+          dependency.objectType = "dependency";
+          if(dependency.type == "frontend") {
             this.frontendComponents.push(dependency);
-          } else if(dependency.component.type == "microservice") {
+          } else if(dependency.type == "microservice") {
             this.microserviceComponents.push(dependency);
           }
         }
@@ -972,6 +993,7 @@ class ProjectInfo extends LitElement {
         // external dependencies
         for(let i in externalDependencies) {
           const externalDependency = externalDependencies[i];
+          externalDependency.objectType = "externalDependency";
           if(externalDependency.type == "frontend") {
             this.frontendComponents.push(externalDependency);
           } else if(externalDependency.type == "microservice") {
@@ -1006,16 +1028,16 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProjectClicked(component) {
-    if(component.externalDependencyId) {
-      this.externalDependencyToDelete = component;
-      this.shadowRoot.getElementById("dialog-delete-external-dependency").open();
-    } else if(component.dependencyId) {
-      this.dependencyToDelete = component;
-      this.shadowRoot.getElementById("dialog-delete-dependency").open();
-    } else {
+    if(!component.objectType) {
       this.componentToDelete = component;
       // first show dialog and ensure that the user really want to delete the component
       this.shadowRoot.getElementById("dialog-delete-component").open();
+    } else if(component.objectType == "dependency") {
+      this.dependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-dependency").open();
+    } else if(component.objectType == "externalDependency") {
+      this.externalDependencyToDelete = component;
+      this.shadowRoot.getElementById("dialog-delete-external-dependency").open();
     }
   }
 
@@ -1025,7 +1047,7 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeComponentFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/components/" + this.componentToDelete.id, {
+    fetch(Static.ModelPersistenceServiceURL + "/projects/" + this.getProjectName() + "/components/" + this.componentToDelete.name, {
       method: "DELETE",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1035,8 +1057,9 @@ class ProjectInfo extends LitElement {
       if(response.ok) {
         this.showToast("Removed component from project!");
 
-        // just reload components list
-        this.loadComponents();
+        window.dispatchEvent(new CustomEvent("metadata-reload-request", {
+          bubbles: true
+        }));
 
         // check if the component which got deleted is currently opened (in the menu)
         // because then the menu and the modelingInfo in localStorage need to be updated
@@ -1051,35 +1074,25 @@ class ProjectInfo extends LitElement {
    * @private
    */
   _removeDependencyFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/dependencies/" + this.dependencyToDelete.component.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Removed dependency from project!");
+    const newMetadata = this.selectedProject.metadata;
 
-        // just reload components list
-        this.loadComponents();
+    newMetadata.dependencies = newMetadata.dependencies.filter(x => x.name != this.dependencyToDelete.name);
 
-        // check if the dependency which got deleted is currently opened (in the menu)
-        // because then the menu and the modelingInfo in localStorage need to be updated
-        this.closeComponent(this.dependencyToDelete.component);
-      }
-    });
+    this.changeMetadataRequest(newMetadata);
+    this.showToast("Removed dependency from project!");
+
+    // check if the dependency which got deleted is currently opened (in the menu)
+    // because then the menu and the modelingInfo in localStorage need to be updated
+    this.closeComponent(this.dependencyToDelete);
   }
 
   _removeExternalDependencyFromProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies/" + this.externalDependencyToDelete.externalDependencyId, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Removed external dependency from project!");
+    const newMetadata = this.selectedProject.metadata;
 
-        // just reload components list
-        this.loadComponents();
-      }
-    });
+    newMetadata.externalDependencies = newMetadata.externalDependencies.filter(x => x.gitHubURL != this.externalDependencyToDelete.gitHubURL);
+
+    this.changeMetadataRequest(newMetadata)
+    this.showToast("Removed external dependency from project!");
   }
 
   closeComponent(component) {
@@ -1105,19 +1118,6 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Gets called when the input of the username field gets changed.
-   * @param username Current value of the input field.
-   * @private
-   */
-  _onInviteUserInputChanged(username) {
-    if(username) {
-      this.shadowRoot.getElementById("button-invite-user").disabled = false;
-    } else {
-      this.shadowRoot.getElementById("button-invite-user").disabled = true;
-    }
-  }
-
-  /**
    * Gets called when the input of the role field gets changed.
    * @param role Current value of the input field.
    * @private
@@ -1130,109 +1130,46 @@ class ProjectInfo extends LitElement {
     }
   }
 
-  _onInviteUserToProjectClicked() {
-    // get entered username
-    const loginName = this.shadowRoot.getElementById("input-username").value;
-    const projectId = this.getProjectId();
-
-    // send invitation
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/invitations", {
-      method: "POST",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "loginName": loginName
-      })
-    }).then(response => {
-      if(response.ok) {
-        // show toast message
-        this.showToast("Invited user to project!");
-
-        // clear input text and deactivate button
-        this.shadowRoot.getElementById("input-username").value = "";
-        this.shadowRoot.getElementById("button-invite-user").disabled = true;
-      } else {
-        throw Error(response.status);
-      }
-    }).catch(error => {
-      if(error.message == "404") {
-        // user with given name could not be found
-        this.showToast("Could not find user with given name.");
-      } else if(error.message == "409") {
-        // user is already member of the project or already invited to it
-        this.showToast("User is already member of the project or already invited to it.");
-      }
-    });
-  }
-
-  _removeUserFromProjectClicked() {
-    // close dialog
-    this.shadowRoot.getElementById("dialog-edit-user").close();
-
-    const projectId = this.getProjectId();
-    const userToRemove = this.editingUser;
-
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/users/" + userToRemove.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Removed user from project!");
-
-        // remove the user from the users list of the project
-        this.userList.splice(this.userList.findIndex(user => {
-          return user.id === userToRemove.id;
-        }),1);
-        this.requestUpdate();
-
-        // NOTE: this.userList references to project.users (gets set in _onProjectSelected)
-        // and project is part of the listedProjects array in the project explorer
-        // Thus: the listedProjects automatically does not contain the removed user anymore
-      }
-    });
-  }
-
   /**
    * Gets called when the user wants to add a role to the currently shown project.
    * Sends a request to the API and tries to add the role to the project.
    * @private
    */
   _onAddRoleToProjectClicked() {
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
     const roleName = this.shadowRoot.getElementById("input-role").value;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles", {
-      method: "POST",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "name": roleName
-      })
-    }).then(response => {
+    // check if role with the same name already exists
+    if(this.selectedProject.metadata.roles.filter(x => x.name == roleName).length > 0) {
+      // role with same name already exists
+      this.showToast("Role with same name already exists in the project.");
+      return;
+    }
+
+    const newMetadata = this.selectedProject.metadata;
+
+    // request the widget config allowing to view every widget from persistence service
+    fetch(Static.ModelPersistenceServiceURL + "/widgetConfigAll").then(response => {
       if(response.ok) {
         return response.json();
-      } else {
-        throw Error(response.status);
       }
     }).then(data => {
-      // data is the role which got added to the project
+      const role = {
+        isDefault: false,
+        name: roleName,
+        widgetConfig: JSON.stringify(data)
+      };
+
+      newMetadata.roles.push(role);
+
+      this.changeMetadataRequest(newMetadata)
       // show toast message
       this.showToast("Added role to project!");
-
-      // show the new role in the roles list of the project
-      this.roleList.push(data);
-      this.requestUpdate();
-
-      // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
-      // and project is part of the listedProjects array in the project explorer
-      // Thus: the listedProjects automatically contains the newly added role
 
       // clear input text and deactivate button
       this.shadowRoot.getElementById("input-role").value = "";
       this.shadowRoot.getElementById("button-add-role").disabled = true;
-    }).catch(error => {
-      if(error.message == "409") {
-        // role with same name already exists
-        this.showToast("Role with same name already exists in the project.");
-      }
+
     });
   }
 
@@ -1247,35 +1184,25 @@ class ProjectInfo extends LitElement {
     // close dialog
     this.shadowRoot.getElementById("dialog-edit-role").close();
 
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
     const roleToRemove = this.editingRole;
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/roles/" + roleToRemove.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader()
-    }).then(response => {
-      if(response.ok) {
-        this.showToast("Removed role from project!");
+    const newMetadata = this.selectedProject.metadata;
 
-        // remove the role from the roles list of the project
-        this.roleList.splice(this.roleList.findIndex(role => {
-          return role.id === roleToRemove.id;
-        }),1);
-        this.requestUpdate();
-
-        // NOTE: this.roleList references to project.roles (gets set in _onProjectSelected)
-        // and project is part of the listedProjects array in the project explorer
-        // Thus: the listedProjects automatically does not contain the removed role anymore
-      } else if(response.status == 409) {
-        // role is still assigned to at least one user and thus cannot be removed from project
-        this.showToast("Cannot remove role since it is assigned to at least one user!");
-      }
-    });
+    // check if role is assigned to a user
+    if(newMetadata.mapUserRole.filter(x => x.roleName == roleToRemove.name).length > 0) {
+      // role is still assigned to at least one user and thus cannot be removed from project
+      this.showToast("Cannot remove role since it is assigned to at least one user!");
+    } else {
+      // role is not assigned to anyone anymore => we can delete it
+      newMetadata.roles = newMetadata.roles.filter(x => x.name != roleToRemove.name);
+      this.changeMetadataRequest(newMetadata)
+      this.showToast("Removed role from project!");
+    }
   }
 
   _onTabChanged(tabIndex) {
     this.componentTabSelected = tabIndex;
-    const projectId = this.getProjectId();
     if(tabIndex == 0) {
       this.currentlyShownComponents = this.frontendComponents;
     } else {
@@ -1284,13 +1211,13 @@ class ProjectInfo extends LitElement {
   }
 
   /**
-   * Searches for the role with the given id.
-   * @param roleId Id of the role to search for.
+   * Searches for the role with the given name.
+   * @param roleName Name of the role to search for.
    */
-  getRoleById(roleId) {
+  getRoleByName(roleName) {
     for(let i in this.roleList) {
       const role = this.roleList[i];
-      if (role.id == roleId) return role;
+      if (role.name == roleName) return role;
     }
   }
 
@@ -1301,7 +1228,7 @@ class ProjectInfo extends LitElement {
    */
   getRoleIndex(roleId) {
     let index = 0;
-    for(const role of this.selectedProject.roles) {
+    for(const role of this.selectedProject.metadata.roles) {
       if(role.id == roleId) break;
       index++;
     }
@@ -1322,7 +1249,7 @@ class ProjectInfo extends LitElement {
     // get corresponding role
     let index = 0;
     let selectedRole;
-    for(const role of this.selectedProject.roles) {
+    for(const role of this.selectedProject.metadata.roles) {
       if(index == selected) {
         selectedRole = role;
         break;
@@ -1331,23 +1258,33 @@ class ProjectInfo extends LitElement {
     }
     if(!selectedRole) return;
 
-    if(selectedRole.id != this.editingUser.roleId) {
+    if(selectedRole.name != this.editingUser.roleName) {
       // role of user has changed
-      // update in database
-      fetch(Static.ProjectManagementServiceURL + "/projects/"
-        + this.getProjectId() + "/users/" + this.editingUser.id + "/role/" + selectedRole.id, {
-        method: "PUT",
-        headers: Auth.getAuthHeader()
-      }).then(response => {
-        if(response.ok) {
-          // update users role locally
-          const user = this.selectedProject.users.filter(u => u.id == this.editingUser.id)[0];
-          user.roleId = selectedRole.id;
-          this.requestUpdate();
-          this.showToast("Updated user successfully!");
-        }
-      });
+      // we need to update the metadata in the project service
+      // therefore we first clone the current metadata
+      const newMetadata = this.selectedProject.metadata;
+
+      // update role of user in metadata
+      newMetadata.mapUserRole.filter(x => x.agentId == this.editingUser.agentId)[0].roleName = selectedRole.name;
+
+      // update in project service
+      this.changeMetadataRequest(newMetadata);
+      this.showToast("Updated user successfully!");
     }
+  }
+
+  /**
+   * Sends event to project service frontend. The project service frontend then updates the metadata in the service.
+   * If the update was successful, the "metadata-changed" event gets fired which is catched by the project-info.js.
+   * @param newMetadata
+   * @returns {Promise<Response>}
+   */
+  changeMetadataRequest(newMetadata) {
+    console.log("project-info: sending metadata-change-request with newMetadata: ", newMetadata);
+    window.dispatchEvent(new CustomEvent("metadata-change-request", {
+      detail: newMetadata,
+      bubbles: true
+    }));
   }
 
   /**
@@ -1357,7 +1294,7 @@ class ProjectInfo extends LitElement {
    */
   _onCreateComponentClicked() {
     this.openLoadingDialog();
-    const projectId = this.getProjectId();
+    const projectName = this.getProjectName();
 
     const componentName = this.shadowRoot.getElementById("dialog-add-component-input-name").value;
     const componentTypeSelected = this.shadowRoot.getElementById("dialog-add-component-dropdown-type").selected;
@@ -1369,7 +1306,7 @@ class ProjectInfo extends LitElement {
       componentType = "microservice";
     }
 
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + projectId + "/components", {
+    fetch(Static.ModelPersistenceServiceURL + "/projects/" + projectName + "/components", {
       method: "POST",
       headers: Auth.getAuthHeader(),
       body: JSON.stringify({
@@ -1382,7 +1319,10 @@ class ProjectInfo extends LitElement {
       if(response.ok) {
         // successfully created new component
         // reload components
-        this.loadComponents();
+
+        window.dispatchEvent(new CustomEvent("metadata-reload-request", {
+          bubbles: true
+        }));
 
         // reset dialog input fields
         this.shadowRoot.getElementById("dialog-add-component-input-name").value = "";
@@ -1413,47 +1353,38 @@ class ProjectInfo extends LitElement {
     let selectedComponentHTML;
     let selectedComponent;
 
+    // we have a list of all components stored (this.allComponents)
+    // filter out the components with type "application"
+    const components = this.allComponents.filter(component => component.type != "application");
 
-    // search for components
-    fetch(Static.ProjectManagementServiceURL + "/components", {
-      method: "GET"
-    }).then(response => {
-      if(response.ok) {
-        response.json().then(data => {
-          // filter out components with type "application"
-          data = data.filter(component => component.type != "application");
+    for(const component of components) {
+      const componentOuterDiv = document.createElement("div");
+      componentOuterDiv.style = "display: flex";
+      componentOuterDiv.addEventListener("mouseover", function() {
+        componentOuterDiv.style.background = "#eeeeee";
+      });
+      componentOuterDiv.addEventListener("mouseleave", function() {
+        if(componentOuterDiv != selectedComponentHTML) {
+          componentOuterDiv.style.removeProperty("background");
+        }
+      });
+      componentOuterDiv.addEventListener("click", function() {
+        if(selectedComponentHTML) selectedComponentHTML.style.removeProperty("background");
+        selectedComponentHTML = componentOuterDiv;
+        selectedComponent = component;
+        componentOuterDiv.style.setProperty("background", "#eeeeee");
+      });
 
-          for(const component of data) {
-            const componentOuterDiv = document.createElement("div");
-            componentOuterDiv.style = "display: flex";
-            componentOuterDiv.addEventListener("mouseover", function() {
-              componentOuterDiv.style.background = "#eeeeee";
-            });
-            componentOuterDiv.addEventListener("mouseleave", function() {
-              if(componentOuterDiv != selectedComponentHTML) {
-                componentOuterDiv.style.removeProperty("background");
-              }
-            });
-            componentOuterDiv.addEventListener("click", function() {
-              if(selectedComponentHTML) selectedComponentHTML.style.removeProperty("background");
-              selectedComponentHTML = componentOuterDiv;
-              selectedComponent = component;
-              componentOuterDiv.style.setProperty("background", "#eeeeee");
-            });
+      const p = document.createElement("p");
+      p.innerText = component.name;
+      componentOuterDiv.appendChild(p);
 
-            const p = document.createElement("p");
-            p.innerText = component.name;
-            componentOuterDiv.appendChild(p);
+      searchResultDiv.appendChild(componentOuterDiv);
 
-            searchResultDiv.appendChild(componentOuterDiv);
-
-            const separator = document.createElement("div");
-            separator.class = "separator";
-            searchResultDiv.appendChild(separator);
-          }
-        });
-      }
-    });
+      const separator = document.createElement("div");
+      separator.class = "separator";
+      searchResultDiv.appendChild(separator);
+    }
 
     const searchInputField = this.shadowRoot.getElementById("dialog-search-components-input");
     searchInputField.addEventListener("input", function(e) {
@@ -1476,16 +1407,12 @@ class ProjectInfo extends LitElement {
         this.getSearchComponentsDialog().close();
 
         // add component as dependency to project
-        fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/dependencies/" + selectedComponent.id, {
-          method: "POST",
-          headers: Auth.getAuthHeader()
-        }).then(response => {
-          if(response.ok) {
-            this.showToast("Added component as a dependency!");
-            // just reload components list
-            this.loadComponents();
-          }
-        });
+        const newMetadata = this.selectedProject.metadata;
+
+        newMetadata.dependencies.push(selectedComponent);
+
+        this.changeMetadataRequest(newMetadata)
+        this.showToast("Added component as a dependency!");
       }
     }.bind(this));
   }
@@ -1513,115 +1440,44 @@ class ProjectInfo extends LitElement {
   }
 
   addExternalDependencyClicked() {
-    if(this.validURL) {
+    if (this.validURL) {
       // close dialog
       this.getAddExternalDependencyDialog().close();
 
       let type;
       const selected = this.shadowRoot.getElementById("dialog-add-external-dependency-dropdown-type").selected;
-      if(selected == 0) {
+      if (selected == 0) {
         type = "frontend";
       } else {
         type = "microservice";
       }
 
-      // add as external dependency to project
-      fetch(Static.ProjectManagementServiceURL + "/projects/" + this.getProjectId() + "/extdependencies", {
-        method: "POST",
-        headers: Auth.getAuthHeader(),
-        body: JSON.stringify({
-          gitHubURL: this.enteredURL,
-          type: type
-        })
-      }).then(response => {
-        if(response.ok) {
-          this.showToast("Added external dependency to project!");
-          // just reload components list
-          this.loadComponents();
+      const newMetadata = this.selectedProject.metadata
 
-          // clear dialog input
-          const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
-          inputGitHubURL.value = "";
-        } else {
-          this.showWarningToast("Adding external dependency failed!");
-        }
-      });
+      // add new external dependency to metadata
+      const externalDependency = {
+        gitHubURL: this.enteredURL,
+        type
+      };
+      newMetadata.externalDependencies.push(externalDependency);
+
+      this.changeMetadataRequest(newMetadata)
+      this.showToast("Added external dependency to project!");
+
+      // clear dialog input
+      const inputGitHubURL = this.shadowRoot.getElementById("dialog-add-external-dependency-input");
+      inputGitHubURL.value = "";
     } else {
       this.showWarningToast("Entered URL is not valid!");
     }
   }
 
-  /**
-   * Gets called when the user clicks on the delete button at the bottom
-   * in the project info.
-   * @private
-   */
-  _onDeleteProjectClicked() {
-    // show dialog to ensure that the user really wants to delete the project
-    this.shadowRoot.getElementById("dialog-delete-project").open();
-  }
-
-  /**
-   * Gets called when the user has confirmed that the project should really be deleted.
-   * @private
-   */
-  _deleteProject() {
-    fetch(Static.ProjectManagementServiceURL + "/projects/" + this.selectedProject.id, {
-      method: "DELETE",
-      headers: Auth.getAuthHeader(),
-      body: JSON.stringify({
-        "access_token": Auth.getAccessToken()
-      })
-    }).then(response => {
-      if(response.status == 204) {
-        // ok, project got deleted
-        // update modelingInfo in localStorage and update menu
-        const modelingInfo = Common.getModelingInfo();
-        if(modelingInfo.frontend != null) {
-          for(let i in this.frontendComponents) {
-            const component = this.frontendComponents[i];
-            if(component.versionedModelId == modelingInfo.frontend.versionedModelId) {
-              modelingInfo.frontend = null;
-              Common.storeModelingInfo(modelingInfo);
-              this.updateMenu("frontend", true);
-            }
-          }
-        }
-        if(modelingInfo.microservice != null) {
-          for(let i in this.microserviceComponents) {
-            const component = this.microserviceComponents[i];
-            if(component.versionedModelId == modelingInfo.microservice.versionedModelId) {
-              modelingInfo.microservice = null;
-              Common.storeModelingInfo(modelingInfo);
-              this.updateMenu("microservice", true);
-            }
-          }
-        }
-        if(modelingInfo.application != null) {
-          if(this.applicationComponent.versionedModelId == modelingInfo.application.versionedModelId) {
-            modelingInfo.application = null;
-            Common.storeModelingInfo(modelingInfo);
-            this.updateMenu("application", true);
-          }
-        }
-
-
-        // reset project info, so that the project-info element does not show any content anymore
-        this.resetProjectInfo();
-
-        // reload projects in explorer
-        const event = new CustomEvent("reload-projects");
-        this.dispatchEvent(event);
-      } else {
-        // error deleting project
-        this.showToast("Error deleting project!");
-      }
-    });
-  }
-
   getComponentGitHubURL(component) {
-    if(component.externalDependencyId) return component.gitHubURL;
-    if(component.dependencyId) component = component.component;
+    if(component.objectType && component.objectType == "externalDependency") {
+      // use the URL to the dependency repository on GitHub
+      return component.gitHubURL;
+    }
+
     let type = component.type;
     if(type == "frontend") type = "frontendComponent";
     return "https://github.com/" + Static.GitHubOrg + "/" + type + "-" + component.versionedModelId;
@@ -1634,15 +1490,15 @@ class ProjectInfo extends LitElement {
    * @returns {*}
    */
   getComponentName(component) {
-    if(component.dependencyId) return component.component.name;
-    if(component.externalDependencyId) return component.gitHubURL.split(".com/")[1];
-    return component.name;
+    if(!component.objectType) return component.name;
+    if(component.objectType == "dependency") return component.name;
+    if(component.objectType == "externalDependency") return component.gitHubURL.split(".com/")[1];
   }
 
   hasRequirementsBazaarURL(component) {
-    if(component.dependencyId) {
-      return component.component.reqBazCategoryId && component.component.reqBazCategoryId != -1;
-    } else {
+    if(!component.objectType) {
+      return component.reqBazCategoryId && component.reqBazCategoryId != -1;
+    } else if(component.objectType == "dependency") {
       return component.reqBazCategoryId && component.reqBazCategoryId != -1;
     }
   }
@@ -1650,10 +1506,7 @@ class ProjectInfo extends LitElement {
   getRequirementsBazaarURL(component) {
     let reqBazProjectId;
     let reqBazCategoryId;
-    if(component.dependencyId) {
-      reqBazProjectId = component.component.reqBazProjectId;
-      reqBazCategoryId = component.component.reqBazCategoryId;
-    } else {
+    if(!component.objectType || component.objectType == "dependency") {
       reqBazProjectId = component.reqBazProjectId;
       reqBazCategoryId = component.reqBazCategoryId;
     }
@@ -1701,8 +1554,20 @@ class ProjectInfo extends LitElement {
     toastElement.show();
   }
 
-  getProjectId() {
-    return this.selectedProject.id;
+  getProjectName() {
+    return this.selectedProject.name;
+  }
+
+  /**
+   * Gets called by project-management.js when all projects are loaded from the project service.
+   * @param projectList A list of all projects available in the CAE.
+   * @private
+   */
+  _onProjectListLoaded(projectList) {
+    this.allComponents = [];
+    for(let project of projectList) {
+      this.allComponents = this.allComponents.concat(project.metadata.components);
+    }
   }
 }
 

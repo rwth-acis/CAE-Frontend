@@ -31,9 +31,8 @@ export default class MetamodelUploader {
    */
   static uploadMetamodelAndModelForComponent(component) {
     let isDependency = false;
-    if(component.hasOwnProperty("dependencyId")) {
+    if(component.hasOwnProperty("objectType") && component.objectType == "dependency") {
       // component is a dependency
-      component = component.component;
       isDependency = true;
     }
     // get the correct VLS depending on the type of the given component
