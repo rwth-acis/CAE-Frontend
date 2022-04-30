@@ -198,17 +198,26 @@ export default class RoleSpace extends EventEmitter{
 
     var self = this;
     self.user = {};
-    var url = localStorage.userinfo_endpoint + '?access_token=' + localStorage.access_token;
+    var url = localStorage.userinfo_endpoint;
 
-    $.get(url, function(data){
-      self.user["title"] = data.name;
-      self.user["jabberid"] = data.sub;
-      deferred.resolve();
-    }).fail(function(error){
-        var id = self.generateRandomId();
-        self.user["title"] = 'Anonymous';
-        self.user["jabberid"] = id;
-        deferred.resolve();
+
+    $.ajax({
+        type: "GET",
+        headers: {
+          "Authorization": "Bearer " + localStorage.access_token
+        },
+        url: url,
+        success: function(data){
+            self.user["title"] = data.name;
+            self.user["jabberid"] = data.sub;
+            deferred.resolve();
+        },
+        error: function(error){
+            var id = self.generateRandomId();
+            self.user["title"] = 'Anonymous';
+            self.user["jabberid"] = id;
+            deferred.resolve();
+        }
     });
 
     deferred.resolve();

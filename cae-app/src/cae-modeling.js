@@ -77,7 +77,7 @@ class CaeModeling extends PolymerElement {
           <div style="width: 35px; display: flex; flex-flow: column">
             <iron-icon id="btn-close-side-menu" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em; display: none" icon="icons:chevron-right"></iron-icon>
             <svg id="req-baz-icon" width="24px" height="24px" class="reqbaz-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
-              <image xlink:href="https://requirements-bazaar.org/images/reqbaz-logo.svg" width="24px" height="24px"/>
+              <image xlink:href="https://requirements-bazaar.org/reqbaz-logo.svg" width="24px" height="24px"/>
             </svg>
             <svg id="github-projects-icon" width="24px" height="24px" class="github-img" style="margin-left: auto; margin-right: auto; margin-top: 0.5em">
               <image xlink:href="https://raw.githubusercontent.com/primer/octicons/e9a9a84fb796d70c0803ab8d62eda5c03415e015/icons/mark-github-16.svg" width="24px" height="24px"/>

@@ -10,6 +10,7 @@
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
   "dependencies": {
+    "@rwth-acis/las2peer-project-service-frontend": "^0.3.1",
     "@polymer/app-route": "^3.0.0-pre.15",
     "@polymer/iron-flex-layout": "^3.0.1",
     "@polymer/iron-icons": "^3.0.1",
@@ -33,7 +34,7 @@
     "y-map": "10.1.3",
     "y-memory": "8.0.9",
     "y-text": "9.5.1",
-    "y-websockets-client": "8.0.16",
+    "y-websockets-client": "github:rwth-acis/y-websockets-client#v8",
     "yjs": "12.3.3"
   },
   "devDependencies": {
