@@ -58,8 +58,8 @@ sed -i "s=/socket.io=$YJS_RESOURCE_PATH=g" widget/app.js
 cd ..
 
 ##### Nginx ####
-cp docker/nginx.conf /etc/nginx/conf.d/default.conf
-sed -i "s=<port>=$PORT=g" /etc/nginx/conf.d/default.conf
+cp docker/nginx.conf /etc/nginx/http.d/default.conf
+sed -i "s=<port>=$PORT=g" /etc/nginx/http.d/default.conf
 nginx
 
 ##### CAE App ####

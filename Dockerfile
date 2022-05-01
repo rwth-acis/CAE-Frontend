@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:14-alpine
 USER root
 
 ENV PORT 8070
@@ -8,7 +8,7 @@ ENV YJS_RESOURCE_PATH /socket.io
 
 RUN apk update
 
-RUN apk add supervisor openssh git nginx jq python openrc && \
+RUN apk add supervisor openssh git nginx jq python2 openrc && \
     npm_config_user=root npm install -g grunt-cli grunt polymer-cli
 
 RUN mkdir -p /run/nginx
