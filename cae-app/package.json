@@ -10,7 +10,7 @@
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
   "dependencies": {
-    "@rwth-acis/las2peer-project-service-frontend": "^0.3.1",
+    "@rwth-acis/las2peer-project-service-frontend": "^0.3.2",
     "@polymer/app-route": "^3.0.0-pre.15",
     "@polymer/iron-flex-layout": "^3.0.1",
     "@polymer/iron-icons": "^3.0.1",
