@@ -11,6 +11,7 @@ import './notifications/notification-element.js';
 import Auth from "./util/auth";
 import Static from "./static";
 import Common from "./util/common";
+import './test-editor/test-editor';
 
 /**
  * CaeStaticApp is the main PolymerElement of the CAE.
@@ -99,6 +100,8 @@ class CaeStaticApp extends PolymerElement {
         <notification-element id="notification-element" name="notifications"></notification-element>
         <p name="404">Not found!</p>
       </iron-pages>
+
+      <test-editor></test-editor>
       
       <!-- Generic Toast (see showToast method for more information) -->
       <paper-toast id="toast" text="Will be changed later."></paper-toast>
