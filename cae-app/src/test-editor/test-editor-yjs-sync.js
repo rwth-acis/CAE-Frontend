@@ -69,6 +69,32 @@ export default class TestEditorYjsSync {
   }
 
   /**
+   * Adds the given request to the test case with the given testCaseId in the Yjs room.
+   * @param {*} testCaseId Id of the test case that the request should be added to.
+   * @param {*} requestData Request that should be added to the test case.
+   */
+  addTestCaseRequest(testCaseId, requestData) {
+    const testCase = this.y.share.testData.get("" + testCaseId);
+    testCase.requests.push(requestData);
+    this.y.share.testData.set("" + testCaseId, testCase);
+  }
+
+  /**
+   * Deletes the test request with the given id from the test case with the given testCaseId in the Yjs room.
+   * @param {*} testCaseId Id of the test case that the request belongs to.
+   * @param {*} requestId Id of the request that should be deleted.
+   */
+  deleteTestRequest(testCaseId, requestId) {
+    // get test case from Yjs room
+    const testCase = this.y.share.testData.get("" + testCaseId);
+    // find index of request
+    const index = testCase.requests.findIndex(request => request.id === requestId);
+    // delete request from Yjs room
+    testCase.requests.splice(index, 1);
+    this.y.share.testData.set("" + testCaseId, testCase);
+  }
+
+  /**
    * Updates the given test request corresponding to the test case with the given testCaseId in the Yjs room.
    * @param {*} testCaseId Id of the test case that the request belongs to.
    * @param {*} requestData Updated request data.

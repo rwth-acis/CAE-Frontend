@@ -40,7 +40,9 @@ class TestEditor extends LitElement {
               availableAgents=${JSON.stringify(this.testData.agents)}
               @test-case-name-updated=${(e) => this.onTestCaseNameUpdated(testCase.id, e.detail)}
               @test-case-delete=${(e) => this.onTestCaseDelete(testCase.id)}
-              @test-request-updated=${(e) => this.onTestRequestUpdated(testCase.id, e.detail.request)}></test-case>
+              @test-request-updated=${(e) => this.onTestRequestUpdated(testCase.id, e.detail.request)}
+              @add-test-case-request=${(e) => this.onAddTestCaseRequest(testCase.id)}
+              @test-request-delete=${(e) => this.onTestRequestDelete(e.detail.testCaseId, e.detail.requestId)}></test-case>
           `)}
         </div>
       </div>
@@ -253,6 +255,31 @@ class TestEditor extends LitElement {
      */
     onTestRequestUpdated(testCaseId, requestData) {
       this.yjsSync.updateTestRequest(testCaseId, requestData);
+    }
+
+    /**
+     * Event handler for the add-test-case-request event.
+     * Adds a new test request to the test case in the Yjs room.
+     * @param {*} testCaseId Id of the test case where the request should be added to.
+     */
+    onAddTestCaseRequest(testCaseId) {
+      this.yjsSync.addTestCaseRequest(testCaseId, {
+        id: Math.random(10000,99999999),
+        type: "GET",
+        url: "/",
+        auth: {},
+        assertions: []
+      });
+    }
+
+    /**
+     * Event handler for the test-request-delete event.
+     * Deletes the test request from the Yjs room.
+     * @param {*} testCaseId Id of the test case that the request belongs to.
+     * @param {*} requestId Id of the request that should be deleted.
+     */
+    onTestRequestDelete(testCaseId, requestId) {
+      this.yjsSync.deleteTestRequest(testCaseId, requestId);
     }
 
     /**

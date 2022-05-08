@@ -46,13 +46,13 @@ class TestCase extends LitElement {
             <div>
               <!-- Button to add a new request -->
               <div style="display: flex">
-                <button type="button" class="btn btn-primary" style="margin-left: auto; margin-bottom: 0.5em">Add request</button>
+                <button type="button" @click=${this.onAddRequestClicked} class="btn btn-primary" style="margin-left: auto; margin-bottom: 0.5em">Add request</button>
               </div>
 
               <!-- Requests -->
               <div>
                 ${this.testData.requests.map(request => html`
-                  <test-request requestData=${JSON.stringify(request)} availableAgents=${JSON.stringify(this.availableAgents)}></test-request>
+                  <test-request requestData=${JSON.stringify(request)} testCaseId=${this.testData.id} availableAgents=${JSON.stringify(this.availableAgents)}></test-request>
                 `)}
               </div>
             </div>
@@ -134,6 +134,16 @@ class TestCase extends LitElement {
           this.shadowRoot.getElementById("input-test-case-name").blur();
         }
       });
+    }
+
+    /**
+     * Gets called when the "Add request" button gets clicked.
+     * Fires an event, to add a new request into the Yjs room.
+     */
+    onAddRequestClicked() {
+      this.dispatchEvent(new CustomEvent("add-test-case-request", {
+        detail: {}
+      }));
     }
 
     /**

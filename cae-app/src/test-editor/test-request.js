@@ -22,10 +22,16 @@ class TestRequest extends LitElement {
       </style>
 
       <div class="card main">
-        <div class="card-body" @click=${this.expandClicked}>
+        <div id="test-request-card-top" class="card-body" @click=${this.expandClicked}>
           <div style="display: flex">
             <!-- Request type -->
-            <span class="badge bg-primary">${this.requestData.type}</span>
+            <span class="badge bg-primary" @click=${this.changeTypeEditModeOn} style="display: ${this.typeEditModeOn ? 'none' : ''};">${this.requestData.type}</span>
+            <select id="select-request-type" @focusout=${this.changeTypeEditModeOn} class="form-select form-select-sm w-auto" style="display: ${this.typeEditModeOn ? '' : 'none'};">
+              <option value="GET">GET</option>
+              <option value="POST">POST</option>
+              <option value="PUT">PUT</option>
+              <option value="DELETE">DELETE</option>
+            </select>
             
             <!-- Request url -->
             <h6 id="test-case-name" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto">${this.requestData.url}</h6>
@@ -80,12 +86,26 @@ class TestRequest extends LitElement {
           </li>
         </ul>
       </div>
+
+      <!-- Delete Test Request Dialog -->
+      <paper-dialog id="dialog-delete-test-request" class="rounded" modal>
+        <h5 class="modal-title mt-3">Delete test request?</h5>
+        <hr/>
+        <p>Do you want to delete the test request "${this.requestData.type + ' '  + this.requestData.url}"?</p>
+        <hr/>
+        <div class="buttons">
+          <button type="button" class="btn btn-secondary" dialog-dismiss>Close</button>
+          <button type="button" @click=${this.onDeleteTestRequestClicked} class="btn btn-primary" style="margin-left: 0.5em" dialog-confirm>Yes</button>
+        </div>
+      </paper-dialog>
       `;
     }
 
     static get properties() {
       return {
         open: { type: Boolean },
+        typeEditModeOn: { type: Boolean },
+        testCaseId: { type: Number },
         requestData: { type: Object },
         availableAgents: { type: Array }
       };
@@ -94,11 +114,27 @@ class TestRequest extends LitElement {
     constructor() {
       super();
       this.open = false;
+      this.typeEditModeOn = false;
     }
 
     firstUpdated() {
+      this.setupCardContextMenu();
       this.setupAgentSelection();
       this.setupAuthCheckbox();
+    }
+
+    /**
+     * Disables the default context menu of the test request card header.
+     * Right click on top of card opens dialog to delete request from test.
+     */
+    setupCardContextMenu() {
+      this.shadowRoot.getElementById("test-request-card-top").addEventListener("contextmenu", event => {
+        // hide default context menu
+        event.preventDefault();
+
+        // show test request deletion dialog
+        this.shadowRoot.getElementById("dialog-delete-test-request").open();
+      });
     }
 
     /**
@@ -157,6 +193,21 @@ class TestRequest extends LitElement {
     }
 
     /**
+     * Click event handler for button in "delete test request" dialog.
+     * Fires event to notify parent elements that the test request should be deleted.
+     */
+     onDeleteTestRequestClicked() {
+      this.dispatchEvent(new CustomEvent("test-request-delete", {
+        detail: {
+          testCaseId: this.testCaseId,
+          requestId: this.requestData.id
+        },
+        bubbles: true,
+        composed: true
+      }));
+    }
+
+    /**
      * Updates the agent selection element: Enables/disables it and sets its value. 
      */
     updateAgentSelect() {
@@ -191,6 +242,32 @@ class TestRequest extends LitElement {
      */
     expandClicked() {
       this.open = !this.open;
+
+      if(this.open) {
+        // collapse all other test requests in the test case
+        this.shadowRoot.host.parentNode.querySelectorAll("test-request").forEach(testRequest => {
+          if(testRequest !== this) {
+            testRequest.collapse();
+          }
+        });
+    }
+    }
+
+    /**
+     * Enables or disables the edit mode for the test request type.
+     * If edit mode is disabled, the updated test request type is sent to the parent element.
+     */
+    changeTypeEditModeOn() {
+      this.typeEditModeOn = !this.typeEditModeOn;
+
+      if (this.typeEditModeOn) {
+        this.shadowRoot.getElementById("select-request-type").value = this.requestData.type;
+      } else {
+        // edit mode is disabled now => update test request type
+        this.requestData.type = this.shadowRoot.getElementById("select-request-type").value;
+
+        this.sendTestRequestUpdatedEvent();
+      }
     }
 }
 
