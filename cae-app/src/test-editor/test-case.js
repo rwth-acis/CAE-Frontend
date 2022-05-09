@@ -28,7 +28,8 @@ class TestCase extends LitElement {
         <div id="test-case-card-top" class="card-body" @click=${(e) => this.expandClicked(e)}>
           <div style="display: flex">
             <!-- Status Badge -->
-            <span id="status-badge" class="badge status-badge ${this.testData.status === "success" ? "bg-success" : (this.testData.status === "failed" ? "bg-danger" : "bg-secondary")}">
+            <span id="status-badge" class="badge status-badge ${this.testData.status === "success" ? "bg-success" : (this.testData.status === "failed" ? "bg-danger" : "bg-secondary")}"
+              data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getTestStatusTooltipText()}>
               ${this.testData.status === "success" ? "Success" : (this.testData.status === "failed" ? "Failed" : "-")}
             </span>
             
@@ -108,6 +109,14 @@ class TestCase extends LitElement {
     firstUpdated() {
       this.setupCardContextMenu();
       this.setupTestCaseNameInput();
+      this.setupBootstrapTooltips();
+    }
+
+    setupBootstrapTooltips() {
+      const tooltipTriggerList = [].slice.call(this.shadowRoot.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
     }
 
     /**
@@ -213,6 +222,16 @@ class TestCase extends LitElement {
 
       this.shadowRoot.getElementById("input-test-case-name").value = this.testData.name;
       this.shadowRoot.getElementById("test-case-name").value = this.testData.name;
+    }
+
+    getTestStatusTooltipText() {
+      if(this.testData.status === "success") {
+        return "Last run: Successful";
+      } else if(this.testData.status === "failed") {
+        return "Last run: Failed";
+      } else {
+        return "Test never ran";
+      }
     }
 }
 

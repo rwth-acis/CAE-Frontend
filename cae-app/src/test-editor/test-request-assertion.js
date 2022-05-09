@@ -20,7 +20,8 @@ class TestRequestAssertion extends LitElement {
 
       <div class="main" style="display: flex">
         <!-- Status Badge -->
-        <span class="badge status-badge ${this.assertionData.status === "success" ? "bg-success" : (this.assertionData.status === "failed" ? "bg-danger" : "bg-secondary")}">
+        <span class="badge status-badge ${this.assertionData.status === "success" ? "bg-success" : (this.assertionData.status === "failed" ? "bg-danger" : "bg-secondary")}" 
+          data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getAssertionStatusTooltipText()}>
           ${this.assertionData.status === "success" ? "Success" : (this.assertionData.status === "failed" ? "Failed" : "-")}
         </span>
       </div>
@@ -31,6 +32,26 @@ class TestRequestAssertion extends LitElement {
       return {
         assertionData: { type: Object }
       };
+    }
+    setupBootstrapTooltips() {
+      const tooltipTriggerList = [].slice.call(this.shadowRoot.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    }
+
+    firstUpdated() {
+      this.setupBootstrapTooltips();
+    }
+
+    getAssertionStatusTooltipText() {
+      if(this.assertionData.status === "success") {
+        return "Last run: Successful";
+      } else if(this.assertionData.status === "failed") {
+        return "Last run: Failed";
+      } else {
+        return "Test never ran";
+      }
     }
 }
 
