@@ -24,10 +24,10 @@ class TestRequest extends LitElement {
       </style>
 
       <div class="card main">
-        <div id="test-request-card-top" class="card-body" @click=${this.expandClicked}>
+        <div id="test-request-card-top" class="card-body" @click=${(e) => this.expandClicked(e)}>
           <div style="display: flex">
             <!-- Request type -->
-            <span class="badge bg-primary" @click=${this.changeTypeEditModeOn} style="display: ${this.typeEditModeOn ? 'none' : ''};">${this.requestData.type}</span>
+            <span id="request-type-badge" class="badge bg-primary" @click=${this.changeTypeEditModeOn} style="display: ${this.typeEditModeOn ? 'none' : ''};">${this.requestData.type}</span>
             <select id="select-request-type" @focusout=${this.changeTypeEditModeOn} class="form-select form-select-sm w-auto" style="display: ${this.typeEditModeOn ? '' : 'none'};">
               <option value="GET">GET</option>
               <option value="POST">POST</option>
@@ -247,7 +247,13 @@ class TestRequest extends LitElement {
     /**
      * Expands/collapses the test request card.
      */
-    expandClicked() {
+    expandClicked(e) {
+      // if the click was on the request url or request type badge, then don't react to this click event
+      const elementId = e.path[0].id;
+      if(["test-request-url", "input-test-request-url", "request-type-badge", "select-request-type"].includes(elementId)) {
+        return;
+      }
+
       this.open = !this.open;
 
       if(this.open) {

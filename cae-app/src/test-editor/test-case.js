@@ -25,10 +25,10 @@ class TestCase extends LitElement {
       </style>
 
       <div class="card main">
-        <div id="test-case-card-top" class="card-body" @click=${this.expandClicked}>
+        <div id="test-case-card-top" class="card-body" @click=${(e) => this.expandClicked(e)}>
           <div style="display: flex">
             <!-- Status Badge -->
-            <span class="badge status-badge ${this.testData.status === "success" ? "bg-success" : (this.testData.status === "failed" ? "bg-danger" : "bg-secondary")}">
+            <span id="status-badge" class="badge status-badge ${this.testData.status === "success" ? "bg-success" : (this.testData.status === "failed" ? "bg-danger" : "bg-secondary")}">
               ${this.testData.status === "success" ? "Success" : (this.testData.status === "failed" ? "Failed" : "-")}
             </span>
             
@@ -149,7 +149,13 @@ class TestCase extends LitElement {
     /**
      * Gets called if the expand/collapse button of the card is clicked.
      */
-    expandClicked() {
+    expandClicked(e) {
+      // if the click was on the status badge or test case name, then don't react to this click event
+      const elementId = e.path[0].id;
+      if (["status-badge", "input-test-case-name", "test-case-name"].includes(elementId)) {
+        return;
+      }
+
       this.open = !this.open;
 
       if(this.open) {
