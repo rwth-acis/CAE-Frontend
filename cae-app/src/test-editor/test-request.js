@@ -7,6 +7,8 @@ class TestRequest extends LitElement {
       <head>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+        <link href="../../node_modules/codemirror/lib/codemirror.css" rel="stylesheet">
       </head>
       <style>
         .card-body:hover {
@@ -66,9 +68,9 @@ class TestRequest extends LitElement {
               </div>
 
               <!-- Request body -->
-              <div class="mb-3">
+              <div>
                 <label for="textarea-body" class="form-label">Body:</label>
-                <textarea class="form-control" id="textarea-body" rows="3"></textarea>
+                <textarea id="textarea-body"></textarea>
               </div>
 
               <!-- Assertions -->
@@ -107,7 +109,8 @@ class TestRequest extends LitElement {
         typeEditModeOn: { type: Boolean },
         testCaseId: { type: Number },
         requestData: { type: Object },
-        availableAgents: { type: Array }
+        availableAgents: { type: Array },
+        codeMirrorEditor: { type: Object }
       };
     }
 
@@ -235,6 +238,7 @@ class TestRequest extends LitElement {
      */
     collapse() {
       this.open = false;
+      if(this.codeMirrorEditor) this.codeMirrorEditor.toTextArea();
     }
   
     /**
@@ -250,7 +254,19 @@ class TestRequest extends LitElement {
             testRequest.collapse();
           }
         });
-    }
+
+        // initialize code mirror editor for request body
+        this.codeMirrorEditor = CodeMirror.fromTextArea(this.shadowRoot.getElementById("textarea-body"), {
+          lineNumbers: true,
+          mode: {
+            name: "javascript",
+            json: true
+          }
+        });
+        setTimeout(() => this.codeMirrorEditor.refresh(), 0);
+      } else {
+        this.codeMirrorEditor.toTextArea();
+      }
     }
 
     /**
