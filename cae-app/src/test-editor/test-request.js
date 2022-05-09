@@ -36,7 +36,8 @@ class TestRequest extends LitElement {
             </select>
             
             <!-- Request url -->
-            <h6 id="test-case-name" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto">${this.requestData.url}</h6>
+            <input id="input-test-request-url" type="text" class="form-control" @focusout=${this.changeUrlEditModeOn} style="display: ${this.urlEditModeOn ? '' : 'none'}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">
+            <h6 id="test-request-url" @click=${this.changeUrlEditModeOn} style="display: ${this.urlEditModeOn ? 'none' : ''}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">${this.requestData.url}</h6>
 
             <!-- Expand/Collapse Button -->
             <i class="bi ${this.open ? "bi-chevron-up" : "bi-chevron-down"}" style="margin-right: 0; margin-left: auto"></i>
@@ -107,6 +108,7 @@ class TestRequest extends LitElement {
       return {
         open: { type: Boolean },
         typeEditModeOn: { type: Boolean },
+        urlEditModeOn: { type: Boolean },
         testCaseId: { type: Number },
         requestData: { type: Object },
         availableAgents: { type: Array },
@@ -118,6 +120,7 @@ class TestRequest extends LitElement {
       super();
       this.open = false;
       this.typeEditModeOn = false;
+      this.urlEditModeOn = false;
     }
 
     firstUpdated() {
@@ -284,6 +287,27 @@ class TestRequest extends LitElement {
 
         this.sendTestRequestUpdatedEvent();
       }
+    }
+
+    /**
+     * Enables or disables the edit mode for the test request url.
+     * If edit mode is disabled, the updated test request url is sent to the parent element.
+     */
+    changeUrlEditModeOn() {
+      this.urlEditModeOn = !this.urlEditModeOn;
+
+      if (this.urlEditModeOn) {
+        // edit mode is enabled now => focus on the input
+        window.setTimeout(() => this.shadowRoot.getElementById("input-test-request-url").focus(), 0);
+      } else {
+        // edit mode is disabled now => update test request url
+        this.requestData.url = this.shadowRoot.getElementById("input-test-request-url").value;
+
+        this.sendTestRequestUpdatedEvent();
+      }
+
+      this.shadowRoot.getElementById("input-test-request-url").value = this.requestData.url;
+      this.shadowRoot.getElementById("test-request-url").value = this.requestData.url;
     }
 }
 
