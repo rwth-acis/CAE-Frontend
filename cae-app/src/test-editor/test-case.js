@@ -1,4 +1,5 @@
 import {html, LitElement} from 'lit-element';
+import BootstrapUtil from '../util/bootstrap-util';
 import './test-request';
 
 class TestCase extends LitElement {
@@ -109,14 +110,7 @@ class TestCase extends LitElement {
     firstUpdated() {
       this.setupCardContextMenu();
       this.setupTestCaseNameInput();
-      this.setupBootstrapTooltips();
-    }
-
-    setupBootstrapTooltips() {
-      const tooltipTriggerList = [].slice.call(this.shadowRoot.querySelectorAll('[data-bs-toggle="tooltip"]'))
-      tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-      });
+      BootstrapUtil.setupBootstrapTooltips(this.shadowRoot);
     }
 
     /**

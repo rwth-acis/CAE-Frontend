@@ -1,4 +1,5 @@
 import {html, LitElement} from 'lit-element';
+import BootstrapUtil from '../util/bootstrap-util';
 import Assertions from './assertions';
 import './body-assertion-part';
 
@@ -81,7 +82,7 @@ class TestRequestAssertion extends LitElement {
 
     firstUpdated() {
       this.setupAssertionTypeSelection();
-      this.setupBootstrapTooltips();
+      BootstrapUtil.setupBootstrapTooltips(this.shadowRoot);
     }
 
     setupAssertionTypeSelection() {
@@ -97,13 +98,6 @@ class TestRequestAssertion extends LitElement {
         }
 
         this.requestUpdate();
-      });
-    }
-
-    setupBootstrapTooltips() {
-      const tooltipTriggerList = [].slice.call(this.shadowRoot.querySelectorAll('[data-bs-toggle="tooltip"]'))
-      tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
       });
     }
 
