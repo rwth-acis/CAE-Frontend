@@ -1,4 +1,5 @@
 import {html, LitElement} from 'lit-element';
+import BootstrapUtil from '../util/bootstrap-util';
 import Assertions from './assertions';
 
 class BodyAssertionPart extends LitElement {
@@ -11,8 +12,8 @@ class BodyAssertionPart extends LitElement {
       <div style="display: flex"> 
 
         <!-- Select for operator -->
-        <select id="select-assertion-operator" class="form-select form-select-sm w-auto" style="margin-left: 0.5em">
-          ${Assertions.RESPONSE_BODY_OPERATORS.filter(element => this.operator.filter(e => e == element.id).length > 0).map(operator => html`
+        <select id="select-assertion-operator" class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
+          ${this.getOperatorSelectItems().map(operator => html`
             <option value=${operator.id}>
               ${operator.value}
             </option>
@@ -24,13 +25,13 @@ class BodyAssertionPart extends LitElement {
 
         <!-- If currently selected operator is followed by an input which is an input field -->
         ${this.selectedOperatorHasInput() && this.selectedOperatorHasInputField() ? html`
-          <input type="text" class="form-control" style="width: 6em; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">
+          <input id="input-field" @change=${(e) => this.onInputFieldChanged(e)} type="text" class="form-control" style="width: 6em; margin-left: 0.5em; margin-top: auto; margin-bottom: auto" ?disabled=${!this.editModeOn}>
         `: html``}
 
         <!-- If currently selected operator is followed by an input which is a selection -->
         ${this.selectedOperatorHasInput() && !this.selectedOperatorHasInputField() ? html`
-          <select class="form-select form-select-sm w-auto" style="margin-left: 0.5em">
-            ${Assertions.INPUTS.filter(field => this.getSelectedOperator().input.filter(i => i == field.id).length > 0).map(field => html`
+          <select id="input-select" @change=${(e) => this.onInputSelectChanged(e)} class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
+            ${this.getInputSelectItems().map(field => html`
               <option value=${field.id}>
                 ${field.value}
               </option>
@@ -40,16 +41,20 @@ class BodyAssertionPart extends LitElement {
 
         <!-- If currently selected operator is followed by another operator -->
         ${this.selectedOperatorHasFollowOperator() ? html`
-          <body-assertion-part operator=${JSON.stringify(this.getSelectedOperator().followedBy)}></body-assertion-part>
+          <body-assertion-part 
+            selectableOperatorIds=${JSON.stringify(this.getFollowedByIds())}
+            currentOperator=${JSON.stringify(this.getFollowedByObject())}
+            ?editModeOn=${this.editModeOn}
+            @operator-updated=${(e) => this.onBodyAssertionOperatorUpdated(e.detail.operator)}></body-assertion-part>
         `: html``}
 
         <!-- There is also the possibility for an operator to have an optional following operator -->
         <!-- This optional operator is hidden by default, but a button allows to show it -->
         ${this.selectedOperatorHasOptionalFollowOperator() ? html`
-          <button id="add-operator-button" type="button" @click=${this.addOperatorClicked} class="btn btn-secondary" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto">+</button>
-        
-          <!-- The following div is used as a placeholder for the optional following operator -->
-          <div id="optional-follow-operator-placeholder"></div>
+          ${this.currentOperator && !this.currentOperator.followedBy ? html`
+            <button id="add-operator-button" type="button" @click=${this.addOperatorClicked} class="btn btn-secondary" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto"
+              data-bs-toggle="tooltip" data-bs-placement="top" title="Extend assertion">+</button>
+          `: html``}
         `: html``}
 
       </div>
@@ -59,7 +64,17 @@ class BodyAssertionPart extends LitElement {
 
   static get properties() {
     return {
-      operator: {type: Object},
+      /**
+       * Ids of the operators that can be selected.
+       */
+      selectableOperatorIds: {type: Array },
+    
+      /**
+       * Current JSON representation of the operator.
+       */
+      currentOperator: { type: Object },
+
+      editModeOn: {type: Boolean }
     };
   }
 
@@ -69,8 +84,55 @@ class BodyAssertionPart extends LitElement {
 
     // if the selected operator changes, request update
     this.shadowRoot.getElementById("select-assertion-operator").addEventListener("change", (e) => {
-      this.requestUpdate();
+      this.currentOperator = {
+        id: e.target.value
+      };
+      this.sendOperatorUpdatedEvent();
     });
+  }
+
+  onInputFieldChanged(e) {
+    if(this.currentOperator.input) {
+      this.currentOperator.input.value = e.target.value;
+    } else {
+      this.currentOperator.input = {
+        id: Assertions.INPUT_FIELD.id,
+        value: e.target.value
+      };
+    }
+    this.sendOperatorUpdatedEvent();
+  }
+
+  onInputSelectChanged(e) {
+    if(this.currentOperator.input) {
+      this.currentOperator.input.id = e.target.value;
+    } else {
+      this.currentOperator.input = {
+        id: e.target.value
+      };
+    }
+    this.sendOperatorUpdatedEvent();
+  }
+
+  updated(changedProperties) {
+    BootstrapUtil.setupBootstrapTooltips(this.shadowRoot);
+
+    if(this.currentOperator && Object.keys(this.currentOperator).includes("id")) {
+      this.shadowRoot.getElementById("select-assertion-operator").value = this.currentOperator.id;
+
+      if(this.currentOperator.input && this.currentOperator.input.id == Assertions.INPUT_FIELD.id) {
+        this.shadowRoot.getElementById("input-field").value = this.currentOperator.input.value;
+      }
+
+      if(this.currentOperator.input && this.currentOperator.input.id != Assertions.INPUT_FIELD.id && this.currentOperator.input.id != Assertions.NO_INPUT.id) {
+        // select input 
+        this.shadowRoot.getElementById("input-select").value = this.currentOperator.input.id;
+      }
+    }
+
+    if(changedProperties.has("currentOperator")) {
+      this.requestUpdate();
+    }
   }
 
   /**
@@ -92,6 +154,7 @@ class BodyAssertionPart extends LitElement {
    */
   selectedOperatorHasInput() {
     if(!this.shadowRoot || !this.shadowRoot.getElementById("select-assertion-operator")) return false;
+
     return !this.getSelectedOperator().input.includes(Assertions.NO_INPUT.id);
   }
 
@@ -108,6 +171,8 @@ class BodyAssertionPart extends LitElement {
    * @returns True, if the currently selected operator can be followed by an optional operator, false otherwise.
    */
   selectedOperatorHasOptionalFollowOperator() {
+    if(!this.editModeOn) return false;
+
     const selectedOperator = this.getSelectedOperator();
     return selectedOperator.optionallyFollowedBy && selectedOperator.optionallyFollowedBy.length > 0;
   }
@@ -117,21 +182,104 @@ class BodyAssertionPart extends LitElement {
    * @returns True, if the currently selected operator needs to be followed by another operator, false otherwise.
    */
   selectedOperatorHasFollowOperator() {
-    const selectedOperator = this.getSelectedOperator();
-    return selectedOperator.followedBy && selectedOperator.followedBy.length > 0;
+    if(this.editModeOn) {
+      if(this.currentOperator && Object.keys(this.currentOperator).includes("followedBy")) return true;
+
+      const selectedOperator = this.getSelectedOperator();
+      return selectedOperator.followedBy && selectedOperator.followedBy.length > 0;
+    } else {
+      return Object.keys(this.currentOperator).includes("followedBy");
+    }
+  }
+
+  /**
+   * If edit mode is enabled:
+   * Returns a list of operator ids that might follow the current operator.
+   * If edit mode is disabled:
+   * Returns a list that only contains the id of the next operator.
+   * @returns 
+   */
+  getFollowedByIds() {
+    if(this.editModeOn) {
+      // if the current operator already has a following operator displayed, then this next operator is 
+      // stored as this.currentOperator.followedBy (even if it was originally an optionalFollowedBy operator).
+      if(this.currentOperator && this.currentOperator.followedBy && !this.getSelectedOperator().followedBy) return this.getSelectedOperator().optionallyFollowedBy;
+
+      // return list of operator ids that might follow the current operator
+      return this.getSelectedOperator().followedBy;
+    } else {
+      return [this.currentOperator.followedBy.id];
+    }
+  }
+
+  /**
+   * Returns the following operator as a JSON object.
+   * @returns Following operator as a JSON object.
+   */
+  getFollowedByObject() {
+    if(this.editModeOn) {
+      // if the next operator is already stored, we can return it
+      if(this.currentOperator && this.currentOperator.followedBy) return this.currentOperator.followedBy;
+
+      // find current operator
+      const operator = Assertions.RESPONSE_BODY_OPERATORS.find(operator => operator.id == this.currentOperator.id);
+      // by default the first possible followedBy operator is selected
+      if(operator.followedBy) {
+        return {
+          id: operator.followedBy[0]
+        };
+      } else {
+        return {};
+      }
+    } else {
+      return this.currentOperator.followedBy;
+    }
   }
 
   /**
    * Click event handler for the button that allows to add another operator at the end of the assertion.
    */
   addOperatorClicked() {
-    // create new UI element for the new operator
-    const followingOperator = new BodyAssertionPart();
-    followingOperator.operator = this.getSelectedOperator().optionallyFollowedBy;
-    this.shadowRoot.getElementById("optional-follow-operator-placeholder").appendChild(followingOperator);
+    this.currentOperator.followedBy = {
+      id: this.getSelectedOperator().optionallyFollowedBy[0]
+    };
+    this.sendOperatorUpdatedEvent();
+  }
 
-    // hide the button
-    this.shadowRoot.getElementById("add-operator-button").style.display = "none";
+  /**
+   * Returns a list of response body operators that are currently selectable.
+   * @returns List of response body operators that are currently selectable.
+   */
+  getOperatorSelectItems() {
+    return Assertions.RESPONSE_BODY_OPERATORS.filter(element => this.selectableOperatorIds.filter(e => e == element.id).length > 0);
+  }
+
+  /**
+   * Returns a list of inputs that are currently selectable.
+   * @returns List of inputs that are currently selectable.
+   */
+  getInputSelectItems() {
+    return Assertions.INPUTS.filter(field => this.getSelectedOperator().input.filter(i => i == field.id).length > 0);
+  }
+
+  /**
+   * Fires an event that notifies the parent element that the operator has been updated.
+   */
+  sendOperatorUpdatedEvent() {
+    this.dispatchEvent(new CustomEvent("operator-updated", {
+      detail: {
+        operator: this.currentOperator
+      }
+    }));
+  }
+
+  /**
+   * Handler for "operator-updated" event fired by the following body-assertion-part element.
+   * @param {*} operator Updated operator.
+   */
+  onBodyAssertionOperatorUpdated(operator) {
+    this.currentOperator.followedBy = operator;
+    this.sendOperatorUpdatedEvent();
   }
 }
 

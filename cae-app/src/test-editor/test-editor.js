@@ -66,14 +66,7 @@ class TestEditor extends LitElement {
                     auth: {
                       selectedAgent: 0
                     },
-                    assertions: [
-                        {
-                            status: "success"
-                        },
-                        {
-                            status: "failed"
-                        }
-                    ]
+                    assertions: []
                 }
             ]
         },
@@ -89,14 +82,7 @@ class TestEditor extends LitElement {
                     auth: {
                       selectedAgent: 0
                     },
-                    assertions: [
-                        {
-                          status: "success"
-                        },
-                        {
-                          status: "failed"
-                        }
-                    ]
+                    assertions: []
                 },
                 {
                     id: 3,
@@ -105,28 +91,14 @@ class TestEditor extends LitElement {
                     auth: {
                       selectedAgent: 1
                     },
-                    assertions: [
-                        {
-                          status: "success"
-                        },
-                        {
-                          status: "failed"
-                        }
-                    ]
+                    assertions: []
                 },
                 {
                     id: 4,
                     type: "DELETE",
                     url: "/dishes/0/ratings",
                     auth: {},
-                    assertions: [
-                        {
-                          status: "success"
-                        },
-                        {
-                          status: "failed"
-                        }
-                    ]
+                    assertions: []
                 }
             ]
         },
@@ -142,10 +114,39 @@ class TestEditor extends LitElement {
                     auth: {},
                     assertions: [
                         {
-                          status: "undefined"
+                          id: 1,
+                          status: "undefined",
+                          assertionType: null,
+                          editModeOn: true
                         },
                         {
-                          status: "undefined"
+                          id: 2,
+                          status: "undefined",
+                          assertionType: 1,
+                          operator: {
+                            id: 0,
+                            input: {
+                              id: 2
+                            }
+                          }
+                        },
+                        {
+                          id: 3,
+                          status: "undefined",
+                          assertionType: 1,
+                          operator: {
+                            id: 1,
+                            input: {
+                              id: 1,
+                              value: "userId"
+                            },
+                            followedBy: {
+                              id: 0,
+                              input: {
+                                id: 4
+                              }
+                            }
+                          }
                         }
                     ]
                 }

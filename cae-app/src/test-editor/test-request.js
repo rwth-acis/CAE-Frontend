@@ -77,11 +77,13 @@ class TestRequest extends LitElement {
               <!-- Assertions -->
               <div class="mb-3" style="display: flex">
                 <label style="margin-top: auto; margin-bottom: auto">Assertions:</label>
-                <button type="button" class="btn btn-primary" style="margin-left: auto;">Add assertion</button>
+                <button type="button" @click=${this.onAddAssertionClicked} class="btn btn-primary" style="margin-left: auto;">Add assertion</button>
               </div>
               <div>
                 ${this.requestData.assertions.map(assertion => html`
-                  <test-request-assertion assertionData=${JSON.stringify(assertion)}></test-request-assertion>
+                  <test-request-assertion assertionData=${JSON.stringify(assertion)}
+                    @discard-assertion=${(e) => this.onDiscardAssertion(assertion.id)}
+                    @request-assertion-updated=${(e) => this.onRequestAssertionUpdated(e.detail.assertionData)}></test-request-assertion>
                 `)}
                 ${this.requestData.assertions.length === 0 ? "No assertions added to the request yet." : ""}
               </div>
@@ -314,6 +316,40 @@ class TestRequest extends LitElement {
 
       this.shadowRoot.getElementById("input-test-request-url").value = this.requestData.url;
       this.shadowRoot.getElementById("test-request-url").value = this.requestData.url;
+    }
+
+    /**
+     * Click event handler for button to add a new assertion to the request.
+     */
+    onAddAssertionClicked() {
+      this.requestData.assertions.push({
+        id: Math.random(10000,99999999),
+        status: "undefined",
+        assertionType: null,
+        editModeOn: true
+      });
+      this.sendTestRequestUpdatedEvent();
+    }
+
+    /**
+     * Event handler for the "discard-assertion" event fired by a test-request-assertion element.
+     * Removes the assertion from the request.
+     * @param {*} assertionId Id of the assertion, that should be removed.
+     */
+    onDiscardAssertion(assertionId) {
+      this.requestData.assertions = this.requestData.assertions.filter(assertion => assertion.id !== assertionId);
+      this.sendTestRequestUpdatedEvent();
+    }
+
+    /**
+     * Event handler for the "request-assertion-updated" event fired by a test-request-assertion element.
+     * Updates the assertion in the requestData and sends the updated requestData to the parent element.
+     * @param {*} assertionData Updated assertion data.
+     */
+    onRequestAssertionUpdated(assertionData) {
+      const index = this.requestData.assertions.findIndex(a => a.id == assertionData.id);
+      this.requestData.assertions[index] = assertionData;
+      this.sendTestRequestUpdatedEvent();
     }
 }
 
