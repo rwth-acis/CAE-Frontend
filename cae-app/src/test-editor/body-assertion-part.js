@@ -130,6 +130,13 @@ class BodyAssertionPart extends LitElement {
       }
     }
 
+    // if add-operator-button is not visible, then remove all tooltips
+    if(!(this.selectedOperatorHasOptionalFollowOperator() && this.currentOperator && !this.currentOperator.followedBy)) {
+      document.querySelectorAll(".tooltip").forEach(element => {
+        element.hidden = true;
+      });
+    }
+
     if(changedProperties.has("currentOperator")) {
       this.requestUpdate();
     }
