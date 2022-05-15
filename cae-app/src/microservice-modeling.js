@@ -4,6 +4,7 @@ import Static from "./static.js";
 import SyncMetaSwitchHelper from "./util/syncmeta-switch-helper";
 import WidgetConfigHelper from "./util/role-based-access-management/widget-config-helper";
 import('./versioning/versioning-element.js');
+import('./test-editor/test-editor.js');
 
 /**
  * @customElement
@@ -91,6 +92,9 @@ class MicroserviceModeling extends LitElement {
         </div>
         <div style="min-width: 300px; max-width: 700px" class="flex-item widget" widgetconfigname="Versioning">
           <versioning-element @reload-code-editor=${(e) => this._reloadCodeEditor()} id="versioning-widget"></versioning-element>
+        </div>
+        <div style="min-width: 400px; max-width: 900px; height: 600px" class="flex-item widget" widgetconfigname="Test Editor">
+          <test-editor id="test-editor" style="height: 600px"></test-editor>
         </div>
       </div>
     `;

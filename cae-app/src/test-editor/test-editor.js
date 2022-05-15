@@ -16,6 +16,10 @@ class TestEditor extends LitElement {
           border-width: 2px;
           border-style: solid;
           border-color: #dddddd;
+          overflow: hidden;
+          height: 100% !important;
+          display: flex;
+          flex-flow: column;
         }
         .test-case-container {
             margin-left: 1em;
@@ -34,7 +38,7 @@ class TestEditor extends LitElement {
         </div>
 
         <!-- Test Cases -->
-        <div class="test-case-container">
+        <div class="test-case-container" style="overflow: auto;">
           ${this.testData.testCases.map(testCase => html`
             <test-case testData=${JSON.stringify(testCase)} 
               availableAgents=${JSON.stringify(this.testData.agents)}
