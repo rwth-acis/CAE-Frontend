@@ -9,7 +9,7 @@ class BodyAssertionPart extends LitElement {
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
       </head>
 
-      <div style="display: flex"> 
+      <div style="display: contents"> 
 
         <!-- Select for operator -->
         <select id="select-assertion-operator" class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
@@ -45,7 +45,8 @@ class BodyAssertionPart extends LitElement {
             selectableOperatorIds=${JSON.stringify(this.getFollowedByIds())}
             currentOperator=${JSON.stringify(this.getFollowedByObject())}
             ?editModeOn=${this.editModeOn}
-            @operator-updated=${(e) => this.onBodyAssertionOperatorUpdated(e.detail.operator)}></body-assertion-part>
+            @operator-updated=${(e) => this.onBodyAssertionOperatorUpdated(e.detail.operator)}
+            style="display: contents"></body-assertion-part>
         `: html``}
 
         <!-- There is also the possibility for an operator to have an optional following operator -->

@@ -16,7 +16,7 @@ class TestRequestAssertion extends LitElement {
         }
         .status-badge {
           min-width: 5em;
-          margin-top: auto;
+          margin-top: 0.4rem;
           margin-bottom: auto;
         }
       </style>
@@ -27,6 +27,8 @@ class TestRequestAssertion extends LitElement {
           data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getAssertionStatusTooltipText()}>
           ${this.assertionData.status === "success" ? "Success" : (this.assertionData.status === "failed" ? "Failed" : "-")}
         </span>
+
+        <div style="display: flex; flex-wrap: wrap; row-gap: 0.5em">
 
         <!-- Assertion Type Selection -->
         <select id="select-assertion-type" class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
@@ -65,7 +67,8 @@ class TestRequestAssertion extends LitElement {
             selectableOperatorIds=${JSON.stringify(Object.values(Assertions.RESPONSE_BODY_OPERATORS).map(operator => operator.id))}
             currentOperator=${JSON.stringify(this.assertionData.operator)}
             ?editModeOn=${this.editModeOn}
-            @operator-updated=${(e) => this.onBodyAssertionOperatorUpdated(e.detail.operator)}></body-assertion-part>
+            @operator-updated=${(e) => this.onBodyAssertionOperatorUpdated(e.detail.operator)}
+            style="display: contents"></body-assertion-part>
         ` : html``}
 
         ${this.editModeOn ? html`	
@@ -79,6 +82,8 @@ class TestRequestAssertion extends LitElement {
             @click=${this.onDiscardAssertionClicked}
             data-bs-toggle="tooltip" data-bs-placement="top" title="Discard assertion"><i class="bi bi-x"></i></button>
         ` : html``}
+
+        </div>
 
       </div>
       `;
