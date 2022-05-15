@@ -1,4 +1,5 @@
 import {html, LitElement} from 'lit-element';
+import Static from '../static';
 import './test-request-assertion';
 
 class TestRequest extends LitElement {
@@ -275,9 +276,39 @@ class TestRequest extends LitElement {
           }
         });
         setTimeout(() => this.codeMirrorEditor.refresh(), 0);
+        
+        this.bindRequestBodyCodeMirror(this.testCaseId, this.requestData.id, this.codeMirrorEditor);
       } else {
         this.codeMirrorEditor.toTextArea();
       }
+    }
+
+    /**
+     * Binds the code mirror editor for the request body to a Yjs text.
+     * @param {*} testCaseId Id of the test case, that the request belongs to.
+     * @param {*} requestId Id of the request.
+     * @param {*} editor CodeMirror code editor.
+     */
+    bindRequestBodyCodeMirror(testCaseId, requestId, editor) {
+      const yjsRoomName = "request-body-" + testCaseId + "-" + requestId;
+
+      Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: {
+          name: "websockets-client", // use the websockets connector
+          room: yjsRoomName,
+          options: { resource: Static.YjsResourcePath },
+          url: Static.YjsAddress
+        },
+        share: {
+          text: "Text"
+        },
+        type: ["Text"]
+      }).then(function (y) {
+        y.share.text.bindCodeMirror(editor);
+      });
     }
 
     /**
