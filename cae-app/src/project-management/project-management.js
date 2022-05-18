@@ -45,6 +45,7 @@ class ProjectManagement extends LitElement {
             <project-list id="project-list" system="CAE"
               projectServiceURL=${Static.ProjectServiceURL}
               contactServiceURL="${Static.ContactServiceURL}/contactservice"
+              yjsAddress="${Static.YjsAddress}"
               @projects-loaded=${(e) => this._onProjectListLoaded(e.detail)}
               @project-selected=${(e) => this._onProjectSelected(e.detail)}></project-list>
           </div>
