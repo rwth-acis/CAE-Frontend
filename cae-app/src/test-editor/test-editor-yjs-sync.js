@@ -15,9 +15,10 @@ export default class TestEditorYjsSync {
         url: Static.YjsAddress
       },
       share: { // specify the shared content
-        testData: 'Map'
+        testData: 'Map',
+        requestBody: 'Map'
       },
-      type: ["Map"]
+      type: ["Map", "Text"]
     }).then(function (y) {
       console.log("test editor: yjs connected");
       this.y = y;
@@ -42,6 +43,21 @@ export default class TestEditorYjsSync {
       });
 
     }.bind(this));
+  }
+
+  /**
+   * Binds the code mirror editor for the request body to a Yjs text.
+   * @param {*} testCaseId Id of the test case, that the request belongs to.
+   * @param {*} requestId Id of the request.
+   * @param {*} editor CodeMirror code editor.
+   */
+  bindRequestBodyCodeMirror(testCaseId, requestId, editor) {
+    const key = testCaseId + "-" + requestId;
+    if(!this.y.share.requestBody.keys().includes(key)) {
+      this.y.share.requestBody.set(key, Y.Text);
+    }
+
+    this.y.share.requestBody.get(key).bindCodeMirror(editor);
   }
 
   /**

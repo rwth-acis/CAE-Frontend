@@ -189,6 +189,10 @@ class TestEditor extends LitElement {
       this.yjsSync = new TestEditorYjsSync(this.testData.testCases, this.onYjsTestCaseUpdated.bind(this), this.onYjsTestCaseAdded.bind(this), this.onYjsTestCaseDeleted.bind(this));
     }
 
+    updated() {
+      this.shadowRoot.querySelectorAll("test-case").forEach(testCase => testCase.setYjsSync(this.yjsSync));
+    }
+
     /**
      * Gets called by Yjs if a test case got updated in the Yjs room.
      * @param {*} updatedTestCase 

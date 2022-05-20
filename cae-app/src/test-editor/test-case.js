@@ -113,6 +113,14 @@ class TestCase extends LitElement {
       BootstrapUtil.setupBootstrapTooltips(this.shadowRoot);
     }
 
+    updated() {
+      this.shadowRoot.querySelectorAll("test-request").forEach(request => request.setYjsSync(this.yjsSync));
+    }
+
+    setYjsSync(yjsSync) {
+      this.yjsSync = yjsSync;
+    }
+
     /**
      * Disables the default context menu of the test case card header.
      * Right click on top of card opens dialog to delete test case.
