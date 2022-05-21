@@ -330,7 +330,7 @@ class TestRequest extends LitElement {
      */
     onAddAssertionClicked() {
       this.requestData.assertions.push({
-        id: Math.random(10000,99999999),
+        id: Math.floor(Math.random() * 999999),
         status: "undefined",
         assertionType: null,
         editModeOn: true

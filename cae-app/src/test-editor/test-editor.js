@@ -229,7 +229,7 @@ class TestEditor extends LitElement {
      */
     onAddTestClicked() {
       this.yjsSync.addTestCase({
-        id: Math.random(10000,99999999),
+        id: Math.floor(Math.random() * 999999),
         name: "New Test Case",
         status: "undefined",
         requests: []
@@ -273,7 +273,7 @@ class TestEditor extends LitElement {
      */
     onAddTestCaseRequest(testCaseId) {
       this.yjsSync.addTestCaseRequest(testCaseId, {
-        id: Math.random(10000,99999999),
+        id: Math.floor(Math.random() * 999999),
         type: "GET",
         url: "/",
         auth: {},
