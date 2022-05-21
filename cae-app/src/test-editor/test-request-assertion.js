@@ -43,7 +43,7 @@ class TestRequestAssertion extends LitElement {
         <!-- Status Code Assertion -->
         ${this.assertionData.assertionType == Assertions.ASSERTION_TYPE.STATUS_CODE.id ? html`
           <!-- Select for comparison operator -->
-          <select id="select-assertion-operator" class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
+          <select id="select-assertion-operator" @change=${(e) => this.statusCodeAssertionOperatorChange(e)} class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
             ${Object.values(Assertions.STATUS_CODE_COMPARISON_OPERATORS).map(operator => html`
               <option value=${operator.id}>
                 ${operator.value}
@@ -52,7 +52,7 @@ class TestRequestAssertion extends LitElement {
           </select>
 
           <!-- Select for status code -->
-          <select id="select-assertion-value" class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
+          <select id="select-assertion-value" @change=${(e) => this.statusCodeAssertionValueChange(e)} class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
             ${Object.values(Assertions.STATUS_CODES).map(statusCode => html`
               <option value=${statusCode}>
                 ${statusCode}
@@ -112,6 +112,16 @@ class TestRequestAssertion extends LitElement {
       const selectAssertionTypeValue = (this.assertionData.assertionType == null) ? "-1" : this.assertionData.assertionType;
       this.shadowRoot.getElementById("select-assertion-type").value = selectAssertionTypeValue;
 
+      // for status code assertions:
+      // update assertion operator selection value
+      if(this.assertionData.assertionType == Assertions.ASSERTION_TYPE.STATUS_CODE.id && this.assertionData.operator) {
+        this.shadowRoot.getElementById("select-assertion-operator").value = this.assertionData.operator.id;
+
+        if(this.assertionData.operator.input) {
+          this.shadowRoot.getElementById("select-assertion-value").value = this.assertionData.operator.input.value;
+        }
+      }
+
       // check if edit mode is enabled
       this.editModeOn = Object.keys(this.assertionData).includes("editModeOn");
     }
@@ -148,6 +158,12 @@ class TestRequestAssertion extends LitElement {
           this.assertionData.assertionType = null;
         } else if(value == Assertions.ASSERTION_TYPE.STATUS_CODE.id) {
           this.assertionData.assertionType = Assertions.ASSERTION_TYPE.STATUS_CODE.id;
+          this.assertionData.operator = {
+            id: 0,
+            input: {
+              value: 200
+            }
+          };
         } else if(value == Assertions.ASSERTION_TYPE.RESPONSE_BODY.id) {
           this.assertionData.assertionType = Assertions.ASSERTION_TYPE.RESPONSE_BODY.id;
           // create operator data
@@ -159,6 +175,16 @@ class TestRequestAssertion extends LitElement {
         this.sendRequestAssertionUpdatedEvent();
         this.requestUpdate();
       });
+    }
+
+    statusCodeAssertionOperatorChange(e) {
+      this.assertionData.operator.id = e.target.value;
+      this.sendRequestAssertionUpdatedEvent();
+    }
+
+    statusCodeAssertionValueChange(e) {
+      this.assertionData.operator.input.value = e.target.value;
+      this.sendRequestAssertionUpdatedEvent();
     }
 
     /**
