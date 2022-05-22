@@ -168,7 +168,11 @@ class TestRequestAssertion extends LitElement {
           this.assertionData.assertionType = Assertions.ASSERTION_TYPE.RESPONSE_BODY.id;
           // create operator data
           this.assertionData.operator = {
-            id: 0
+            id: Math.floor(Math.random() * 999999),
+            operatorId: 0,
+            input: {
+              id: 2
+            }
           };
         }
 
@@ -178,12 +182,12 @@ class TestRequestAssertion extends LitElement {
     }
 
     statusCodeAssertionOperatorChange(e) {
-      this.assertionData.operator.id = e.target.value;
+      this.assertionData.operator.id = parseInt(e.target.value);
       this.sendRequestAssertionUpdatedEvent();
     }
 
     statusCodeAssertionValueChange(e) {
-      this.assertionData.operator.input.value = e.target.value;
+      this.assertionData.operator.input.value = parseInt(e.target.value);
       this.sendRequestAssertionUpdatedEvent();
     }
 

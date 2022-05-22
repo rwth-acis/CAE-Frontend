@@ -114,4 +114,37 @@ export default class Assertions {
       "followedBy": [0, 1]
     }
   ];
+
+  static getInitialOperator(operatorId) {
+    const result = {
+      id: Math.floor(Math.random() * 999999),
+      operatorId: operatorId
+    };
+
+    // check if operator has input
+    const operator = Assertions.RESPONSE_BODY_OPERATORS.find(operator => operator.id == operatorId);
+    if(operator.input && operator.input.length > 0 && !operator.input.includes(Assertions.NO_INPUT.id)) {
+      // operator has input
+      // check if it is an input field or select
+      if(operator.input[0] == Assertions.INPUT_FIELD.id) {
+        // input is an input field
+        result.input = {
+          id: Assertions.INPUT_FIELD.id,
+          value: ""
+        };
+      } else {
+        // input is a selection
+        result.input = {
+          id: operator.input[0]
+        };
+      }
+    }
+
+    // check if operator is followed by another operator
+    if(operator.followedBy && operator.followedBy.length > 0) {
+      result.followedBy = Assertions.getInitialOperator(operator.followedBy[0]);
+    }
+
+    return result;
+  }
 }

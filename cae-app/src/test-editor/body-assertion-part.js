@@ -14,7 +14,7 @@ class BodyAssertionPart extends LitElement {
         <!-- Select for operator -->
         <select id="select-assertion-operator" class="form-select form-select-sm w-auto" style="margin-left: 0.5em" ?disabled=${!this.editModeOn}>
           ${this.getOperatorSelectItems().map(operator => html`
-            <option value=${operator.id}>
+            <option value=${operator.operatorId ? operator.operatorId : operator.id}>
               ${operator.value}
             </option>
           `)}
@@ -85,9 +85,8 @@ class BodyAssertionPart extends LitElement {
 
     // if the selected operator changes, request update
     this.shadowRoot.getElementById("select-assertion-operator").addEventListener("change", (e) => {
-      this.currentOperator = {
-        id: e.target.value
-      };
+      const newOperatorId = parseInt(e.target.value);
+      this.currentOperator = Assertions.getInitialOperator(newOperatorId);
       this.sendOperatorUpdatedEvent();
     });
   }
@@ -106,10 +105,10 @@ class BodyAssertionPart extends LitElement {
 
   onInputSelectChanged(e) {
     if(this.currentOperator.input) {
-      this.currentOperator.input.id = e.target.value;
+      this.currentOperator.input.id = parseInt(e.target.value);
     } else {
       this.currentOperator.input = {
-        id: e.target.value
+        id: parseInt(e.target.value)
       };
     }
     this.sendOperatorUpdatedEvent();
@@ -118,8 +117,8 @@ class BodyAssertionPart extends LitElement {
   updated(changedProperties) {
     BootstrapUtil.setupBootstrapTooltips(this.shadowRoot);
 
-    if(this.currentOperator && Object.keys(this.currentOperator).includes("id")) {
-      this.shadowRoot.getElementById("select-assertion-operator").value = this.currentOperator.id;
+    if(this.currentOperator && Object.keys(this.currentOperator).includes("operatorId")) {
+      this.shadowRoot.getElementById("select-assertion-operator").value = this.currentOperator.operatorId;
 
       if(this.currentOperator.input && this.currentOperator.input.id == Assertions.INPUT_FIELD.id) {
         this.shadowRoot.getElementById("input-field").value = this.currentOperator.input.value;
@@ -216,7 +215,7 @@ class BodyAssertionPart extends LitElement {
       // return list of operator ids that might follow the current operator
       return this.getSelectedOperator().followedBy;
     } else {
-      return [this.currentOperator.followedBy.id];
+      return [this.currentOperator.followedBy.operatorId];
     }
   }
 
@@ -230,11 +229,12 @@ class BodyAssertionPart extends LitElement {
       if(this.currentOperator && this.currentOperator.followedBy) return this.currentOperator.followedBy;
 
       // find current operator
-      const operator = Assertions.RESPONSE_BODY_OPERATORS.find(operator => operator.id == this.currentOperator.id);
+      const operator = Assertions.RESPONSE_BODY_OPERATORS.find(operator => operator.id == this.currentOperator.operatorId);
       // by default the first possible followedBy operator is selected
       if(operator.followedBy) {
         return {
-          id: operator.followedBy[0]
+          id: Math.floor(Math.random() * 999999),
+          operatorId: operator.followedBy[0]
         };
       } else {
         return {};
@@ -248,9 +248,7 @@ class BodyAssertionPart extends LitElement {
    * Click event handler for the button that allows to add another operator at the end of the assertion.
    */
   addOperatorClicked() {
-    this.currentOperator.followedBy = {
-      id: this.getSelectedOperator().optionallyFollowedBy[0]
-    };
+    this.currentOperator.followedBy = Assertions.getInitialOperator( this.getSelectedOperator().optionallyFollowedBy[0]);
     this.sendOperatorUpdatedEvent();
   }
 
