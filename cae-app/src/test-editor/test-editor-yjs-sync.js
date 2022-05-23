@@ -24,11 +24,6 @@ export default class TestEditorYjsSync {
       console.log("test editor: yjs connected");
       this.y = y;
 
-      // store current test data
-      testData.forEach(testCase => {
-        this.y.share.testData.set(testCase.id, testCase);
-      });
-
       this.y.share.testData.observe(event => {
         const testCaseId = "" + event.name;
         const type = event.type;
@@ -42,6 +37,23 @@ export default class TestEditorYjsSync {
           testCaseDeleted(testCaseId);
         }
       });
+
+      // check if test model is available in yjs room
+      if(this.y.share.testData.keys().length == 0) {
+        // no test cases found
+        if(testData.length > 0) {
+          // latest commit included test cases
+          // put them into the yjs room
+          testData.forEach(testCase => {
+            this.y.share.testData.set(testCase.id, testCase);
+          });
+        }
+      } else {
+        // test model is available in yjs room
+        for(let key of this.y.share.testData.keys()) {
+          testCaseAdded(this.y.share.testData.get(key));
+        }
+      }
 
     }.bind(this));
   }

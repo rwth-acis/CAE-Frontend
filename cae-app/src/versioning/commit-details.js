@@ -564,6 +564,7 @@ export class CommitDetails extends LitElement {
     console.log("Commit-Details: Received versioned model from versioning-element.");
 
     this.commits = versionedModel.commits;
+    parent.commits = this.commits;
     // set uncommited changes commit as the selected one
     this.selectedCommit = this.commits[0];
 

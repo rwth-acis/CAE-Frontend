@@ -84,11 +84,24 @@ class TestEditor extends LitElement {
         agents: agents
       }
 
-      this.yjsSync = new TestEditorYjsSync(this.testData.testCases, this.onYjsTestCaseUpdated.bind(this), this.onYjsTestCaseAdded.bind(this), this.onYjsTestCaseDeleted.bind(this));
+      // wait for commits to be loaded
+      this.waitForCommits();
     }
 
     updated() {
       this.shadowRoot.querySelectorAll("test-case").forEach(testCase => testCase.setYjsSync(this.yjsSync));
+    }
+
+    waitForCommits() {
+      if(!parent.commits) {
+        setTimeout(this.waitForCommits.bind(this), 500);
+      } else {
+        // get latest commit
+        const latestCommit = parent.commits[0];
+        const testCases = latestCommit.testModel.testCases;
+
+        this.yjsSync = new TestEditorYjsSync(testCases, this.onYjsTestCaseUpdated.bind(this), this.onYjsTestCaseAdded.bind(this), this.onYjsTestCaseDeleted.bind(this));
+      }
     }
 
     /**
