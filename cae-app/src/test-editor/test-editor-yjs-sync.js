@@ -1,8 +1,9 @@
 import Static from "../static";
+import Common from "../util/common";
 
 export default class TestEditorYjsSync {
   constructor(testData, testCaseUpdated, testCaseAdded, testCaseDeleted) {
-    const yjsRoomName = "test-room-versionedModel-1";
+    const yjsRoomName = Common.getYjsRoomNameForVersionedTestModel();
 
     Y({
       db: {
