@@ -7,7 +7,7 @@ import Static from "../static";
 import ModelDifferencing from "../util/model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";
 import ModelValidator from "../util/model-differencing/model-validator";
-import Difference from "../util/model-differencing/difference";
+import ModelDifference from "../util/model-differencing/model-difference";
 import MetamodelUploader from "../util/metamodel-uploader";
 import {CommitList} from "./commit-list";
 
@@ -501,7 +501,7 @@ export class CommitDetails extends LitElement {
         // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
         const diffUncommitedChangesToDelete = [];
         for(const diff of this.differencesUncommitedChanges) {
-          const matches = this.selectedDifferences.filter(d => Difference.equals(diff, d));
+          const matches = this.selectedDifferences.filter(d => ModelDifference.equals(diff, d));
           if(matches.length > 0) {
             diffUncommitedChangesToDelete.push(diff);
           }
@@ -864,7 +864,7 @@ export class CommitDetails extends LitElement {
     // for all selected differences, check if they are still element of this.differences
     const selectedDifferencesUpdated = [];
     for(const selectedDiff of this.selectedDifferences) {
-      const matches = this.differences.filter(diff => Difference.equals(selectedDiff, diff));
+      const matches = this.differences.filter(diff => ModelDifference.equals(selectedDiff, diff));
       if(matches.length > 0) {
         // use the one from matches array i.e. the one from this.differences and NOT the one from
         // this.selectedDifferences, because the one from this.differences is updated (got changes from canvas)
@@ -895,7 +895,7 @@ export class CommitDetails extends LitElement {
             this.getCheckboxSelectAllElement().checked = true;
           }
         } else {
-          this.selectedDifferences = this.selectedDifferences.filter(diff => !Difference.equals(diff, difference));
+          this.selectedDifferences = this.selectedDifferences.filter(diff => !ModelDifference.equals(diff, difference));
           // since at least one checkbox is not checked, the checkbox to select all changes should also not be checked
           this.getCheckboxSelectAllElement().checked = false;
         }
@@ -904,12 +904,12 @@ export class CommitDetails extends LitElement {
 
       const diffHTMLElement = difference.toHTMLElement(checkboxListener, this.y);
 
-      if(Difference.equals(difference, this.selectedDifference)) {
+      if(ModelDifference.equals(difference, this.selectedDifference)) {
         diffHTMLElement.style.background = "#eeeeee";
       }
 
       for(const selectedDiff of this.selectedDifferences) {
-        if(Difference.equals(selectedDiff, difference)) {
+        if(ModelDifference.equals(selectedDiff, difference)) {
           diffHTMLElement.getElementsByTagName("paper-checkbox")[0].checked = true;
         }
       }
@@ -918,7 +918,7 @@ export class CommitDetails extends LitElement {
         diffHTMLElement.style.background = "#eeeeee";
       });
       diffHTMLElement.addEventListener("mouseleave", function() {
-        if(!Difference.equals(this.selectedDifference, difference)) {
+        if(!ModelDifference.equals(this.selectedDifference, difference)) {
           diffHTMLElement.style.removeProperty("background");
         }
       }.bind(this));

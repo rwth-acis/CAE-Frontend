@@ -5,7 +5,7 @@ import Static from "../../static";
  * Class used as a base for all differences that appear between two
  * model versions.
  */
-export default class Difference {
+export default class ModelDifference {
 
   /**
    * Constructor setting key and value.
