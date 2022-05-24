@@ -1,6 +1,8 @@
 import Common from "../common";
 import Static from "../../static";
 import Difference from "./difference";
+import TestModelDifference from "./test-model-difference";
+import TestModelDifferencing from "./test-model-differencing";
 
 /**
  * Class used as a base for all differences that appear between two
@@ -86,14 +88,18 @@ export default class ModelDifference extends Difference {
    * @param diff2
    * @returns {boolean} Whether the two given difference objects are equals (content equals).
    */
-  static equals(diff1, diff2) {
-    if(!diff1 && !diff2) return true;
-    if(!diff1 || !diff2) return false;
-    if(diff1.type != diff2.type) return false;
-    if (diff1.type === "NodeUpdate") {
-      return (diff1.key == diff2.key) && (diff1.attributeKey == diff2.attributeKey);
+   static equals(diff1, diff2) {
+    if (diff1 instanceof TestModelDifference) {
+      return TestModelDifferencing.equals(diff1, diff2);
     } else {
-      return diff1.key == diff2.key;
+      if (!diff1 && !diff2) return true;
+      if (!diff1 || !diff2) return false;
+      if (diff1.type != diff2.type) return false;
+      if (diff1.type === "NodeUpdate") {
+        return (diff1.key == diff2.key) && (diff1.attributeKey == diff2.attributeKey);
+      } else {
+        return diff1.key == diff2.key;
+      }
     }
   }
 }
