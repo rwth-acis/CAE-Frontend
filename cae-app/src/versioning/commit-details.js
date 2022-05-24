@@ -10,6 +10,7 @@ import ModelValidator from "../util/model-differencing/model-validator";
 import ModelDifference from "../util/model-differencing/model-difference";
 import MetamodelUploader from "../util/metamodel-uploader";
 import {CommitList} from "./commit-list";
+import TestModelDifferencing from '../util/model-differencing/test-model-differencing';
 
 export class CommitDetails extends LitElement {
   render() {
@@ -264,6 +265,12 @@ export class CommitDetails extends LitElement {
         type: Object
       },
       /**
+       * Test model from previous commit with selected changes being applied to.
+       */
+      updatedTestModel: {
+        type: Object
+      },
+      /**
        * Whether a different version format than the Semantic Versioning should be used.
        */
       differentVersionFormat: {
@@ -280,6 +287,7 @@ export class CommitDetails extends LitElement {
     this.differenceElements = [];
     this.latestVersionTag = undefined;
     this.currentWireframe = undefined;
+    this.currentTestModel = undefined;
     this.selectedDifference = undefined;
     // default: committing is enabled
     this.committingDisabled = false;
@@ -368,16 +376,32 @@ export class CommitDetails extends LitElement {
 
     const currentModel = this.y.share.data.get("model");
 
-    // check if a previous model exists
+    // check if a previous model (and test model) exists
     this.updatedModel = undefined;
+    this.updatedTestModel = undefined;
+
     if(this.versionedModel.commits.length > 1) {
       // previous model exists
-      const previousModel = this.getLastCommit(this.versionedModel.commits).model;
+      const lastCommit = this.getLastCommit(this.versionedModel.commits);
+      const previousModel = lastCommit.model;
       // create the updated model which should be stored into the database, by applying the currently selected differences
       this.updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences, currentModel);
+
+      // check if this is a microservice component
+      if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+        // get state of test model from last commit
+        const previousTestModel = lastCommit.testModel;
+        // apply selected changes to the test model from last commit
+        this.updatedTestModel = TestModelDifferencing.createTestModelFromDifferences(previousTestModel, this.selectedDifferences);
+      }
     } else {
       // there does not exist a previous model
       this.updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences, currentModel);
+
+      // check if this is a microservice component
+      if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+        this.updatedTestModel = TestModelDifferencing.createTestModelFromDifferences({"testCases": []}, this.selectedDifferences);
+      }
     }
 
     const modelValid = ModelValidator.edgesValid(this.updatedModel);
@@ -727,9 +751,22 @@ export class CommitDetails extends LitElement {
     if(lastCommit == undefined) {
       // there does not exist a commit, so calculated everything that the current model consists of
       this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(currentModelFromYjsRoom);
+
+      // check if a test model exists
+      if(this.currentTestModel) {
+        // test model exists => get all the changes that have been applied yet
+        const differences = TestModelDifferencing.getDifferencesOfSingleModel(this.currentTestModel.testCases);
+        this.differencesUncommitedChanges = this.differencesUncommitedChanges.concat(differences);
+      }
     } else {
       // there exists a last commit, so we can calculate the differences between the last commit and the current model state
       this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, currentModelFromYjsRoom);
+
+      // also get differences for test model (if exists)
+      if(this.currentTestModel) {
+        const differences = TestModelDifferencing.getDifferences(lastCommit.testModel.testCases, this.currentTestModel.testCases);
+        this.differencesUncommitedChanges = this.differencesUncommitedChanges.concat(differences);
+      }
     }
   }
 
