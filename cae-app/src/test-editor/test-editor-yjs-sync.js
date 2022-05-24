@@ -58,6 +58,16 @@ export default class TestEditorYjsSync {
     }.bind(this));
   }
 
+  getTestModelFromYjsRoom() {
+    const testData = {};
+    const testCases = [];
+    for(let key of this.y.share.testData.keys()) {
+      testCases.push(this.y.share.testData.get(key));
+    }
+    testData.testCases = testCases;
+    return testData;
+  }
+
   /**
    * Binds the code mirror editor for the request body to a Yjs text.
    * @param {*} testCaseId Id of the test case, that the request belongs to.

@@ -237,6 +237,12 @@ export class CommitDetails extends LitElement {
         type: String
       },
       /**
+       * Stores the current test model (received from test-editor).
+       */
+      currentTestModel: {
+        type: Object
+      },
+      /**
        * This references the Yjs instance of the currently shown canvas.
        */
       y: {
@@ -278,6 +284,17 @@ export class CommitDetails extends LitElement {
     // default: committing is enabled
     this.committingDisabled = false;
     this.differentVersionFormat = false;
+  }
+
+  firstUpdated() {
+    // receive test model changes from test editor
+    document.addEventListener("test-model-updated", (e) => {
+      this.currentTestModel = e.detail.testModel;
+
+      if(this.mainY) {
+        this.reloadUncommitedChanges(this.mainY);
+      }
+    });
   }
 
   /**

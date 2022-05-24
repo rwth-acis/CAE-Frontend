@@ -114,6 +114,8 @@ class TestEditor extends LitElement {
         testCase[key] = updatedTestCase[key];
       });
       this.requestUpdate();
+
+      this.notifyVersioningSystem();
     }
 
     /**
@@ -123,6 +125,8 @@ class TestEditor extends LitElement {
     onYjsTestCaseAdded(newTestCase) {
       this.testData.testCases.push(newTestCase);
       this.requestUpdate();
+
+      this.notifyVersioningSystem();
     }
 
     /**
@@ -132,6 +136,31 @@ class TestEditor extends LitElement {
     onYjsTestCaseDeleted(deletedTestCaseId) {
       this.testData.testCases = this.testData.testCases.filter(testCase => testCase.id.toString() !== deletedTestCaseId.toString());
       this.requestUpdate();
+
+      this.notifyVersioningSystem();
+    }
+
+    /**
+     * Notifies the versioning system about the current test model.
+     */
+    notifyVersioningSystem() {
+      const currentTestModel = JSON.parse(JSON.stringify(this.yjsSync.getTestModelFromYjsRoom()));
+
+      // remove assertions that have "editModeOn" flag
+      currentTestModel.testCases.forEach(testCase => {
+        testCase.requests.forEach(request => {
+          request.assertions = request.assertions.filter(assertion => !Object.keys(assertion).includes("editModeOn"));
+        });
+      });
+
+      // notify versioning system
+      this.dispatchEvent(new CustomEvent("test-model-updated", {
+        detail: {
+          testModel: currentTestModel
+        },
+        bubbles: true,
+        composed: true
+      }));
     }
 
     /**
