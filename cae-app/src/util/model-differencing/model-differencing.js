@@ -3,6 +3,7 @@ import NodeDeletion from "./node/node-deletion";
 import NodeUpdate from "./node/node-update";
 import EdgeAddition from "./edge/edge-addition";
 import EdgeDeletion from "./edge/edge-deletion";
+import ModelDifference from "./model-difference";
 
 /**
  * Class used for calculating the differences between two versions of a model.
@@ -65,9 +66,10 @@ export default class ModelDifferencing {
 
   static createModelFromDifferences(modelStart, differences, currentModel) {
     // apply differences to modelStart, i.e. to the previous stored model
-    for(let i in differences) {
-      const difference = differences[i];
-      difference.applyToModel(modelStart);
+    for(let difference of differences) {
+      if(difference instanceof ModelDifference) {
+        difference.applyToModel(modelStart);
+      }
     }
 
     // changes regarding the position or size of nodes are not part of the differences array
