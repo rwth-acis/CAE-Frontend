@@ -465,6 +465,7 @@ export class CommitDetails extends LitElement {
     };
 
     body.model = this.updatedModel;
+    body.testModel = this.updatedTestModel;
 
     if(this.getNewVersionCheckBox().checked) {
       body.versionTag = this.getEnteredVersion(); // automatically returns the correct version depending on whether sem-ver is used or not
