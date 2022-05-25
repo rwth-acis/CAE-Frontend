@@ -872,10 +872,22 @@ export class CommitDetails extends LitElement {
         if(commitBefore) {
           // previous commit exists
           this.differences = ModelDifferencing.getDifferences(commitBefore.model, commit.model);
+
+          // check if this is a microservice component
+          if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+            this.differences = this.differences.concat(TestModelDifferencing.getDifferences(commitBefore.testModel.testCases, commit.testModel.testCases));
+          }
+
           this.updateChangesListElement();
         } else {
           // previous commit does not exist
           this.differences = ModelDifferencing.getDifferencesOfSingleModel(commit.model);
+
+          // check if this is a microservice component
+          if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+            this.differences = this.differences.concat(TestModelDifferencing.getDifferencesOfSingleModel(commit.testModel.testCases));
+          }
+
           this.updateChangesListElement();
         }
       }
