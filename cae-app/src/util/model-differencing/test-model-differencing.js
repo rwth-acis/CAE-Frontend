@@ -7,6 +7,9 @@ import RequestDifference from "./test/request-difference";
 import RequestAddition from "./test/request-addition";
 import RequestDeletion from "./test/request-deletion";
 import RequestUpdate from "./test/request-update";
+import AssertionDifference from "./test/assertion-difference";
+import AssertionAddition from "./test/assertion-addition";
+import AssertionDeletion from "./test/assertion-deletion";
 
 /**
  * Class used for calculating the differences between two versions of a test model.
@@ -32,6 +35,10 @@ export default class TestModelDifferencing {
     differences = differences.concat(TestModelDifferencing.getRequestAdditions(model1TestCases, model2TestCases));
     differences = differences.concat(TestModelDifferencing.getRequestDeletions(model1TestCases, model2TestCases));
     differences = differences.concat(TestModelDifferencing.getUpdatedRequests(model1TestCases, model2TestCases));
+
+    // assertion changes
+    differences = differences.concat(TestModelDifferencing.getAssertionAdditions(model1TestCases, model2TestCases));
+    differences = differences.concat(TestModelDifferencing.getAssertionDeletions(model1TestCases, model2TestCases));
 
     return differences;
   }
@@ -110,6 +117,41 @@ export default class TestModelDifferencing {
   }
 
   /**
+   * Searches for assertions that got added to a request.
+   * @param {*} model1TestCases Previous state of the test case list.
+   * @param {*} model2TestCases Current state of the test case list.
+   * @returns List of AssertionAddition objects.
+   */
+  static getAssertionAdditions(model1TestCases, model2TestCases) {
+    const additions = [];
+
+    for(let testCase of model2TestCases) {
+      // check if test case already existed in model1
+      const oldTestCase = model1TestCases.find(testCase1 => testCase1.id == testCase.id);
+      if(oldTestCase) {
+        // test case exists in both model versions
+        for(let request of testCase.requests) {
+          // check if request already existed in oldTestCase
+          const oldRequest = oldTestCase.requests.find(r => r.id == request.id);
+          if(oldRequest) {
+            // request exists in both model versions
+            for(let assertion of request.assertions) {
+              // check if assertion already existed in oldRequest
+              const oldAssertion = oldRequest.assertions.find(a => a.id == assertion.id);
+              if(!oldAssertion) {
+                // assertion was added
+                additions.push(new AssertionAddition(assertion, request, testCase));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return additions;
+  }
+
+  /**
    * Searches for test cases that got removed from the test model.
    * @param {*} model1TestCases Previous state of the test case list.
    * @param {*} model2TestCases Current state of the test case list.
@@ -149,6 +191,41 @@ export default class TestModelDifferencing {
         }
       }
     }
+    return deletions;
+  }
+
+  /**
+   * Searches for assertions that got removed from a request.
+   * @param {*} model1TestCases Previous state of the test case list.
+   * @param {*} model2TestCases Current state of the test case list.
+   * @returns List of AssertionDeletion objects.
+   */
+  static getAssertionDeletions(model1TestCases, model2TestCases) {
+    const deletions = [];
+
+    for(let testCase of model2TestCases) {
+      // check if test case already existed in model1
+      const oldTestCase = model1TestCases.find(testCase1 => testCase1.id == testCase.id);
+      if(oldTestCase) {
+        // test case exists in both model versions
+        for(let request of testCase.requests) {
+          // check if request already existed in oldTestCase
+          const oldRequest = oldTestCase.requests.find(r => r.id == request.id);
+          if(oldRequest) {
+            // request exists in both model versions
+            for(let assertion of oldRequest.assertions) {
+              // check if assertion got removed
+              const updatedAssertion = request.assertions.find(a => a.id == assertion.id);
+              if(!updatedAssertion) {
+                // assertion was removed
+                deletions.push(new AssertionDeletion(assertion, request, testCase));
+              }
+            }
+          }
+        }
+      }
+    }
+
     return deletions;
   }
 
@@ -300,6 +377,14 @@ export default class TestModelDifferencing {
       }
       if(diff1 instanceof RequestUpdate && diff2 instanceof RequestUpdate) {
         return diff1.getRequestId() == diff2.getRequestId();
+      }
+    }
+    if(diff1 instanceof AssertionDifference && diff2 instanceof AssertionDifference) {
+      if(diff1 instanceof AssertionAddition && diff2 instanceof AssertionAddition) {
+        return diff1.getAssertionId() == diff2.getAssertionId();
+      }
+      if(diff1 instanceof AssertionDeletion && diff2 instanceof AssertionDeletion) {
+        return diff1.getAssertionId() == diff2.getAssertionId();
       }
     }
     return false;
