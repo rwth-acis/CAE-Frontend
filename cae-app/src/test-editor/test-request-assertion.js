@@ -21,7 +21,7 @@ class TestRequestAssertion extends LitElement {
         }
       </style>
 
-      <div class="main" style="display: flex">
+      <div id="main" class="main" style="display: flex">
         <!-- Status Badge -->
         <span class="badge status-badge ${this.assertionData.status === "success" ? "bg-success" : (this.assertionData.status === "failed" ? "bg-danger" : "bg-secondary")}" 
           data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getAssertionStatusTooltipText()}>
@@ -86,6 +86,18 @@ class TestRequestAssertion extends LitElement {
         </div>
 
       </div>
+
+      <!-- Delete Assertion Dialog -->
+      <paper-dialog id="dialog-delete-assertion" class="rounded" modal>
+          <h5 class="modal-title mt-3">Delete assertion?</h5>
+          <hr/>
+          <p>Do you want to delete this assertion?</p>
+          <hr/>
+          <div class="buttons">
+            <button type="button" class="btn btn-secondary" dialog-dismiss>Close</button>
+            <button type="button" @click=${this.onDeleteAssertionClicked} class="btn btn-primary" style="margin-left: 0.5em" dialog-confirm>Yes</button>
+          </div>
+      </paper-dialog>
       `;
     }
 
@@ -103,6 +115,7 @@ class TestRequestAssertion extends LitElement {
 
     firstUpdated() {
       this.setupAssertionTypeSelection();
+      this.setupContextMenu();
     }
 
     updated() {
@@ -126,6 +139,19 @@ class TestRequestAssertion extends LitElement {
       this.editModeOn = Object.keys(this.assertionData).includes("editModeOn");
     }
 
+    setupContextMenu() {
+      this.shadowRoot.getElementById("main").addEventListener("contextmenu", event => {
+        // hide default context menu
+        event.preventDefault();
+
+        // check if edit mode is disabled
+        if(!this.editModeOn) {
+          // show assertion deletion dialog
+          this.shadowRoot.getElementById("dialog-delete-assertion").open()
+        }
+      });
+    }
+
     /**
      * Click event handler for button to complete editing of this assertion.
      * Removes the editModeOn "flag" from the assertion data.
@@ -140,6 +166,15 @@ class TestRequestAssertion extends LitElement {
      * Notifies parent element that the assertion should be removed.
      */
     onDiscardAssertionClicked() {
+      this.dispatchEvent(new CustomEvent("discard-assertion", {
+        detail: {}
+      }));
+    }
+
+    /**
+     * Click event handler for button to delete the assertion (part of dialog).
+     */
+    onDeleteAssertionClicked() {
       this.dispatchEvent(new CustomEvent("discard-assertion", {
         detail: {}
       }));
