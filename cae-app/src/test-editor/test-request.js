@@ -244,7 +244,10 @@ class TestRequest extends LitElement {
      */
     collapse() {
       this.open = false;
-      if(this.codeMirrorEditor) this.codeMirrorEditor.toTextArea();
+      if(this.codeMirrorEditor) {
+        this.yjsSync.unbindRequestBodyCodeMirror(this.testCaseId, this.requestData.id, this.codeMirrorEditor);
+        this.codeMirrorEditor.toTextArea();
+      }
     }
 
     setYjsSync(yjsSync) {
@@ -283,7 +286,7 @@ class TestRequest extends LitElement {
         
         this.yjsSync.bindRequestBodyCodeMirror(this.testCaseId, this.requestData.id, this.codeMirrorEditor);
       } else {
-        this.codeMirrorEditor.toTextArea();
+        this.collapse();
       }
     }
 

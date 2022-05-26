@@ -276,7 +276,7 @@ export default class TestModelDifferencing {
             // check if request has changed
             const updatedKeys = TestModelDifferencing.getRequestUpdatedKeys(request1, request2);
             if(updatedKeys.length > 0) {
-              updatedRequests.push(new RequestUpdate(request1, request2, testCase2, TestModelDifferencing.getRequestRelevantKeys(request1), updatedKeys));
+              updatedRequests.push(new RequestUpdate(request1, request2, testCase2, TestModelDifferencing.getRequestRelevantKeys(request2), updatedKeys));
             }
           }
         }
@@ -311,7 +311,7 @@ export default class TestModelDifferencing {
    */
   static getRequestUpdatedKeys(request1, request2) {
     let updatedKeys = [];
-    for(let key of TestModelDifferencing.getRequestRelevantKeys(request1)) {
+    for(let key of TestModelDifferencing.getRequestRelevantKeys(request2)) {
       if(key == "auth") {
         if(!Object.keys(request1.auth).includes("selectedAgent") && !Object.keys(request2.auth).includes("selectedAgent")) {
           // both requests have auth disabled

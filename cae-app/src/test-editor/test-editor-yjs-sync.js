@@ -62,9 +62,20 @@ export default class TestEditorYjsSync {
     const testData = {};
     const testCases = [];
     for(let key of this.y.share.testData.keys()) {
-      testCases.push(this.y.share.testData.get(key));
+      const testCase = JSON.parse(JSON.stringify(this.y.share.testData.get(key)));
+      // iterate through all requests
+      for(let request of testCase.requests) {
+        const bodyKey = testCase.id + "-" + request.id;
+        // check if body is shared in Yjs room
+        if(this.y.share.requestBody.keys().includes(bodyKey)) {
+          // body is shared in Yjs room
+          request.body = this.y.share.requestBody.get(bodyKey).toString();
+        }
+      }
+      testCases.push(testCase);
     }
     testData.testCases = testCases;
+
     return testData;
   }
 
@@ -81,6 +92,21 @@ export default class TestEditorYjsSync {
     }
 
     this.y.share.requestBody.get(key).bindCodeMirror(editor);
+    this.y.share.requestBody.get(key).observe(this.requestBodyObserver.bind(this, testCaseId, requestId));
+  }
+
+  unbindRequestBodyCodeMirror(testCaseId, requestId, editor) {
+    const key = testCaseId + "-" + requestId;
+    this.y.share.requestBody.get(key).unbindCodeMirror(editor);
+    this.y.share.requestBody.get(key).unobserve(this.requestBodyObserver.bind(this, testCaseId, requestId));
+  }
+
+  requestBodyObserver(testCaseId, requestId, event) {
+    const key = testCaseId + "-" + requestId;
+    const body = this.y.share.requestBody.get(key).toString();
+    const testCase = this.y.share.testData.get("" + testCaseId)
+    testCase.requests.find(request => request.id == requestId).body = body;
+    this.y.share.testData.set("" + testCaseId, testCase);
   }
 
   /**
