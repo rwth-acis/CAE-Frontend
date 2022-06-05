@@ -280,7 +280,8 @@ class TestRequest extends LitElement {
           mode: {
             name: "javascript",
             json: true
-          }
+          },
+          smartIndent: false
         });
         setTimeout(() => this.codeMirrorEditor.refresh(), 0);
         
