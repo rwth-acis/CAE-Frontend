@@ -1,6 +1,7 @@
 import {html, LitElement} from 'lit-element';
 import './test-case';
 import TestEditorYjsSync from './test-editor-yjs-sync';
+import Static from '../static';
 
 class TestEditor extends LitElement {
     render() {
@@ -100,8 +101,45 @@ class TestEditor extends LitElement {
         const latestCommit = parent.commits[0];
         const testCases = latestCommit.testModel.testCases;
 
-        this.yjsSync = new TestEditorYjsSync(testCases, this.onYjsTestCaseUpdated.bind(this), this.onYjsTestCaseAdded.bind(this), this.onYjsTestCaseDeleted.bind(this));
+        this.yjsSync = new TestEditorYjsSync(testCases, this.onYjsTestCaseUpdated.bind(this), this.onYjsTestCaseAdded.bind(this), this.onYjsTestCaseDeleted.bind(this), this.onInitialYjsSyncFinished.bind(this));
       }
+    }
+
+    onInitialYjsSyncFinished() {
+      // get test status from GitHub Actions
+      const repoName = localStorage.getItem("githubRepoName");
+      const latestPushedCommit = parent.commits.length > 1 ? parent.commits[1] : parent.commits[0];
+      const testModelId = latestPushedCommit.testModel.id;
+
+      const queryParams = {
+        repoName: repoName,
+        sha: latestPushedCommit.sha
+      };
+
+      fetch(Static.ModelPersistenceServiceURL + "/testmodel/" + testModelId + "/status?" + new URLSearchParams(queryParams)).then(response => response.json()).then(data => {
+        const testCasesWithStatus = data.testCases;
+        for(const testCase of this.testData.testCases) {
+          const testCaseWithStatus = testCasesWithStatus.find(t => t.id == testCase.id);
+          if(testCaseWithStatus) {
+            testCase.status = testCaseWithStatus.status;
+
+            for(const request of testCase.requests) {
+              for(const assertion of request.assertions) {
+                // get status for assertion
+                const requestWithStatus = testCaseWithStatus.requests.find(r => r.id == request.id);
+                if(requestWithStatus) {
+                  const assertionWithStatus = requestWithStatus.assertions.find(a => a.id == assertion.id);
+                  if(assertionWithStatus) {
+                    assertion.status = assertionWithStatus.status;
+                  }
+                }
+              }
+            }
+
+            this.yjsSync.updateTestCase(testCase);
+          }
+        }
+      });
     }
 
     /**

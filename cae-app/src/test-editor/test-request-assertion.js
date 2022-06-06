@@ -23,7 +23,7 @@ class TestRequestAssertion extends LitElement {
 
       <div id="main" class="main" style="display: flex">
         <!-- Status Badge -->
-        <span class="badge status-badge ${this.assertionData.status === "success" ? "bg-success" : (this.assertionData.status === "failed" ? "bg-danger" : "bg-secondary")}" 
+        <span class="badge status-badge ${this.getAssertionStatusBadgeClass()}" 
           data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getAssertionStatusTooltipText()}>
           ${this.assertionData.status === "success" ? "Success" : (this.assertionData.status === "failed" ? "Failed" : "-")}
         </span>
@@ -247,11 +247,26 @@ class TestRequestAssertion extends LitElement {
       this.sendRequestAssertionUpdatedEvent();
     }
 
+    getAssertionStatusBadgeClass() {
+      const status = this.assertionData.status;
+      if(status === "success") {
+        return "bg-success";
+      } else if(status === "failed") {
+        return "bg-danger";
+      } else if(status === "in_progress") {
+        return "bg-warning";
+      } else {
+        return "bg-secondary";
+      }
+    }
+
     getAssertionStatusTooltipText() {
       if(this.assertionData.status === "success") {
         return "Last run: Successful";
       } else if(this.assertionData.status === "failed") {
         return "Last run: Failed";
+      } else if(this.assertionData.status === "in_progress") {
+        return "Test is running...";
       } else {
         return "Test never ran";
       }

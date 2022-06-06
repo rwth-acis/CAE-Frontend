@@ -2,7 +2,7 @@ import Static from "../static";
 import Common from "../util/common";
 
 export default class TestEditorYjsSync {
-  constructor(testData, testCaseUpdated, testCaseAdded, testCaseDeleted) {
+  constructor(testData, testCaseUpdated, testCaseAdded, testCaseDeleted, initialSyncFinished) {
     const yjsRoomName = Common.getYjsRoomNameForVersionedTestModel();
 
     Y({
@@ -54,6 +54,8 @@ export default class TestEditorYjsSync {
           testCaseAdded(this.y.share.testData.get(key));
         }
       }
+
+      initialSyncFinished();
 
     }.bind(this));
   }

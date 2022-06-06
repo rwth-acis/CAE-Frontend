@@ -29,7 +29,7 @@ class TestCase extends LitElement {
         <div id="test-case-card-top" class="card-body" @click=${(e) => this.expandClicked(e)}>
           <div style="display: flex">
             <!-- Status Badge -->
-            <span id="status-badge" class="badge status-badge ${this.testData.status === "success" ? "bg-success" : (this.testData.status === "failed" ? "bg-danger" : "bg-secondary")}"
+            <span id="status-badge" class="badge status-badge ${this.getTestStatusBadgeClass()}"
               data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getTestStatusTooltipText()}>
               ${this.testData.status === "success" ? "Success" : (this.testData.status === "failed" ? "Failed" : "-")}
             </span>
@@ -115,6 +115,7 @@ class TestCase extends LitElement {
 
     updated() {
       this.shadowRoot.querySelectorAll("test-request").forEach(request => request.setYjsSync(this.yjsSync));
+      BootstrapUtil.setupBootstrapTooltips(this.shadowRoot);
     }
 
     setYjsSync(yjsSync) {
@@ -226,11 +227,26 @@ class TestCase extends LitElement {
       this.shadowRoot.getElementById("test-case-name").value = this.testData.name;
     }
 
+    getTestStatusBadgeClass() {
+      const status = this.testData.status;
+      if(status === "success") {
+        return "bg-success";
+      } else if(status === "failed") {
+        return "bg-danger";
+      } else if(status === "in_progress") {
+        return "bg-warning";
+      } else {
+        return "bg-secondary";
+      }
+    }
+
     getTestStatusTooltipText() {
       if(this.testData.status === "success") {
         return "Last run: Successful";
       } else if(this.testData.status === "failed") {
         return "Last run: Failed";
+      } else if(this.testData.status === "in_progress") {
+        return "Test is running...";
       } else {
         return "Test never ran";
       }
