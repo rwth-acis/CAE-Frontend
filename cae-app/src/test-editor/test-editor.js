@@ -115,11 +115,24 @@ class TestEditor extends LitElement {
         // get test status from GitHub Actions
         const repoName = localStorage.getItem("githubRepoName");
         const latestPushedCommit = parent.commits.length > 1 ? parent.commits[1] : parent.commits[0];
-        const testModelId = latestPushedCommit.testModel.id;
+        const sha = latestPushedCommit.sha;
+        let testModelId;
+        if(latestPushedCommit.commitType == 1) {
+          // code editor commit => no model contained
+          // find latest commit with model
+          for(const commit of parent.commits) {
+            if(commit.commitType == 0) {
+              testModelId = commit.testModel.id;
+              break;
+            }
+          }
+        } else {
+          testModelId = latestPushedCommit.testModel.id;
+        }
 
         const queryParams = {
           repoName: repoName,
-          sha: latestPushedCommit.sha
+          sha: sha
         };
 
         fetch(Static.ModelPersistenceServiceURL + "/testmodel/" + testModelId + "/status?" + new URLSearchParams(queryParams)).then(response => response.json()).then(data => {
