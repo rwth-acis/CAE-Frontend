@@ -106,40 +106,49 @@ class TestEditor extends LitElement {
     }
 
     onInitialYjsSyncFinished() {
-      // get test status from GitHub Actions
-      const repoName = localStorage.getItem("githubRepoName");
-      const latestPushedCommit = parent.commits.length > 1 ? parent.commits[1] : parent.commits[0];
-      const testModelId = latestPushedCommit.testModel.id;
+      
+      if(parent.intervalIdTestStatus) {
+        clearInterval(parent.intervalIdTestStatus);
+      }
 
-      const queryParams = {
-        repoName: repoName,
-        sha: latestPushedCommit.sha
-      };
+      const intervalId = window.setInterval(function () {
+        // get test status from GitHub Actions
+        const repoName = localStorage.getItem("githubRepoName");
+        const latestPushedCommit = parent.commits.length > 1 ? parent.commits[1] : parent.commits[0];
+        const testModelId = latestPushedCommit.testModel.id;
 
-      fetch(Static.ModelPersistenceServiceURL + "/testmodel/" + testModelId + "/status?" + new URLSearchParams(queryParams)).then(response => response.json()).then(data => {
-        const testCasesWithStatus = data.testCases;
-        for(const testCase of this.testData.testCases) {
-          const testCaseWithStatus = testCasesWithStatus.find(t => t.id == testCase.id);
-          if(testCaseWithStatus) {
-            testCase.status = testCaseWithStatus.status;
+        const queryParams = {
+          repoName: repoName,
+          sha: latestPushedCommit.sha
+        };
 
-            for(const request of testCase.requests) {
-              for(const assertion of request.assertions) {
-                // get status for assertion
-                const requestWithStatus = testCaseWithStatus.requests.find(r => r.id == request.id);
-                if(requestWithStatus) {
-                  const assertionWithStatus = requestWithStatus.assertions.find(a => a.id == assertion.id);
-                  if(assertionWithStatus) {
-                    assertion.status = assertionWithStatus.status;
+        fetch(Static.ModelPersistenceServiceURL + "/testmodel/" + testModelId + "/status?" + new URLSearchParams(queryParams)).then(response => response.json()).then(data => {
+          const testCasesWithStatus = data.testCases;
+          for (const testCase of this.testData.testCases) {
+            const testCaseWithStatus = testCasesWithStatus.find(t => t.id == testCase.id);
+            if (testCaseWithStatus) {
+              testCase.status = testCaseWithStatus.status;
+
+              for (const request of testCase.requests) {
+                for (const assertion of request.assertions) {
+                  // get status for assertion
+                  const requestWithStatus = testCaseWithStatus.requests.find(r => r.id == request.id);
+                  if (requestWithStatus) {
+                    const assertionWithStatus = requestWithStatus.assertions.find(a => a.id == assertion.id);
+                    if (assertionWithStatus) {
+                      assertion.status = assertionWithStatus.status;
+                    }
                   }
                 }
               }
-            }
 
-            this.yjsSync.updateTestCase(testCase);
+              this.yjsSync.updateTestCase(testCase);
+            }
           }
-        }
-      });
+        });
+      }.bind(this), 15000);
+
+      parent.intervalIdTestStatus = intervalId;
     }
 
     /**
