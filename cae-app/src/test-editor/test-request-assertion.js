@@ -87,6 +87,12 @@ class TestRequestAssertion extends LitElement {
 
       </div>
 
+      ${this.assertionData.errorMessage ? html`
+        <div class="alert alert-danger" role="alert">
+          ${this.assertionData.errorMessage}
+        </div>
+      ` : html``}
+
       <!-- Delete Assertion Dialog -->
       <paper-dialog id="dialog-delete-assertion" class="rounded" modal>
           <h5 class="modal-title mt-3">Delete assertion?</h5>

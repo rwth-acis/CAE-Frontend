@@ -150,6 +150,11 @@ class TestEditor extends LitElement {
                     const assertionWithStatus = requestWithStatus.assertions.find(a => a.id == assertion.id);
                     if (assertionWithStatus) {
                       assertion.status = assertionWithStatus.status;
+                      if(assertion.status == "failed") {
+                        assertion.errorMessage = assertionWithStatus.errorMessage;
+                      } else {
+                        delete assertion.errorMessage;
+                      }
                     }
                   }
                 }
