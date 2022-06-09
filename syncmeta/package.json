@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "This package is used to get the SyncMeta widgets from npm.",
   "dependencies": {
-    "@rwth-acis/syncmeta-widgets": "1.1.0"
+    "@rwth-acis/syncmeta-widgets": "1.3.0"
   }
 }
