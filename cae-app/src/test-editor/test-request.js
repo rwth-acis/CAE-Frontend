@@ -70,8 +70,15 @@ class TestRequest extends LitElement {
               </div>
 
               <!-- Request body -->
+              <ul class="nav nav-tabs" style="margin-top: 0.5em">
+                <li class="nav-item">
+                  <a id="tab-body" class="nav-link active" @click=${this.showBodyTab}>Body</a>
+                </li>
+                <li class="nav-item">
+                  <a id="tab-response" class="nav-link" @click=${this.showResponseTab}>Last response</a>
+                </li>
+              </ul>
               <div>
-                <label for="textarea-body" class="form-label">Body:</label>
                 <textarea id="textarea-body"></textarea>
               </div>
 
@@ -115,7 +122,9 @@ class TestRequest extends LitElement {
         testCaseId: { type: Number },
         requestData: { type: Object },
         availableAgents: { type: Array },
-        codeMirrorEditor: { type: Object }
+        codeMirrorEditor: { type: Object },
+        openedTab: { type: String }
+        
       };
     }
 
@@ -124,6 +133,7 @@ class TestRequest extends LitElement {
       this.open = false;
       this.typeEditModeOn = false;
       this.urlEditModeOn = false;
+      this.openedTab = "body";
     }
 
     firstUpdated() {
@@ -184,6 +194,10 @@ class TestRequest extends LitElement {
         // update auth checkbox and agent selection element
         this.updateAuthCheckbox();
         this.updateAgentSelect();
+
+        if(this.openedTab == "response") {
+          this.showResponseInCodeEditor();
+        }
       }
     }
 
@@ -361,6 +375,46 @@ class TestRequest extends LitElement {
       const index = this.requestData.assertions.findIndex(a => a.id == assertionData.id);
       this.requestData.assertions[index] = assertionData;
       this.sendTestRequestUpdatedEvent();
+    }
+
+    /**
+     * Shows the tab that allows to edit the request body.
+     */
+    showBodyTab() {
+      this.openedTab = "body";
+      this.shadowRoot.getElementById("tab-body").classList.add("active");
+      this.shadowRoot.getElementById("tab-response").classList.remove("active");
+
+      if(this.codeMirrorEditor) {
+        this.yjsSync.bindRequestBodyCodeMirror(this.testCaseId, this.requestData.id, this.codeMirrorEditor);
+        this.codeMirrorEditor.setOption("readOnly", false);
+      }
+    }
+
+    /**
+     * Shows the tab that shows the response to the request (from the last test run).
+     */
+    showResponseTab() {
+      this.openedTab = "response";
+      this.shadowRoot.getElementById("tab-body").classList.remove("active");
+      this.shadowRoot.getElementById("tab-response").classList.add("active");
+
+      if(this.codeMirrorEditor) {
+        this.yjsSync.unbindRequestBodyCodeMirror(this.testCaseId, this.requestData.id, this.codeMirrorEditor);
+        if(this.requestData.lastResponse) {
+          this.showResponseInCodeEditor();
+        } else {
+          this.codeMirrorEditor.setValue("No response available.");
+        }
+        this.codeMirrorEditor.setOption("readOnly", true);
+      }
+    }
+
+    /**
+     * Replaces the content of the code editor with the response of the last test run.
+     */
+    showResponseInCodeEditor() {
+      this.codeMirrorEditor.setValue(JSON.stringify(JSON.parse(this.requestData.lastResponse), null, 2));
     }
 }
 

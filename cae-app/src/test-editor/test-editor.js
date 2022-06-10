@@ -143,9 +143,14 @@ class TestEditor extends LitElement {
               testCase.status = testCaseWithStatus.status;
 
               for (const request of testCase.requests) {
+                const requestWithStatus = testCaseWithStatus.requests.find(r => r.id == request.id);
+
+                if(requestWithStatus.lastResponse) {
+                  request.lastResponse = requestWithStatus.lastResponse;
+                }
+
                 for (const assertion of request.assertions) {
                   // get status for assertion
-                  const requestWithStatus = testCaseWithStatus.requests.find(r => r.id == request.id);
                   if (requestWithStatus) {
                     const assertionWithStatus = requestWithStatus.assertions.find(a => a.id == assertion.id);
                     if (assertionWithStatus) {

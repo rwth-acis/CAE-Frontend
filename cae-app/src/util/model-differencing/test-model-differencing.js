@@ -345,7 +345,7 @@ export default class TestModelDifferencing {
    * @returns Keys that are relevant for calculating request differences.
    */
   static getRequestRelevantKeys(request) {
-    return Object.keys(request).filter(key => !["id", "status", "assertions"].includes(key));
+    return Object.keys(request).filter(key => !["id", "status", "assertions", "lastResponse"].includes(key));
   }
 
   /**
