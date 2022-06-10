@@ -89,7 +89,7 @@ class TestRequestAssertion extends LitElement {
 
       ${this.assertionData.errorMessage ? html`
         <div class="alert alert-danger" role="alert">
-          ${this.assertionData.errorMessage}
+          ${this.getAssertionErrorMessage()}
         </div>
       ` : html``}
 
@@ -276,6 +276,21 @@ class TestRequestAssertion extends LitElement {
       } else {
         return "Test never ran";
       }
+    }
+
+    getAssertionErrorMessage() {
+      let errorMessage = this.assertionData.errorMessage;
+      if(this.assertionData.assertionType == Assertions.ASSERTION_TYPE.STATUS_CODE.id) {
+        if(/expected:<[0-9]{3}> but was:<[0-9]{3}>/.test(errorMessage)) {
+          errorMessage = "Status code was: " + errorMessage.split("but was:<")[1].split(">")[0];
+        }
+      } else if(this.assertionData.assertionType == Assertions.ASSERTION_TYPE.RESPONSE_BODY.id) {
+        errorMessage = errorMessage.replaceAll("org.json.simple.", "");
+        if(errorMessage.includes("Expected: ")) {
+          errorMessage = "Expected: " + errorMessage.split("Expected: ")[1];
+        }
+      }
+      return errorMessage;
     }
 }
 
