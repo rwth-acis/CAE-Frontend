@@ -288,6 +288,11 @@ class TestRequest extends LitElement {
           }
         });
 
+        // show body tab
+        this.openedTab = "body";
+        this.shadowRoot.getElementById("tab-body").classList.add("active");
+        this.shadowRoot.getElementById("tab-response").classList.remove("active");
+
         // initialize code mirror editor for request body
         this.codeMirrorEditor = CodeMirror.fromTextArea(this.shadowRoot.getElementById("textarea-body"), {
           lineNumbers: true,
