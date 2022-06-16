@@ -49,6 +49,16 @@ class TestRequest extends LitElement {
         <ul class="list-group list-group-flush" style="display: ${this.open ? '' : 'none'}">
           <li class="list-group-item">
             <div>
+
+              ${this.requestData.pathParams ? Object.keys(JSON.parse(this.requestData.pathParams)).map(pathParam => html`
+                <div class="mb-3 row">
+                  <label class="col-sm col-form-label">${pathParam}:</label>
+                  <div class="col-sm-6">
+                    <input id="path-param-${pathParam}" class="form-control" value=${JSON.parse(this.requestData.pathParams)[pathParam]} @focusout=${(e) => this.updatePathParam(e)}>
+                  </div>
+                </div>
+              `) : ""}
+
               <div style="display: flex">
 
                 <!-- Authorization checkbox -->
@@ -341,11 +351,35 @@ class TestRequest extends LitElement {
         // edit mode is disabled now => update test request url
         this.requestData.url = this.shadowRoot.getElementById("input-test-request-url").value;
 
+        // check for path params
+        if (!this.requestData.hasOwnProperty("pathParams")) {
+          this.requestData.pathParams = JSON.stringify({});
+        }
+        const pathParams = [...this.requestData.url.matchAll(/{([^}]*)}/g)].map(e => e[1]);
+        const pathParamsMap = {};
+        for (const pathParam of pathParams) {
+          pathParamsMap[pathParam] = "";
+          if (JSON.parse(this.requestData.pathParams).hasOwnProperty(pathParam)) {
+            pathParamsMap[pathParam] = JSON.parse(this.requestData.pathParams)[pathParam];
+          }
+        }
+
+        this.requestData.pathParams = JSON.stringify(pathParamsMap);
+
         this.sendTestRequestUpdatedEvent();
       }
 
       this.shadowRoot.getElementById("input-test-request-url").value = this.requestData.url;
       this.shadowRoot.getElementById("test-request-url").value = this.requestData.url;
+    }
+
+    updatePathParam(e) {
+      const input = e.path[0];
+      const pathParam = input.id.split("path-param-")[1];
+      const pathParams = JSON.parse(this.requestData.pathParams);
+      pathParams[pathParam] = input.value;
+      this.requestData.pathParams = JSON.stringify(pathParams);
+      this.sendTestRequestUpdatedEvent();
     }
 
     /**

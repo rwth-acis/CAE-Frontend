@@ -323,6 +323,21 @@ export default class TestModelDifferencing {
         } else {
           updatedKeys.push(key);
         }
+      } else if(key == "pathParams") {
+        const pathParams1 = JSON.parse(request1.pathParams);
+        const pathParams2 = JSON.parse(request2.pathParams);
+        const keys1 = Object.keys(pathParams1);
+        const keys2 = Object.keys(pathParams2);
+        if (keys1.length !== keys2.length) {
+          updatedKeys.push(key);
+          continue;
+        }
+        for (const key1 of keys1) {
+          if (pathParams1[key1] != pathParams2[key1]) {
+            updatedKeys.push(key);
+            break;
+          }
+        }
       } else if(request1[key] != request2[key]) {
         updatedKeys.push(key);
       }
