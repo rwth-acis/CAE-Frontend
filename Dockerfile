@@ -1,4 +1,4 @@
-FROM node:14-alpine
+FROM node:14-alpine3.15
 USER root
 
 ENV PORT 8070
