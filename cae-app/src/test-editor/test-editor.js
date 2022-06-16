@@ -2,6 +2,7 @@ import {html, LitElement} from 'lit-element';
 import './test-case';
 import TestEditorYjsSync from './test-editor-yjs-sync';
 import Static from '../static';
+import Common from '../util/common';
 
 class TestEditor extends LitElement {
     render() {
@@ -33,7 +34,13 @@ class TestEditor extends LitElement {
         <div class="separator"></div>
 
         <div style="display: flex">
-          <button type="button" class="btn btn-primary" @click=${this.onAddTestClicked} style="margin-left: auto; margin-right: 1em; margin-bottom: 0.5em">
+          <div id="spinner-coverage" class="spinner-border text-primary" style="margin-left: auto; visibility: hidden">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <button id="button-coverage" type="button" class="btn btn-primary" @click=${this.onChangeCoverageVisibilityClicked} style="margin-left: 1em; margin-bottom: 0.5em">
+            ${this.coverageVisible ? "Hide coverage" : "Show coverage"}
+          </button>
+          <button type="button" class="btn btn-primary" @click=${this.onAddTestClicked} style="margin-left: 1em; margin-right: 1em; margin-bottom: 0.5em">
             Add test
           </button>
         </div>
@@ -54,8 +61,15 @@ class TestEditor extends LitElement {
       `;
     }
 
+    static get properties() {
+      return {
+        coverageVisible: { type: Boolean }
+      }
+    };
+
     constructor() {
       super();
+      this.coverageVisible = false;
 
       const agents = [
         {
@@ -318,6 +332,140 @@ class TestEditor extends LitElement {
      */
     getRequestById(testCaseId, requestId) {
       return this.getTestCaseById(testCaseId).requests.find(request => request.id == requestId);
+    }
+
+    onChangeCoverageVisibilityClicked() {
+      this.coverageVisible = !this.coverageVisible;
+  
+      if (this.coverageVisible) this.showTestCoverage();
+      else this.unhighlightNodesInModel();
+    }
+
+    /**
+     * Shows the test coverage in the model.
+     */
+    showTestCoverage() {
+      this.shadowRoot.getElementById("spinner-coverage").style.visibility = "visible";
+      this.shadowRoot.getElementById("button-coverage").disabled = true;
+
+      const repoName = localStorage.getItem("githubRepoName");
+      const latestPushedCommit = parent.commits.length > 1 ? parent.commits[1] : parent.commits[0];
+      const sha = latestPushedCommit.sha;
+
+      const queryParams = { repoName: repoName, sha: sha };
+
+      Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: this.getModelYjsRoomConnectorInfo(),
+        share: { // specify the shared content
+          data: 'Map',
+          canvas: 'Map'
+        }
+      }).then(function (y) {
+        const model = y.share.data.get("model");
+
+        // fetch API test coverage data
+        fetch(Static.ModelPersistenceServiceURL + "/models/coverage?" + new URLSearchParams(queryParams), {
+          method: "POST",
+          body: JSON.stringify(model)
+        }).then(response => response.json()).then(data => {
+          // iterate over model nodes
+          for (let nodeKey of Object.keys(data.nodes)) {
+            const node = data.nodes[nodeKey];
+
+            this.showNodeCoverageInfo(y, node, nodeKey);
+          }
+
+          this.shadowRoot.getElementById("spinner-coverage").style.visibility = "hidden";
+          this.shadowRoot.getElementById("button-coverage").removeAttribute("disabled");
+
+          // disconnect from the Yjs room
+          setTimeout(_ => {
+            y.connector.disconnect();
+          }, 3000);
+        });
+      }.bind(this));
+    }
+
+    /**
+     * Shows coverage info for the given node in the model, if available.
+     */
+    showNodeCoverageInfo(y, node, nodeKey) {
+      // check if coverage info is available for this node
+      if (node.attributes.coverage) {
+        const coverage = node.attributes.coverage.value.value;
+        const color = coverage == 100 ? "green" : "red";
+        let label = this.getNodeTestCoverageLabel(node, coverage);
+
+        // show coverage info in model
+        y.share.canvas.set("highlight", {
+          entities: [nodeKey],
+          color: color,
+          label: label,
+          userId: Common.getUserInfo().sub,
+          remote: false
+        });
+      }
+    }
+
+    /**
+     * Returns the label with coverage info for the given node.
+     */
+    getNodeTestCoverageLabel(node, coverage) {
+      let label = "Coverage: " + coverage;
+      if (node.type == "HTTP Response") {
+        label = coverage == 100 ? "covered" : "not covered";
+      } else if (node.type == "HTTP Method") {
+        label = coverage == 100 ? "Path covered" : "Path not covered";
+      } else if (node.type == "HTTP Payload") {
+        label = coverage == 100 ? "covered" : "not covered";
+      }
+      return label;
+    }
+
+    /**
+     * Removes the highlighting of all nodes in the model.
+     */
+    unhighlightNodesInModel() {
+      Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: this.getModelYjsRoomConnectorInfo(),
+        share: { // specify the shared content
+          data: 'Map',
+          canvas: 'Map'
+        }
+      }).then(function (y) {
+        const model = y.share.data.get("model");
+
+        // unhighlight all nodes
+        y.share.canvas.set("unhighlight", {
+          entities: Object.keys(model.nodes),
+          userId: Common.getUserInfo().sub,
+          remote: false
+        });
+
+        // disconnect from the Yjs room
+        setTimeout(_ => {
+          y.connector.disconnect();
+        }, 3000);
+      });
+    }
+
+    /**
+     * Returns the connector info for the Yjs room where the model is stored.
+     * @returns Connector info for the Yjs room where the model is stored.
+     */
+    getModelYjsRoomConnectorInfo() {
+      return {
+        name: "websockets-client", // use the websockets connector
+        room: Common.getYjsRoomNameForVersionedModel(Common.getVersionedModelId(), Common.isCurrentComponentDependency()),
+        options: { resource: Static.YjsResourcePath },
+        url: Static.YjsAddress
+      };
     }
 }
 
