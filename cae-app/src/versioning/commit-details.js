@@ -522,6 +522,21 @@ export class CommitDetails extends LitElement {
     if(newVersion) version = this.getEnteredVersion();
     body.metadataVersion = version;
 
+    const metadataDocPromise = new Promise(function(resolve, reject) { 
+      if(this.isMicroserviceComponent()) {
+        metadataDocString.info.version = version;
+        fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
+          method: "POST",
+          headers: Auth.getAuthHeader(), // send headers at least for content type
+          body: JSON.stringify(metadataDocString)
+        }).then(_ => resolve());
+      } else {
+        resolve();
+      }
+    }.bind(this));
+
+    metadataDocPromise.then(_ => {
+
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
       headers: Auth.getAuthHeader(),
@@ -578,15 +593,7 @@ export class CommitDetails extends LitElement {
         }
       }
     });
-
-    if(this.isMicroserviceComponent()) {
-      metadataDocString.info.version = version;
-      fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
-        method: "POST",
-        headers: Auth.getAuthHeader(), // send headers at least for content type
-        body: JSON.stringify(metadataDocString)
-      });
-    }
+  });
   }
 
   /**

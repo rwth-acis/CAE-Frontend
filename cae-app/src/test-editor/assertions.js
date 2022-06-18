@@ -82,6 +82,8 @@ export default class Assertions {
     }
   ];
 
+  static RESPONSE_BODY_OPERATOR_HAS_TYPE_ID = 0;
+
   /**
    * Defines the operators that can be used in "Request Body" assertions.
    * For each operator, the "value", which is shown in the dropdown menu of the UI, is defined.
@@ -91,7 +93,7 @@ export default class Assertions {
    */
   static RESPONSE_BODY_OPERATORS = [
     {
-      "id": 0,
+      "id": Assertions.RESPONSE_BODY_OPERATOR_HAS_TYPE_ID,
       "value": "has type",
       "input": [2,3,4,5,6]
     },
@@ -135,7 +137,8 @@ export default class Assertions {
       } else {
         // input is a selection
         result.input = {
-          id: operator.input[0]
+          id: operator.input[0],
+          value: Assertions.INPUTS.find(i => i.id == operator.input[0]).value
         };
       }
     }

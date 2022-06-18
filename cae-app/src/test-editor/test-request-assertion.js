@@ -212,7 +212,8 @@ class TestRequestAssertion extends LitElement {
             id: Math.floor(Math.random() * 999999),
             operatorId: 0,
             input: {
-              id: 2
+              id: 2,
+              value: Assertions.INPUTS.find(i => i.id == 2).value
             }
           };
         }

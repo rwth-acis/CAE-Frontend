@@ -106,9 +106,11 @@ class BodyAssertionPart extends LitElement {
   onInputSelectChanged(e) {
     if(this.currentOperator.input) {
       this.currentOperator.input.id = parseInt(e.target.value);
+      this.currentOperator.input.value = e.target.options[e.target.selectedIndex].text;
     } else {
       this.currentOperator.input = {
-        id: parseInt(e.target.value)
+        id: parseInt(e.target.value),
+        value: e.target.options[e.target.selectedIndex].text
       };
     }
     this.sendOperatorUpdatedEvent();
@@ -265,7 +267,22 @@ class BodyAssertionPart extends LitElement {
    * @returns List of inputs that are currently selectable.
    */
   getInputSelectItems() {
-    return Assertions.INPUTS.filter(field => this.getSelectedOperator().input.filter(i => i == field.id).length > 0);
+    const items = Assertions.INPUTS.filter(field => this.getSelectedOperator().input.filter(i => i == field.id).length > 0);
+    if(this.getSelectedOperator().id == Assertions.RESPONSE_BODY_OPERATOR_HAS_TYPE_ID) {
+      if(parent.metadataDoc && parent.metadataDoc.docInput) {
+        const schemaDefinitions = JSON.parse(parent.metadataDoc.docInput).definitions;
+        let id = Math.max(...items.map(item => item.id)) + 1;
+        for(const schemaKey of Object.keys(schemaDefinitions)) {
+          const inputItem = {
+            id: id,
+            value: schemaKey
+          };
+          items.push(inputItem);
+          id = id + 1;
+        }
+      }
+    }
+    return items;
   }
 
   /**

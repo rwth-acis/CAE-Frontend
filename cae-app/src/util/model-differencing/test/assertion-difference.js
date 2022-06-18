@@ -69,12 +69,7 @@ export default class AssertionDifference extends TestModelDifference {
         text = text + " " + operator.value;
         // check if operator has input
         if(currentOperator.input && Object.keys(currentOperator.input).includes("id")) {
-          let input;
-          if(currentOperator.input.id == Assertions.INPUT_FIELD.id) {
-            input = currentOperator.input; 
-          } else {
-            input = Assertions.INPUTS.find(i => i.id == currentOperator.input.id);
-          }
+          let input = currentOperator.input;
           text = text + " " + input.value;
         }
         currentOperator = currentOperator.followedBy;
