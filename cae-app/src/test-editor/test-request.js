@@ -22,6 +22,9 @@ class TestRequest extends LitElement {
         .main {
           margin-bottom: 0.5em;
         }
+        .icon-button:hover {
+          color: #0d6efd;
+        }
       </style>
 
       <div class="card main">
@@ -37,11 +40,13 @@ class TestRequest extends LitElement {
             </select>
             
             <!-- Request url -->
-            <input id="input-test-request-url" type="text" class="form-control" @focusout=${this.changeUrlEditModeOn} style="display: ${this.urlEditModeOn ? '' : 'none'}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">
+            <input id="input-test-request-url" type="text" class="form-control" @focusout=${this.changeUrlEditModeOn} style="display: ${this.urlEditModeOn ? '' : 'none'}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto; margin-right: 0.5em">
             <h6 id="test-request-url" @click=${this.changeUrlEditModeOn} style="display: ${this.urlEditModeOn ? 'none' : ''}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">${this.requestData.url}</h6>
 
+            <i id="button-select-path-in-model" class="bi bi-box-arrow-in-up-left icon-button" @click=${this.selectPathInModelClicked} style="margin-left: auto; margin-right: 1em"></i>
+
             <!-- Expand/Collapse Button -->
-            <i class="bi ${this.open ? "bi-chevron-up" : "bi-chevron-down"}" style="margin-right: 0; margin-left: auto"></i>
+            <i class="bi ${this.open ? "bi-chevron-up" : "bi-chevron-down"}" style="margin-right: 0;"></i>
           </div>
         </div>
 
@@ -121,6 +126,27 @@ class TestRequest extends LitElement {
           <button type="button" @click=${this.onDeleteTestRequestClicked} class="btn btn-primary" style="margin-left: 0.5em" dialog-confirm>Yes</button>
         </div>
       </paper-dialog>
+
+      <!-- Info dialog for selecting path in model -->
+      <paper-dialog id="dialog-select-path-in-model" class="rounded" modal>
+        <h5 class="modal-title mt-3">Select Path in Model</h5>
+        <hr/>
+        <p>Please click on a HTTP Method in the microservice model to select its path.</p>
+        <hr/>
+        <div class="buttons">
+          <button type="button" class="btn btn-secondary" @click=${(e) => this.selectPathInModelEnabled = false} dialog-dismiss>No</button>
+          <button type="button" class="btn btn-primary" style="margin-left: 0.5em" dialog-confirm>Ok</button>
+        </div>
+      </paper-dialog>
+
+      <!-- Generic Toast (see showToast method for more information) -->
+      <custom-style><style is="custom-style">
+        #toast {
+          --paper-toast-background-color: green;
+          --paper-toast-color: white;
+        }
+      </style></custom-style>
+      <paper-toast id="toast" text="Will be changed later."></paper-toast>
       `;
     }
 
@@ -133,8 +159,8 @@ class TestRequest extends LitElement {
         requestData: { type: Object },
         availableAgents: { type: Array },
         codeMirrorEditor: { type: Object },
-        openedTab: { type: String }
-        
+        openedTab: { type: String },
+        selectPathInModelEnabled: { type: Boolean }
       };
     }
 
@@ -144,12 +170,27 @@ class TestRequest extends LitElement {
       this.typeEditModeOn = false;
       this.urlEditModeOn = false;
       this.openedTab = "body";
+      this.selectPathInModelEnabled = false;
     }
 
     firstUpdated() {
       this.setupCardContextMenu();
       this.setupAgentSelection();
       this.setupAuthCheckbox();
+
+      window.addEventListener("path-selected", e => {
+        const path = "/" + e.detail;
+
+        // check if path selection in model is enabled
+        if(this.selectPathInModelEnabled) {
+          // set request path to path of selected HTTP method node
+          this.requestData.url = path;
+          this.requestUrlUpdated();
+          
+          this.selectPathInModelEnabled = false;
+          this.showToast("Path selected!");
+        }
+      });
     }
 
     /**
@@ -284,7 +325,7 @@ class TestRequest extends LitElement {
     expandClicked(e) {
       // if the click was on the request url or request type badge, then don't react to this click event
       const elementId = e.path[0].id;
-      if(["test-request-url", "input-test-request-url", "request-type-badge", "select-request-type"].includes(elementId)) {
+      if(["test-request-url", "input-test-request-url", "request-type-badge", "select-request-type", "button-select-path-in-model"].includes(elementId)) {
         return;
       }
 
@@ -351,26 +392,30 @@ class TestRequest extends LitElement {
         // edit mode is disabled now => update test request url
         this.requestData.url = this.shadowRoot.getElementById("input-test-request-url").value;
 
-        // check for path params
-        if (!this.requestData.hasOwnProperty("pathParams")) {
-          this.requestData.pathParams = JSON.stringify({});
-        }
-        const pathParams = [...this.requestData.url.matchAll(/{([^}]*)}/g)].map(e => e[1]);
-        const pathParamsMap = {};
-        for (const pathParam of pathParams) {
-          pathParamsMap[pathParam] = "";
-          if (JSON.parse(this.requestData.pathParams).hasOwnProperty(pathParam)) {
-            pathParamsMap[pathParam] = JSON.parse(this.requestData.pathParams)[pathParam];
-          }
-        }
-
-        this.requestData.pathParams = JSON.stringify(pathParamsMap);
-
-        this.sendTestRequestUpdatedEvent();
+        this.requestUrlUpdated();
       }
 
       this.shadowRoot.getElementById("input-test-request-url").value = this.requestData.url;
       this.shadowRoot.getElementById("test-request-url").value = this.requestData.url;
+    }
+
+    requestUrlUpdated() {
+      // check for path params
+      if (!this.requestData.hasOwnProperty("pathParams")) {
+        this.requestData.pathParams = JSON.stringify({});
+      }
+      const pathParams = [...this.requestData.url.matchAll(/{([^}]*)}/g)].map(e => e[1]);
+      const pathParamsMap = {};
+      for (const pathParam of pathParams) {
+        pathParamsMap[pathParam] = "";
+        if (JSON.parse(this.requestData.pathParams).hasOwnProperty(pathParam)) {
+          pathParamsMap[pathParam] = JSON.parse(this.requestData.pathParams)[pathParam];
+        }
+      }
+
+      this.requestData.pathParams = JSON.stringify(pathParamsMap);
+
+      this.sendTestRequestUpdatedEvent();
     }
 
     updatePathParam(e) {
@@ -454,6 +499,17 @@ class TestRequest extends LitElement {
      */
     showResponseInCodeEditor() {
       this.codeMirrorEditor.setValue(JSON.stringify(JSON.parse(this.requestData.lastResponse), null, 2));
+    }
+
+    selectPathInModelClicked() {
+      this.shadowRoot.getElementById("dialog-select-path-in-model").open();
+      this.selectPathInModelEnabled = true;
+    }
+
+    showToast(text) {
+      const toastElement = this.shadowRoot.getElementById("toast");
+      toastElement.text = text;
+      toastElement.show();
     }
 }
 

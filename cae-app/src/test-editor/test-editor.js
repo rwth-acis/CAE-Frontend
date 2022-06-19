@@ -107,6 +107,44 @@ class TestEditor extends LitElement {
       this.shadowRoot.querySelectorAll("test-case").forEach(testCase => testCase.setYjsSync(this.yjsSync));
     }
 
+    firstUpdated() {
+      // listen for node selects in the model
+      Y({
+        db: {
+          name: "memory" // store the shared data in memory
+        },
+        connector: this.getModelYjsRoomConnectorInfo(),
+        share: {
+          data: "Map",
+          select: "Map"
+        },
+      }).then(function (y) {
+        y.share.select.observe(function (event) {
+          if (event.value) {
+            // entity selected
+            const entityId = event.value;
+
+            // check if entity is a node
+            const model = y.share.data.get("model");
+            if(Object.keys(model.nodes).includes(entityId)) {
+              // entity is a node
+              const node = model.nodes[entityId];
+
+              // check if node is HTTP Method
+              if(node.type == "HTTP Method") {
+                // get path
+                const path = Object.values(node.attributes).find(attr => attr.name == "path").value.value;
+
+                // notify test-request elements
+                const event = new CustomEvent("path-selected", { detail: path });
+                window.dispatchEvent(event);
+              }
+            }
+          }
+        }.bind(this));
+      }.bind(this));
+    }
+
     waitForCommits() {
       if(!parent.commits) {
         setTimeout(this.waitForCommits.bind(this), 500);
