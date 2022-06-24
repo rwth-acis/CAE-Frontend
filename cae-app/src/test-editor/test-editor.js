@@ -443,7 +443,7 @@ class TestEditor extends LitElement {
       // check if coverage info is available for this node
       if (node.attributes.coverage) {
         const coverage = node.attributes.coverage.value.value;
-        const color = coverage == 100 ? "green" : "red";
+        const color = coverage == "unknown" ? "gray" : (coverage == 100 ? "green" : "red");
         let label = this.getNodeTestCoverageLabel(node, coverage);
 
         // show coverage info in model
@@ -462,6 +462,7 @@ class TestEditor extends LitElement {
      */
     getNodeTestCoverageLabel(node, coverage) {
       let label = "Coverage: " + coverage;
+      if(coverage == "unknown") return "Unknown";
       if (node.type == "HTTP Response") {
         label = coverage == 100 ? "covered" : "not covered";
       } else if (node.type == "HTTP Method") {
