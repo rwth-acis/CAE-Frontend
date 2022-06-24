@@ -33,16 +33,21 @@ class TestEditor extends LitElement {
         <h3>Test Editor</h3>
         <div class="separator"></div>
 
-        <div style="display: flex">
-          <div id="spinner-coverage" class="spinner-border text-primary" style="margin-left: auto; visibility: hidden">
-            <span class="visually-hidden">Loading...</span>
+        <div style="display: flex; margin-bottom: 0.5em; margin-right: 1em; margin-left: 1em">
+          <div class="progress" style="flex-grow: 1; margin-top: 0.5em; margin-bottom: 0.5em; height: auto; margin-right: 0.5em" ?hidden=${!this.testRunning}>
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%">Test running...</div>
           </div>
-          <button id="button-coverage" type="button" class="btn btn-primary" @click=${this.onChangeCoverageVisibilityClicked} style="margin-left: 1em; margin-bottom: 0.5em">
-            ${this.coverageVisible ? "Hide coverage" : "Show coverage"}
-          </button>
-          <button type="button" class="btn btn-primary" @click=${this.onAddTestClicked} style="margin-left: 1em; margin-right: 1em; margin-bottom: 0.5em">
-            Add test
-          </button>
+          <div style="display: flex; margin-left: auto">
+            <div id="spinner-coverage" class="spinner-border text-primary" style="margin-right: 0.5em" hidden>
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <button id="button-coverage" type="button" class="btn btn-primary" @click=${this.onChangeCoverageVisibilityClicked} style="margin-right: 0.5em">
+              ${this.coverageVisible ? "Hide coverage" : "Show coverage"}
+            </button>
+            <button type="button" class="btn btn-primary" @click=${this.onAddTestClicked} style="margin-right: 0em">
+              Add test
+            </button>
+          </div>
         </div>
 
         <!-- Test Cases -->
@@ -63,13 +68,15 @@ class TestEditor extends LitElement {
 
     static get properties() {
       return {
-        coverageVisible: { type: Boolean }
+        coverageVisible: { type: Boolean },
+        testRunning: { type: Boolean }
       }
     };
 
     constructor() {
       super();
       this.coverageVisible = false;
+      this.testRunning = false;
 
       const agents = [
         {
@@ -193,6 +200,8 @@ class TestEditor extends LitElement {
             const testCaseWithStatus = testCasesWithStatus.find(t => t.id == testCase.id);
             if (testCaseWithStatus) {
               testCase.status = testCaseWithStatus.status;
+
+              this.testRunning = testCase.status == "in_progress";
 
               for (const request of testCase.requests) {
                 const requestWithStatus = testCaseWithStatus.requests.find(r => r.id == request.id);
@@ -383,7 +392,7 @@ class TestEditor extends LitElement {
      * Shows the test coverage in the model.
      */
     showTestCoverage() {
-      this.shadowRoot.getElementById("spinner-coverage").style.visibility = "visible";
+      this.shadowRoot.getElementById("spinner-coverage").hidden = false;
       this.shadowRoot.getElementById("button-coverage").disabled = true;
 
       const repoName = localStorage.getItem("githubRepoName");
@@ -416,7 +425,7 @@ class TestEditor extends LitElement {
             this.showNodeCoverageInfo(y, node, nodeKey);
           }
 
-          this.shadowRoot.getElementById("spinner-coverage").style.visibility = "hidden";
+          this.shadowRoot.getElementById("spinner-coverage").hidden = true;
           this.shadowRoot.getElementById("button-coverage").removeAttribute("disabled");
 
           // disconnect from the Yjs room
