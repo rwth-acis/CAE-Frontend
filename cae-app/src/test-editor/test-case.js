@@ -1,6 +1,8 @@
 import {html, LitElement} from 'lit-element';
 import BootstrapUtil from '../util/bootstrap-util';
 import './test-request';
+import Static from '../static';
+import Common from '../util/common';
 
 class TestCase extends LitElement {
 
@@ -23,23 +25,31 @@ class TestCase extends LitElement {
           margin-top: auto;
           margin-bottom: auto;
         }
+        .card-suggestion {
+          border: 1px dashed rgba(0,0,0,.125)
+        }
       </style>
 
-      <div class="card main">
+      <div class="card main ${this.testData.suggestion ? 'card-suggestion' : ''}">
         <div id="test-case-card-top" class="card-body" @click=${(e) => this.expandClicked(e)}>
           <div style="display: flex">
             <!-- Status Badge -->
             <span id="status-badge" class="badge status-badge ${this.getTestStatusBadgeClass()}"
               data-bs-toggle="tooltip" data-bs-placement="top" title=${this.getTestStatusTooltipText()}>
-              ${this.testData.status === "success" ? "Success" : (this.testData.status === "failed" ? "Failed" : "-")}
+              ${this.testData.suggestion ? "Suggestion" : (this.testData.status === "success" ? "Success" : (this.testData.status === "failed" ? "Failed" : "-"))}
             </span>
             
             <!-- Test Case Name -->
-            <input id="input-test-case-name" type="text" class="form-control" @focusout=${this.changeNameEditModeOn} style="display: ${this.nameEditModeOn ? '' : 'none'}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">
-            <h6 id="test-case-name" @click=${this.changeNameEditModeOn} style="display: ${this.nameEditModeOn ? 'none' : ''}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto">${this.testData.name}</h6>
+            <input id="input-test-case-name" type="text" class="form-control" @focusout=${this.changeNameEditModeOn} style="display: ${this.nameEditModeOn ? '' : 'none'}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto; margin-right: auto">
+            <h6 id="test-case-name" @click=${this.changeNameEditModeOn} style="display: ${this.nameEditModeOn ? 'none' : ''}; margin-left: 0.5em; margin-top: auto; margin-bottom: auto; margin-right: auto">${this.testData.name}</h6>
             
+            ${this.testData.suggestion ? html`
+              <button id="btn-dismiss-suggestion" @click=${this.dismissSuggestionClicked} type="button" class="btn btn-outline-danger" style="margin-right: 0.5em;"><i id="icon-dismiss-suggestion" class="bi bi-x"></i></button>
+              <button id="btn-accept-suggestion" @click=${this.acceptSuggestionClicked} type="button" class="btn btn-outline-success" style="margin-right: 0.5em;"><i id="icon-accept-suggestion" class="bi bi-check2"></i></button>
+            ` : html``}
+
             <!-- Expand/Collapse Button -->
-            <i class="bi ${this.open ? "bi-chevron-up" : "bi-chevron-down"}" style="margin-right: 0; margin-left: auto"></i>
+            <i class="bi ${this.open ? "bi-chevron-up" : "bi-chevron-down"}" style="margin-right: 0; margin-top: auto; margin-bottom: auto"></i>
           </div>
         </div>
         <!-- Collapsible Content of the Card -->
@@ -164,7 +174,7 @@ class TestCase extends LitElement {
     expandClicked(e) {
       // if the click was on the status badge or test case name, then don't react to this click event
       const elementId = e.path[0].id;
-      if (["status-badge", "input-test-case-name", "test-case-name"].includes(elementId)) {
+      if (["status-badge", "input-test-case-name", "test-case-name", "btn-dismiss-suggestion", "btn-accept-suggestion", "icon-dismiss-suggestion", "icon-accept-suggestion"].includes(elementId)) {
         return;
       }
 
@@ -225,6 +235,42 @@ class TestCase extends LitElement {
 
       this.shadowRoot.getElementById("input-test-case-name").value = this.testData.name;
       this.shadowRoot.getElementById("test-case-name").value = this.testData.name;
+    }
+
+    dismissSuggestionClicked() {
+      const testModelId = this.testData.id;
+      this.removeSuggestion(testModelId);
+      this.onDeleteTestClicked();
+    }
+
+    acceptSuggestionClicked() {
+      const testModelId = this.testData.id;
+      this.removeSuggestion(testModelId);
+
+      this.onDeleteTestClicked();
+      delete this.testData.suggestion;
+      delete this.testData.description;
+
+      // prepare test case => generate new ids
+      this.testData.id = Math.floor(Math.random() * 999999);
+      for(const request of this.testData.requests) {
+        request.id = Math.floor(Math.random() * 999999);
+        for(const assertion of request.assertions) {
+          assertion.id = Math.floor(Math.random() * 999999);
+        }
+      }
+
+      this.dispatchEvent(new CustomEvent("test-case-suggestion-accepted", {
+        detail: {
+          testCase: this.testData
+        }
+      }));
+    }
+
+    removeSuggestion(testModelId) {
+      fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/testsuggestions/" + testModelId, {
+        method: "PUT"
+      });
     }
 
     getTestStatusBadgeClass() {

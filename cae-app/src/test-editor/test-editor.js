@@ -59,7 +59,8 @@ class TestEditor extends LitElement {
               @test-case-delete=${(e) => this.onTestCaseDelete(testCase.id)}
               @test-request-updated=${(e) => this.onTestRequestUpdated(testCase.id, e.detail.request)}
               @add-test-case-request=${(e) => this.onAddTestCaseRequest(testCase.id)}
-              @test-request-delete=${(e) => this.onTestRequestDelete(e.detail.testCaseId, e.detail.requestId)}></test-case>
+              @test-request-delete=${(e) => this.onTestRequestDelete(e.detail.testCaseId, e.detail.requestId)}
+              @test-case-suggestion-accepted=${(e) => this.onTestCaseSuggestionAccepted(e.detail.testCase)}></test-case>
           `)}
         </div>
       </div>
@@ -373,6 +374,11 @@ class TestEditor extends LitElement {
      */
     onTestRequestDelete(testCaseId, requestId) {
       this.yjsSync.deleteTestRequest(testCaseId, requestId);
+    }
+
+    onTestCaseSuggestionAccepted(testCase) {
+      this.yjsSync.updateTestCase(testCase);
+      this.yjsSync.prepareRequestBodyYTexts(testCase);
     }
 
     /**
