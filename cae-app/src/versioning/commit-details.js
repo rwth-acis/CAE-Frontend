@@ -579,6 +579,8 @@ export class CommitDetails extends LitElement {
         // notify everyone in the Yjs room about the new commit
         // this allows to reload the versioning widget for the other users
         this.y.share.versioning_widget.set("COMMIT_CREATED", true);
+
+        window.dispatchEvent(new Event("committed-changes", { detail: {} }));
       } else {
         console.log(response.status);
         if(response.status == "403") {
