@@ -119,6 +119,16 @@ export default class TestEditorYjsSync {
     this.y.share.testData.set("" + updatedTestCase.id, updatedTestCase);
   }
 
+  prepareRequestBodyYTexts(testCase) {
+    for(const request of testCase.requests) {
+      const key = testCase.id + "-" + request.id;
+      if(!this.y.share.requestBody.keys().includes(key)) {
+        this.y.share.requestBody.set(key, Y.Text);
+        this.y.share.requestBody.get(key).insert(0, request.body);
+      }
+    }
+  }
+
   /**
    * Adds the given test case into the Yjs room.
    * @param {*} newTestCase New test case that should be added to the Yjs room.
