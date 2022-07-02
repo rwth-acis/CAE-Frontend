@@ -59,7 +59,10 @@ class TestRequest extends LitElement {
                 <div class="mb-3 row">
                   <label class="col-sm col-form-label">${pathParam}:</label>
                   <div class="col-sm-6">
-                    <input id="path-param-${pathParam}" class="form-control" value=${JSON.parse(this.requestData.pathParams)[pathParam]} @focusout=${(e) => this.updatePathParam(e)}>
+                    <input id="path-param-${pathParam}" @input=${(e) => e.target.value === "" ? e.path[0].classList.add("is-invalid") : e.path[0].classList.remove("is-invalid")} class="form-control ${this.pathParamInputEmpty(pathParam) ? 'is-invalid' : ''}" value=${JSON.parse(this.requestData.pathParams)[pathParam]} @focusout=${(e) => this.updatePathParam(e)}>
+                    <div class="invalid-feedback">
+                      Please enter path parameter value.
+                    </div>
                   </div>
                 </div>
               `) : ""}
@@ -504,6 +507,12 @@ class TestRequest extends LitElement {
     selectPathInModelClicked() {
       this.shadowRoot.getElementById("dialog-select-path-in-model").open();
       this.selectPathInModelEnabled = true;
+    }
+
+    pathParamInputEmpty(pathParam) {
+      if(!this.shadowRoot) return false;
+      if(!this.shadowRoot.getElementById("path-param-" + pathParam)) return false;
+      return this.shadowRoot.getElementById("path-param-" + pathParam).value === "";
     }
 
     showToast(text) {
