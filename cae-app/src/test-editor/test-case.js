@@ -51,6 +51,11 @@ class TestCase extends LitElement {
             <!-- Expand/Collapse Button -->
             <i class="bi ${this.open ? "bi-chevron-up" : "bi-chevron-down"}" style="margin-right: 0; margin-top: auto; margin-bottom: auto"></i>
           </div>
+          ${this.testData.suggestion ? html`
+            <div class="alert alert-primary" style="margin-top: 0.5em; margin-bottom: 0em">
+              ${this.testData.description}
+            </div>
+          ` : html``}
         </div>
         <!-- Collapsible Content of the Card -->
         <ul class="list-group list-group-flush" style="display: ${this.open ? '' : 'none'}">
