@@ -82,7 +82,9 @@ export default class TestModelDifferencing {
     for(let testCase of model2TestCases) {
       // check if test case already exists in model1
       if(!model1TestCases.find(testCase1 => testCase1.id == testCase.id)) {
-        additions.push(new TestCaseAddition(testCase));
+        if(!testCase.suggestion) {
+          additions.push(new TestCaseAddition(testCase));
+        }
       }
     }
     return additions;
