@@ -356,6 +356,7 @@ class TestRequest extends LitElement {
           },
           smartIndent: false
         });
+        this.codeMirrorEditor.setSize(null, 160);
         setTimeout(() => this.codeMirrorEditor.refresh(), 0);
         
         this.yjsSync.bindRequestBodyCodeMirror(this.testCaseId, this.requestData.id, this.codeMirrorEditor);
