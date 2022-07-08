@@ -65,6 +65,11 @@ class ProjectInfo extends LitElement {
           color: rgb(240,248,255);
           background: rgb(65,105,225);
         }
+        .paper-button-chat {
+          color: rgb(240,248,255);
+          background: #f5455c;
+          height: 2.5em;
+        }
         paper-button[disabled] {
           background: #e1e1e1;
         }
@@ -120,9 +125,20 @@ class ProjectInfo extends LitElement {
             <!-- Title of project -->
             <div class="project-title" style="display: flex; margin-left: 1em; margin-right: 1em;">
               <h3>${this.selectedProject.name}</h3>
+
+              <!-- Link to RocketChat -->
+              <a target="_blank" href=${this.selectedProject.chatInfo.chatUrl} style="text-decoration: none; margin-left: auto; margin-top: auto; margin-bottom: auto">
+                <paper-button class="paper-button-chat">
+                  <svg width="24px" height="24px">
+                    <image xlink:href="https://raw.githubusercontent.com/RocketChat/Rocket.Chat.Artwork/c0c6ddb063d4c61002483610f7e1a3b6c9a8a70c/Logos/2020/svg/icon-white.svg" width="24px" height="24px"/>
+                  </svg>
+                  Open Chat
+                </paper-button>
+              </a>
+
               <!-- Button for adding components to a project -->
               ${this.editingAllowed ? html`
-                <paper-button class="paper-button-blue" @click="${this._onAddComponentClicked}" style="margin-left: auto; margin-top: auto; margin-bottom: auto">Add Component</paper-button>
+                <paper-button class="paper-button-blue" @click="${this._onAddComponentClicked}" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto; margin-right: 0em">Add Component</paper-button>
               ` : html``}
             </div>
             
