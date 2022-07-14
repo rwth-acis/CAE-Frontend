@@ -126,20 +126,25 @@ class ProjectInfo extends LitElement {
             <div class="project-title" style="display: flex; margin-left: 1em; margin-right: 1em;">
               <h3>${this.selectedProject.name}</h3>
 
-              <!-- Link to RocketChat -->
-              <a target="_blank" href=${this.selectedProject.chatInfo.chatUrl} style="text-decoration: none; margin-left: auto; margin-top: auto; margin-bottom: auto">
-                <paper-button class="paper-button-chat">
-                  <svg width="24px" height="24px">
-                    <image xlink:href="https://raw.githubusercontent.com/RocketChat/Rocket.Chat.Artwork/c0c6ddb063d4c61002483610f7e1a3b6c9a8a70c/Logos/2020/svg/icon-white.svg" width="24px" height="24px"/>
-                  </svg>
-                  Open Chat
-                </paper-button>
-              </a>
+              <div style="display: flex; margin-left: auto; margin-top: auto; margin-bottom: auto;">
 
-              <!-- Button for adding components to a project -->
-              ${this.editingAllowed ? html`
-                <paper-button class="paper-button-blue" @click="${this._onAddComponentClicked}" style="margin-left: 0.5em; margin-top: auto; margin-bottom: auto; margin-right: 0em">Add Component</paper-button>
-              ` : html``}
+                <!-- Link to RocketChat -->
+                ${this.selectedProject.chatInfo && this.selectedProject.chatInfo.chatUrl ? html`
+                  <a target="_blank" href=${this.selectedProject.chatInfo.chatUrl} style="text-decoration: none; margin-right: 0.5em;">
+                    <paper-button class="paper-button-chat">
+                      <svg width="24px" height="24px">
+                        <image xlink:href="https://raw.githubusercontent.com/RocketChat/Rocket.Chat.Artwork/c0c6ddb063d4c61002483610f7e1a3b6c9a8a70c/Logos/2020/svg/icon-white.svg" width="24px" height="24px"/>
+                      </svg>
+                      Open Chat
+                    </paper-button>
+                  </a>
+                ` : html``}
+
+                <!-- Button for adding components to a project -->
+                ${this.editingAllowed ? html`
+                  <paper-button class="paper-button-blue" @click="${this._onAddComponentClicked}" style="margin-right: 0em">Add Component</paper-button>
+                ` : html``}
+              </div>
             </div>
             
             <!-- Frontend and Microservice Components of the project -->
