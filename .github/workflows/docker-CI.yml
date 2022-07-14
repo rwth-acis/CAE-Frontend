@@ -2,7 +2,7 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ master, develop, testEditor ]
+    branches: [ master, develop, ma-philipp ]
 
 jobs:
   build:
@@ -14,11 +14,11 @@ jobs:
       run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
       id: extract_branch
     - name: Build the Docker image
-      run: | 
+      run: |
         docker build -t registry.tech4comp.dbis.rwth-aachen.de/rwthacis/cae-frontend:${{ steps.extract_branch.outputs.branch }} .
     - name: Push to registry
       env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}  
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PW: ${{ secrets.DOCKER_PW }}
       run: |
         docker login -u $DOCKER_USERNAME -p $DOCKER_PW registry.tech4comp.dbis.rwth-aachen.de
