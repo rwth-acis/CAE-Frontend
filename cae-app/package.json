@@ -25,7 +25,7 @@
     "@polymer/paper-tabs": "^3.1.0",
     "@polymer/paper-toast": "^3.0.1",
     "@polymer/polymer": "^3.0.0",
-    "@rwth-acis/las2peer-project-service-frontend": "^0.3.2",
+    "@rwth-acis/las2peer-project-service-frontend": "^0.4.0",
     "codemirror": "^5.65.3",
     "esm": "^3.2.25",
     "las2peer-frontend-statusbar": "github:rwth-acis/las2peer-frontend-statusbar#0.3.1",
