@@ -71,6 +71,10 @@ export default class Common {
     return name;
   }
 
+  static getYjsRoomNameForVersionedTestModel() {
+    return Common.getYjsRoomNameForVersionedModel(Common.getVersionedModelId(), false) + "-test";
+  }
+
   /**
    * Creates the name for the Yjs room for a specific commit of a versioned model.
    * This then will be the Yjs room for viewing a previous version of a model.

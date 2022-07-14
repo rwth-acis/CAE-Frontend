@@ -1,10 +1,10 @@
-import Difference from "../difference";
+import ModelDifference from "../model-difference";
 import Common from "../../common";
 
 /**
  * Represents an edge that has changed between two model versions.
  */
-export default class EdgeDifference extends Difference {
+export default class EdgeDifference extends ModelDifference {
 
   /**
    * Constructor for edge that has changed.

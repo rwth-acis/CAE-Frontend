@@ -7,9 +7,10 @@ import Static from "../static";
 import ModelDifferencing from "../util/model-differencing/model-differencing";
 import SemVer from "../util/sem-ver";
 import ModelValidator from "../util/model-differencing/model-validator";
-import Difference from "../util/model-differencing/difference";
+import ModelDifference from "../util/model-differencing/model-difference";
 import MetamodelUploader from "../util/metamodel-uploader";
 import {CommitList} from "./commit-list";
+import TestModelDifferencing from '../util/model-differencing/test-model-differencing';
 
 export class CommitDetails extends LitElement {
   render() {
@@ -237,6 +238,12 @@ export class CommitDetails extends LitElement {
         type: String
       },
       /**
+       * Stores the current test model (received from test-editor).
+       */
+      currentTestModel: {
+        type: Object
+      },
+      /**
        * This references the Yjs instance of the currently shown canvas.
        */
       y: {
@@ -258,6 +265,12 @@ export class CommitDetails extends LitElement {
         type: Object
       },
       /**
+       * Test model from previous commit with selected changes being applied to.
+       */
+      updatedTestModel: {
+        type: Object
+      },
+      /**
        * Whether a different version format than the Semantic Versioning should be used.
        */
       differentVersionFormat: {
@@ -274,10 +287,22 @@ export class CommitDetails extends LitElement {
     this.differenceElements = [];
     this.latestVersionTag = undefined;
     this.currentWireframe = undefined;
+    this.currentTestModel = undefined;
     this.selectedDifference = undefined;
     // default: committing is enabled
     this.committingDisabled = false;
     this.differentVersionFormat = false;
+  }
+
+  firstUpdated() {
+    // receive test model changes from test editor
+    document.addEventListener("test-model-updated", (e) => {
+      this.currentTestModel = e.detail.testModel;
+
+      if(this.mainY) {
+        this.reloadUncommitedChanges(this.mainY);
+      }
+    });
   }
 
   /**
@@ -351,16 +376,32 @@ export class CommitDetails extends LitElement {
 
     const currentModel = this.y.share.data.get("model");
 
-    // check if a previous model exists
+    // check if a previous model (and test model) exists
     this.updatedModel = undefined;
+    this.updatedTestModel = undefined;
+
     if(this.versionedModel.commits.length > 1) {
       // previous model exists
-      const previousModel = this.getLastCommit(this.versionedModel.commits).model;
+      const lastCommit = this.getLastCommit(this.versionedModel.commits);
+      const previousModel = lastCommit.model;
       // create the updated model which should be stored into the database, by applying the currently selected differences
       this.updatedModel = ModelDifferencing.createModelFromDifferences(previousModel, this.selectedDifferences, currentModel);
+
+      // check if this is a microservice component
+      if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+        // get state of test model from last commit
+        const previousTestModel = lastCommit.testModel;
+        // apply selected changes to the test model from last commit
+        this.updatedTestModel = TestModelDifferencing.createTestModelFromDifferences(previousTestModel, this.selectedDifferences);
+      }
     } else {
       // there does not exist a previous model
       this.updatedModel = ModelDifferencing.createModelFromDifferences(ModelDifferencing.getEmptyModel(), this.selectedDifferences, currentModel);
+
+      // check if this is a microservice component
+      if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+        this.updatedTestModel = TestModelDifferencing.createTestModelFromDifferences({"testCases": []}, this.selectedDifferences);
+      }
     }
 
     const modelValid = ModelValidator.edgesValid(this.updatedModel);
@@ -424,6 +465,7 @@ export class CommitDetails extends LitElement {
     };
 
     body.model = this.updatedModel;
+    body.testModel = this.updatedTestModel;
 
     if(this.getNewVersionCheckBox().checked) {
       body.versionTag = this.getEnteredVersion(); // automatically returns the correct version depending on whether sem-ver is used or not
@@ -480,6 +522,21 @@ export class CommitDetails extends LitElement {
     if(newVersion) version = this.getEnteredVersion();
     body.metadataVersion = version;
 
+    const metadataDocPromise = new Promise(function(resolve, reject) { 
+      if(this.isMicroserviceComponent()) {
+        metadataDocString.info.version = version;
+        fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
+          method: "POST",
+          headers: Auth.getAuthHeader(), // send headers at least for content type
+          body: JSON.stringify(metadataDocString)
+        }).then(_ => resolve());
+      } else {
+        resolve();
+      }
+    }.bind(this));
+
+    metadataDocPromise.then(_ => {
+
     fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/commits", {
       method: "POST",
       headers: Auth.getAuthHeader(),
@@ -501,7 +558,7 @@ export class CommitDetails extends LitElement {
         // since the selected differences got commited, they can be removed from this.differencesUncommitedChanges
         const diffUncommitedChangesToDelete = [];
         for(const diff of this.differencesUncommitedChanges) {
-          const matches = this.selectedDifferences.filter(d => Difference.equals(diff, d));
+          const matches = this.selectedDifferences.filter(d => ModelDifference.equals(diff, d));
           if(matches.length > 0) {
             diffUncommitedChangesToDelete.push(diff);
           }
@@ -522,6 +579,8 @@ export class CommitDetails extends LitElement {
         // notify everyone in the Yjs room about the new commit
         // this allows to reload the versioning widget for the other users
         this.y.share.versioning_widget.set("COMMIT_CREATED", true);
+
+        window.dispatchEvent(new Event("committed-changes", { detail: {} }));
       } else {
         console.log(response.status);
         if(response.status == "403") {
@@ -536,15 +595,7 @@ export class CommitDetails extends LitElement {
         }
       }
     });
-
-    if(this.isMicroserviceComponent()) {
-      metadataDocString.info.version = version;
-      fetch(Static.ModelPersistenceServiceURL + "/docs/" + this.versionedModel.id + "/" + version, {
-        method: "POST",
-        headers: Auth.getAuthHeader(), // send headers at least for content type
-        body: JSON.stringify(metadataDocString)
-      });
-    }
+  });
   }
 
   /**
@@ -564,6 +615,7 @@ export class CommitDetails extends LitElement {
     console.log("Commit-Details: Received versioned model from versioning-element.");
 
     this.commits = versionedModel.commits;
+    parent.commits = this.commits;
     // set uncommited changes commit as the selected one
     this.selectedCommit = this.commits[0];
 
@@ -709,9 +761,22 @@ export class CommitDetails extends LitElement {
     if(lastCommit == undefined) {
       // there does not exist a commit, so calculated everything that the current model consists of
       this.differencesUncommitedChanges = ModelDifferencing.getDifferencesOfSingleModel(currentModelFromYjsRoom);
+
+      // check if a test model exists
+      if(this.currentTestModel) {
+        // test model exists => get all the changes that have been applied yet
+        const differences = TestModelDifferencing.getDifferencesOfSingleModel(this.currentTestModel.testCases);
+        this.differencesUncommitedChanges = this.differencesUncommitedChanges.concat(differences);
+      }
     } else {
       // there exists a last commit, so we can calculate the differences between the last commit and the current model state
       this.differencesUncommitedChanges = ModelDifferencing.getDifferences(lastCommit.model, currentModelFromYjsRoom);
+
+      // also get differences for test model (if exists)
+      if(this.currentTestModel) {
+        const differences = TestModelDifferencing.getDifferences(lastCommit.testModel.testCases, this.currentTestModel.testCases);
+        this.differencesUncommitedChanges = this.differencesUncommitedChanges.concat(differences);
+      }
     }
   }
 
@@ -817,10 +882,22 @@ export class CommitDetails extends LitElement {
         if(commitBefore) {
           // previous commit exists
           this.differences = ModelDifferencing.getDifferences(commitBefore.model, commit.model);
+
+          // check if this is a microservice component
+          if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+            this.differences = this.differences.concat(TestModelDifferencing.getDifferences(commitBefore.testModel.testCases, commit.testModel.testCases));
+          }
+
           this.updateChangesListElement();
         } else {
           // previous commit does not exist
           this.differences = ModelDifferencing.getDifferencesOfSingleModel(commit.model);
+
+          // check if this is a microservice component
+          if(Common.getComponentTypeByVersionedModelId(this.versionedModel.id) == "microservice") {
+            this.differences = this.differences.concat(TestModelDifferencing.getDifferencesOfSingleModel(commit.testModel.testCases));
+          }
+
           this.updateChangesListElement();
         }
       }
@@ -863,7 +940,7 @@ export class CommitDetails extends LitElement {
     // for all selected differences, check if they are still element of this.differences
     const selectedDifferencesUpdated = [];
     for(const selectedDiff of this.selectedDifferences) {
-      const matches = this.differences.filter(diff => Difference.equals(selectedDiff, diff));
+      const matches = this.differences.filter(diff => ModelDifference.equals(selectedDiff, diff));
       if(matches.length > 0) {
         // use the one from matches array i.e. the one from this.differences and NOT the one from
         // this.selectedDifferences, because the one from this.differences is updated (got changes from canvas)
@@ -894,7 +971,7 @@ export class CommitDetails extends LitElement {
             this.getCheckboxSelectAllElement().checked = true;
           }
         } else {
-          this.selectedDifferences = this.selectedDifferences.filter(diff => !Difference.equals(diff, difference));
+          this.selectedDifferences = this.selectedDifferences.filter(diff => !ModelDifference.equals(diff, difference));
           // since at least one checkbox is not checked, the checkbox to select all changes should also not be checked
           this.getCheckboxSelectAllElement().checked = false;
         }
@@ -903,12 +980,12 @@ export class CommitDetails extends LitElement {
 
       const diffHTMLElement = difference.toHTMLElement(checkboxListener, this.y);
 
-      if(Difference.equals(difference, this.selectedDifference)) {
+      if(ModelDifference.equals(difference, this.selectedDifference)) {
         diffHTMLElement.style.background = "#eeeeee";
       }
 
       for(const selectedDiff of this.selectedDifferences) {
-        if(Difference.equals(selectedDiff, difference)) {
+        if(ModelDifference.equals(selectedDiff, difference)) {
           diffHTMLElement.getElementsByTagName("paper-checkbox")[0].checked = true;
         }
       }
@@ -917,7 +994,7 @@ export class CommitDetails extends LitElement {
         diffHTMLElement.style.background = "#eeeeee";
       });
       diffHTMLElement.addEventListener("mouseleave", function() {
-        if(!Difference.equals(this.selectedDifference, difference)) {
+        if(!ModelDifference.equals(this.selectedDifference, difference)) {
           diffHTMLElement.style.removeProperty("background");
         }
       }.bind(this));

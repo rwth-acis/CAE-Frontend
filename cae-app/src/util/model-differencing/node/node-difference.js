@@ -1,9 +1,9 @@
-import Difference from "../difference";
+import ModelDifference from "../model-difference";
 
 /**
  * Represents a node that has changed between two model versions.
  */
-export default class NodeDifference extends Difference {
+export default class NodeDifference extends ModelDifference {
 
   /**
    * Constructor for NodeDifference objects.
