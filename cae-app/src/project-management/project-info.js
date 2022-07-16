@@ -707,6 +707,11 @@ class ProjectInfo extends LitElement {
 
     // store information for requirements bazaar widget
     this.updateCurrentlyOpenedReqBazConfig(component);
+
+    // store rocketchat channel
+    const modelingInfo = Common.getModelingInfo();
+    modelingInfo[component.type].chatUrl = this.selectedProject.chatInfo.chatUrl;
+    localStorage.setItem("modelingInfo", JSON.stringify(modelingInfo));
   }
 
   /**
