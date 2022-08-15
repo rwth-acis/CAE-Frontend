@@ -118,15 +118,7 @@ class TestEditor extends LitElement {
     firstUpdated() {
       // listen for new commits
       window.addEventListener("committed-changes", e => {
-        fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/testsuggestions").then(response => response.json()).then(data => {
-          for(const entry of data) {
-            const testCase = entry.testCase;
-            testCase.suggestion = true;
-            testCase.description = entry.description;
-            this.yjsSync.addTestCase(testCase);
-            this.yjsSync.prepareRequestBodyYTexts(testCase);
-          }
-        });
+        this.loadTestSuggestions();
       });
 
       // listen for node selects in the model
@@ -244,9 +236,24 @@ class TestEditor extends LitElement {
             }
           }
         });
+
+        this.loadTestSuggestions();
+
       }.bind(this), 15000);
 
       parent.intervalIdTestStatus = intervalId;
+    }
+
+    loadTestSuggestions() {
+      fetch(Static.ModelPersistenceServiceURL + "/versionedModels/" + Common.getVersionedModelId() + "/testsuggestions").then(response => response.json()).then(data => {
+        for(const entry of data) {
+          const testCase = entry.testCase;
+          testCase.suggestion = true;
+          testCase.description = entry.description;
+          this.yjsSync.addTestCase(testCase);
+          this.yjsSync.prepareRequestBodyYTexts(testCase);
+        }
+      });
     }
 
     /**
