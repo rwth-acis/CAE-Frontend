@@ -101,6 +101,7 @@ export default class TestModelDifferencing {
     const requestAdditions = [];
 
     for(let testCase of model2TestCases) {
+      if(testCase.suggestion) continue;
       // check if test case was added => then we do not take the requests into account
       const testCaseAddition = testCaseAdditions.find(t => t.updatedTestCase.id == testCase.id);
       if(!testCaseAddition) {
