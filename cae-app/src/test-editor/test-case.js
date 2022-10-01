@@ -178,7 +178,8 @@ class TestCase extends LitElement {
      */
     expandClicked(e) {
       // if the click was on the status badge or test case name, then don't react to this click event
-      const elementId = e.path[0].id;
+      const path = e.path || (e.composedPath && e.composedPath());
+      const elementId = path[0].id;
       if (["status-badge", "input-test-case-name", "test-case-name", "btn-dismiss-suggestion", "btn-accept-suggestion", "icon-dismiss-suggestion", "icon-accept-suggestion"].includes(elementId)) {
         return;
       }
