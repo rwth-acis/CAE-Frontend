@@ -59,7 +59,7 @@ class TestRequest extends LitElement {
                 <div class="mb-3 row">
                   <label class="col-sm col-form-label">${pathParam}:</label>
                   <div class="col-sm-6">
-                    <input id="path-param-${pathParam}" @input=${(e) => e.target.value === "" ? e.path[0].classList.add("is-invalid") : e.path[0].classList.remove("is-invalid")} class="form-control ${this.pathParamInputEmpty(pathParam) ? 'is-invalid' : ''}" value=${JSON.parse(this.requestData.pathParams)[pathParam]} @focusout=${(e) => this.updatePathParam(e)}>
+                    <input id="path-param-${pathParam}" @input=${(e) => e.target.value === "" ? e.composedPath()[0].classList.add("is-invalid") : e.composedPath()[0].classList.remove("is-invalid")} class="form-control ${this.pathParamInputEmpty(pathParam) ? 'is-invalid' : ''}" value=${JSON.parse(this.requestData.pathParams)[pathParam]} @focusout=${(e) => this.updatePathParam(e)}>
                     <div class="invalid-feedback">
                       Please enter path parameter value.
                     </div>
@@ -327,7 +327,7 @@ class TestRequest extends LitElement {
      */
     expandClicked(e) {
       // if the click was on the request url or request type badge, then don't react to this click event
-      const elementId = e.path[0].id;
+      const elementId = e.composedPath()[0].id;
       if(["test-request-url", "input-test-request-url", "request-type-badge", "select-request-type", "button-select-path-in-model"].includes(elementId)) {
         return;
       }
@@ -423,7 +423,7 @@ class TestRequest extends LitElement {
     }
 
     updatePathParam(e) {
-      const input = e.path[0];
+      const input = e.composedPath()[0];
       const pathParam = input.id.split("path-param-")[1];
       const pathParams = JSON.parse(this.requestData.pathParams);
       pathParams[pathParam] = input.value;
