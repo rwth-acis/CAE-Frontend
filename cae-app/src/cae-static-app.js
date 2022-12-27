@@ -60,9 +60,6 @@ class CaeStaticApp extends PolymerElement {
       <las2peer-frontend-statusbar
         id="statusBar"
         service="Community Application Editor"
-        oidcpopupsigninurl="/callbacks/popup-signin-callback.html"
-        oidcpopupsignouturl="/callbacks/popup-signout-callback.html"
-        oidcsilentsigninturl="/callbacks/silent-callback.html"
         oidcclientid="{OIDC_CLIENT_ID}"
         subtitle="{STATUSBAR_SUBTITLE}"
         suppresswidgeterror="true"
@@ -131,7 +128,7 @@ class CaeStaticApp extends PolymerElement {
   ready() {
     super.ready();
     const statusBar = this.getStatusBarElement();
-    statusBar.setAttribute("baseUrl", Static.ContactServiceURL);
+    statusBar.setAttribute("baseUrl", Static.WebhostURL);
     // in the following we use (event) => this.method(event) in order to be able to access
     // this.shadowRoot in the handleLogin and handleLogout methods
     statusBar.addEventListener('signed-in', (event) => this.handleLogin(event));
