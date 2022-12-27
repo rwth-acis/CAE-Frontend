@@ -441,6 +441,7 @@ var storeDoc = function(y) {
     }
 
     y.share.data.set('metadataDoc',data);
+    parent.metadataDoc = data;
   }
   else {
     //console.log("[Swagger Widget] No model loaded");

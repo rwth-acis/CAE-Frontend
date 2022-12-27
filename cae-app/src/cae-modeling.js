@@ -59,6 +59,12 @@ class CaeModeling extends PolymerElement {
         .icon:hover {
           color: #7c7c7c;
         }
+        .rc {
+          background: #f5455c;
+        }
+        .rc:hover {
+          background: #d13449;
+        }
       </style>
       
       <app-location route="{{route}}"></app-location>
@@ -84,6 +90,10 @@ class CaeModeling extends PolymerElement {
             </svg>
             <!-- only show widget config menu item in non-dependency mode -->
             <iron-icon id="btn-widget-config" class="icon" style="width: 24px; height: 24px; margin-left: auto; margin-right: auto; margin-top: 0.5em" icon="icons:extension"></iron-icon>
+
+            <svg id="btn-rc" width="24px" height="24px" style="margin-left: auto; margin-right: auto; margin-top: 0.5em" class="rc">
+              <image xlink:href="https://raw.githubusercontent.com/RocketChat/Rocket.Chat.Artwork/c0c6ddb063d4c61002483610f7e1a3b6c9a8a70c/Logos/2020/svg/icon-white.svg" width="24px" height="24px"/>
+            </svg>
           </div>
           <div id="side-menu-content" style="width: 0px">
             <!-- Gets added by JavaScript -->
@@ -123,6 +133,10 @@ class CaeModeling extends PolymerElement {
 
     this.shadowRoot.getElementById("btn-widget-config").addEventListener("click", _ => {
         this.handleMenuItemClick("widget-config")
+    });
+
+    this.shadowRoot.getElementById("btn-rc").addEventListener("click", _ => {
+      this.handleMenuItemClick("rc");
     });
 
     this.getButtonCloseSideMenuElement().addEventListener("click", _ => {
@@ -200,6 +214,11 @@ class CaeModeling extends PolymerElement {
 
       // add the editor HTML element to the side menu
       this.getSideMenuContentElement().appendChild(editorHTML);
+    } else if(menuItem == "rc") {
+      const chat = document.createElement("iframe");
+      chat.setAttribute("src", Common.getCurrentlyOpenedModelingInfo().chatUrl + "?layout=embedded");
+      chat.style.setProperty("height", "100%");
+      this.getSideMenuContentElement().appendChild(chat);
     }
   }
 
